@@ -168,10 +168,12 @@ For advanced setup, follow the FireEdge [configuration reference]({{% relref "fi
 
 The OneGate server allows communication between VMs and OpenNebula. It’s optional and not required for basic functionality but is essential for multi-VM services orchestrated by OneFlow server below. The configuration is two-phase: configure the OneGate server to listen for the connections from outside the Front-end and configure the OpenNebula Daemon with OneGate endpoint passed to the Virtual Machines. Neither or both must be done.
 
-1. To configure OneGate, edit `/etc/one/onegate-server.conf` and update the `:host` parameter with service listening address accordingly. For example, use `0.0.0.0` to work on all configured network interfaces on the Front-end:
+1. To configure OneGate, edit `/etc/one/onegate-server.conf` and update the `:bind` parameter under `:server` with the service listening address. For example, use `0.0.0.0` to work on all configured network interfaces on the Front-end:
 
-```shell
-:host: 0.0.0.0
+```yaml
+:server:
+  :bind: 0.0.0.0
+  :port: 5030
 ```
 
 2. To configure OpenNebula Daemon, edit `/etc/one/oned.conf` and set the `ONEGATE_ENDPOINT` with the URL and port of your OneGate server (domain or IP-based). The endpoint address **must be reachable directly from your future Virtual Machines**. You need to decide which Virtual Networks and addresses will be used in your cloud. For example:

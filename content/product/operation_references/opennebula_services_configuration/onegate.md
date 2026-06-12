@@ -37,8 +37,9 @@ For a quick view of any changes in configuration file options in maintenance rel
 |-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Server Configuration**    |                                                                                                                                                                                                                                                                                                                                                                          |
 | `:one_xmlrpc`               | Endpoint of OpenNebula XML-RPC API                                                                                                                                                                                                                                                                                                                                       |
-| `:host`                     | Host/IP where OneGate will listen                                                                                                                                                                                                                                                                                                                                        |
-| `:port`                     | Port where OneGate will listen                                                                                                                                                                                                                                                                                                                                           |
+| `:server`                  | OneGate Sinatra server configuration options |
+| `:server` / `:bind`        | Host/IP where OneGate will listen |
+| `:server` / `:port`        | Port where OneGate will listen |
 | `:ssl_server`               | SSL proxy URL that serves the API (set if is being used)                                                                                                                                                                                                                                                                                                                 |
 | **Authentication**          |                                                                                                                                                                                                                                                                                                                                                                          |
 | `:auth`                     | Authentication driver for incoming requests.<br/><br/>* `onegate` based on tokens provided in VM context                                                                                                                                                                                                                                                                 |
@@ -55,7 +56,19 @@ For a quick view of any changes in configuration file options in maintenance rel
 | `:expire_delta`             | Default interval for timestamps. Tokens will be generated using the same timestamp for this interval of time. THIS VALUE CANNOT BE LOWER THAN EXPIRE_MARGIN.                                                                                                                                                                                                             |
 | `:expire_margin`            | Tokens will be generated if time > EXPIRE_TIME - EXPIRE_MARGIN                                                                                                                                                                                                                                                                                                           |
 
-In the default configuration, the OneGate server will only listen to requests coming from `localhost`. Because the OneGate needs to be accessible remotely from the Virtual Machines, you need to change `:host` parameter in `/etc/one/onegate-server.conf` to a public IP of your Front-end Host or to `0.0.0.0` (to work on all IP addresses configured on Host).
+The `:server` section is passed directly to the Sinatra OneGate server. Any Sinatra setting supported by the version shipped with OpenNebula can be defined under this key. For example, in addition to `:bind` and `:port`, advanced deployments may configure other Sinatra options in the same section, such as `:host_authorization`:
+
+```yaml
+:server:
+  :bind: 0.0.0.0
+  :port: 5030
+  :host_authorization:
+    :permitted_hosts:
+      - one.example.com
+      - 192.168.0.5
+```
+
+In the default configuration, the OneGate server will only listen to requests coming from `localhost`. Because the OneGate needs to be accessible remotely from the Virtual Machines, you need to change the `:bind` parameter under `:server` in `/etc/one/onegate-server.conf` to a public IP of your Front-end Host or to `0.0.0.0` (to work on all IP addresses configured on Host).
 
 ### Configure OpenNebula
 
