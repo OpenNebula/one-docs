@@ -1376,7 +1376,7 @@ The `onevm` command manages OpenNebula Virtual Machines. The general structure o
 | `--name name`                 | Name for the new VM                             |
 | `--net_context`               | Adds network contextualization parameters       |
 | `-n`, `--network id\|name`    | Selects the virtual network                     |
-| `--nic network0,network1`     | Networks to attach. To use a network owned by another user run `user[network]`. Additional attributes are supported like with the `--disk` option. Also you can use `auto` if you want  OpenNebula to automatically select the network |
+| `--nic network0,network1`     | Networks to attach. To use a network owned by another user run `user[network]`. Additional attributes are supported like with the `--disk` option. You can also use `auto` to let OpenNebula select the network or `dummy` to add a KVM interface without a Virtual Network |
 | `--nic-id nic_id`             | NIC to use when SSH                            |
 | `--nic_name name`             | Name of the NIC                                |
 | `--no-expand`                 | Disables expand                                 |

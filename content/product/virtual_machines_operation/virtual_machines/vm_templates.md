@@ -57,6 +57,15 @@ Network interfaces can be defined in two different ways:
 - **Manual selection**: interfaces are attached to a pre-selected Virtual Network. Note that this may require building multiple templates that consider the available networks in each cluster.
 - **Automatic selection**: Virtual Networks will be scheduled like other resources needed by the VM (like Hosts or datastores). This way, you can specify the type of network the VM will need and it will be automatically selected among those available in the cluster. [See more details here]({{% relref "../../cluster_configuration/networking_system/manage_vnets#vgg-vm-vnets" %}}).
 
+KVM Templates can also define dummy interfaces, which create a guest NIC without attaching it to any OpenNebula Virtual Network. They do not inherit Virtual Network attributes such as gateway, DNS, security groups, or contextualization values. If no `MAC` is provided, OpenNebula generates one automatically. A dummy interface is defined with `NETWORK_MODE = "dummy"` in a `NIC` section:
+
+```default
+NIC = [
+  NETWORK_MODE = "dummy",
+  MAC          = "02:00:5e:00:00:01"
+]
+```
+
 Network **interface alias** allows you to have more than one IP on each network interface. This does not create a new virtual interface on the VM. The alias address is added to the network interface. An alias can be attached and detached. Note also that when an NIC with an alias is detached, all the associated aliases are also detached.
 
 The alias takes a lease from the network which it belongs to. So, for the OpenNebula it is the same as an NIC and exposes the same management interface, it is just different in terms of the associated Virtual Network interface within the VM.
