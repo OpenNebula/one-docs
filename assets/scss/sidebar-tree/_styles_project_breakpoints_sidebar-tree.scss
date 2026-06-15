@@ -4,11 +4,14 @@
   }
 }
 
-// Max height for sidebar menu = 100% screen height - header height - title and description sidebar height - 10px margin
 @media (min-width: 992px) {
     @supports (position: sticky) {
+        .td-sidebar-menu {
+            height: calc(100vh - 64px);
+        }
+
         .td-sidebar-nav.td-sidebar-nav--search-disabled {
-            max-height: calc(100vh - 64px - 142px - 10px);
+            max-height: none;
         }
     }
 }
@@ -30,6 +33,32 @@
   
   @include media-breakpoint-up(xl) {
     padding-left: 20px;
+  }
+}
+
+#td-sidebar-menu .sidebar-note {
+  @include media-breakpoint-up(xl) {
+    padding-left: 0px;
+
+    .sidebar-note__line {
+      padding-left: 10px;
+    }
+
+    &::before {
+      left: -10px;
+      left: 10px;
+    }
+  }
+
+  @include media-breakpoint-up(xxl) {
+    .sidebar-note__line {
+      padding-left: 0;
+    }
+
+    &::before {
+      left: -10px;
+      right: 10px;
+    }
   }
 }
 
