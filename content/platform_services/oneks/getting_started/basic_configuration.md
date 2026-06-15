@@ -35,7 +35,7 @@ Validate the OneGate configuration using the OpenNebula OneGate [documentation](
 
 ## Transparent Proxy Configuration
 
-Verify that the [transparent proxy]({{% relref "product/virtual_machines_operation/virtual_machines_networking/tproxy/" %}}) is configured to expose OneGate and the OpenNebula API through the a netowrk interconnecting the Front-end and Hosts.
+Verify that the [transparent proxy]({{% relref "product/virtual_machines_operation/virtual_machines_networking/tproxy/" %}}) is configured to expose OneGate and the OpenNebula API through the network interconnecting the Front-end and Hosts.
 
 The configuration is typically defined in the following location on the OpenNebula Front-end:
 
