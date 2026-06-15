@@ -77,7 +77,7 @@ More information: [one-apps wiki](https://github.com/OpenNebula/one-apps/wiki)
 | Open vSwitch        | Version included in the Linux distribution | [Open vSwitch]({{% relref "../../../product/cluster_configuration/networking_system/openvswitch#openvswitch" %}}) |
 | iproute2            | Version included in the Linux distribution | [VXLAN]({{% relref "../../../product/cluster_configuration/networking_system/vxlan#vxlan" %}})                    |
 | Spectrum-X          | N/A | [Spectrum-X documentation]({{% relref "../../../product/cluster_configuration/networking_system/spectrumx" %}})                    |
-| InfiniBand          | N/A |  [InfiniBand documentation](https://networking-docs.nvidia.com/doca/sdk/infiniband-network) |
+| InfiniBand          | N/A |  [PCI Passthrough]({{% relref "product/cluster_configuration/hosts_and_clusters/pci_passthrough/" %}}) |
 
 ### Storage Infrastructure
 
@@ -94,9 +94,9 @@ More information: [one-apps wiki](https://github.com/OpenNebula/one-apps/wiki)
 
 | **Component** | **Models/Generations** | 
 |-----------|--------------------------------------------|
-| Ampere GPUs  | A10, A30, A40, A100 8.0 | 
-| Ada Lovelace GPUs   | L4, L40, L40S 8.9 | 
-| Hopper GPUs      | H100, H200, GH200 9.0  | 
+| Ampere GPUs  | A10, A30, A40, A100 | 
+| Ada Lovelace GPUs   | L4, L40, L40S | 
+| Hopper GPUs      | H100, H200, GH200  | 
 | Blackwell GPUs   | B200, B300, GB200, GB300  | 
 | BlueField DPUs   | 2, 3 | 
 
