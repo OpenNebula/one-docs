@@ -69,15 +69,17 @@ Refer to: [one-apps release](https://github.com/OpenNebula/one-apps/releases/lat
 
 More information: [one-apps wiki](https://github.com/OpenNebula/one-apps/wiki)
 
-### Open Cloud Networking Infrastructure
+### Networking Infrastructure
 
 | **Component**           | **Version**                                    | **More information**                                                                                                                             |
 |---------------------|--------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
 | 8021q kernel module | Version included in the Linux distribution | [802.1Q VLAN]({{% relref "../../../product/cluster_configuration/networking_system/vlan#hm-vlan" %}})             |
 | Open vSwitch        | Version included in the Linux distribution | [Open vSwitch]({{% relref "../../../product/cluster_configuration/networking_system/openvswitch#openvswitch" %}}) |
 | iproute2            | Version included in the Linux distribution | [VXLAN]({{% relref "../../../product/cluster_configuration/networking_system/vxlan#vxlan" %}})                    |
+| Spectrum-X          | N/A | [Spectrum-X documentation]({{% relref "../../../product/cluster_configuration/networking_system/spectrumx" %}})                    |
+| InfiniBand          | N/A |  [InfiniBand documentation](https://networking-docs.nvidia.com/doca/sdk/infiniband-network) |
 
-### Open Cloud Storage Infrastructure
+### Storage Infrastructure
 
 | **Component** | **Version**                                    | **More information**                                                                                             |
 |-----------|--------------------------------------------|--------------------------------------------------------------------------------------------------------------|
@@ -85,7 +87,18 @@ More information: [one-apps wiki](https://github.com/OpenNebula/one-apps/wiki)
 | LVM2      | Version included in the Linux distribution | [LVM Drivers]({{% relref "../../../product/cluster_configuration/lvm" %}})                                   |
 | Ceph      | Reef v18.2.x<br/>Squid   v19.2.x           | [The Ceph Datastore]({{% relref "../../../product/cluster_configuration/storage_system/ceph_ds#ceph-ds" %}}) |
 | NetApp    | ONTAP 9.16.1P1.                            | [NetApp ONTAP Drivers]({{% relref "../../../product/cluster_configuration/san_storage/netapp" %}})           |
-| LVM-thin  | NetApp ONTAP 9.16.1P1 & Pure Storage 6.7.2 | [LVM Thin]({{% relref "../../../product/cluster_configuration/lvm" %}})                                      |
+| Everpure    | 6.7.2              | [Everpure SAN Datastore]({{% relref "product/cluster_configuration/san_storage/everpure" %}})           |
+| LVM-thin  | NetApp ONTAP 9.16.1P1 | [LVM Thin]({{% relref "../../../product/cluster_configuration/lvm" %}})                                      |
+
+### Accelerated Infrastructure
+
+| **Component** | **Models** | 
+|-----------|--------------------------------------------|
+| Ampere GPUs  | A10, A30, A40, A100 8.0 | 
+| Ada Lovelace GPUs   | L4, L40, L40S 8.9 | 
+| Hopper GPUs      | H100, H200, GH200 9.0  | 
+| Blackwell GPUs   | B200, B300, GB200, GB300  | 
+| Blackwell GPUs   | 2, 3 | 
 
 ### Authentication
 
