@@ -130,7 +130,7 @@ To learn more about the SSH, read the [Advanced SSH Usage]({{% relref "advanced_
 
 ### A. Populate Host SSH Keys
 
-You should prepare and further manage the list of host SSH public keys of your nodes (a.k.a. `known_hosts`) so that all communicating parties know the identity of the other sides. The file is located in `/var/lib/one/.ssh/known_hosts` and we can use the command `ssh-keyscan` to manually create it. It should be executed on your Front-end under the `oneadmin` user and copied on all your nodes.
+You should prepare and further manage the list of Host SSH public keys of your nodes (a.k.a. `known_hosts`) so that all communicating parties know the identity of the other sides. The file is located in `/var/lib/one/.ssh/known_hosts` and we can use the command `ssh-keyscan` to manually create it. It should be executed on your Front-end under the `oneadmin` user and copied on all your nodes.
 
 {{< alert title="Important" type="info" >}}
 You’ll need to update and redistribute file with Host keys every time any Host is reinstalled or its keys are regenerated.{{< /alert >}} 
@@ -168,7 +168,7 @@ ssh-copy-id -i /var/lib/one/.ssh/id_rsa.pub <node2>
 ssh-copy-id -i /var/lib/one/.ssh/id_rsa.pub <node3>
 ```
 
-If the list of host SSH public keys was created in the previous section, distribute the `known_hosts` file to each of your nodes. For example:
+If the list of Host SSH public keys was created in the previous section, distribute the `known_hosts` file to each of your nodes. For example:
 
 ```shell
 scp -p /var/lib/one/.ssh/known_hosts <node1>:/var/lib/one/.ssh/
@@ -243,7 +243,7 @@ exit
 
 Network connection is needed by the OpenNebula Front-end Daemons to access, manage, and monitor the Hosts, and to transfer the Image files. It is highly recommended to use a dedicated network for this purpose.
 
-There are various models for virtual networks, check the [Open Cloud Networking]({{% relref "../../../product/cluster_configuration/networking_system/overview#nm" %}}) Chapter to find the ones supported by OpenNebula.
+There are various models for Virtual Networks, check the [Open Cloud Networking]({{% relref "../../../product/cluster_configuration/networking_system/overview#nm" %}}) Chapter to find the ones supported by OpenNebula.
 
 You may want to use the simplest network model that corresponds to the [bridged]({{% relref "bridged#bridged" %}}) driver. For this driver, you will need to set up a Linux bridge and include a physical device in the bridge. Later on, when defining the network in OpenNebula, you will specify the name of this bridge and OpenNebula will know that it should connect the VM to this bridge, thus giving it connectivity with the physical network device connected to the bridge. For example, a typical Host with two physical networks, one for public IP addresses (attached to an `eth0` NIC for example) and the other for private virtual LANs (NIC `eth1` for example) should have two bridges:
 
@@ -275,12 +275,13 @@ In this step, we’ll register the hypervisor node we have configured above into
 Learn more in [Hosts and Clusters Management]({{% relref "../../../product/cluster_configuration/hosts_and_clusters/overview#hostsubsystem" %}}).
 
 {{< alert title="Note" type="info" >}}
-If the host turns to `err` state instead of `on`, check OpenNebula log `/var/log/one/oned.log`. The problem might be with connecting over SSH.{{< /alert >}} 
+If the Host turns to `err` state instead of `on`, check OpenNebula log `/var/log/one/oned.log`. The problem might be with connecting over SSH.{{< /alert >}} 
 
 {{< tabpane text=true right=false >}}
 {{% tab header="**Interface**:" disabled=true /%}}
 
 {{% tab header="Sunstone"%}}
+
 ### Add Host with Sunstone
 
 Open Sunstone as documented [here]({{% relref "frontend_install#verify-frontend-section-sunstone" %}}). On the left side menu go to **Infrastructure** → **Hosts**. Click on the `+` button.

@@ -9,10 +9,6 @@ tags: [manual, cluster, deployment]
 weight: "3"
 ---
 
-<a id="kvm-node"></a>
-
-<!--# KVM Node Installation -->
-
 This page demonstrates how to configure an OpenNebula KVM Node from binary packages.
 
 {{< alert title="Note" type="info" >}}
@@ -43,17 +39,27 @@ Refer to [OpenNebula Repositories]({{% relref "opennebula_repository_configurati
 
 OpenNebula depends on packages which aren’t in the base distribution repositories. Execute one of the commands below (distinguished by the Host platform) to configure access to additional [EPEL](https://fedoraproject.org/wiki/EPEL) (Extra Packages for Enterprise Linux) repository:
 
+{{< tabpane text=true right=false >}}
+{{% tab header="**OS**:" disabled=true /%}}
+
+{{% tab header="**AlmaLinux 9, 10**"%}}
+
 **AlmaLinux 9, 10**
 
 ```shell
 yum -y install epel-release
 ```
 
+{{% /tab %}}
+
+{{% tab header="**RHEL 9**"%}}
 **RHEL 9**
 
 ```shell
 rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 ```
+{{% /tab %}}
+{{< /tabpane >}}
 
 #### Install OpenNebula KVM Node Package
 
@@ -150,10 +156,10 @@ To learn more about the SSH, read the [Advanced SSH Usage]({{% relref "advanced_
 
 ### A. Populate Host SSH Keys
 
-You should prepare and further manage the list of host SSH public keys of your nodes (a.k.a. `known_hosts`) so that all communicating parties know the identity of the other sides. The file is located in `/var/lib/one/.ssh/known_hosts` and we can use the command `ssh-keyscan` to manually create it. It should be executed on your Front-end under the `oneadmin` user and copied on all your nodes.
+You should prepare and further manage the list of Host SSH public keys of your nodes (a.k.a. `known_hosts`) so that all communicating parties know the identity of the other sides. The file is located in `/var/lib/one/.ssh/known_hosts` and we can use the command `ssh-keyscan` to manually create it. It should be executed on your Front-end under the `oneadmin` user and copied on all your nodes.
 
 {{< alert title="Important" type="info" >}}
-You’ll need to update and redistribute file with Host keys every time any host is reinstalled or its keys are regenerated.{{< /alert >}} 
+You’ll need to update and redistribute file with Host keys every time any Host is reinstalled or its keys are regenerated.{{< /alert >}} 
 
 {{< alert title="Important" type="info" >}}
 If [default SSH configuration]({{% relref "advanced_ssh_usage#node-ssh-config" %}}) shipped with OpenNebula is used, the SSH client automatically accepts Host keys on the first connection. That makes this step optional, as the `known_hosts` will be incrementally automatically generated on your infrastructure when the various connections happen. While this simplifies the initial deployment, it lowers the security of your infrastructure. We highly recommend populating `known_hosts` on your infrastructure in controlled manner!{{< /alert >}} 
@@ -188,7 +194,7 @@ ssh-copy-id -i /var/lib/one/.ssh/id_rsa.pub <node2>
 ssh-copy-id -i /var/lib/one/.ssh/id_rsa.pub <node3>
 ```
 
-If the list of host SSH public keys was created in the previous section, distribute the `known_hosts` file to each of your nodes. For example:
+If the list of Host SSH public keys was created in the previous section, distribute the `known_hosts` file to each of your nodes. For example:
 
 ```shell
 scp -p /var/lib/one/.ssh/known_hosts <node1>:/var/lib/one/.ssh/
@@ -262,12 +268,11 @@ exit
 
 ## Step 5. Networking Configuration
 
-![image](/images/network-02.png)
-<!-- TODO - This needs rework or drop. -->
+{{< image path="/images/network-02.png" alt="Network" align="center" width="40%" mb="20px" border="false" shadow="false" >}}
 
 Network connection is needed by the OpenNebula Front-end Daemons to access, manage, and monitor the Hosts, and to transfer the Image files. It is highly recommended to use a dedicated network for this purpose.
 
-There are various models for virtual networks, check the [Open Cloud Networking]({{% relref "../../../product/cluster_configuration/networking_system/overview#nm" %}}) Chapter to find the ones supported by OpenNebula.
+There are various models for Virtual Networks, check the [Open Cloud Networking]({{% relref "../../../product/cluster_configuration/networking_system/overview#nm" %}}) Chapter to find the ones supported by OpenNebula.
 
 You may want to use the simplest network model that corresponds to the [bridged]({{% relref "bridged#bridged" %}}) driver. For this driver, you will need to set up a Linux bridge and include a physical device in the bridge. Later on, when defining the network in OpenNebula, you will specify the name of this bridge and OpenNebula will know that it should connect the VM to this bridge, thus giving it connectivity with the physical network device connected to the bridge. For example, a typical Host with two physical networks, one for public IP addresses (attached to an `eth0` NIC for example) and the other for private virtual LANs (NIC `eth1` for example) should have two bridges:
 
@@ -305,23 +310,31 @@ Learn more in [Hosts and Clusters Management]({{% relref "../../../product/clust
 {{< alert title="Note" type="info" >}}
 If the Host turns to `err` state instead of `on`, check OpenNebula log `/var/log/one/oned.log`. The problem might be with connecting over SSH.{{< /alert >}} 
 
+{{< tabpane text=true right=false >}}
+{{% tab header="**Interfaces**:" disabled=true /%}}
+
+{{% tab header="Sunstone"%}}
 ### Add Host with Sunstone
 
 Open Sunstone as documented [here]({{% relref "frontend_install#verify-frontend-section-sunstone" %}}). On the left side menu go to **Infrastructure -> Hosts**. Click on the `+` button.
 
-![sunstone_select_create_host](/images/sunstone_select_create_host.png)
+{{< image path="/images/sunstone_select_create_host.png" alt="Sunstone create host" align="center" width="90%" mb="20px" >}}
 
 Then fill in the hostname, FQDN, or IP of the node in the `Hostname` field.
 
-![sunstone_create_host_dialog](/images/sunstone_create_host_dialog.png)
+{{< image path="/images/sunstone_create_host_dialog.png" alt="Sunstone create host dialog" align="center" width="90%" mb="20px" >}}
 
 Finally, return back to the **Hosts** list, and check that the Host has switched to `ON` status. It can take up to one minute. Click on the refresh button to check the status more frequently.
 
-![sunstone_list_hosts](/images/sunstone_list_hosts.png)
+{{< image path="/images/sunstone_list_hosts.png" alt="Sunstone list hosts" align="center" width="90%" mb="20px" >}}
+
+{{% /tab %}}
+
+{{% tab header="CLI"%}}
 
 ### Add Host with CLI
 
-To add a node to the cloud, run this command as `oneadmin` in the Front-end (replace `<node01>` with your node hostname):
+To add a node to the cloud through the CLI, run this command as `oneadmin` in the Front-end (replace `<node01>` with your node hostname):
 
 ```shell
 onehost create <node01> -i kvm -v kvm
@@ -337,7 +350,8 @@ ID NAME            CLUSTER   RVM      ALLOCATED_CPU      ALLOCATED_MEM STAT
  0 node01          default     0       0 / 400 (0%)     0K / 7.7G (0%) on
 ```
 
-<a id="kvm-next"></a>
+{{% /tab %}}
+{{< /tabpane >}}
 
 ## Next steps
 
