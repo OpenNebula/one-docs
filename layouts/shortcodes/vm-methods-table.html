@@ -194,7 +194,8 @@ $(document).ready(function() {
 
     var table = $('#data-spreadsheet').DataTable({
         "pageLength": 100,
-        "dom": 'tpi',
+        "dom": 't',
+        "paging": false,
         "ordering": false,
         "autoWidth": false, // FIX: Tells DataTables to defer dimension math entirely to our custom CSS
         "columnDefs": [

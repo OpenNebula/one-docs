@@ -1,0 +1,91 @@
+Method,Attribute,Description,Updating in RUNNING state,Updating in POWEROFF state,API,CLI,GUI,Limitations/Notes
+Compute,,,,,,,,
+one.vm.resize,VM/TEMPLATE/CPU,Changes VM CPU allocation factor,NO,YES,"YES ",YES,YES,Scheduler/resource allocation attribute; changes applied after power cycle for effective runtime impact
+one.vm.resize,VM/TEMPLATE/VCPU,Changes VM virtual CPU count,Partial,YES,"YES ",YES,YES,VCPU hotplug support required for live effect; otherwise applied after reboot
+one.vm.resize,VM/TEMPLATE/MEMORY,Changes VM memory allocation,Partial,YES,"YES ",YES,YES,Memory hotplug support required for live effect; otherwise applied after reboot
+Disk,,,,,,,,
+one.vm.attach,VM/TEMPLATE/DISK,Attaches a disk to the VM,Partial,YES,"YES ",YES,YES,Disk hotplug support depends on disk bus/controller
+one.vm.detach,VM/TEMPLATE/DISK,Detaches a disk from the VM,Partial,YES,"YES ",YES,YES,May fail for active/system disks or unsupported buses
+one.vm.diskresize,VM/TEMPLATE/DISK,Resizes VM disk,Partial,YES,"YES ",YES,YES,May fail for active/system disks or unsupported buses
+one.vm.disksaveas,VM/TEMPLATE/DISK,Saves VM disk as image,YES,YES,"YES ",YES,YES,
+NIC,,,,,,,,
+one.vm.attachnic,VM/TEMPLATE/NIC,Attaches NIC to the VM,YES,YES,"YES ",YES,YES,
+one.vm.detachnic,VM/TEMPLATE/NIC,Detaches NIC from the VM,YES,YES,"YES ",YES,YES,
+one.vm.updatenic,VM/TEMPLATE/NIC,Updates VM NIC configuration,YES,YES,"YES ",YES,YES,
+one.vm.attachsg,VM/TEMPLATE/NIC/SECURITY_GROUPS,Attaches security group to VM NIC,YES,YES,"YES ",YES,YES,
+one.vm.detachsg,VM/TEMPLATE/NIC/SECURITY_GROUPS,Detaches security group from VM NIC,YES,YES,"YES ",YES,YES,
+PCI,,,,,,,,
+one.vm.attachpci,VM/TEMPLATE/PCI,Attaches PCI device to the VM,NO,YES,"YES ",YES,YES,Only in POWER OFF state
+one.vm.detachpci,VM/TEMPLATE/PCI,Detaches PCI device from the VM,"NO ",YES,"YES ",YES,YES,Only in POWER OFF state
+Snapshots,,,,,,,,
+one.vm.snapshotcreate,VM/TEMPLATE/SNAPSHOT,Creates VM snapshot,YES,YES,"YES ",YES,YES,
+one.vm.snapshotrevert,VM/TEMPLATE/SNAPSHOT,Reverts VM to snapshot state,NO,YES,"YES ",YES,YES,Only in POWER OFF state
+one.vm.snapshotdelete,VM/TEMPLATE/SNAPSHOT,Deletes VM snapshot,YES,YES,"YES ",YES,YES,
+one.vm.disksnapshotcreate,VM/SNAPSHOTS/SNAPSHOT,Creates disk snapshot,YES,YES,"YES ",YES,YES,
+one.vm.disksnapshotdelete,VM/SNAPSHOTS/SNAPSHOT,Deletes disk snapshot,YES,YES,"YES ",YES,YES,
+one.vm.disksnapshotrevert,VM/SNAPSHOTS/SNAPSHOT,Reverts disk to snapshot state,NO,YES,"YES ",YES,YES,Only in POWER OFF state
+one.vm.disksnapshotrename,VM/SNAPSHOTS/SNAPSHOT,Renames disk snapshot,YES,YES,"YES ",YES,YES,
+Backups,,,,,,,,
+one.vm.backup,VM/BACKUPS,Creates VM backup,YES,YES,"YES ",YES,YES,
+one.vm.backupcancel,VM/BACKUPS,Cancels running VM backup job,YES,YES,"YES ",YES,YES,
+one.vm.restore,VM/BACKUPS,Restores VM disks/state from backup,NO,YES,"YES ",YES,YES,Only in POWER OFF state
+VM attributes,,,,,,,,
+one.vm.update,VM/USER_TEMPLATE,Updates VM user template,NO,YES,"YES ",YES,NO,Updates on the next power cycle
+one.vm.rename,VM/NAME,Renames VM,YES,YES,"YES ",YES,YES,
+one.vm.chown,"VM/UID, VM/GID, VM/UNAME, VM/GNAME",Changes VM ownership,YES,YES,"YES ",YES,YES,
+one.vm.chmod,VM/PERMISSIONS,Changes VM permissions,YES,YES,"YES ",YES,YES,
+VM scheduled actions,,,,,,,,
+one.vm.schedadd,VM/TEMPLATE/SCHED_ACTION,Adds scheduled VM action,YES,YES,"YES ",YES,YES,
+one.vm.schedupdate,VM/TEMPLATE/SCHED_ACTION,Updates scheduled VM action,YES,YES,"YES ",YES,YES,
+one.vm.scheddelete,VM/TEMPLATE/SCHED_ACTION,Deletes scheduled VM action,YES,YES,"YES ",YES,YES,
+Other,,,,,,,,
+one.vm.lock,VM/LOCK,Locks VM actions,YES,YES,"YES ",YES,YES,
+one.vm.unlock,VM/LOCK,Unlocks VM actions,YES,YES,"YES ",YES,YES,
+one.vm.exec,VM/TEMPLATE/QEMU_GA_EXEC,Executes command inside guest,YES,NO,"YES ",YES,NO,Requires guest agent
+one.vm.retryexec,VM/TEMPLATE/QEMU_GA_EXEC,Retries guest command,YES,NO,"YES ",YES,NO,Requires guest agent
+one.vm.cancelexec,VM/TEMPLATE/QEMU_GA_EXEC,Cancels guest command,YES,NO,"YES ",YES,NO,Requires guest agent
+one.vm.updateconf,,,,,,,,
+one.vm.updateconf,VM/TEMPLATE/OS/ARCH,Defines guest CPU architecture,NO,YES,"YES ",YES,YES,Effectively immutable for existing VM
+one.vm.updateconf,VM/TEMPLATE/OS/MACHINE,Defines machine/chipset type used by hypervisor,NO,YES,"YES ",YES,YES,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/OS/KERNEL,Defines kernel image for direct kernel boot,NO,YES,"YES ",YES,NO,Applied after poweroff/resume; direct kernel boot only
+one.vm.updateconf,VM/TEMPLATE/OS/INITRD,Defines initrd image for direct kernel boot,NO,YES,"YES ",YES,NO,Applied after poweroff/resume; direct kernel boot only
+one.vm.updateconf,VM/TEMPLATE/OS/BOOTLOADER,Defines external bootloader,NO,YES,"YES ",YES,YES,Not applicable/ignored in KVM
+one.vm.updateconf,VM/TEMPLATE/OS/BOOTLOADER,Defines VM boot device,YES,YES,"YES ",YES,YES,Reflected in OpenNebula UI; libvirt may resolve as default disk boot
+one.vm.updateconf,VM/TEMPLATE/OS/KERNEL_CMD,Defines kernel command line parameters,NO,YES,"YES ",YES,NO,Applied after poweroff/resume; direct kernel boot only
+one.vm.updateconf,VM/TEMPLATE/OS/ROOT,Defines guest root device,NO,YES,"YES ",YES,NO,Applied after poweroff/resume; direct kernel boot only
+one.vm.updateconf,VM/TEMPLATE/OS/SD_DISK_BUS,Defines bus type for SD disks,NO,YES,"YES ",YES,YES,"Applied after poweroff/resume; "
+one.vm.updateconf,VM/TEMPLATE/OS/UUID,Defines VM UUID,NO,YES,"YES ",YES,YES,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/OS/FIRMWARE,Defines VM firmware/UEFI loader,NO,YES,"YES ",YES,NO,Applied after poweroff/resume; requires valid OVMF path
+one.vm.updateconf,VM/TEMPLATE/OS/FIRMWARE_FORMAT,Defines firmware image format,NO,YES,"YES ",YES,NO,Applied after poweroff/resume with firmware
+one.vm.updateconf,VM/TEMPLATE/CPU_MODEL/MODEL,Defines guest CPU model exposed to VM,NO,YES,"YES ",YES,NO,Applied after poweroff/resume if CPU model is valid for host
+one.vm.updateconf,VM/TEMPLATE/CPU_MODEL/FEATURES,Defines guest CPU feature flags,NO,YES,"YES ",YES,NO,Applied after poweroff/resume if features are supported by host CPU
+one.vm.updateconf,VM/TEMPLATE/FEATURES/ACPI,Enables ACPI support,NO,YES,"YES ",YES,YES,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/FEATURES/PAE,Enables Physical Address Extension support,NO,YES,"YES ",YES,YES,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/FEATURES/APIC,Enables APIC support,NO,YES,"YES ",YES,YES,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/FEATURES/LOCALTIME,Configures guest RTC clock mode,NO,YES,"YES ",YES,YES,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/FEATURES/HYPERV,Enables Hyper-V enlightenments,NO,YES,"YES ",YES,YES,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/FEATURES/GUEST_AGENT,Enables QEMU guest agent channel,NO,YES,"YES ",YES,YES,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/FEATURES/VIRTIO_SCSI_QUEUES,Configures virtio-scsi queue count,NO,YES,"YES ",YES,NO,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/FEATURES/VIRTIO_BLK_QUEUES,Configures virtio-blk queue count,NO,YES,"YES ",YES,NO,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/FEATURES/IOTHREADS,Configures disk IO threads,NO,YES,"YES ",YES,NO,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/INPUT/TYPE,Defines guest input device type,NO,YES,"YES ",YES,YES,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/INPUT/BUS,Defines guest input device bus,NO,YES,"YES ",YES,YES,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/GRAPHICS/TYPE,Defines graphics protocol/backend,NO,YES,"YES ",YES,NO,"Template changes while running; applied after poweroff/resume. SPICE works with external clients, not FireEdge/Guacamole in this setup"
+one.vm.updateconf,VM/TEMPLATE/GRAPHICS/LISTEN,Defines graphics listen address,NO,YES,"YES ",YES,YES,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/GRAPHICS/PASSWD,Defines graphics console password,NO,YES,"YES ",YES,YES,"Applied after poweroff/resume; password prompt works with external VNC/SPICE clients, not via FireEdge/Guacamole"
+one.vm.updateconf,VM/TEMPLATE/GRAPHICS/KEYMAP,Defines keyboard layout for graphics console,NO,YES,"YES ",YES,YES,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/GRAPHICS/COMMAND,Defines graphics command parameters,NO,YES,"YES ",YES,NO,Stored in template but not passed to libvirt domain XML in KVM
+one.vm.updateconf,VM/TEMPLATE/VIDEO/TYPE,Defines virtual video adapter type,YES,YES,"YES ",YES,YES,Live-applied; without VRAM/related options may fall back to default model such as cirrus
+one.vm.updateconf,VM/TEMPLATE/VIDEO/IOMMU,Enables IOMMU support for video device,YES,YES,"YES ",YES,YES,
+one.vm.updateconf,VM/TEMPLATE/VIDEO/ATS,Enables Address Translation Service for video device,YES,YES,"YES ",YES,YES,
+one.vm.updateconf,VM/TEMPLATE/VIDEO/VRAM,Defines virtual video memory size,YES,YES,"YES ",YES,YES,
+one.vm.updateconf,VM/TEMPLATE/VIDEO/RESOLUTION,Defines guest display resolution,YES,YES,"YES ",YES,YES,
+one.vm.updateconf,VM/TEMPLATE/RAW/DATA,Defines raw hypervisor XML snippet,NO,YES,"YES ",YES,NO,Applied after poweroff/resume
+one.vm.updateconf,VM/TEMPLATE/RAW/DATA_VMX,Defines VMX-specific raw configurationDefines VMX-specific raw configuration,NO,YES,"YES ",YES,NO,Not applicable to KVM; template-only/no effect
+one.vm.updateconf,VM/TEMPLATE/RAW/TYPE,Defines hypervisor backend type,NO,YES,"YES ",YES,NO,Acts as driver selector; for KVM must be kvm
+one.vm.updateconf,VM/TEMPLATE/RAW/VALIDATE,Enables raw XML validation,NO,YES,"YES ",YES,NO,Template/validation behavior; not a live libvirt change
+one.vm.updateconf,VM/TEMPLATE/BACKUP_CONFIG/FS_FREEZE,Enables filesystem freeze during backup,YES,YES,"YES ",YES,YES,
+one.vm.updateconf,VM/TEMPLATE/BACKUP_CONFIG/KEEP_LAST,Defines number of retained backups,YES,YES,"YES ",YES,YES,
+one.vm.updateconf,VM/TEMPLATE/BACKUP_CONFIG/BACKUP_VOLATILE,Includes volatile disks in backup,YES,YES,"YES ",YES,YES,
+one.vm.updateconf,VM/TEMPLATE/BACKUP_CONFIG/MODE,Defines backup mode,YES,YES,"YES ",YES,YES,
+one.vm.updateconf,VM/TEMPLATE/BACKUP_CONFIG/INCREMENT_MODE,Defines incremental backup mode,YES,YES,"YES ",YES,YES,

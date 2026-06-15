@@ -3,8 +3,8 @@ title: 'Updating Virtual Machine Configuration'
 linkTitle: 'Updating VM Configuration'
 ---
 <!-- README before editing: This document contains an automatically generated table! -->
-<!-- Add rows to the source Excel file to update the table, do not change the column structure! -->
-<!-- Table source:  assets/tables/vm_update_methods.xlsx -->
+<!-- Add rows to the source CSV file to update the table, do not change the column structure! -->
+<!-- Table source:  assets/tables/vm_update_methods.csv -->
 <!-- Run the converter script from the root directory to regenerate the table: -->
 <!-- Install dependencies first: python3 -m pip install openpyxl -->
 <!-- python3 scripts/vm_update_methods_converter.py -->
@@ -20,10 +20,10 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
   <thead>
     <tr class="dt-layout-row">
       <th>SectionTracker</th>
-      <th style="width: 20%;">Method</th>
-      <th style="width: 15%;">Attribute</th>
+      <th style="width: 22%;">Method</th>
+      <th style="width: 13%;">Attribute</th>
       <th style="width: 12%;">Description</th>
-      <th style="width: 12%;">Updating in Running state</th>
+      <th style="width: 12%;">Updating in RUNNING state</th>
       <th style="width: 12%;">Updating in POWEROFF state</th>
       <th style="width: 5%;">API</th>
       <th style="width: 5%;">CLI</th>
@@ -39,7 +39,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Changes VM CPU allocation factor</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Scheduler/resource allocation attribute; changes applied after power cycle for effective runtime impact</td>
@@ -51,7 +51,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Changes VM virtual CPU count</td>
       <td>Partial</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>VCPU hotplug support required for live effect; otherwise applied after reboot</td>
@@ -63,7 +63,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Changes VM memory allocation</td>
       <td>Partial</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Memory hotplug support required for live effect; otherwise applied after reboot</td>
@@ -75,7 +75,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Attaches a disk to the VM</td>
       <td>Partial</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Disk hotplug support depends on disk bus/controller</td>
@@ -87,7 +87,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Detaches a disk from the VM</td>
       <td>Partial</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>May fail for active/system disks or unsupported buses</td>
@@ -99,7 +99,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Resizes VM disk</td>
       <td>Partial</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>May fail for active/system disks or unsupported buses</td>
@@ -111,7 +111,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Saves VM disk as image</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -123,7 +123,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Attaches NIC to the VM</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -135,7 +135,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Detaches NIC from the VM</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -147,7 +147,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Updates VM NIC configuration</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -159,7 +159,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Attaches security group to VM NIC</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -171,7 +171,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Detaches security group from VM NIC</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -183,7 +183,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Attaches PCI device to the VM</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Only in POWER OFF state</td>
@@ -193,9 +193,9 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>one.vm.detachpci</td>
       <td class="truncated-attribute"><span class="cell-content">VM/TEMPLATE/PCI</span></td>
       <td>Detaches PCI device from the VM</td>
-      <td>NO </td>
+      <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Only in POWER OFF state</td>
@@ -207,7 +207,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Creates VM snapshot</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -219,7 +219,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Reverts VM to snapshot state</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Only in POWER OFF state</td>
@@ -231,7 +231,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Deletes VM snapshot</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -243,7 +243,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Creates disk snapshot</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -255,7 +255,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Deletes disk snapshot</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -267,7 +267,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Reverts disk to snapshot state</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Only in POWER OFF state</td>
@@ -279,7 +279,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Renames disk snapshot</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -291,7 +291,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Creates VM backup</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -303,7 +303,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Cancels running VM backup job</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -315,7 +315,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Restores VM disks/state from backup</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Only in POWER OFF state</td>
@@ -327,7 +327,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Updates VM user template</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Updates on the next power cycle</td>
@@ -339,7 +339,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Renames VM</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -351,7 +351,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Changes VM ownership</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -363,7 +363,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Changes VM permissions</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -375,7 +375,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Adds scheduled VM action</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -387,7 +387,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Updates scheduled VM action</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -399,7 +399,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Deletes scheduled VM action</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -411,7 +411,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Locks VM actions</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -423,7 +423,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Unlocks VM actions</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -435,7 +435,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Executes command inside guest</td>
       <td>YES</td>
       <td>NO</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Requires guest agent</td>
@@ -447,7 +447,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Retries guest command</td>
       <td>YES</td>
       <td>NO</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Requires guest agent</td>
@@ -459,7 +459,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Cancels guest command</td>
       <td>YES</td>
       <td>NO</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Requires guest agent</td>
@@ -471,7 +471,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines guest CPU architecture</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Effectively immutable for existing VM</td>
@@ -483,7 +483,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines machine/chipset type used by hypervisor</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Applied after poweroff/resume</td>
@@ -495,7 +495,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines kernel image for direct kernel boot</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Applied after poweroff/resume; direct kernel boot only</td>
@@ -507,7 +507,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines initrd image for direct kernel boot</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Applied after poweroff/resume; direct kernel boot only</td>
@@ -519,7 +519,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines external bootloader</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Not applicable/ignored in KVM</td>
@@ -531,7 +531,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines VM boot device</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Reflected in OpenNebula UI; libvirt may resolve as default disk boot</td>
@@ -543,7 +543,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines kernel command line parameters</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Applied after poweroff/resume; direct kernel boot only</td>
@@ -555,7 +555,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines guest root device</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Applied after poweroff/resume; direct kernel boot only</td>
@@ -567,10 +567,10 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines bus type for SD disks</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
       <td>YES</td>
       <td>YES</td>
-      <td>Applied after poweroff/resume; </td>
+      <td>YES</td>
+      <td>Applied after poweroff/resume;</td>
     </tr>
     <tr>
       <td>one.vm.updateconf</td>
@@ -579,7 +579,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines VM UUID</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Applied after poweroff/resume</td>
@@ -591,7 +591,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines VM firmware/UEFI loader</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Applied after poweroff/resume; requires valid OVMF path</td>
@@ -603,7 +603,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines firmware image format</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Applied after poweroff/resume with firmware</td>
@@ -615,7 +615,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines guest CPU model exposed to VM</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Applied after poweroff/resume if CPU model is valid for host</td>
@@ -627,7 +627,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines guest CPU feature flags</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Applied after poweroff/resume if features are supported by host CPU</td>
@@ -639,7 +639,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Enables ACPI support</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Applied after poweroff/resume</td>
@@ -651,7 +651,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Enables Physical Address Extension support</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Applied after poweroff/resume</td>
@@ -663,7 +663,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Enables APIC support</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Applied after poweroff/resume</td>
@@ -675,7 +675,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Configures guest RTC clock mode</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Applied after poweroff/resume</td>
@@ -687,7 +687,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Enables Hyper-V enlightenments</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Applied after poweroff/resume</td>
@@ -699,7 +699,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Enables QEMU guest agent channel</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Applied after poweroff/resume</td>
@@ -711,7 +711,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Configures virtio-scsi queue count</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Applied after poweroff/resume</td>
@@ -723,7 +723,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Configures virtio-blk queue count</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Applied after poweroff/resume</td>
@@ -735,7 +735,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Configures disk IO threads</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Applied after poweroff/resume</td>
@@ -747,7 +747,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines guest input device type</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Applied after poweroff/resume</td>
@@ -759,7 +759,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines guest input device bus</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Applied after poweroff/resume</td>
@@ -771,7 +771,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines graphics protocol/backend</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Template changes while running; applied after poweroff/resume. SPICE works with external clients, not FireEdge/Guacamole in this setup</td>
@@ -783,7 +783,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines graphics listen address</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Applied after poweroff/resume</td>
@@ -795,7 +795,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines graphics console password</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Applied after poweroff/resume; password prompt works with external VNC/SPICE clients, not via FireEdge/Guacamole</td>
@@ -807,7 +807,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines keyboard layout for graphics console</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Applied after poweroff/resume</td>
@@ -819,7 +819,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines graphics command parameters</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Stored in template but not passed to libvirt domain XML in KVM</td>
@@ -831,7 +831,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines virtual video adapter type</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td>Live-applied; without VRAM/related options may fall back to default model such as cirrus</td>
@@ -843,7 +843,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Enables IOMMU support for video device</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -855,7 +855,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Enables Address Translation Service for video device</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -867,7 +867,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines virtual video memory size</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -879,7 +879,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines guest display resolution</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -891,7 +891,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines raw hypervisor XML snippet</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Applied after poweroff/resume</td>
@@ -903,7 +903,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines VMX-specific raw configurationDefines VMX-specific raw configuration</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Not applicable to KVM; template-only/no effect</td>
@@ -915,7 +915,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines hypervisor backend type</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Acts as driver selector; for KVM must be kvm</td>
@@ -927,7 +927,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Enables raw XML validation</td>
       <td>NO</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>NO</td>
       <td>Template/validation behavior; not a live libvirt change</td>
@@ -939,7 +939,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Enables filesystem freeze during backup</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -951,7 +951,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines number of retained backups</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -963,7 +963,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Includes volatile disks in backup</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -975,7 +975,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines backup mode</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
@@ -987,7 +987,7 @@ OpenNebula provides a powerful set of tools through the GUI, CLI and API that al
       <td>Defines incremental backup mode</td>
       <td>YES</td>
       <td>YES</td>
-      <td>YES </td>
+      <td>YES</td>
       <td>YES</td>
       <td>YES</td>
       <td></td>
