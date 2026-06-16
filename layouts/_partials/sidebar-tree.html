@@ -63,10 +63,16 @@
     </ul>
   </nav>
 
+  {{ $editionsLink := "software/release_information/release_notes/editions/" | relURL -}}
+  {{ with .Site.GetPage "software/release_information/release_notes/editions" -}}
+    {{ $editionsLink = .RelPermalink -}}
+  {{ end -}}
+  <a href="{{ $editionsLink }}">
   <aside class="sidebar-note" aria-label="Documentation note">
     <p class="sidebar-note__line sidebar-note__line--primary"><span class="sidebar-note__badge">EE</span> Enterprise Extension</p>
     <p class="sidebar-note__line"><span class="sidebar-note__badge">AE</span> AI Factory Extension</p>
   </aside>
+  </a>
 </div>
 {{ define "section-tree-nav-section" -}}
 {{ $s := .section -}}
