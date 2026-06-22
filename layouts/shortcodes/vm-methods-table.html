@@ -1,3 +1,16 @@
+{{- $csvPath := .Get "src" | default "tables/vm_update_methods.csv" -}}
+{{- $csvResource := resources.Get $csvPath -}}
+{{- if not $csvResource -}}
+  {{- errorf "vm-methods-table shortcode could not find assets/%s" $csvPath -}}
+{{- end -}}
+{{- $csvOptions := dict "targetType" "slice" -}}
+{{- $rows := transform.Unmarshal $csvOptions $csvResource -}}
+{{- if not $rows -}}
+  {{- errorf "vm-methods-table shortcode found no rows in assets/%s" $csvPath -}}
+{{- end -}}
+{{- $headers := index $rows 0 -}}
+{{- $columnWidths := slice "22%" "13%" "12%" "12%" "12%" "5%" "5%" "5%" "20%" -}}
+
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowgroup/1.4.1/css/rowGroup.dataTables.min.css">
 
@@ -175,7 +188,59 @@
     <input type="text" id="col1-search" placeholder="Type to filter...">
   </div>
 
-  {{ .Inner }}
+  <table id="data-spreadsheet" class="display" style="width:100%">
+    <thead>
+      <tr class="dt-layout-row">
+        <th>SectionTracker</th>
+        {{- range $headerIndex, $headerValue := $headers }}
+          {{- $header := $headerValue | strings.TrimSpace -}}
+          {{- if not $header -}}
+            {{- $header = printf "Column %d" (add $headerIndex 1) -}}
+          {{- end -}}
+          {{- $width := "" -}}
+          {{- if lt $headerIndex (len $columnWidths) -}}
+            {{- $width = index $columnWidths $headerIndex -}}
+          {{- end -}}
+          <th{{ with $width }} style="width: {{ . }};"{{ end }}>{{ $header }}</th>
+        {{- end }}
+      </tr>
+    </thead>
+    <tbody>
+      {{- $currentSection := "General" -}}
+      {{- $maxCols := len $headers -}}
+      {{- range after 1 $rows }}
+        {{- $row := . -}}
+        {{- $firstCell := "" -}}
+        {{- if gt (len $row) 0 -}}
+          {{- $firstCell = index $row 0 | strings.TrimSpace -}}
+        {{- end -}}
+        {{- $otherCellsEmpty := true -}}
+        {{- range $cellIndex, $cellValue := $row -}}
+          {{- if and (gt $cellIndex 0) (ne ($cellValue | strings.TrimSpace) "") -}}
+            {{- $otherCellsEmpty = false -}}
+          {{- end -}}
+        {{- end -}}
+        {{- if and $firstCell $otherCellsEmpty -}}
+          {{- $currentSection = $firstCell -}}
+        {{- else }}
+          <tr>
+            <td>{{ $currentSection }}</td>
+            {{- range $colIndex := seq 0 (sub $maxCols 1) }}
+              {{- $value := "" -}}
+              {{- if lt $colIndex (len $row) -}}
+                {{- $value = index $row $colIndex | strings.TrimSpace -}}
+              {{- end -}}
+              {{- if and (eq $colIndex 1) $value }}
+                <td class="truncated-attribute"><span class="cell-content">{{ $value }}</span></td>
+              {{- else }}
+                <td>{{ $value }}</td>
+              {{- end }}
+            {{- end }}
+          </tr>
+        {{- end -}}
+      {{- end }}
+    </tbody>
+  </table>
 </div>
 
 <script>
