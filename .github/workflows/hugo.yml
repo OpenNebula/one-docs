@@ -99,3 +99,12 @@ jobs:
           HOST: ${{ secrets.HOST }}
           HOST_PATH: ${{ secrets.HOST_PATH }}
         run: ruby ./publish/publish.rb ${{ steps.get_branch.outputs.branch }}
+     
+      # ------------------------------------------------------------------------------
+      # Cleanup SSH private key
+      # ------------------------------------------------------------------------------
+      
+      - name: Cleanup SSH private key
+        if: always()
+        run: |
+          shred -u /tmp/id_rsa || rm -f /tmp/id_rsa
