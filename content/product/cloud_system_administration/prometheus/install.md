@@ -230,12 +230,12 @@ opennebula_libvirt_daemon_up 1.0
 
 OpenNebula ships four optional Prometheus exporter sub-packages. Each one is independently installable and only needed where the matching subsystem is in use:
 
-| Sub-package                          | Where to install   | Default port | Upstream                                                                       |
-|--------------------------------------|--------------------|--------------|--------------------------------------------------------------------------------|
-| opennebula-prometheus-ovs          | KVM Hosts with OVS | 9475       | [Liquescent-Development/ovs_exporter](https://github.com/Liquescent-Development/ovs_exporter) |
-| opennebula-prometheus-mysql        | Front-end with MySQL/MariaDB | 9104 | [prometheus/mysqld_exporter](https://github.com/prometheus/mysqld_exporter)    |
-| opennebula-prometheus-smartctl     | Hosts with physical disks | 9633  | [prometheus-community/smartctl_exporter](https://github.com/prometheus-community/smartctl_exporter) |
-| opennebula-prometheus-lvm          | Hosts using LVM    | 9845       | [hansmi/prometheus-lvm-exporter](https://github.com/hansmi/prometheus-lvm-exporter) |
+| Sub-package                          | Where to install   | Default port | Requirements | Upstream                                                                       |
+|--------------------------------------|--------------------|--------------|--------------|--------------------------------------------------------------------------------|
+| opennebula-prometheus-ovs          | KVM Hosts with OVS | 9475         | Open vSwitch daemon running (v3.6) | [Liquescent-Development/ovs_exporter](https://github.com/Liquescent-Development/ovs_exporter) |
+| opennebula-prometheus-mysql        | Front-end with MySQL/MariaDB | 9104         | -            | [prometheus/mysqld_exporter](https://github.com/prometheus/mysqld_exporter)    |
+| opennebula-prometheus-smartctl     | Hosts with physical disks | 9633         | `smartmontools` (>= 7.0) installed; elevated/disk group permissions | [prometheus-community/smartctl_exporter](https://github.com/prometheus-community/smartctl_exporter) |
+| opennebula-prometheus-lvm          | Hosts using LVM    | 9845         | -            | [hansmi/prometheus-lvm-exporter](https://github.com/hansmi/prometheus-lvm-exporter) |
 
 These exporter binaries are pre-built upstream releases re-distributed for your convenience under their respective licenses.
 
