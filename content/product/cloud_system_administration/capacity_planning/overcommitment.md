@@ -21,12 +21,20 @@ Before allocating a VM to a Host, the Scheduler checks that the capacity request
 
 The resource allocation of the VM is expressed with the following attributes:
 
-> - `CPU`, percentage of CPU divided by 100 required for the VM, e.g., 0.5 will request half of a processor.
-> - `MEMORY`, total memory in MB.
+> - `CPU` (Physical CPU): Represents the relative scheduling priority and weight given to the VM. **This field does not cap, throttle, or limit actual CPU cycles; it strictly defines priority during resource contention.**
+>   - **Cgroups Shares**: The value entered in this field is automatically multiplied by 100, aligning it with the base allocation metric exposed by Linux `cgroups` for CPU shares. This calculated total is then subtracted from the host's **Allocated CPU** metric.
+>   - **Priority Groups**: Utilizing values across different orders of magnitude allows administrators to define distinct priority groups among various VMs specifically for cases of host oversubscription. To leverage this setup, you must increase the total available **Allocated CPU** on the host, since the default maximum is bounded by the number of physical host CPUs multiplied by the base of 100.
+>   - **Configuration Caps**: Note that weight values greater than 10,000 (e.g., 50,000) will be capped strictly at 10,000 within the VM's internal `cgroups` configuration. However, the host's **Allocated CPU** tracking counter will still deduct the full, un-capped calculation (e.g., 50,000 * 100).
+> - `MEMORY`: The total memory allocated to the VM, expressed in MB.
 
-It is important not to confuse this with `VCPU`, which is the number of virtual processors the Guest OS will see. Note also that the hypervisor is configured to follow the CPU allocations of the VM. In this way, a VM with `CPU=0.5` will tend to use half the CPU cycles of a VM with `CPU=1.0`.
+### Understanding CPU vs. VCPU
 
-For example, a Host with eight processors (`TOTAL CPU=800`) can host eight VMs with `CPU=1` or 16 VMs with `CPU=0.5`. In this way, `CPU` can be used to pack more VMs in a Host.
+It is important not to confuse the `CPU` allocation weight with `VCPU` (Virtual CPU):
+
+* **CPU** dictates relative scheduling priority via hypervisor shares. It does not restrict a VM's access to CPU cycles if the host has idle resources. However, under heavy load or CPU contention, the hypervisor uses these weights to distribute resources proportionally. For example, a VM configured with `CPU=1.0` will receive twice the scheduling priority of a VM configured with `CPU=0.5`.
+* **VCPU** represents the actual number of virtual processors that the Guest OS will see.
+
+For example, a Host with eight processors has a default `TOTAL CPU=800` (8 physical processors * 100 base). This host can naturally accommodate eight VMs with a priority weight of `CPU=1` or 16 VMs with `CPU=0.5`. By leveraging these weights, you can establish clear priority hierarchies when packing more VMs onto an overcommitted Host.
 
 ## Host Capacity
 
@@ -39,7 +47,7 @@ In particular, the following capacity attributes can be reserved:
 
 | Attribute      | Description                                                |
 |----------------|------------------------------------------------------------|
-| `RESERVED_CPU` | (CPU percentage) It will be subtracted from the TOTAL CPU. |
+| `RESERVED_CPU` | (CPU priority shares) It will be subtracted from the TOTAL CPU. |
 | `RESERVED_MEM` | (KB) It will be subtracted from the TOTAL MEM.             |
 
 {{< alert title="Important" type="info" >}}
