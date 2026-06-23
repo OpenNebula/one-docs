@@ -532,6 +532,55 @@
         }
       }
     },
+    "/service/{id}/sched_action/{sched_id}": {
+      "delete": {
+        "tags": [
+          "services"
+        ],
+        "summary": "Delete a scheduled action from all VMs of a Service",
+        "description": "Delete the scheduled action identified by `sched_id` from every Virtual Machine belonging to the Service resource identified by ID. VMs that no longer have the scheduled action are skipped.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Service ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "sched_id",
+            "in": "path",
+            "description": "Scheduled action ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/204"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
     "/service/{id}/scale": {
       "post": {
         "tags": [
@@ -648,6 +697,64 @@
             }
           }
         },
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/204"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/service/{id}/role/{name}/sched_action/{sched_id}": {
+      "delete": {
+        "tags": [
+          "services"
+        ],
+        "summary": "Delete a scheduled action from all VMs of a Role",
+        "description": "Delete the scheduled action identified by `sched_id` from every Virtual Machine belonging to the Role identified by `name` of the Service resource identified by ID. VMs that no longer have the scheduled action are skipped.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Service ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Role name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sched_id",
+            "in": "path",
+            "description": "Scheduled action ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "204": {
             "$ref": "#/components/responses/204"

@@ -98,40 +98,40 @@ Roles are used to orchestrate and manage these resources according to attributes
 
 1. **VM Role**: this Role defines a Virtual Machine Role within the Service. It is primarily used to manage a group of Virtual Machines that are part of the Service. This Role includes attributes like `template_id`, which specifies the VM template to be used, as well as options for scaling and elasticity policies.
 
-> | Attribute             | Type    | Mandatory   | Description                                                                          |
-> |-----------------------|---------|-------------|--------------------------------------------------------------------------------------|
-> | `name`                | string  | Yes         | The name of the VM Role.                                                             |
-> | `type`                | string  | Yes         | Must be `vm` to define a Virtual Machine Role.                                       |
-> | `cardinality`         | integer | No          | The number of VMs in this Role. Defaults to 0.                                       |
-> | `template_id`         | integer | Yes         | The ID of the template used to create VMs for this Role.                             |
-> | `template_contents`   | object  | No          | Additional template contents to be merged with the template.                         |
-> | `user_inputs`         | object  | No          | User-defined inputs that can be used in the Role configuration.                      |
-> | `user_inputs_values`  | object  | No          | Values for the user inputs.                                                          |
-> | `parents`             | array   | No          | An array of parent Role names.                                                       |
-> | `shutdown_action`     | string  | No          | The action to take when shutting down VMs (e.g., `terminate`, `shutdown`).           |
-> | `min_vms`             | integer | No          | The minimum number of VMs allowed for this Role.                                     |
-> | `max_vms`             | integer | No          | The maximum number of VMs allowed for this Role.                                     |
-> | `cooldown`            | integer | No          | The cooldown period after scaling operations.                                        |
-> | `on_hold`             | boolean | No          | If true, the Role will be held and not deployed automatically.                       |
-> | `elasticity_policies` | array   | No          | A list of elasticity policies to automatically adjust the number of VMs in the Role. |
-> | `scheduled_policies`  | array   | No          | A list of scheduled policies to adjust the number of VMs based on a schedule.        |
+  | Attribute             | Type    | Mandatory   | Description                                                                          |
+  |-----------------------|---------|-------------|--------------------------------------------------------------------------------------|
+  | `name`                | string  | Yes         | The name of the VM Role.                                                             |
+  | `type`                | string  | Yes         | Must be `vm` to define a Virtual Machine Role.                                       |
+  | `cardinality`         | integer | No          | The number of VMs in this Role. Defaults to 0.                                       |
+  | `template_id`         | integer | Yes         | The ID of the template used to create VMs for this Role.                             |
+  | `template_contents`   | object  | No          | Additional template contents to be merged with the template.                         |
+  | `user_inputs`         | object  | No          | User-defined inputs that can be used in the Role configuration.                      |
+  | `user_inputs_values`  | object  | No          | Values for the user inputs.                                                          |
+  | `parents`             | array   | No          | An array of parent Role names.                                                       |
+  | `shutdown_action`     | string  | No          | The action to take when shutting down VMs (e.g., `terminate`, `shutdown`).           |
+  | `min_vms`             | integer | No          | The minimum number of VMs allowed for this Role.                                     |
+  | `max_vms`             | integer | No          | The maximum number of VMs allowed for this Role.                                     |
+  | `cooldown`            | integer | No          | The cooldown period after scaling operations.                                        |
+  | `on_hold`             | boolean | No          | If true, the Role will be held and not deployed automatically.                       |
+  | `elasticity_policies` | array   | No          | A list of elasticity policies to automatically adjust the number of VMs in the Role. |
+  | `scheduled_policies`  | array   | No          | A list of scheduled policies to adjust the number of VMs based on a schedule.        |
 
 {{< alert title="Note" type="info" >}}
 Some defaults values like `cooldown` and `shutdown_action` can be customized in the OneFlow server configuration, located by default at `/etc/one/oneflow-server.conf`.{{< /alert >}} 
 
 2. **VR Role**: this Role defines a Virtual Router Role, which is responsible for managing Virtual Routers within the Service. Similar to the VM Role, it includes attributes like `template_id` and `cardinality`, but is specifically designed to handle network routing services. Please note that in this case `template_id` must refer to a Virtual Router template.
 
-> | Attribute            | Type    | Mandatory   | Description                                                          |
-> |----------------------|---------|-------------|----------------------------------------------------------------------|
-> | `name`               | string  | Yes         | The name of the VR Role.                                             |
-> | `type`               | string  | Yes         | Must be `vr` to define a Virtual Router Role.                        |
-> | `template_id`        | integer | Yes         | The ID of the template used to create Virtual Routers for this Role. |
-> | `cardinality`        | integer | No          | The number of Virtual Routers in this Role. Defaults to 0.           |
-> | `template_contents`  | object  | No          | Additional template contents to be merged with the template.         |
-> | `user_inputs`        | object  | No          | User-defined inputs that can be used in the Role configuration.      |
-> | `user_inputs_values` | object  | No          | Values for the user inputs.                                          |
-> | `on_hold`            | boolean | No          | If true, the Role will be held and not deployed automatically.       |
-> | `parents`            | array   | No          | An array of parent Role names.                                       |
+ | Attribute            | Type    | Mandatory   | Description                                                          |
+ |----------------------|---------|-------------|----------------------------------------------------------------------|
+ | `name`               | string  | Yes         | The name of the VR Role.                                             |
+ | `type`               | string  | Yes         | Must be `vr` to define a Virtual Router Role.                        |
+ | `template_id`        | integer | Yes         | The ID of the template used to create Virtual Routers for this Role. |
+ | `cardinality`        | integer | No          | The number of Virtual Routers in this Role. Defaults to 0.           |
+ | `template_contents`  | object  | No          | Additional template contents to be merged with the template.         |
+ | `user_inputs`        | object  | No          | User-defined inputs that can be used in the Role configuration.      |
+ | `user_inputs_values` | object  | No          | Values for the user inputs.                                          |
+ | `on_hold`            | boolean | No          | If true, the Role will be held and not deployed automatically.       |
+ | `parents`            | array   | No          | An array of parent Role names.                                       |
 
 {{< alert title="Warning" type="warning" >}}
 Keep in mind that Auto-scaling and Elasticity options for Virtual Router Roles are not supported, as these operations are not natively supported by Virtual Routers.{{< /alert >}} 
@@ -142,23 +142,23 @@ Users can manage the Service templates using the command `oneflow-template` or S
 
 The command `oneflow-template create` registers a JSON template file. For example, if the previous example template is saved in `/tmp/my_service.json`, you can execute:
 
-```default
-$ oneflow-template create /tmp/my_service.json
+```shell
+oneflow-template create /tmp/my_service.json
 ID: 0
 ```
 
 To list the available Service templates, use `oneflow-template list`:
 
-```default
-$ oneflow-template list
+```shell
+oneflow-template list
 ID USER            GROUP           NAME         REGTIME
  0 oneadmin        oneadmin        my_service   10/28 17:42:46
 ```
 
 To check details about a Service template, use `oneflow-template show`:
 
-```default
-$ oneflow-template show 0
+```shell
+oneflow-template show 0
 SERVICE TEMPLATE 0 INFORMATION
 ID                  : 0
 NAME                : my_service
@@ -184,13 +184,14 @@ TEMPLATE CONTENTS
 
 As shown in the image below, you can also create and list Service templates from Sunstone from `Templates` > `Service Templates`.
 
-![oneflow-templates-list](/images/oneflow-templates-list.png)
+{{< image path="/images/oneflow-templates-list.png" alt="OneFlow templates list" align="center" width="90%" mb="20px"
+>}}
 
 ### Updating a Service Template
 
 To update an existing Service template, use the following command, replacing `<ID>` with the Service template’s ID. This will open an editor where you can manually add new attributes:
 
-```default
+```shell
 oneflow-template update <ID>
 ```
 
@@ -210,7 +211,7 @@ Alternatively, if you already have the new attributes defined in a file like the
 
 You can update the Service Template by specifying the file in the command, as shown below:
 
-```default
+```shell
 oneflow-template update <ID> <file>
 ```
 
@@ -218,7 +219,8 @@ The above example will update the description of the Service template and the ca
 
 Updating Service templates can also be done through Sunstone. Simply select the desired Service template, making the changes through the graphical interface selecting the `Update` button in the toolbar:
 
-![oneflow-templates-update](/images/oneflow-templates-update.png)
+{{< image path="/images/oneflow-templates-update.png" alt="OneFlow templates update" align="center" width="90%" mb="20px"
+>}}
 
 ### Deleting a Service Templates
 
@@ -231,7 +233,8 @@ In case you need it, you can also delete VM templates associated to the Service 
 
 You can delete Service templates in Sunstone as well by clicking on the trash can icon once the desired Service template is selected.
 
-![oneflow-templates-delete](/images/oneflow-templates-delete.png)
+{{< image path="/images/oneflow-templates-delete.png" alt="OneFlow templates delete" align="center" width="90%" mb="20px"
+>}}
 
 <a id="service-clone"></a>
 
@@ -376,7 +379,8 @@ To enhance the flexibility of User Inputs in Service templates, they can be conf
 
 From Sunstone, you can add User Inputs as fields during the creation of the OneFlow Service template or update an already existing one in the following form:
 
-![oneflow-templates-attrs](/images/oneflow-templates-attrs.png)
+{{< image path="/images/oneflow-templates-attrs.png" alt="OneFlow templates attrs" align="center" width="90%" mb="20px"
+>}}
 
 In the same way as in the CLI, Sunstone will prompt the user for the User Inputs declared in the Service template during instantiation.
 
@@ -395,7 +399,8 @@ When a Service template is instantiated using Sunstone, the user will be asked t
 
 A step called Service Inputs will render the User Inputs for the service:
 
-![sunstone_oneflow_serviceinputs_noconvention](/images/sunstone_oneflow_serviceinputs_noconvention.png)
+{{< image path="/images/sunstone_oneflow_serviceinputs_noconvention.png" alt="OneFlow Service Inputs No Convention" align="center" width="90%" mb="20px"
+>}}
 
 In order to improve the user experience, Sunstone can render these user inputs in a different way, easier to understand for the Sunstone user. To do that, Sunstone uses rules based on the name of the User Inputs. [These rules are the same as the ones used in Virtual Machines templates]({{% relref "../virtual_machines/vm_templates#sunstone-layout-rules" %}}).
 
@@ -410,13 +415,15 @@ So, if the previous template is modified as follows:
 
 The user inputs will be grouped in a tab called APACHE with a group called CONFIG:
 
-![sunstone_oneflow_serviceinputs_convention](/images/sunstone_oneflow_serviceinputs_convention.png)
+{{< image path="/images/sunstone_oneflow_serviceinputs_convention.png" alt="OneFlow Service Inputs Convention" align="center" width="90%" mb="20px"
+>}}
 
 If the service has a Role with a Virtual Machine template that has User Inputs that do not exist on the Service template, these User Inputs that belong to the Virtual Machine template will be rendered in a different step called Roles Inputs.
 
-So, if the Service template references to the [virtual machine template defined in]({{% relref "../virtual_machines/vm_templates#vm-guide-user-inputs-sunstone" %}}) Sunstone look like this:
+So, if the Service template references to the [Virtual Machine template defined in]({{% relref "../virtual_machines/vm_templates#vm-guide-user-inputs-sunstone" %}}) Sunstone look like this:
 
-![sunstone_oneflow_serviceinputs_noconvention_template](/images/sunstone_oneflow_serviceinputs_noconvention_template.png)
+{{< image path="/images/sunstone_oneflow_serviceinputs_noconvention_template.png" alt="OneFlow Service Inputs No Convention Template" align="center" width="90%" mb="20px"
+>}}
 
 All the user inputs that belong to the Virtual Machine template and are not in the Service template are grouped in a tab with the name of the Role.
 
@@ -449,7 +456,8 @@ So, if we use the previous template and add the following information:
 
 Where BASE64_IMAGE is an image in base64 format, Sunstone will render the following:
 
-![sunstone_oneflow_serviceinputs_layout](/images/sunstone_oneflow_serviceinputs_layout.png)
+{{< image path="/images/sunstone_oneflow_serviceinputs_layout.png" alt="OneFlow Service Inputs Layout" align="center" width="90%" mb="20px"
+>}}
 
 Using logo attribute we can add a logo to the Service template in base64. Also, we can add info objects with metadata ([please see User Inputs metadata]({{% relref "../../operation_references/configuration_references/template#template-user-inputs-metadata" %}}) to get info about the object structure).
 
@@ -552,11 +560,13 @@ In this example, the `worker` Role has a network interface attached described by
 
 All these functionalities are also available through the Sunstone portal, allowing you to quickly create dynamic networks with ease.
 
-![oneflow-templates-net-1](/images/oneflow-templates-net-1.png)
+{{< image path="/images/oneflow-templates-net-1.png" alt="OneFlow Templates Network" align="center" width="90%" mb="20px"
+>}}
 
 As you can see in the picture above, each Role of the service can be attached to one or more dynamic networks individually. The network can be attached to the Role as an alias. In this case, you need to specify the interface to add the alias by selecting the Virtual Network it will be attached to. For example, the Role `slave` in the next picture will have one physical interface attached to the `PRIVATE` network. This interface will also have an IP alias configured from network `PUBLIC`. Additionally you can set whether the VMs in the Role expose an RDP endpoint. Additionally, you need to specify the IP of the VM for the RDP connection by selecting the Virtual Network the interface is attached to.
 
-![oneflow-templates-net-2](/images/oneflow-templates-net-2.png)
+{{< image path="/images/oneflow-templates-net-2.png" alt="OneFlow Templates Network 2" align="center" width="90%" mb="20px"
+>}}
 
 ## Service
 
@@ -730,12 +740,12 @@ New attributes have also been added within each Role that show information relev
 
 The `deployment` attribute defines the deployment strategy that the Life-cycle Manager (part of the [oneflow-server]({{% relref "../../operation_references/opennebula_services_configuration/oneflow#appflow-configure" %}})) will use. These two values can be used:
 
-* **none**: all Roles are deployed at the same time.
-* **straight**: each Role is deployed when all its parent Roles are `RUNNING`.
+* **none**: All Roles are deployed at the same time.
+* **straight**: Each Role is deployed when all its parent Roles are `RUNNING`.
 
 Regardless of the strategy used, the Service will be `RUNNING` when all of the Roles are also `RUNNING`.
 
-![image4](/images/flow_lcm.png)
+{{< image path="/images/flow_lcm.png" alt="OneFlow LCM" align="center" width="70%" mb="20px" >}}
 
 This table describes the Service states:
 
@@ -779,7 +789,8 @@ Each Role has an individual state, described in the following table:
 
 Depending on the deployment strategy, OneFlow will wait until all the VMs in a specific Role are all in `RUNNING` state before deploying VMs that belong to a child Role. How OneFlow determines the running state of the VMs can be specified with the checkbox `Consider VMs as running only when they report READY status via OneGate` available in the Service creation dialog in Sunstone, or the attribute in `ready_status_gate` in the top level of the Service Template JSON.
 
-![oneflow-ready-status-checkbox](/images/oneflow-ready-status-checkbox.png)
+{{< image path="/images/oneflow-ready-status-checkbox.png" alt="OneFlow Ready Status" align="center" width="90%" mb="20px"
+>}}
 
 If `ready_status_gate` is set to `true`, a VM will only be considered to be in running state if the following points are true:
 
@@ -792,15 +803,15 @@ If `ready_status_gate` is set to `false`, a VM will be considered to be in runni
 
 New Services are created from Service templates, using the `oneflow-template instantiate` command:
 
-```default
-$ oneflow-template instantiate 0
+```shell
+oneflow-template instantiate 0
 ID: 1
 ```
 
 To list the available Services, use `oneflow list/top`:
 
-```default
-$ oneflow list
+```shell
+oneflow list
 ID USER            GROUP           NAME          STARTTIME          STATE
  1 oneadmin        oneadmin        my_service    10/28 17:42:46     PENDING
 ```
@@ -809,11 +820,13 @@ The Service will eventually change to `DEPLOYING`. You can see information for e
 
 From Sunstone, you can instantiate a new Service from the tab `Instances` > `Services`, clicking in the `Create` button located in the toolbar.
 
-![oneflow-services-list](/images/oneflow-services-create.png)
+{{< image path="/images/oneflow-services-create.png" alt="OneFlow Services Create" align="center" width="90%" mb="20px"
+>}}
 
 By selecting the Role tab once you have selected a Service, you can see the deployment state of each Role:
 
-![image3](/images/oneflow-service.png)
+{{< image path="/images/oneflow-service.png" alt="OneFlow Service" align="center" width="90%" mb="20px"
+>}}
 
 ### Instantiation of Roles with VMs on Hold
 
@@ -841,8 +854,8 @@ Roles can be only added/removed when the service is in RUNNING state.{{< /alert 
 
 In order to add a Role to a running service you can use the command `oneflow add-role`. You need to provide a valid JSON with the Role description, for example:
 
-```default
-$ cat role.tmpl
+```shell
+cat role.tmpl
 {
     "name": "MASTER",
     "cardinality": 1,
@@ -853,7 +866,7 @@ $ cat role.tmpl
     "elasticity_policies": [],
     "scheduled_policies": []
 }
-$ oneflow add-role 0 role.tmpl
+oneflow add-role 0 role.tmpl
 ```
 
 After adding the Role, the service will go to `DEPLOYING` state and when the VMs are created, it will go to `RUNNING`.
@@ -866,8 +879,8 @@ Before adding the Role, the JSON is checked, to see that it follows [the schema]
 
 In order to remove a Role from a running service you can use the command `oneflow remove-role`, for example:
 
-```default
-$ oneflow remove-role 0 MASTER
+```shell
+oneflow remove-role 0 MASTER
 ```
 
 After removing the Role, the service will go to `UNDEPLOYING` state and when the VMs are removed, it will go to `RUNNING`.
@@ -969,8 +982,8 @@ This option can also be set at the Role level, where only one specific Role is i
 
 Once you want to release the Roles, you can use the `oneflow release` command to release the Service:
 
-```default
-$ oneflow release <SERVICE_ID>
+```shell
+oneflow release <SERVICE_ID>
 ```
 
 ### Managing Service Permissions
@@ -1021,14 +1034,38 @@ Instead of performing the action immediately on all the VMs, you can perform it 
 
 Let’s say you need to reboot all the VMs of a Role, but you also need to avoid downtime. This command will reboot two VMs each five minutes:
 
-```default
-$ oneflow action my-service my-role reboot --period 300 --number 2
+```shell
+oneflow action my-service my-role reboot --period 300 --number 2
 ```
 
 The `/etc/one/oneflow-server.conf` file contains default values for `period` and `number` that are used if you omit one of them.
 
 {{< alert title="Note" type="info" >}}
 You can also perform an operation in the whole service using the command `service action`. All the above operations and options are supported.{{< /alert >}} 
+
+### Deleting Scheduled Actions from Service VMs
+
+When an action is scheduled through OneFlow, the scheduled action is created in the VMs that belong to the selected Role or Service. You can remove that scheduled action centrally from OneFlow instead of deleting it VM by VM.
+
+To delete a scheduled action from all the VMs in a Role, use the scheduled action ID shown in the Service or VM scheduled actions view:
+
+```shell
+oneflow sched-delete <SERVICE_ID> <ROLE_NAME> <SCHED_ID>
+```
+
+For example, to delete scheduled action `3` from every VM in the `frontend` Role:
+
+```shell
+oneflow sched-delete my-service frontend 3
+```
+
+You can also delete a scheduled action from all the VMs in the Service:
+
+```shell
+oneflow service sched-delete <SERVICE_ID> <SCHED_ID>
+```
+
+The operation is idempotent: VMs that no longer have the scheduled action are skipped.
 
 {{< alert title="Warning" type="warning" >}}
 Schedule actions are only supported by VM-type Roles.{{< /alert >}} 
@@ -1057,7 +1094,7 @@ Network mapping in OneFlow is facilitated through the use of Virtual Router Role
 
 To establish network mapping, you need to define a Service template that includes a Virtual Router Role. Below is an example configuration for a Virtual Router Role in JSON format:
 
-```default
+```json
 {
   "roles": [
     ...
@@ -1101,7 +1138,7 @@ Additionally, as described in the [Dynamic Network Configuration]({{% relref "#a
 
 When the Service is instantiated, the Virtual Router Role will look like the following:
 
-```default
+```json
 {
   ...
   "roles": [
@@ -1158,7 +1195,8 @@ In many cases, the networks and the IP of the router are dynamically assigned. T
 
 This functionality automatically adds scheduling actions in VM when the service is instantiated; for more information about this, please check the [VM Charter]({{% relref "../virtual_machines/vm_instances#vm-charter" %}})
 
-![image1](/images/charterts_on_services.png)
+{{< image path="/images/charterts_on_services.png" alt="OneFlow Charters" align="center" width="90%" mb="20px"
+>}}
 
 <a id="service-global"></a>
 
@@ -1175,8 +1213,7 @@ These expressions can be placed inside `template_contents` attribute, which is t
 
 ```default
 template_contents": {
-  "DB_NAME": "${DATABASE.template.context.db_name"
-}
+  "DB_NAME": "${DATABASE.template.context.db_name}"
 ```
 
 {{< alert title="Important" type="info" >}}
@@ -1184,4 +1221,4 @@ This will only work when using STRAIGHT strategy and when there is a parent rela
 
 ## Service Template Reference
 
-For more information on the resource representation, please check the [API guide]({{% relref "../../../product/integration_references/system_interfaces/appflow_api#appflow-api" %}})
+For more information on the resource representation, please check the [API Guide]({{% relref "../../../product/integration_references/system_interfaces/appflow_api#appflow-api" %}}).
