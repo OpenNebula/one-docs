@@ -28,6 +28,7 @@ The OpenNebula team is excited to announce the availability of the **OpenNebula 
 ## API and CLI
 
 * **Dynamic VM Group Management**: New CLI commands `onevm vmgroup-add` and `onevm vmgroup-del` allow adding or removing VMs from a [VM Group]({{% relref "affinity.md#dynamic-vmg" %}}) dynamically.
+* **OneGate Sinatra Configuration**: OneGate now exposes the Sinatra server configuration through the `:server` section in `onegate-server.conf`, allowing administrators to customize supported Sinatra settings such as Host authorization.
 
 ## KVM
 

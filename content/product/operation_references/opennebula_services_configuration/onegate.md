@@ -56,7 +56,7 @@ For a quick view of any changes in configuration file options in maintenance rel
 | `:expire_delta`             | Default interval for timestamps. Tokens will be generated using the same timestamp for this interval of time. THIS VALUE CANNOT BE LOWER THAN EXPIRE_MARGIN.                                                                                                                                                                                                             |
 | `:expire_margin`            | Tokens will be generated if time > EXPIRE_TIME - EXPIRE_MARGIN                                                                                                                                                                                                                                                                                                           |
 
-The `:server` section is passed directly to the Sinatra OneGate server. Any Sinatra setting supported by the version shipped with OpenNebula can be defined under this key. For example, in addition to `:bind` and `:port`, advanced deployments may configure other Sinatra options in the same section, such as `:host_authorization`:
+The `:server` section is passed directly to the Sinatra OneGate server. Any Sinatra setting supported by the version shipped with OpenNebula can be defined under this key. For the list of available settings, see the [Sinatra configuration documentation](https://sinatrarb.com/configuration.html). For example, in addition to `:bind` and `:port`, advanced deployments may configure other Sinatra options in the same section, such as `:host_authorization`:
 
 ```yaml
 :server:
