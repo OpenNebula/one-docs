@@ -34,6 +34,7 @@ The OpenNebula team is excited to announce the availability of the **OpenNebula 
 
 * Enable filtering by OS ID/type/version/architecture in [QEMU Guest Agent Monitoring](/product/operation_references/hypervisor_configuration/kvm_driver/#qemu-guest-agent-monitoring).
 * Added support for [dummy interfaces]({{% relref "vm_templates#network-interfaces--alias" %}}), allowing KVM VMs to use guest NICs that are not attached to any OpenNebula Virtual Network.
+* Gather network information using qemu-guest-agent when [QEMU Guest Agent Monitoring](/product/operation_references/hypervisor_configuration/kvm_driver/#qemu-guest-agent-monitoring) is enabled
 
 ## LXC
 

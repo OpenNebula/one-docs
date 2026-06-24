@@ -393,7 +393,13 @@ The communication channel with guest agent is enabled in the domain XML when the
 
 ### QEMU Guest Agent Monitoring
 
-You can extend the VM monitoring information with information gathered by the guest agent by setting `:enabled` to **true** on the file `/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf`. Execute `onehost sync --force` afterwards. This file contains a list of `:commands` that will be executed when running the VM monitoring probes. The result of the execution of these commands will appear on the MONITORING section on the VM instance template.
+You can enable and extend the VM monitoring information gathered by the guest agent by setting `:enabled` to **true** on the file `/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf`. Execute `onehost sync --force` afterwards.
+
+When enabled, the QEMU Guest Agent will by default monitor the non-loopback IPv4 and IPv6 addresses reported by the guest network interfaces. These values are stored in the `MONITORING/GUEST_IP_ADDRESSES` attribute and will be displayed in the Sunstone interface.
+
+### Custom QEMU Guest Agent Commands
+
+You can also define custom guest agent commands to put specific information in the monitoring output. The configuration file `/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf` also contains a list of `:commands` that will be executed when running the VM monitoring probes. The result of the execution of these commands will appear on the MONITORING section on the VM instance template.
 
 By default an example command is provided, this effectively allows us to detect VM crashes:
 
