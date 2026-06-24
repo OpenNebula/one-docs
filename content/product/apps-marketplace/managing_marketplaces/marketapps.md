@@ -40,13 +40,6 @@ $ onemarketapp list
     22 Alpine Linux 3.18                     6.10.0-2-2  256M  rdy  img 05/14/24 OpenNebula    0
     21 Oracle Linux 9                        6.10.0-2-2   37G  rdy  img 05/14/24 OpenNebula    0
     20 ALT Linux p9                          6.8.1-1-20  1.5G  rdy  img 02/01/24 OpenNebula    0
-    19 OneKE 1.29 Airgapped Storage          1.29.4-6.1    0M  rdy  tpl 05/10/24 OpenNebula    0
-    18 OneKE 1.29 Airgapped OS disk          1.29.4-6.1   25G  rdy  img 05/10/24 OpenNebula    0
-    17 OneKE 1.29 Airgapped                  1.29.4-6.1    0M  rdy  tpl 05/10/24 OpenNebula    0
-    16 Service OneKE 1.29 Airgapped          1.29.4-6.1    0M  rdy  srv 05/10/24 OpenNebula    0
-    15 OneKE 1.29                            1.29.2-6.1    0M  rdy  tpl 05/10/24 OpenNebula    0
-    14 OneKE 1.29 OS disk                    1.29.2-6.1   25G  rdy  img 05/10/24 OpenNebula    0
-    13 OneKE 1.29 VNF                        1.29.2-6.1    2G  rdy  img 05/15/24 OpenNebula    0
 ```
 
 To get more details of an Appliance use the `show` option, for example:

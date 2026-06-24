@@ -31,11 +31,9 @@ An OpenNebula infrastructure can be deployed on-premises, in the cloud, at the e
 
 OpenNebula can manage both single VMs and complex multi-tier services composed of several VMs that require sophisticated elasticity rules and dynamic adaptability. Elements in the OpenNebula infrastructure—such as Virtual Machines, networks, and appliances—are created from images and templates. Users can modify existing templates or create new ones. Cloud administrators can share templates across their organizations, either directly or using a private corporate Marketplace. Additionally, the [OpenNebula Public Marketplace](https://marketplace.opennebula.io) offers pre-defined, fully-functional templates for download and deployment, including for multi-VM applications and virtual devices.
 
-### Containerized Applications through Kubernetes
+### Containerized Applications through Elastic Kubernetes
 
-OpenNebula supports the automated deployment of Kubernetes Clusters through a virtual appliance, **OneKE**, the OpenNebula Kubernetes Engine. OneKE is an enterprise-grade, CNCF-certified Kubernetes distribution based on SUSE Rancher RKE2. In its basic configuration it comprises four Virtual Machines: the Kubernetes master node, a VNF node, a storage node, and a worker node. It can be configured as a multi-master Cluster for high availability, and easily scaled up to include more worker nodes, either before deployment or dynamically during operation, by using elasticity rules. It includes features such as MetalLB load balancing, Multus and Cilium CNI plugins, and Longhorn storage. It is available as a multi-VM appliance on the OpenNebula Marketplace and can be installed in minutes using Sunstone, OpenNebula’s web UI.
-
-{{< image path="/images/overview_containers.svg" alt="OneKE Architecture with Containerized Applications" align="center" width="80%" mb="20px" border="false" >}}
+OpenNebula supports the automated deployment of Kubernetes Clusters through OneKS, the OpenNebula Elastic Kubernetes Service. OneKS provides Kubernetes-as-a-Service on top of OpenNebula, offering a structured way to create, access, operate, scale, upgrade, recover, and deprovision Kubernetes Clusters across cloud and edge environments. It combines a user-facing service layer with Cluster API-based infrastructure provisioning through CAPONE, the Cluster API provider for OpenNebula.
 
 ### Management Model and Tools
 

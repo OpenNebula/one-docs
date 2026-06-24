@@ -624,5 +624,3 @@ Search for vLLM appliance and import it. Select DataStore where to save image
 ## Next Steps
 
 Additionally, we recommend checking [Validate the environment]({{% relref "validate_the_environment" %}}), that describes how to explore the resources installed and how to download and run appliances from the [OpenNebula Marketplace](https://marketplace.opennebula.io/).
-
-Finally, you can use your OpenNebula installation to [Run a Kubernetes Cluster on OpenNebula]({{% relref "running_kubernetes_clusters" %}}) with minimal steps -- first downloading the OneKE Service from the OpenNebula Public Marketplace, then  deploying a full-fledged K8s cluster with a test application.
