@@ -352,6 +352,14 @@ There are four methods to transfer the images from vCenter/ESXi to the conversio
   - Use the [RbVmomi2](https://github.com/ManageIQ/rbvmomi2) library to download the image locally, then convert it with a local `virt-v2v` run.
   - Fast, but requires extra disk space as it copies the image. Incompatible with `--custom`, `--esxi` and `--vddk`.
 
+Hybrid datastore downloads can optionally use multiple HTTP Range requests in parallel with `--download-stripes N` or `:download_stripes: N` in `oneswap.yaml`. The default value is `1`, which keeps the existing single-stream behavior. Values greater than `1` apply only to hybrid datastore transfers and require `--hybrid`. If HTTP Range support is not available, OneSwap falls back to the standard single-stream download.
+
+For example:
+
+```bash
+oneswap convert VM_NAME --hybrid --download-stripes 4
+```
+
 A custom conversion option (`--custom`) is also provided, which is only recommended as a fallback, that does not use virt-v2v. It relies on RbVmomi2, using `qemu-img` and `virt-customize`/`guestfish` to prepare the image for OpenNebula. It can be useful for guest distributions which are not supported by virt-v2v or which fail to convert, but it does not support Windows guests. With `--fallback`, OneSwap first attempts the virt-v2v conversion and automatically retries with the custom conversion process if it fails. `--fallback` and `--custom` cannot be combined.
 
 ### Converting Virtual Machines
