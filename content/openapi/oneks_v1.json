@@ -219,8 +219,19 @@
                                 "name": "production-cluster",
                                 "description": "General-purpose production cluster",
                                 "kubernetes_version": "v1.32.9",
-                                "public_network": 105,
-                                "private_network": 106,
+                                "deployment": {
+                                    "cluster": {
+                                        "id": 0
+                                    },
+                                    "networks": {
+                                        "public": {
+                                            "id": 105
+                                        },
+                                        "private": {
+                                            "id": 106
+                                        }
+                                    }
+                                },
                                 "spec": {
                                     "family": "general",
                                     "flavour": "ha",
@@ -268,13 +279,13 @@
                 }
             }
         },
-        "/clusters/check": {
+        "/clusters/deployment/check": {
             "get": {
                 "tags": [
                     "clusters"
                 ],
-                "summary": "Get readiness check service status",
-                "description": "Returns whether the OneKS readiness check service is enabled in the OneKS server configuration.",
+                "summary": "Get deployment readiness check service status",
+                "description": "Returns whether the OneKS deployment readiness check service is enabled in the OneKS server configuration.",
                 "responses": {
                     "200": {
                         "description": "Readiness check service status",
@@ -310,32 +321,27 @@
                 "tags": [
                     "clusters"
                 ],
-                "summary": "Run a readiness check",
-                "description": "Runs the OneKS readiness check service against a public and private Virtual Network pair before provisioning a Kubernetes cluster. The response is a Server-Sent Events stream. Each progress event uses the `check_cluster` event name and sends a JSON object inline in the event `data` field with the following structure: `name` is the check step, `state` is one of `started`, `success`, or `failure`, and `context` is an optional error or detail message.",
+                "summary": "Run a deployment readiness check",
+                "description": "Runs the OneKS deployment readiness check service against a complete deployment placement before provisioning a Kubernetes cluster. The check validates the target OpenNebula cluster and networks, required OneKS appliance, and live bootstrap connectivity. The response is a Server-Sent Events stream. Each progress event uses the `check_cluster` event name and sends a JSON object inline in the event `data` field with the following structure: `name` is the check step, `state` is one of `started`, `success`, or `failure`, and `context` is an optional error or detail message.",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type": "object",
-                                "required": [
-                                    "public_network",
-                                    "private_network"
-                                ],
-                                "properties": {
-                                    "public_network": {
-                                        "type": "integer",
-                                        "description": "Public Virtual Network ID used by the readiness probe VM."
-                                    },
-                                    "private_network": {
-                                        "type": "integer",
-                                        "description": "Private Virtual Network ID validated by the readiness probe VM."
-                                    }
-                                }
+                                "$ref": "#/components/schemas/ClusterDeployment"
                             },
                             "example": {
-                                "public_network": 105,
-                                "private_network": 106
+                                "cluster": {
+                                    "id": 0
+                                },
+                                "networks": {
+                                    "public": {
+                                        "id": 105
+                                    },
+                                    "private": {
+                                        "id": 106
+                                    }
+                                }
                             }
                         }
                     }
@@ -362,8 +368,73 @@
                     "403": {
                         "$ref": "#/components/responses/403"
                     },
-                    "405": {
-                        "$ref": "#/components/responses/405"
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/clusters/deployment/validate": {
+            "post": {
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Validate cluster deployment placement",
+                "description": "Validates a OneKS deployment placement before creating a cluster. The operation checks that the target OpenNebula cluster exists, that the selected public and private networks belong to it, that the optional image datastore is available in it, and that the OneKS appliance required by the selected family is available. It does not create any OneKS resources.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClusterDeployment"
+                            },
+                            "example": {
+                                "cluster": {
+                                    "id": 0
+                                },
+                                "networks": {
+                                    "public": {
+                                        "id": 105
+                                    },
+                                    "private": {
+                                        "id": 106
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Deployment placement is valid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "valid": {
+                                            "type": "boolean",
+                                            "description": "Whether the deployment placement can be used."
+                                        }
+                                    },
+                                    "required": [
+                                        "valid"
+                                    ]
+                                },
+                                "example": {
+                                    "valid": true
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
                     },
                     "500": {
                         "$ref": "#/components/responses/500"
@@ -1412,200 +1483,190 @@
                 "type": "object",
                 "description": "OpenNebula JSON document representing a OneKS cluster",
                 "properties": {
-                "DOCUMENT": {
-                    "type": "object",
-                    "properties": {
-                    "ID": {
-                        "type": "string",
-                        "description": "ID of the resource in OpenNebula"
-                    },
-                    "UID": {
-                        "type": "string",
-                        "description": "User ID"
-                    },
-                    "GID": {
-                        "type": "string",
-                        "description": "Group ID"
-                    },
-                    "UNAME": {
-                        "type": "string",
-                        "description": "Username"
-                    },
-                    "GNAME": {
-                        "type": "string",
-                        "description": "Group name"
-                    },
-                    "NAME": {
-                        "type": "string",
-                        "description": "Name of the object"
-                    },
-                    "TYPE": {
-                        "type": "string",
-                        "description": "Type identifier of the object"
-                    },
-                    "PERMISSIONS": {
-                        "type": "object",
-                        "description": "Permission bits for the object (U: Use, M: Manage, A: Admin)",
-                        "properties": {
-                        "OWNER_U": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "OWNER_M": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "OWNER_A": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "GROUP_U": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "GROUP_M": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "GROUP_A": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "OTHER_U": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "OTHER_M": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "OTHER_A": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        }
-                        }
-                    },
-                    "TEMPLATE": {
+                    "DOCUMENT": {
                         "type": "object",
                         "properties": {
-                            "CLUSTER_BODY": {
+                            "ID": {
+                                "type": "string",
+                                "description": "ID of the resource in OpenNebula"
+                            },
+                            "UID": {
+                                "type": "string",
+                                "description": "User ID"
+                            },
+                            "GID": {
+                                "type": "string",
+                                "description": "Group ID"
+                            },
+                            "UNAME": {
+                                "type": "string",
+                                "description": "Username"
+                            },
+                            "GNAME": {
+                                "type": "string",
+                                "description": "Group name"
+                            },
+                            "NAME": {
+                                "type": "string",
+                                "description": "Name of the object"
+                            },
+                            "TYPE": {
+                                "type": "string",
+                                "description": "Type identifier of the object"
+                            },
+                            "PERMISSIONS": {
                                 "type": "object",
-                                "description": "Cluster body information",
+                                "description": "Permission bits for the object (U: Use, M: Manage, A: Admin)",
                                 "properties": {
-                                    "name": {
+                                    "OWNER_U": {
                                         "type": "string",
-                                        "description": "Cluster name"
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "description": "Cluster description"
-                                    },
-                                    "state": {
-                                        "type": "string",
-                                        "description": "Current state of the cluster lifecycle",
                                         "enum": [
-                                            "PENDING",
-                                            "PROVISIONING",
-                                            "RUNNING",
-                                            "SCALING",
-                                            "UPGRADING",
-                                            "DEPROVISIONING",
-                                            "DONE",
-                                            "PROVISIONING_FAILURE",
-                                            "SCALING_FAILURE",
-                                            "UPGRADING_FAILURE",
-                                            "DEPROVISIONING_FAILURE",
-                                            "WARNING"
+                                            "0",
+                                            "1"
                                         ]
                                     },
-                                    "kubernetes_version": {
+                                    "OWNER_M": {
                                         "type": "string",
-                                        "description": "Desired Kubernetes version for the cluster"
-                                    },
-                                    "public_network": {
-                                        "type": "integer",
-                                        "description": "OpenNebula virtual network ID used as the public network"
-                                    },
-                                    "private_network": {
-                                        "type": "integer",
-                                        "description": "OpenNebula virtual network ID used as the private network"
-                                    },
-                                    "vrouter_id": {
-                                        "type": "integer",
-                                        "nullable": true,
-                                        "description": "Optional virtual router ID associated with the cluster"
-                                    },
-                                    "control_plane": {
-                                        "description": "Control plane reference or expanded control plane group body. When expanded, control-plane-specific attributes such as `endpoint` may be present.",
-                                        "oneOf": [
-                                            {
-                                                "$ref": "#/components/schemas/K8sGroupReference"
-                                            },
-                                            {
-                                                "$ref": "#/components/schemas/K8sGroup"
-                                            }
+                                        "enum": [
+                                            "0",
+                                            "1"
                                         ]
                                     },
-                                    "node_groups": {
-                                        "type": "array",
-                                        "description": "Nodegroups attached to the cluster. Entries are references in list mode and full group bodies when expanded.",
-                                        "items": {
-                                            "oneOf": [
-                                                {
-                                                    "$ref": "#/components/schemas/K8sGroupReference"
-                                                },
-                                                {
-                                                    "$ref": "#/components/schemas/K8sGroup"
-                                                }
-                                            ]
-                                        }
+                                    "OWNER_A": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
                                     },
-                                    "registration_time": {
-                                        "type": "integer",
-                                        "format": "int64",
-                                        "description": "Unix timestamp indicating when the cluster was registered"
+                                    "GROUP_U": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
                                     },
-                                    "historic": {
-                                        "type": "array",
-                                        "description": "Historic lifecycle events registered for the cluster",
-                                        "items": {
-                                            "$ref": "#/components/schemas/HistoricEntry"
-                                        }
+                                    "GROUP_M": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
+                                    },
+                                    "GROUP_A": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
+                                    },
+                                    "OTHER_U": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
+                                    },
+                                    "OTHER_M": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
+                                    },
+                                    "OTHER_A": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
                                     }
-                                },
-                                "additionalProperties": true
+                                }
+                            },
+                            "TEMPLATE": {
+                                "type": "object",
+                                "properties": {
+                                    "CLUSTER_BODY": {
+                                        "type": "object",
+                                        "description": "Cluster body information",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string",
+                                                "description": "Cluster name"
+                                            },
+                                            "description": {
+                                                "type": "string",
+                                                "description": "Cluster description"
+                                            },
+                                            "state": {
+                                                "type": "string",
+                                                "description": "Current state of the cluster lifecycle",
+                                                "enum": [
+                                                    "PENDING",
+                                                    "PROVISIONING",
+                                                    "RUNNING",
+                                                    "SCALING",
+                                                    "UPGRADING",
+                                                    "DEPROVISIONING",
+                                                    "DONE",
+                                                    "PROVISIONING_FAILURE",
+                                                    "SCALING_FAILURE",
+                                                    "UPGRADING_FAILURE",
+                                                    "DEPROVISIONING_FAILURE",
+                                                    "WARNING"
+                                                ]
+                                            },
+                                            "kubernetes_version": {
+                                                "type": "string",
+                                                "description": "Desired Kubernetes version for the cluster"
+                                            },
+                                            "control_plane": {
+                                                "description": "Control plane reference or expanded control plane group body. When expanded, control-plane-specific attributes such as `endpoint` may be present.",
+                                                "oneOf": [
+                                                    {
+                                                        "$ref": "#/components/schemas/K8sGroupReference"
+                                                    },
+                                                    {
+                                                        "$ref": "#/components/schemas/K8sGroup"
+                                                    }
+                                                ]
+                                            },
+                                            "node_groups": {
+                                                "type": "array",
+                                                "description": "Nodegroups attached to the cluster. Entries are references in list mode and full group bodies when expanded.",
+                                                "items": {
+                                                    "oneOf": [
+                                                        {
+                                                            "$ref": "#/components/schemas/K8sGroupReference"
+                                                        },
+                                                        {
+                                                            "$ref": "#/components/schemas/K8sGroup"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "registration_time": {
+                                                "type": "integer",
+                                                "format": "int64",
+                                                "description": "Unix timestamp indicating when the cluster was registered"
+                                            },
+                                            "historic": {
+                                                "type": "array",
+                                                "description": "Historic lifecycle events registered for the cluster",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/HistoricEntry"
+                                                }
+                                            },
+                                            "deployment": {
+                                                "$ref": "#/components/schemas/ClusterDeployment"
+                                            }
+                                        },
+                                        "additionalProperties": true
+                                    }
+                                }
                             }
                         }
                     }
-                    }
-                }
                 },
                 "required": [
                     "DOCUMENT"
@@ -1615,204 +1676,204 @@
                 "type": "object",
                 "description": "OpenNebula JSON document representing a OneKS Kubernetes group, either a control plane or a nodegroup",
                 "properties": {
-                "DOCUMENT": {
-                    "type": "object",
-                    "properties": {
-                    "ID": {
-                        "type": "string",
-                        "description": "ID of the resource in OpenNebula"
-                    },
-                    "UID": {
-                        "type": "string",
-                        "description": "User ID"
-                    },
-                    "GID": {
-                        "type": "string",
-                        "description": "Group ID"
-                    },
-                    "UNAME": {
-                        "type": "string",
-                        "description": "Username"
-                    },
-                    "GNAME": {
-                        "type": "string",
-                        "description": "Group name"
-                    },
-                    "NAME": {
-                        "type": "string",
-                        "description": "Name of the object"
-                    },
-                    "TYPE": {
-                        "type": "string",
-                        "description": "Type identifier of the object"
-                    },
-                    "PERMISSIONS": {
-                        "type": "object",
-                        "description": "Permission bits for the object (U: Use, M: Manage, A: Admin)",
-                        "properties": {
-                        "OWNER_U": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "OWNER_M": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "OWNER_A": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "GROUP_U": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "GROUP_M": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "GROUP_A": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "OTHER_U": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "OTHER_M": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        },
-                        "OTHER_A": {
-                            "type": "string",
-                            "enum": [
-                            "0",
-                            "1"
-                            ]
-                        }
-                        }
-                    },
-                    "TEMPLATE": {
+                    "DOCUMENT": {
                         "type": "object",
                         "properties": {
-                            "GROUP_BODY": {
+                            "ID": {
+                                "type": "string",
+                                "description": "ID of the resource in OpenNebula"
+                            },
+                            "UID": {
+                                "type": "string",
+                                "description": "User ID"
+                            },
+                            "GID": {
+                                "type": "string",
+                                "description": "Group ID"
+                            },
+                            "UNAME": {
+                                "type": "string",
+                                "description": "Username"
+                            },
+                            "GNAME": {
+                                "type": "string",
+                                "description": "Group name"
+                            },
+                            "NAME": {
+                                "type": "string",
+                                "description": "Name of the object"
+                            },
+                            "TYPE": {
+                                "type": "string",
+                                "description": "Type identifier of the object"
+                            },
+                            "PERMISSIONS": {
                                 "type": "object",
-                                "description": "Group body information",
+                                "description": "Permission bits for the object (U: Use, M: Manage, A: Admin)",
                                 "properties": {
-                                    "name": {
+                                    "OWNER_U": {
                                         "type": "string",
-                                        "description": "Group name"
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "description": "Group description"
-                                    },
-                                    "cluster_id": {
-                                        "type": "integer",
-                                        "description": "Owning cluster ID"
-                                    },
-                                    "family": {
-                                        "type": "string",
-                                        "description": "Group family name"
-                                    },
-                                    "flavour": {
-                                        "type": "string",
-                                        "description": "Group flavour name"
-                                    },
-                                    "type": {
-                                        "type": "string",
-                                        "description": "Group role",
                                         "enum": [
-                                            "ControlPlane",
-                                            "NodeGroup"
+                                            "0",
+                                            "1"
                                         ]
                                     },
-                                    "state": {
+                                    "OWNER_M": {
                                         "type": "string",
-                                        "description": "Current state of the group lifecycle",
                                         "enum": [
-                                            "PENDING",
-                                            "BOOTSTRAPPING",
-                                            "PROVISIONING",
-                                            "RUNNING",
-                                            "SCALING",
-                                            "UPGRADING",
-                                            "DEPROVISIONING",
-                                            "DONE",
-                                            "WARNING",
-                                            "BOOTSTRAPPING_FAILURE",
-                                            "PROVISIONING_FAILURE",
-                                            "SCALING_FAILURE",
-                                            "UPGRADING_FAILURE",
-                                            "DEPROVISIONING_FAILURE"
+                                            "0",
+                                            "1"
                                         ]
                                     },
-                                    "vms": {
-                                        "type": "array",
-                                        "description": "OpenNebula VM IDs currently associated with the group",
-                                        "items": {
-                                            "type": "integer"
-                                        }
-                                    },
-                                    "dependencies": {
-                                        "type": "array",
-                                        "description": "Dependencies tracked by the group lifecycle manager",
-                                        "items": {
-                                            "$ref": "#/components/schemas/K8sDependency"
-                                        }
-                                    },
-                                    "user_inputs_values": {
-                                        "type": "object",
-                                        "description": "Resolved input values that define the desired size and capacity of the group",
-                                        "additionalProperties": true
-                                    },
-                                    "registration_time": {
-                                        "type": "integer",
-                                        "format": "int64",
-                                        "description": "Unix timestamp indicating when the group was registered"
-                                    },
-                                    "historic": {
-                                        "type": "array",
-                                        "description": "Historic lifecycle events registered for the group",
-                                        "items": {
-                                            "$ref": "#/components/schemas/HistoricEntry"
-                                        }
-                                    },
-                                    "endpoint": {
+                                    "OWNER_A": {
                                         "type": "string",
-                                        "nullable": true,
-                                        "description": "Kubernetes API endpoint. This attribute is only populated for control plane groups."
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
+                                    },
+                                    "GROUP_U": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
+                                    },
+                                    "GROUP_M": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
+                                    },
+                                    "GROUP_A": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
+                                    },
+                                    "OTHER_U": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
+                                    },
+                                    "OTHER_M": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
+                                    },
+                                    "OTHER_A": {
+                                        "type": "string",
+                                        "enum": [
+                                            "0",
+                                            "1"
+                                        ]
                                     }
-                                },
-                                "additionalProperties": true
+                                }
+                            },
+                            "TEMPLATE": {
+                                "type": "object",
+                                "properties": {
+                                    "GROUP_BODY": {
+                                        "type": "object",
+                                        "description": "Group body information",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string",
+                                                "description": "Group name"
+                                            },
+                                            "description": {
+                                                "type": "string",
+                                                "description": "Group description"
+                                            },
+                                            "cluster_id": {
+                                                "type": "integer",
+                                                "description": "Owning cluster ID"
+                                            },
+                                            "family": {
+                                                "type": "string",
+                                                "description": "Group family name"
+                                            },
+                                            "flavour": {
+                                                "type": "string",
+                                                "description": "Group flavour name"
+                                            },
+                                            "type": {
+                                                "type": "string",
+                                                "description": "Group role",
+                                                "enum": [
+                                                    "ControlPlane",
+                                                    "NodeGroup"
+                                                ]
+                                            },
+                                            "state": {
+                                                "type": "string",
+                                                "description": "Current state of the group lifecycle",
+                                                "enum": [
+                                                    "PENDING",
+                                                    "BOOTSTRAPPING",
+                                                    "PROVISIONING",
+                                                    "RUNNING",
+                                                    "SCALING",
+                                                    "UPGRADING",
+                                                    "DEPROVISIONING",
+                                                    "DONE",
+                                                    "WARNING",
+                                                    "BOOTSTRAPPING_FAILURE",
+                                                    "PROVISIONING_FAILURE",
+                                                    "SCALING_FAILURE",
+                                                    "UPGRADING_FAILURE",
+                                                    "DEPROVISIONING_FAILURE"
+                                                ]
+                                            },
+                                            "vms": {
+                                                "type": "array",
+                                                "description": "OpenNebula VM IDs currently associated with the group",
+                                                "items": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "dependencies": {
+                                                "type": "array",
+                                                "description": "Dependencies tracked by the group lifecycle manager",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/K8sDependency"
+                                                }
+                                            },
+                                            "user_inputs_values": {
+                                                "type": "object",
+                                                "description": "Resolved input values that define the desired size and capacity of the group",
+                                                "additionalProperties": true
+                                            },
+                                            "registration_time": {
+                                                "type": "integer",
+                                                "format": "int64",
+                                                "description": "Unix timestamp indicating when the group was registered"
+                                            },
+                                            "historic": {
+                                                "type": "array",
+                                                "description": "Historic lifecycle events registered for the group",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/HistoricEntry"
+                                                }
+                                            },
+                                            "endpoint": {
+                                                "type": "string",
+                                                "nullable": true,
+                                                "description": "Kubernetes API endpoint. This attribute is only populated for control plane groups."
+                                            }
+                                        },
+                                        "additionalProperties": true
+                                    }
+                                }
                             }
                         }
                     }
-                    }
-                }
                 },
                 "required": [
                     "DOCUMENT"
@@ -2090,13 +2151,8 @@
                         "type": "string",
                         "description": "Kubernetes version to deploy"
                     },
-                    "public_network": {
-                        "type": "integer",
-                        "description": "OpenNebula public network ID"
-                    },
-                    "private_network": {
-                        "type": "integer",
-                        "description": "OpenNebula private network ID"
+                    "deployment": {
+                        "$ref": "#/components/schemas/ClusterDeployment"
                     },
                     "spec": {
                         "$ref": "#/components/schemas/ClusterControlPlaneSpec"
@@ -2105,8 +2161,7 @@
                 "required": [
                     "name",
                     "kubernetes_version",
-                    "public_network",
-                    "private_network",
+                    "deployment",
                     "spec"
                 ]
             },
@@ -2229,6 +2284,65 @@
                         "description": "Kubeconfig content encoded as YAML text, sourced from the control plane group."
                     }
                 }
+            },
+            "ClusterDeployment": {
+                "type": "object",
+                "description": "OpenNebula placement used by a OneKS cluster deployment.",
+                "properties": {
+                    "cluster": {
+                        "type": "object",
+                        "description": "Target OpenNebula cluster where OneKS resources are deployed.",
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "description": "OpenNebula cluster ID."
+                            }
+                        },
+                        "required": [
+                            "id"
+                        ]
+                    },
+                    "networks": {
+                        "type": "object",
+                        "description": "Virtual Networks used by the OneKS cluster.",
+                        "properties": {
+                            "public": {
+                                "type": "object",
+                                "description": "Public Virtual Network used for external access and bootstrap connectivity.",
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "description": "OpenNebula public Virtual Network ID."
+                                    }
+                                },
+                                "required": [
+                                    "id"
+                                ]
+                            },
+                            "private": {
+                                "type": "object",
+                                "description": "Private Virtual Network used for internal Kubernetes communication.",
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "description": "OpenNebula private Virtual Network ID."
+                                    }
+                                },
+                                "required": [
+                                    "id"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "public",
+                            "private"
+                        ]
+                    }
+                },
+                "required": [
+                    "cluster",
+                    "networks"
+                ]
             }
         },
         "responses": {

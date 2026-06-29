@@ -40,6 +40,10 @@ The OpenNebula team is excited to announce the availability of the **OpenNebula 
 
 ## OpenNebula Form
 
+## OpenNebula Elastic Kubernetes Service
+
+* Added multi-cluster deployment support in OneKS, allowing users to select the target OpenNebula cluster and deployment networks when creating Kubernetes Clusters.
+
 ## Packaging
 
 ## Features Backported to 7.2.x

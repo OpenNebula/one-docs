@@ -150,9 +150,9 @@ K8s Cluster provisioning can fail for different infrastructure or network-relate
 
 ### OneKS Readiness Check
 
-If the OneKS readiness check service is enabled, use it to validate the public and private Virtual Networks used by a K8s Cluster. The check deploys a temporary lightweight probe VM and verifies the main requirements needed by OneKS provisioning, including OneGate access, internet connectivity, and private network paths. For configuration details, see the [Readiness Check Configuration]({{% relref "platform_services/oneks/management/configuration#readiness-check-configuration" %}}). For command syntax, see the [`oneks check` CLI reference]({{% relref "platform_services/oneks/references/oneks_cli#readiness-checks" %}}).
+If the OneKS readiness check service is enabled, use it to validate the deployment placement used by a K8s Cluster. The check deploys a temporary probe VM from the same OneKS appliance used by provisioning and verifies the main requirements needed by OneKS, including the target OpenNebula Cluster, selected networks, appliance availability, OneGate access, internet connectivity, and private network paths. For configuration details, see the [Readiness Check Configuration]({{% relref "platform_services/oneks/management/configuration#readiness-check-configuration" %}}). For command syntax, see the [`oneks check` CLI reference]({{% relref "platform_services/oneks/references/oneks_cli#readiness-checks" %}}).
 
-When a deployment fails, run the readiness check against the failed K8s Cluster. OneKS resolves the networks from the Cluster document:
+When a deployment fails, run the readiness check against the failed K8s Cluster. OneKS resolves the deployment placement from the Cluster document:
 
 ```shell
 oneks check cluster <cluster_id>
@@ -172,10 +172,11 @@ When all checks pass, the command reports each validated step:
 [OK] All OneKS readiness checks passed
 ```
 
-You can also run the check before creating a K8s Cluster by passing the networks explicitly:
+You can also run the check before creating a K8s Cluster by passing the deployment placement explicitly:
 
 ```shell
-oneks check --public-network <network_id> --private-network <network_id>
+oneks check --opennebula-cluster <one_cluster_id> \
+  --public-network <network_id> --private-network <network_id>
 ```
 
 If the readiness check fails, the tool reports the failing step and the environment problem that must be fixed. For example, if the probe VM cannot access OneGate:

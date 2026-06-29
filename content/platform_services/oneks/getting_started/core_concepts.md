@@ -39,8 +39,7 @@ A K8s Cluster includes:
 | `name`                 | K8s Cluster name. |
 | `description`          | Optional human-readable description. |
 | `kubernetes_version`   | Kubernetes version used by the K8s Cluster. |
-| `public_network`       | OpenNebula public Virtual Network ID. |
-| `private_network`      | OpenNebula private Virtual Network ID. |
+| `deployment`           | OpenNebula placement used by the K8s Cluster, including the target OpenNebula Cluster and public and private Virtual Networks. |
 | `spec`                 | Control-plane profile selection and input values. |
 | `state`                | Current K8s Cluster lifecycle state. |
 | `control_plane`        | Reference to the logical control-plane group. |

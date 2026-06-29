@@ -43,7 +43,7 @@ Some builds may expose node groups through the lower-level `group` resource in C
 * `oneks create nodegroup --cluster-id <cluster_id>`: Create a node group.  
 * `oneks recover cluster <cluster_id>`: Recover a K8s Cluster from selected failure states.  
 * `oneks recover nodegroup <nodegroup_id>`: Recover a node group from selected failure states.  
-* `oneks check cluster <cluster_id>`: Run the OneKS readiness check using the networks from an existing K8s Cluster.
+* `oneks check cluster <cluster_id>`: Run the OneKS readiness check using the deployment placement from an existing K8s Cluster.
 * `oneks delete cluster <cluster_id>`: Delete a K8s Cluster.  
 * `oneks delete nodegroup <nodegroup_id>`: Delete a node group.  
 * `oneks logs cluster <cluster_id>`: Show K8s Cluster logs.  
@@ -98,7 +98,7 @@ Run OneKS readiness checks:
 
 ```shell
 oneks check cluster 42
-oneks check --public-network 105 --private-network 106
+oneks check --opennebula-cluster 0 --public-network 105 --private-network 106
 ```
 
 Inspect logs:
