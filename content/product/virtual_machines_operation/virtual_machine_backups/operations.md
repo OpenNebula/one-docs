@@ -152,6 +152,51 @@ Sunstone will display the screen to update the VM Configuration.
 
 ![vm_cfg_tab](/images/backup_vm_configuration_tab.png)
 
+<a id="vm-backups-selected-disks"></a>
+
+### Selecting Disks for Backup
+
+By default, a VM backup includes all disks that are eligible for backup. You can restrict the backup to a subset of VM disks by setting the `DISK_IDS` attribute in `BACKUP_CONFIG`.
+
+The value is a comma-separated list of disk IDs from the VM `DISK` section. For example, to back up only disks `0` and `2`:
+
+```default
+$ onevm updateconf 0
+
+BACKUP_CONFIG = [
+   DISK_IDS = "0,2"
+]
+...
+```
+
+You can clear `DISK_IDS` by setting it to an empty value. A missing or empty `DISK_IDS` attribute means that all eligible disks are included in the backup:
+
+```default
+$ onevm updateconf 0
+
+BACKUP_CONFIG = [
+   DISK_IDS = ""
+]
+...
+```
+
+OpenNebula validates `DISK_IDS` when the backup configuration is updated. The value must contain valid non-negative integer disk IDs, and every disk ID must refer to a disk that can be backed up. Disks of type `SWAP`, `CDROM`, `RBD_CDROM`, and `FILESYSTEM` are not included in VM backups. Volatile `FS` disks are included only when `BACKUP_VOLATILE="YES"` is set.
+
+For incremental backups, the effective disk set is part of the incremental chain. Changing `DISK_IDS`, changing `BACKUP_VOLATILE` so that the effective disk set changes, or attaching or detaching an eligible disk when all disks are selected resets the incremental chain. The next backup creates a new full base for the new disk set. If a disk listed in `DISK_IDS` is detached, OpenNebula removes that disk ID from the backup configuration and resets the chain.
+
+<a id="vm-backups-selected-disks-restore"></a>
+
+#### Restoring Selected Disk Backups
+
+A backup that contains only selected disks cannot be restored as a complete VM, because it may not contain all disks needed to boot or reconstruct the original VM. To restore data from this type of backup, restore an individual disk that is part of the backup:
+
+```default
+$ oneimage restore -d default --disk_id 2 176
+Image: 203
+```
+
+The disk ID must be present in the backup image metadata. You can check the backed up disk IDs with `oneimage show`; they are listed in the `BACKUP_DISK_IDS` section.
+
 <a id="vm-backups-config-attributes"></a>
 
 ### Reference: Backup Configuration Attributes
@@ -163,6 +208,7 @@ Sunstone will display the screen to update the VM Configuration.
 | `KEEP_LAST`             | Only keep the last N backups (full backups or increments) for the VM (default: none)                             |
 | `MODE`                  | Backup type `FULL` (default) or `INCREMENT`                                                                      |
 | `INCREMENT_MODE`        | Incremental backup type `CBT` (default) or `SNAPSHOT`                                                            |
+| `DISK_IDS`              | Comma-separated list of disk IDs to back up. Empty or missing means all eligible disks                            |
 | `INTERACTIVE`           | Enable the OneBEX interactive workflow for supported backup integrations (default: `NO`)                          |
 | `INCREMENTAL_BACKUP_ID` | For `INCREMENT` points to the backup image where increment chain is stored (read-only)                           |
 | `LAST_INCREMENT_ID`     | For `INCREMENT` the ID of the last incremental backup taken (read-only)                                          |

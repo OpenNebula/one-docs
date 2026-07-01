@@ -18,6 +18,7 @@ The OpenNebula team is excited to announce the availability of the **OpenNebula 
 ## Storage & Backups
 
 * Added [interactive backup integration support]({{% relref "../../../product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}), enabling third-party backup integrations to pull full and CBT incremental `qcow2` VM backups directly from KVM hypervisors through the OpenNebula Backup Exporter (OneBEX).
+* Added [selected disk backups]({{% relref "../../../product/virtual_machines_operation/virtual_machine_backups/operations#vm-backups-selected-disks" %}}), allowing VM backup configurations and Backup Jobs to back up only a defined subset of eligible VM disks. Selected-disk backups can be restored as [individual disks]({{% relref "../../../product/virtual_machines_operation/virtual_machine_backups/operations#vm-backups-selected-disks-restore" %}}).
 
 ## Networking
 

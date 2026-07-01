@@ -1163,7 +1163,7 @@ The supported attributes are:
 | `VIDEO`         | `TYPE`, `IOMMU`, `ATS`, `VRAM`, `RESOLUTION`                                                                             |
 | `RAW`           | `DATA`, `DATA_VMX`, `TYPE`, `VALIDATE`                                                                                   |
 | `CONTEXT`       | Any value, except `ETH*`. **Variable substitution will be made**                                                         |
-| `BACKUP_CONFIG` | `FS_FREEZE`, `KEEP_LAST`, `BACKUP_VOLATILE`, `MODE`, `INCREMENT_MODE`                                                    |
+| `BACKUP_CONFIG` | `FS_FREEZE`, `KEEP_LAST`, `BACKUP_VOLATILE`, `MODE`, `INCREMENT_MODE`, `DISK_IDS`                                        |
 
 {{< alert title="Note" type="info" >}}
 Visit the [Virtual Machine Template reference]({{% relref "../../../product/operation_references/configuration_references/template#template" %}}) for a complete description of each attribute{{< /alert >}} 
@@ -1386,6 +1386,8 @@ For example:
 | OUT    | Boolean     | true or false whenever is successful or not                                       |
 | OUT    | Int/String  | The VM ID / The error string.                                                     |
 | OUT    | Int         | Error code.                                                                       |
+
+For backups created with a selected disk list, only disks present in the backup image metadata can be restored.
 
 ### one.vm.exec
 
@@ -3143,6 +3145,8 @@ The range can be used to retrieve a subset of the pool, from the ‘start’ to 
 | OUT    | String      | Blank separated list of restored objects IDs. The first one is the VM Template ID.                                                                                                                                                                                                                                                                     |
 | OUT    | Int         | Error code.                                                                                                                                                                                                                                                                                                                                            |
 | OUT    | Int         | ID of the object that caused the error.                                                                                                                                                                                                                                                                                                                |
+
+Backups created with a selected disk list cannot be restored as a full VM template. In this case `DISK_ID` is required, and the disk must be present in the backup image metadata.
 
 ### one.imagepool.info
 

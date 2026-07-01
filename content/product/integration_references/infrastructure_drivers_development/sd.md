@@ -102,7 +102,7 @@ The backup datastore drivers are responsible for storing the generate `backup` f
   - **ARGUMENTS**: `host:remote_system_ds disks deploy_id vm_id ds_id`
   - `remote_system_ds_dir` is the path for the VM directory in the system datastore in the Host
   - `host` is the target Host where the VM is running
-  - `disks` List (‘:’ separated) of disk_ids  of disks that needs backup (e.g., “0:1:”)
+  - `disks` List (‘:’ separated) of disk IDs that need backup (e.g., “0:1:”). This list is already filtered by `BACKUP_CONFIG/DISK_IDS` and disk eligibility.
   - `deploy_id` ID of the VM in the hypervisor
   - `backupjob_id` if defined ‘-’ otherwise
   - `vm_id` is the id of the VM
@@ -293,7 +293,7 @@ VM = [ ID = ${vm_id}, MONITOR = "\
   - **ARGUMENTS**: `host:remote_system_ds disks deploy_id vm_id ds_id`
   - `remote_system_ds_dir` is the path for the VM directory in the system datastore in the Host
   - `host` is the target Host where the VM is running
-  - `disks` List (‘:’ separated) of disk_ids  of disks that needs backup (e.g. “0:1:”)
+  - `disks` List (‘:’ separated) of disk IDs that need backup (e.g. “0:1:”). This list is already filtered by `BACKUP_CONFIG/DISK_IDS` and disk eligibility.
   - `deploy_id` ID of the VM in the hypervisor
   - `backupjob_id` is the id of the Backup job (‘-’ if undefined)
   - `vm_id` is the id of the VM
@@ -302,7 +302,7 @@ VM = [ ID = ${vm_id}, MONITOR = "\
   - **ARGUMENTS**: `host:remote_system_ds disks deploy_id vm_id ds_id`
   - `remote_system_ds_dir` is the path for the VM directory in the system datastore in the Host
   - `host` is the target Host where the VM is running
-  - `disks` List (‘:’ separated) of disk_ids  of disks that needs backup (e.g. “0:1:”)
+  - `disks` List (‘:’ separated) of disk IDs that need backup (e.g. “0:1:”). This list is already filtered by `BACKUP_CONFIG/DISK_IDS` and disk eligibility.
   - `deploy_id` ID of the VM in the hypervisor
   - `backupjob_id` is the id of the Backup job (‘-’ if undefined)
   - `vm_id` is the id of the VM

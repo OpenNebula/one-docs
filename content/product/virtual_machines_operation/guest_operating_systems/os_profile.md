@@ -444,3 +444,4 @@ NICs are configured under `Network→NIC` and PCI devices under `Network→PCI`{
 | →→ BACKUP_VOLATILE  | string | Include volatile disks in backup | “Yes”, “No”                |
 | →→ FS_FREEZE        | string | Filesystem freeze method         | “NONE”, “AGENT”, “SUSPEND” |
 | →→ KEEP_LAST        | number | Number of backups to keep        | Any positive integer       |
+| →→ DISK_IDS         | string | Disk IDs to back up              | Comma-separated disk IDs   |

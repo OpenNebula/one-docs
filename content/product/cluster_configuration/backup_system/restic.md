@@ -18,7 +18,7 @@ weight: "2"
 In both the Enterprise and Community editions of OpenNebula, the correct version of restic is included as a dependency. In this guide we will use the following terminology (introduced by restic):
 
 - *Repository*: This is the storage volume where the disk images backups will be stored. Restic creates a specific interval structure to store the backups efficiently. The restic driver accesses the repository through the sftp. protocol. OpenNebula will create a separate restic repository for each VM or backup job.
-- *Snapshot*: It represents a backup and it is referenced by an unique hash (e.g., `eda52f34`). Each snapshot stores a VM backup and includes all of its disks and the metadata description of the VM at the time you make the backup.
+- *Snapshot*: It represents a backup and it is referenced by a unique hash (e.g., `eda52f34`). Each snapshot stores a VM backup and includes the backed up disks and the metadata description of the VM at the time you make the backup.
 - *Backup Server*: A Host that will store the VM backups and the restic repositories.
 
 ## Step 1. [Backup Server] Set up the backup server

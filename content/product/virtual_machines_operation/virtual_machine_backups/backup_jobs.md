@@ -59,6 +59,8 @@ INCREMENT_MODE = "SNAPSHOT"
 | `RESET`                                                                            | Create a new backup image. Only for incremental backup |
 | [Attributes for Single Backup operations]({{% relref "operations#vm-backups-config-attributes" %}}) |                                                        |
 
+You can use `DISK_IDS` to configure the Backup Job to back up only selected disks for each VM. The same disk IDs are applied to every VM included in the Backup Job, so each selected disk ID must be eligible for backup in every VM. For more information, see [Selecting Disks for Backup]({{% relref "operations#vm-backups-selected-disks" %}}).
+
 ### Priority Setting
 
 {{< alert title="Note" type="info" >}}
