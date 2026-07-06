@@ -404,6 +404,99 @@ oneswap convert --vms vm-web-01,vm-db-01,vm-app-01 $VOPTS [--fallback|--custom|-
 
 The VMs are converted one at a time; if a conversion fails, the batch continues with the remaining VMs. At the end, a summary is printed with the total number of VMs requested, the successful conversions and the list of failed VMs. The command exits with code `0` if all the VMs were converted successfully and `1` otherwise. The positional VM name, `--vms` and `--vm-list` are mutually exclusive.
 
+#### Estimating Migration Time with Dry Run
+
+OneSwap can estimate the expected duration of a migration without converting the VM:
+
+```bash
+oneswap convert VM_NAME --dry-run
+```
+
+The dry-run estimate reports the expected time for the main phases:
+
+* source export
+* disk conversion
+* OpenNebula image import
+* total estimated duration
+
+By default, OneSwap uses configured fallback transfer rates. The estimate becomes more accurate when benchmark data or previous conversion metrics are available.
+
+To measure the OpenNebula image import speed, run:
+
+```bash
+oneswap convert VM_NAME --dry-run --benchmark-import
+```
+
+This creates a temporary raw file and imports it as a temporary OpenNebula Image to measure the real import speed. The temporary image and local benchmark file are removed automatically after the benchmark finishes.
+
+To measure the source export speed from the VMware datastore, run:
+
+```bash
+oneswap convert VM_NAME --dry-run --benchmark-export
+```
+
+This creates a temporary benchmark file on the VMware datastore, downloads it through the same source transfer path, records the measured speed, and removes the temporary file afterward.
+
+The benchmark results are stored in the OneSwap work directory and reused by later dry-run estimates. For HTTP transfers, OneSwap uses import benchmark metrics or configured fallback values for future estimates; real HTTP import timings from full conversions are not reused as trusted metrics.
+
+#### Staged Delta Migration
+
+Delta mode can be executed as a single command:
+
+```bash
+oneswap convert VM_NAME --delta
+```
+
+For planned maintenance windows, the same workflow can also be split into explicit stages.
+
+First, prepare the base disk while the source VM keeps running:
+
+```bash
+oneswap convert VM_NAME --delta --delta-prepare
+```
+
+This creates a VMware snapshot, clones and transfers the base disk, converts it locally, and writes the prepared delta state. The source VM keeps running, but the VMware snapshot remains active until the migration is committed or cleaned up.
+
+After the prepare phase, estimate the final downtime/import-ready time:
+
+```bash
+oneswap convert VM_NAME --dry-run --delta
+```
+
+This refreshes the current delta size from the active VMware snapshot and estimates the final phase, including:
+
+* copying the remaining delta
+* applying the delta to the prepared disk
+* guest OS morph/customization
+* OpenNebula image import
+* template creation
+
+For a more accurate OpenNebula import estimate, the import benchmark can also be used with the delta dry-run:
+
+```bash
+oneswap convert VM_NAME --dry-run --delta --benchmark-import
+```
+
+When ready for the maintenance window, commit the prepared migration:
+
+```bash
+oneswap convert VM_NAME --delta --delta-commit
+```
+
+This applies the final delta to the prepared disk, performs the remaining guest customization, imports the image into OpenNebula, creates the VM Template, and removes the OneSwap VMware snapshot.
+
+If the prepared migration should be cancelled, clean it up with:
+
+```bash
+oneswap convert VM_NAME --delta --delta-cleanup
+```
+
+This removes the OneSwap-created VMware snapshot, the temporary ESXi clone directory, and the local prepared delta state. Do not leave the prepared snapshot active indefinitely, because the delta can continue growing while the source VM is running.
+
+{{< alert color="warning" title="Delta prepare snapshot" >}}
+After `--delta --delta-prepare`, the source VM keeps running with an active VMware snapshot. Always finish with either `--delta --delta-commit` or `--delta --delta-cleanup`.
+{{< /alert >}}
+
 #### Prechecks
 
 Before starting a conversion, OneSwap runs a set of prechecks against the destination OpenNebula cloud and the conversion host, and aborts early when:
@@ -477,3 +570,7 @@ When `oneswap` runs on a server different from the OpenNebula frontend, the conv
 - `--http-port port`: port of the temporary HTTP server. Default: `29869`.
 
 Using an alternative OpenNebula endpoint (`--endpoint`) requires HTTP transfer to be enabled. Make sure the OpenNebula frontend can reach the OneSwap server on the configured port.
+
+For dry-run import benchmarks and real image imports from a dedicated OneSwap server, the OpenNebula frontend must be able to reach the OneSwap server on `--http-host` and `--http-port`.
+
+Local path image registration is only safe when OneSwap runs on the OpenNebula frontend or when the work directory is shared with the frontend. Use HTTP transfer for dedicated OneSwap servers.
