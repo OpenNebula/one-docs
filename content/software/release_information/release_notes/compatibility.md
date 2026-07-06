@@ -20,7 +20,7 @@ Visit the [Features list](../../../getting_started/understand_opennebula/openneb
 
 OpenNebula systemd services no longer force a log rotation on start. The `ExecStartPre=-/usr/sbin/logrotate -f ...` directive has been removed from all services (`opennebula`, `opennebula-hem`, `opennebula-flow`, `opennebula-gate`, `opennebula-form`, `opennebula-fireedge`, and `opennebula-ks`). Logs under `/var/log/one/` are still rotated by the files in `/etc/logrotate.d/` via the system's own `logrotate` timer/cron, so no action is required.
 
-To keep the old behaviour for a service, add a systemd drop-in, e.g. for `opennebula`:
+To keep the old behavior for a service, add a systemd drop-in, e.g. for `opennebula`:
 
 ```
 # /etc/systemd/system/opennebula.service.d/logrotate.conf
