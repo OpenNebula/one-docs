@@ -103,6 +103,20 @@ echo "deb [signed-by=/etc/apt/keyrings/opennebula.gpg] https://downloads.openneb
 apt-get update
 ```
 
+**Ubuntu 26.04**
+
+Ubuntu 26.04 ships Node.js 22 in its base repositories, but OpenNebula FireEdge requires Node.js 20, which is provided by the OpenNebula repository. Add an APT pin so that `apt` installs Node.js 20 from the OpenNebula repository instead of the newer version shipped by Ubuntu:
+
+```shell
+cat << "EOT" > /etc/apt/preferences.d/opennebula-nodejs
+Package: nodejs
+Pin: release o=OpenNebula
+Pin-Priority: 600
+EOT
+echo "deb [signed-by=/etc/apt/keyrings/opennebula.gpg] https://downloads.opennebula.io/repo/{{< release >}}/Ubuntu/26.04 stable opennebula" > /etc/apt/sources.list.d/opennebula.list
+apt-get update
+```
+
 ### SUSE
 
 #### SUSE Linux Enterprise Server 15 SP7
