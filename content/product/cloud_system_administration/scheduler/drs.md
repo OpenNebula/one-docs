@@ -96,7 +96,7 @@ When using OneDRS for placement, the following differences from workload optimiz
 - Predictive DRS is **not applicable** (forecasts are unavailable for pending VMs).
 - Migration threshold settings **do not apply**.
 
-## OneDRS Configuration File
+## OneDRS Configuration
 
 The main DRS configuration file is `/etc/one/schedulers/one_drs.conf`. This file defines default behavior, which can be overridden per cluster. The following options can be defined:
 
@@ -174,3 +174,7 @@ MEMORY_SYSTEM_DS_SCALE: 0
 
 DIFFERENT_VNETS: YES
 ```
+
+### Blocking VM Migrations
+
+It is possible to avoid the migrations for specific VMs, by setting `ONEDRS_BLOCKED` to `YES` in its user template.
