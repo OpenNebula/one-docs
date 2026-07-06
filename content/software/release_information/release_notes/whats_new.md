@@ -47,6 +47,9 @@ The OpenNebula team is excited to announce the availability of the **OpenNebula 
 
 ## Packaging
 
+## AI Factories
+
+Integration of the [NVIDIA Infra Controller (NICo)]({{% relref "product/virtual_machines_operation/metal_instances/bare_metal_nico/" %}}) introduces Bare Metal as a Service to OpenNebula, streamlining the lifecycle management of bare-metal instances within multi-tenant, AI Factory-scale infrastructures.
 ## OpenNebula Distributed Resource Scheduler
 
 * [OneDRS]({{% relref "product/cloud_system_administration/scheduler/drs#scheduler-drs" %}}) can now skip automatic migration for VMs whose user template sets `ONEDRS_BLOCKED` to `YES`.

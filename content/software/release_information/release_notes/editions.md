@@ -11,6 +11,8 @@ weight: "7"
 
 OpenNebula offers a range of subscriptions and extensions to suit various operational and business requirements. Organizations can choose subscription models that provide support, maintenance, and access to additional software extensions. 
 
+The OpenNebula documentation uses the following suffixes in page titles to identify which features are extensions related to a specific subscription or software edition:
+
 * **EE** - Refers to features that are Enterprise Extensions and are only available to customers with an Enterprise Subscription
 * **AE** - Refers to features that are AI Factory Extensions and are only available to customers with an AI Factory Subscription
 * **CE** - Refers to the Community Edition, available to all users
