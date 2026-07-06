@@ -34,15 +34,19 @@ The following table summarizes the supported backup modes for each storage syste
 | LVM          | Yes  | Yes         |
 | NetApp       | No†  | No†         |
 
-<sup>†</sup> These backup modes were supported in previous OpenNebula versions, such as 7.0 and 7.2. From OpenNebula version 7.4 onwards, they are not supported by the current OneBEX-based integration.
+<sup>†</sup> These backup modes were supported in previous OpenNebula versions, such as 7.0 and 7.2. In OpenNebula version 7.4, they are not supported by the current OneBEX-based integration, but are planned to be supported in a future maintenance releases.
+
+### Volatile Disk Backups
+
+Volatile disks cannot be backed up by default. To back up volatile disks, enable this functionality in the OpenNebula Virtual Machine configuration by setting the `BACKUP_VOLATILE` parameter to `YES`. Otherwise, the disk is not listed in Veeam. For more information about volatile disk backups in OpenNebula, see the [backup documentation page]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations.md" %}}).
 
 ## Limitations
 
 The following is a list of the limitations affecting the Veeam integration with OpenNebula:
 
-- The KVM appliance deployed by Veeam does not include context packages. To configure the appliance network, either manually choose the first available free IP in the management network or set up a DHCP service router.
+- The KVM appliance deployed by Veeam does not include context packages. To configure the appliance network, either manually choose any available free IP in the management network or set up a DHCP service.
 - Alpine Virtual Machines cannot be backed up.
-- During image transfers, you may see a warning message stating `Unable to use transfer URL for image transfer: Switched to proxy URL. Backup performance may be affected`. This is expected and shouldn't affect performance.
+- During upload image transfers, you may see a warning message stating `Unable to use transfer URL for image transfer: Switched to proxy URL. Backup performance may be affected`. This is expected and shouldn't affect performance.
 - Spaces are not allowed in Virtual Machine names in the integration. Avoid using them, even if they are allowed in OpenNebula itself, to prevent issues when performing in-place restores.
 
 If you encounter other issues or bugs, check the [Known Issues page]({{% relref "software/release_information/release_notes/known_issues/" %}}) for Veeam-related issues.
@@ -51,44 +55,19 @@ If you encounter other issues or bugs, check the [Known Issues page]({{% relref 
 
 To ensure a compatible integration between OpenNebula and Veeam Backup, the following components and network configuration are required:
 
-- **Backup Server**: Hosts the **OpenNebula oVirtAPI Server**.
-- **Veeam Backup Appliance**: Automatically deployed by Veeam when OpenNebula is added as a hypervisor.
+- **Veeam Workers**: Deployed from the Veeam server to process backups and restores.
 - **OpenNebula Backup Exporter (OneBEX)**: Runs on demand on the OpenNebula hypervisors and exposes VM backup data to Veeam. See [Interactive Backup Integrations]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}) for implementation details.
 - **Veeam (interactive) Backup Datastore**: An OpenNebula `BACKUP_DS` using `DS_MAD="interactive"` and `VEEAM_DS="YES"`. This datastore coordinates Veeam backup operations and tracks backup metadata. The backup itself is stored in the Veeam repository.
 - **Management Network**: Provides connectivity between all of the following components:
      - OpenNebula Front-end
-     - OpenNebula oVirtAPI Server
      - OpenNebula OneBEX endpoint on each hypervisor
      - All OpenNebula Hosts running VMs to be backed up
      - Veeam Server
-     - Veeam Backup Appliance
+     - Veeam Workers
 <br>
 <br>
 
 {{< image path="/images/veeam/interactive_backup_veeam_architecture.svg" alt="Architecture of the OpenNebula-Veeam Backup Integration" align="center" width="90%" mb="20px" border="false" >}}
-
-## Backup Server Requirements
-
-To ensure full compatibility with the oVirtAPI module, the Backup Server must run one of the following operating systems:
-
-- AlmaLinux 9
-- Ubuntu 22.04 or 24.04
-- RHEL 9
-- Debian 12
-
-The minimum hardware specifications are:
-
-- **CPU**: 8 cores
-- **Memory**: 16 GB RAM
-- **Disk**: No hard requirement for backup payload storage. Backup data is stored in the Veeam repository.
-
-## Veeam Backup Appliance Requirements
-
-When OpenNebula is added as a platform in Veeam, Veeam deploys a KVM appliance as a VM in OpenNebula. This appliance has the following minimum requirements:
-
-- **CPU**: 6 cores
-- **Memory**: 6 GB RAM
-- **Disk**: 100 GB
 
 ## Installation and Configuration
 
@@ -112,9 +91,27 @@ onehost sync -f
 
 For OneBEX parameters and API details, see [Interactive Backup Integrations]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
 
-### 2. Prepare the Environment for the oVirtAPI Server
+{{< alert title="High Availability" type="info" >}}
+If using High Availability, any changes to ``/var/lib/one/remotes/etc/onebex/onebex-server.conf`` need to be performed on all frontends.
+{{< /alert >}}
 
-A server should be configured to function as the oVirtAPI Server and expose the oVirtAPI. This server should be accessible from all the Clusters intended for backup via the management network shown in the architecture diagram. The oVirtAPI Server acts as the communication gateway between Veeam and OpenNebula.
+### 2. Enable VM Guest Agent Monitoring
+
+The integration needs VM Guest Agent monitoring to be enabled. To do so set ``:enabled`` to ``true`` on the following file in the frontend: 
+
+```default
+/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf
+```
+
+Then, in the same frontend server execute the following command to propagate the remote into the KVM hosts: 
+
+```shell
+onehost sync --force
+```
+
+{{< alert title="High Availability" type="info" >}}
+If using High Availability, any changes to ``/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf`` need to be performed on all frontends.
+{{< /alert >}}
 
 ### 3. Create the Veeam Backup Datastore
 
@@ -152,11 +149,8 @@ To install the oVirtAPI module, configure the OpenNebula repository on the Backu
 
 The configuration file can be found at `/etc/one/ovirtapi-server.yml`. Change the following variables before starting the service:
 
-* `one_xmlrpc`: Address of the OpenNebula Front-end. Please do not include any prefixes such as `http://`, only the IP address itself is needed.
+* `public_ip`: IP address that Veeam will use to communicate with the frontend node. 
 * `endpoint_port`: Port used by the OpenNebula RPC endpoint (defaults to 2633).
-* `public_ip`: IP address that Veeam uses to communicate with the oVirtAPI server.
-* `one_sshkey`: Path to the private key file used by the oVirtAPI server to reach the OpenNebula Front-end.
-* `one_sshkey_host`: Path to the private key file used by the OpenNebula Front-end to reach hypervisor Hosts. Local path as seen on the Front-end.
 * `backup_freeze`: (Optional) Controls which filesystem freeze mode OpenNebula requests when performing backups initiated via the oVirtAPI/Veeam integration. Valid values are `NONE`, `AGENT`, and `SUSPEND`. For details on each mode see the Backup Modes section in the backup guide: [Backup Modes]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations/#backup-modes" %}}).
 
 In the same configuration file, configure the OneBEX port and the port range reserved for interactive restores:
@@ -165,23 +159,11 @@ In the same configuration file, configure the OneBEX port and the port range res
 * `port_min` and `port_max`: Range of available ports reserved for interactive restores.
 * `ports_path`: File where the oVirtAPI Server tracks ports used for interactive restores.
 
-{{< alert title="Important" type="info" >}}
-You may see the 5554 port in the `public_ip` variable in the default settings, this is no longer needed so avoid using it. Leave only the IP address in the variable, no port needed.
-
-You may also have a variable named `instance_id`, which you should delete if you are running a version of the package >=7.0.1.
-{{< /alert >}}
-
 During installation a self-signed certificate is generated at `/etc/one/ovirtapi-ssl.crt` for encryption. You can replace this certificate with your own and change the `cert_path` configuration variable.
-
-After installing the package, make sure that the `oneadmin` user in the Backup Server can perform passwordless SSH to the `oneadmin` user in the Front-end server.
 
 Finally, start the service with either `systemctl start apache2` (Ubuntu/Debian) or `systemctl start httpd` (RHEL/Alma).
 
-{{< alert title="Important" type="info" >}}
-Once the package is installed, a `oneadmin` user is created. This user and the `oneadmin` user in the Front-end must be able to establish passwordless SSH connections in both directions.
-{{< /alert >}}
-
-{{< alert title="Package dependency" type="info" >}}
+{{< alert title="Package dependency" type="warning" >}}
 In RHEL and Alma environments, you may face issues with the passenger package dependencies (`mod_passenger` and `mod_ssl`). You may add the correct repository and install the packages with the following:
 
 ```shell
@@ -191,128 +173,46 @@ dnf install -y passenger mod_passenger mod_ssl
 
 {{< /alert >}}
 
+{{< alert title="High availability" type="info" >}}
+
+If the ovirtapi module is going to be configured in High Availability mode, the ovirtapi package needs to be installed and configured in all frontends. Additionally, the `public_ip` must be the VIP address, which is also the one we will use when adding OpenNebula as a Virtualization Platform in Veeam. 
+
+{{< /alert >}}
+
 ### 5. Add OpenNebula to Veeam
 
-To add OpenNebula as a hypervisor to Veeam, configure it as an oVirt KVM Manager in Veeam and choose the IP address of the oVirtAPI module. You can follow the [official Veeam documentation](https://helpcenter.veeam.com/docs/vbrhv/userguide/connecting_manager.html?ver=6) for this step or follow the next steps:
+This section will address the necessary steps to add OpenNebula as a Virtualization Platform into Veeam and deploy the necessary workers. 
 
 #### 5.1. Add the New Virtualization Manager
 
-The first step is to add the oVirtAPI Backup Server to Veeam. Go to **Backup Infrastructure**, then **Managed Servers**, and click **Add Manager**:
+First you need to add OpenNebula as an oVirt platform. To do so, follow the [Adding oVirt KVM Manager to Backup Infrastructure](https://helpcenter.veeam.com/docs/vbr/userguide/ovirt_add_rhv_manager.html?ver=13) Veeam guide with the following considerations:
 
-{{< image path="/images/veeam/add_manager.png" alt="Veeam Add Manager" align="center" width="90%" mb="20px" >}}
+- When selecting the DNS name or the IP address, it should match the `public_ip` configured in the ovirtapi module.
+- On the **Credentials** tab, set the user and password used to access the OpenNebula Front-end. Use the `oneadmin` user or another OpenNebula user with equivalent privileges. This is an OpenNebula user, not a system user. The user should be listed in the System/Users tab of FireEdge or through the CLI with `oneuser list`.
+- If the default certificate is used, Veeam may show an untrusted certificate warning. This is expected and will not affect the integration.
 
-Then, choose to add a new **Virtualization Platform**:
+#### 5.2. Deploy a KVM Worker
 
-{{< image path="/images/veeam/virtualization_platform.png" alt="Veeam Virtualization Platform" align="center" width="90%" mb="20px" >}}
+Next you need to deploy at least one KVM Worker. To do so, follow the [Adding Workers](https://helpcenter.veeam.com/docs/vbr/userguide/ovirt_workers_add.html?ver=13) Veeam guide with the following considerations:
 
-Then select **Oracle Linux Virtualization Manager**:
+- If you are not using a DHCP service, you will need to use a static address. You can set it to any free IP address in the management network. 
+- The DNS server used must be able to resolve the hostnames of all KVM hosts.
 
-{{< image path="/images/veeam/virtualization_platform_olvm.png" alt="Veeam Oracle Linux Virtualization Manager" align="center" width="90%" mb="20px" >}}
+{{< alert title="Hostnames and DNS" type="info" >}}
 
-This opens a new dialog box. In the **Address** field, use the IP address or DNS name of the server where the oVirtAPI module is installed:
+For backups to work, the HOSTNAME attribute inside each OpenNebula Host must be a FQDN, not a shortname, and the DNS used by the workers and frontend must be able to resolve that FQDN.
 
-{{< image path="/images/veeam/new_manager.png" alt="Veeam New Manager" align="center" width="90%" mb="20px" >}}
-
-On the **Credentials** tab, set the user and password used to access the OpenNebula Front-end. Use the `oneadmin` user or another OpenNebula user with equivalent privileges. This is an OpenNebula user, not a system user. The user should be listed in the System/Users tab of FireEdge or through the CLI with `oneuser list`.
-
-If the default certificate is used, Veeam may show an untrusted certificate warning. This warning can be accepted:
-
-{{< image path="/images/veeam/one_credentials.png" alt="One Credentials" align="center" width="90%" mb="20px" >}}
-
-Click **Finish**. The new oVirtAPI server should be listed under Managed Servers as an **oVirt KVM** hypervisor.
-
-{{< image path="/images/veeam/hypervisor_added.png" alt="Hypervisor Added" align="center" width="90%" mb="20px" >}}
-
-#### 5.2. Deploy the KVM appliance
-
-For Veeam to perform backup and restore operations, it must deploy a dedicated Virtual Machine to act as a worker. To deploy it, go to the **Backup Infrastructure** tab, then **Backup Proxies**, and click **Add Proxy**:
-
-{{< image path="/images/veeam/add_proxy.png" alt="Veeam Add Proxy" align="center" width="90%" mb="20px" >}}
-
-A new dialog box will open. Select the **Oracle Linux Virtualization Manager**:
-
-{{< image path="/images/veeam/add_proxy_olvm.png" alt="Veeam Add Proxy OLVM" align="center" width="90%" mb="20px" >}}
-
-The select the **Oracle Linux Virtualization Manager backup appliance** to deploy:
-
-{{< image path="/images/veeam/add_proxy_app.png" alt="Veeam Add Proxy OLVM Appliance" align="center" width="90%" mb="20px" >}}
-
-This opens a new wizard to deploy the appliance. You should choose to deploy a new appliance:
-
-{{< image path="/images/veeam/new_appliance.png" alt="Veeam New Appliance" align="center" width="90%" mb="20px" >}}
-
-Next choose the Cluster on which to deploy the appliance, as well as a name and the storage domain where the appliance image should be stored:
-
-{{< image path="/images/veeam/appliance_virtual_machine.png" alt="Veeam Appliance Machine" align="center" width="90%" mb="20px" >}}
-
-For the appliance credentials, choose the same ones that you set up when configuring the virtualization manager in the previous steps:
-
-{{< image path="/images/veeam/appliance_credentials.png" alt="Veeam Appliance Credentials" align="center" width="90%" mb="20px" >}}
-
-In the **Network Settings** tab, choose the management network that the appliance will use. It is recommended to manually choose the IP address configuration. If no DHCP service is setup, use the first available free IP in the address range of the management network.
-
-{{< image path="/images/veeam/appliance_network.png" alt="Veeam Appliance Network" align="center" width="90%" mb="20px" >}}
-
-In the next step, Veeam will take care of deploying the appliance. Once finished, you should see it listed in the same tab:
-
-{{< image path="/images/veeam/appliance_listed.png" alt="Veeam Appliance in List" align="center" width="90%" mb="20px" >}}
-
-#### 5.3. Verification
-
-If the integration is configured correctly, the available Virtual Machines appear in the **Inventory** tab under the **Virtual Infrastructure -> oVirt KVM** section.
-
-{{< image path="/images/veeam/verification.png" alt="Veeam Verification" align="center" width="90%" mb="20px" >}}
+{{< /alert >}}
 
 ## Logging Information
 
-The oVirtAPI server writes logs in the following directory depending on the operating system:
+The oVirtAPI server writes logs in the following paths depending on the operating system:
 
-* Ubuntu/Debian: `/var/log/apache2`
-* Alma/RHEL: `/var/log/httpd`
+* Ubuntu/Debian: `/var/log/apache2/error.log`
+* Alma/RHEL: `/var/log/httpd/error.log`
 
 Additional logs for interactive backups are available on the hypervisors:
 
 * OneBEX logs: `/var/log/one/onebex.log`
 
-## Performance Improvements
 
-Backup data is transferred from the OpenNebula hypervisors through OneBEX. The oVirtAPI server handles inventory, authentication, and orchestration requests from Veeam.
-
-If oVirtAPI requests are queued under load, increase the number of Passenger processes available to the oVirtAPI service. This is controlled by the `PassengerMaxPoolSize` parameter in the Apache configuration file. After changing `PassengerMaxPoolSize`, balance the value with the available RAM and CPU in the Backup Server.
-
-### Adjusting the Process Pool
-
-The configuration file is available in the following locations depending on your distribution:
-
-* Debian/Ubuntu: `/etc/apache2/sites-available/ovirtapi-server.conf`
-* Alma/RHEL: `/etc/httpd/conf.d/ovirtapi-server.conf`
-
-After editing and saving the file, you must restart the web server for the change to take effect:
-
-* Debian/Ubuntu: `sudo systemctl restart apache2`
-* Alma/RHEL: `sudo systemctl restart httpd`
-
-
-**Memory**
-
-Each active Passenger process consumes approximately 150-200 MB of RAM. You can use the following formula as a starting point to determine a safe maximum, leaving a 30% buffer for the OS and other services:
-
-`(TOTAL_SERVER_RAM_MB * 0.70) / 200 = Recommended MaxPoolSize`
-
-**CPU**
-
-While increasing the pool size, monitor CPU usage. If the CPU load becomes the bottleneck, adding more processes will not increase throughput and may reduce performance. In that case, increase the number of CPUs or vCPUs assigned to the Backup Server.
-
-OneBEX concurrency is controlled separately in `/var/lib/one/remotes/etc/onebex/onebex-server.conf` through the Puma settings. Increase these values only when the hypervisor, storage, and network can handle the additional concurrent requests.
-
-### Interpreting Veeam Job Statistics
-
-The Veeam job statistics window shows a breakdown of the load, which is crucial for identifying the true bottleneck in your backup chain.
-
-* **Source**: This represents the OpenNebula side serving the backup data, typically the hypervisor and OneBEX endpoint. A high load here indicates that the source is the active bottleneck.
-* **Proxy**: This is the KVM appliance deployed by Veeam. If its load is consistently high (e.g., >90%), it is the bottleneck and requires more resources (vCPU/RAM).
-* **Network**: This indicates that the transfer speed is being limited by the available bandwidth on the management network connecting the components.
-
-## Volatile Disk Backups
-
-To back up volatile disks, enable this functionality in the OpenNebula Virtual Machine configuration by setting the `BACKUP_VOLATILE` parameter to `YES`. Otherwise, the disk is not listed in Veeam. For more information about volatile disk backups in OpenNebula, see the [backup documentation page]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations.md" %}}).

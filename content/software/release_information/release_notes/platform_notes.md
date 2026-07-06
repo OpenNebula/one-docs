@@ -117,7 +117,7 @@ More information: [one-apps wiki](https://github.com/OpenNebula/one-apps/wiki)
 | SMART exporter                | 0.14.0    | [Optional Exporters]({{% relref "../../../product/cloud_system_administration/prometheus/install.md#monitor-alert-extra-exporters" %}}) |
 | LVM exporter                  | 0.6.2     | [Optional Exporters]({{% relref "../../../product/cloud_system_administration/prometheus/install.md#monitor-alert-extra-exporters" %}}) |
 | Restic backup backend         | 0.17.3    | [Backup Datastore: Restic]({{% relref "../../../product/cluster_configuration/backup_system/restic.md#vm-backups-restic" %}})                                        |
-| Veeam B&R                     | 12.3.1    | [Veeam Backup (EE)]({{% relref "../../../product/cluster_configuration/backup_system/veeam.md" %}}) |
+| Veeam B&R                     | >=13.0    | [Veeam Backup (EE)]({{% relref "../../../product/cluster_configuration/backup_system/veeam.md" %}}) |
 
 ### Sunstone
 
