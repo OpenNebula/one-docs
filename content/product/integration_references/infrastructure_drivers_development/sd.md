@@ -112,7 +112,7 @@ The backup datastore drivers are responsible for storing the generate `backup` f
   - `backup_id` driver reference for the backup
   - `size_mb` size that the backup takes
   - `format` value of the backup image’s FORMAT attribute (values: raw, rbd)
-- **restore**: Restore the OpenNebula objects (VM Template and Images). Note that the actual download of the images will be made by the Image Datastore using the reference URI. The specific mechanism to download images for a given protocol is coded in the `downloader.sh` script. Standard backup datastore pseudo-URLs take the form: `<backup_proto>://<datastore_id>/<backup_job_id>/<driver_snapshot_id_chain>/<disk filename>` (example: `restic://100/23/0:25f4b298,1:6968545c//var/lib/one/datastores/0/0/backup/disk.0`, the backup job ID can be empty). Interactive restores use OneBEX-URL form `onbex://<IMAGE_DS_ID>:<PORT_ID>`, where `IMAGE_DS_ID` is the destination Image Datastore ID and `PORT_ID` is the restore transfer port allocated for the interactive restore:
+- **restore**: Restore the OpenNebula objects (VM Template and Images). Note that the actual download of the images will be made by the Image Datastore using the reference URI. The specific mechanism to download images for a given protocol is coded in the `downloader.sh` script. Standard backup datastore pseudo-URLs take the form: `<backup_proto>://<datastore_id>/<backup_job_id>/<driver_snapshot_id_chain>/<disk filename>` (example: `restic://100/23/0:25f4b298,1:6968545c//var/lib/one/datastores/0/0/backup/disk.0`, the backup job ID can be empty). Interactive restores use OneBEX-URL form `onebex://<IMAGE_DS_ID>:<PORT_ID>`, where `IMAGE_DS_ID` is the destination Image Datastore ID and `PORT_ID` is the restore transfer port allocated for the interactive restore:
   - **ARGUMENTS**: `datastore_action_dump image_id`
   - **RETURNS**: `Template_ID Image_ID1 Image_ID2 ...`
 - **ls**: Lists the disk backups included in a given backup together with a downloader URL. The action receives the increment ID as a parameter and the information of the backup image, datastore and VM as XML through standard input.
@@ -139,7 +139,7 @@ For interactive restores, the downloader URL uses the OneBEX pseudo-URL:
 
 ```default
 {
-  "0": "onbex://1:13050"
+  "0": "onebex://1:13050"
 }
 ```
 

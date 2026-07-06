@@ -39,11 +39,11 @@ The current interactive backup implementation supports the following configurati
 | Component | Support |
 |-----------|---------|
 | Hypervisor | KVM |
-| VM disk storage | File-based `qcow2` disks |
+| VM disk storage | File-based `qcow2` disks and disks on LVM datastores |
 | Backup types | Full and incremental |
 | Incremental mode | CBT only (`INCREMENT_MODE="CBT"`) |
 | VM state | Running and powered off VMs |
-| OneBEX exporter | NBD |
+| OneBEX exporter | NBD, LVM |
 
 {{< alert title="Important" type="info" >}}
 Interactive incremental backups do not support the `SNAPSHOT` increment mode. OpenNebula rejects this combination when the backup configuration is updated.
@@ -118,6 +118,8 @@ TYPE   = "BACKUP_DS"
 
 DS_MAD = "interactive"
 TM_MAD = "-"
+
+DATASTORE_CAPACITY_CHECK="NO"
 ```
 
 The datastore must be added to every cluster that contains VMs managed by the integration.
@@ -131,7 +133,7 @@ $ onecluster adddatastore <cluster_name> <datastore_name>
 During interactive restores, OpenNebula passes the Image Datastore downloader a OneBEX URL in the following form:
 
 ```default
-onbex://<IMAGE_DS_ID>:<PORT_ID>
+onebex://<IMAGE_DS_ID>:<PORT_ID>
 ```
 
 `IMAGE_DS_ID` is the destination Image Datastore ID where the restored disk image will be created. `PORT_ID` is the restore transfer port allocated for the interactive restore session.
@@ -158,6 +160,7 @@ The OneBEX API is consumed by backup integrations. The current API is:
 
 OneBEX uses exporters to expose VM disk data to external backup systems.
 
-| Exporter | Disk format | Transport | Description |
-|----------|-------------|-----------|-------------|
-| `nbd` | `qcow2` | Network Block Device | Exposes the backup disk through NBD. For local disk images, OneBEX starts a read-only `qemu-nbd` process and serves the image through a Unix socket. |
+| Exporter | VM disk storage | Transport | Description |
+|----------|-----------------|-----------|-------------|
+| `nbd` | File-based `qcow2` disks | Network Block Device | Exposes the backup disk through NBD. OneBEX starts a read-only `qemu-nbd` process and serves the disk export through a Unix socket. |
+| `lvm` | Disks on LVM datastores | Direct block-device reads | Exposes the prepared LVM block device directly. Full backups return the full device extent. Incremental backups use `thin_delta` to return changed extents from LVM thin metadata. |
