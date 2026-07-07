@@ -122,3 +122,4 @@ Additionally, the following functionalities are present that were not in OpenNeb
 * Fix AutoNFS not working correctly when used on System Datastores of type `shared` [#7763](https://github.com/OpenNebula/one/issues/7763).
 * Fix LVM concurrency issue with parallel deployments from different hosts using the same VG [#7719](https://github.com/OpenNebula/one/issues/7719).
 * Fix various logrotate issues [#7646](https://github.com/OpenNebula/one/issues/7646).
+* Fix Datastores rounding off capacity values [#7777](https://github.com/OpenNebula/one/issues/7777).
