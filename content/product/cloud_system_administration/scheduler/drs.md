@@ -12,34 +12,36 @@ weight: "6"
 
 <!--# OpenNebula Distributed Resource Scheduler (DRS) -->
 
-The **OpenNebula Distributed Resource Scheduler (DRS)** optimizes resource allocation and prevents resource contention within a single OpenNebula [cluster]({{% relref "../../cluster_configuration/hosts_and_clusters/cluster_guide#cluster-guide" %}}). It integrates with OpenNebula’s built-in monitoring and forecasting systems, considering real-time Virtual Machine (VM) and Host usage metrics as well as predictions of future resource consumption.
+The **OpenNebula Distributed Resource Scheduler (DRS)** optimizes resource allocation and prevents resource contention within a single OpenNebula [Cluster]({{% relref "product/cluster_configuration/hosts_and_clusters/cluster_guide#cluster-guide" %}}). It integrates with OpenNebula’s built-in monitoring and forecasting systems, considering real-time Virtual Machine (VM) and Host usage metrics as well as predictions of future resource consumption.
 
 OpenNebula DRS offers flexible automation levels, allowing recommendations to be generated and applied either automatically or manually. Administrators can review and execute migration suggestions through the OpenNebula Sunstone GUI.
 
 ## Overview
 
-OpenNebula DRS employs an integer linear programming (ILP) solver to optimize cluster workload distribution. Key features include:
+OpenNebula DRS employs an integer linear programming (ILP) solver to optimize Cluster workload distribution. Key features include:
 
 - **Cluster Load Balancing**: Distributes VM workloads across Hosts to balance resource usage, reducing contention and improving performance.
 - **Predictive DRS**: Uses resource usage forecasts to provide proactive migration recommendations.
 - **Migration Recommendations**: Generates migration suggestions, allowing administrators to manually approve or automate actions.
 
+A VM might be migrated to another Host or another datastore, but can't change both Host and datastore simultaneously.
+
 ## Configuration and Usage
 
-To enable OneDRS: In Sunstone, select the **Cluster** tab, then enable **OneDRS**. Alternatively, in the Cluster template set the `ONE_DRS` configuration attribute.
+**To enable OneDRS**: In Sunstone, go to **Ifrastructure -> Clusters**, select the relevant Cluster then click **Enable OneDRS** in the **OneDRS** tab. Alternatively, in the Cluster template set the `ONE_DRS` configuration attribute.
 
-Configuring OneDRS for the cluster requires setting the following options:
+Configuring OneDRS for the Cluster requires setting the following options:
 
-- **Policies**: Defines how workloads are distributed across Hosts.
+- **Policies**: Defines how workloads are distributed across Hosts and datastores.
 - **Usage Metrics and Predictions**: Specifies which resource metrics (CPU, Memory, Network, Disk) to consider for balancing.
 - **Migration Threshold**: Limits the number of migrations generated in an optimization cycle.
 
 ### Policy Configuration
 
-OneNebula DRS migrates VMs according to the defined policy:
+OneDRS migrates VMs according to the defined policy:
 
 - **Packing**: Minimizes the number of active Hosts to save energy or prepare for maintenance.
-- **Load Balancing**: Distributes VMs across available Hosts to prevent resource contention.
+- **Load Balancing**: Distributes VMs across available Hosts or datastores to prevent resource contention.
 
 #### Load Balancing Objectives
 
@@ -51,7 +53,7 @@ The load balancing goal can combine multiple performance indicators:
 - **Disk I/O**: Consideration of read/write operations.
 - **Network Traffic**: Optimization based on network throughput.
 
-For example, you can balance CPU and disk usage equally, setting CPU- and disk-associated weights to 50% each.
+For example, you can balance CPU and disk usage equally, setting CPU and disk-associated weights to 50% each.
 
 #### Predictive DRS
 
@@ -65,9 +67,9 @@ By default, DRS uses only monitored values.
 
 #### Migration Threshold Configuration
 
-Since migrations add overhead, administrators can set a **migration threshold** to limit the number of migrations per optimization cycle. You need to balance this setting: an aggressive threshold may negatively impact performance, while a conservative approach could overlook opportunities for improving the performance of the cluster.
+Since migrations add overhead, administrators can set a **migration threshold** to limit the number of migrations per optimization cycle. You need to balance this setting: an aggressive threshold may negatively impact performance, while a conservative approach could overlook opportunities for improving the performance of the Cluster.
 
-By default, the number of migrations is not limited (i.e., the migration threshold is `-1`).
+By default, the number of migrations is not limited (i.e. the migration threshold is `-1`).
 
 #### Automation Levels
 
@@ -75,11 +77,11 @@ Administrators can choose between different automation levels:
 
 - **Manual**: Recommendations are displayed, but migrations must be manually approved.
 - **Partial**: Migrations are periodically generated and require approval before execution.
-- **Fulld**: Migrations are generated and applied automatically based on recommendations.
+- **Full**: Migrations are generated and applied automatically based on recommendations.
 
 ## Initial Placement
 
-OneDRS can also handle the **initial placement** of pending VMs, selecting the most suitable Hosts. Unlike the default Rank Scheduler, which considers one VM at a time, OneDRS evaluates all pending VMs together for optimal placement.
+OneDRS can also handle the **initial placement** of pending VMs, selecting the most suitable Hosts and datastores. Unlike the default Rank Scheduler, which considers one VM at a time, OneDRS evaluates all pending VMs together for optimal placement.
 
 Initial placement is configured in `/etc/one/oned.conf` by modifying the `SCHED_MAD` section:
 
@@ -92,13 +94,13 @@ SCHED_MAD = [
 
 When using OneDRS for placement, the following differences from workload optimization apply:
 
-- Only **CPU** and **Memory** balancing is available. There are no monitoring data for pending VMs.
+- Only **CPU** and **Memory** balancing is available. There is no monitoring data for pending VMs.
 - Predictive DRS is **not applicable** (forecasts are unavailable for pending VMs).
 - Migration threshold settings **do not apply**.
 
 ## OneDRS Configuration
 
-The main DRS configuration file is `/etc/one/schedulers/one_drs.conf`. This file defines default behavior, which can be overridden per cluster. The following options can be defined:
+The main DRS configuration file is `/etc/one/schedulers/one_drs.conf`. This file defines default behavior, which can be overridden per Cluster. The following options can be defined:
 
 - `DEFAULT_SCHED`: Defines the ILP solver used.
 - `PLACE`: Configures initial VM placement policies.
@@ -109,7 +111,7 @@ The main DRS configuration file is `/etc/one/schedulers/one_drs.conf`. This file
 
 ### Solver Configuration
 
-OneDRS uses the **PuLP** library for ILP solvers, supporting:
+OneDRS uses the [**PuLP** library](https://pypi.org/project/PuLP/) for ILP solvers, supporting:
 
 - **CBC Solver** (default)
 - **GLPK**
@@ -125,7 +127,7 @@ Configuration:
 Scheduling policies define optimization objectives:
 
 - `PACK`: Consolidates VMs on fewer Hosts to minimize active hardware.
-- `BALANCE`: Distributes VMs across Hosts to reduce resource contention.
+- `BALANCE`: Distributes VMs across Hosts or datastores to reduce resource contention.
 
 Example:
 
@@ -146,7 +148,15 @@ PLACE:
     MEMORY: 0.4
 ```
 
+### Migration Configuration
+
+Migration configuration options are relevant only for workload optimization.
+
 `MIGRATION_THRESHOLD` limits the number of migrations per cycle.
+
+`PRIORITIZE_STORAGE_MIGRATIONS` decides if storage migrations will be prioritized over host migrations (value `"YES"`), when they bring the same improvement with respect to the selected policy.
+
+### Complete Configuration Example
 
 The following shows a complete configuration file for the OneDRS scheduler:
 
@@ -161,6 +171,7 @@ PLACE:
 OPTIMIZE:
   POLICY: "BALANCE"
   MIGRATION_THRESHOLD: 10
+  PRIORITIZE_STORAGE_MIGRATIONS: "YES"
   WEIGHTS:
     CPU_USAGE: 0.2
     CPU: 0.2
@@ -175,6 +186,6 @@ MEMORY_SYSTEM_DS_SCALE: 0
 DIFFERENT_VNETS: YES
 ```
 
-### Blocking VM Migrations
+## Blocking VM Migrations
 
 It is possible to avoid the migrations for specific VMs, by setting `ONEDRS_BLOCKED` to `YES` in its user template.

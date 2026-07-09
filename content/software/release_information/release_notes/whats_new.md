@@ -10,7 +10,7 @@ weight: "1"
 
 <a id="whats-new"></a>
 
-The OpenNebula team is excited to announce the availability of OpenNebula 7.4. This release introduces a broad set of usability, automation, and operational improvements across the platform, led by a redesigned Sunstone interface that makes day-to-day cloud management more modern and intuitive.
+The OpenNebula team is excited to announce the availability of OpenNebula 7.4! This release introduces a broad set of usability, automation, and operational improvements across the platform, led by a redesigned Sunstone interface that makes day-to-day cloud management more modern and intuitive.
 
 OpenNebula 7.4 also delivers important enhancements for operating virtualized infrastructure at scale, including OneSwap batch VMware migrations, improved OneDRS datastore selection, dynamic VM group management through the CLI, bulk operations for service VMs, Ubuntu 26.04 support, expanded backup capabilities with OneBEX, new VLAN group-level authorization policies, support for SR-IOV-capable PCI network interfaces in Switchdev mode with Open vSwitch, an enhanced Slurm appliance with out-of-the-box NVIDIA GPU support and LDAP identity integration, and a wide range of fixes and improvements across HA, networking, storage, monitoring, and vCenter compatibility.
 
@@ -80,14 +80,17 @@ Thank you to our incredible community and partners for your continued support in
 
 ## OneSwap
 
-* Added Windows OS Profile/Best practices VM template options to oneswap Windows conversion.
-* OneSwap batch VM conversion enables the migration of multiple VMs in a single execution 
+* Added Windows OS Profile/Best practices VM template options to OneSwap Windows conversion.
+* OneSwap batch VM conversion enables the migration of multiple VMs in a single execution.
+
 ## AI Factories
 
-Integration of the [NVIDIA Infra Controller (NICo)]({{% relref "product/virtual_machines_operation/metal_instances/bare_metal_nico/" %}}) introduces Bare Metal as a Service to OpenNebula, streamlining the lifecycle management of bare-metal instances within multi-tenant, AI Factory-scale infrastructures.
+* Integration of the [NVIDIA Infra Controller (NICo)]({{% relref "product/virtual_machines_operation/metal_instances/bare_metal_nico/" %}}) introduces Bare Metal as a Service to OpenNebula, streamlining the lifecycle management of bare-metal instances within multi-tenant, AI Factory-scale infrastructures.
+
 ## OpenNebula Distributed Resource Scheduler
 
-* [OneDRS]({{% relref "product/cloud_system_administration/scheduler/drs#scheduler-drs" %}}) can now skip automatic migration for VMs whose user template sets `ONEDRS_BLOCKED` to `YES`.
+* [OneDRS]({{% relref "product/cloud_system_administration/scheduler/drs" %}}) now supports storage migrations in addition to migrations across hosts when optimizing Cluster workloads.
+* [OneDRS]({{% relref "product/cloud_system_administration/scheduler/drs" %}}) can now skip automatic migration for VMs whose user template sets `ONEDRS_BLOCKED` to `YES`.
 
 ## Features Backported to 7.2.x
 
@@ -105,16 +108,16 @@ Additionally, the following functionalities are present that were not in OpenNeb
 * Fix VM CDROM hot-attach without target or dev-prefix [#7736](https://github.com/OpenNebula/one/issues/7736).
 * Fix API commands executed on HA follower, for full list of commands the GitHub issue [#7725](https://github.com/OpenNebula/one/issues/7725).
 * Fix onehost failing on CLI-only installs due to an unconditional require of HostSyncManager [#7768](https://github.com/OpenNebula/one/issues/7768).
-* Fix AutoNFS bug where `NFX_AUTO_*` attributes are not correctly read, preventing the automatic mount [#7763](https://github.com/OpenNebula/one/issues/7763)
-* Fix OneDRS placement failure for LVM SAN EE datastore with `KeyError` on Image DS ID [#7752](https://github.com/OpenNebula/one/issues/7752)
-* Fix incorrect reporting of sizes for VirtioFS images [#7751](https://github.com/OpenNebula/one/issues/7751)
-* Fix OneKS Clusters stuck in DEPROVISIONING state if a OneKS group becomes empty during the deprovisioning process [#7749](https://github.com/OpenNebula/one/issues/7749)
-* Fix unrecoverable WARNING state of OneKS groups after recovery of OneKS Cluster [#7748](https://github.com/OpenNebula/one/issues/7748)
+* Fix AutoNFS bug where `NFX_AUTO_*` attributes are not correctly read, preventing the automatic mount [#7763](https://github.com/OpenNebula/one/issues/7763).
+* Fix OneDRS placement failure for LVM SAN EE datastore with `KeyError` on Image DS ID [#7752](https://github.com/OpenNebula/one/issues/7752).
+* Fix incorrect reporting of sizes for VirtioFS images [#7751](https://github.com/OpenNebula/one/issues/7751).
+* Fix OneKS Clusters stuck in DEPROVISIONING state if a OneKS group becomes empty during the deprovisioning process [#7749](https://github.com/OpenNebula/one/issues/7749).
+* Fix unrecoverable WARNING state of OneKS groups after recovery of OneKS Cluster [#7748](https://github.com/OpenNebula/one/issues/7748).
 * Fix OneKS lifecycle operations after renaming a cluster by using stable Kubernetes identifiers [#7724](https://github.com/OpenNebula/one/issues/7724).
 * Fix oneswap compatibility issue with vCenter 8.0.3 [#7698](https://github.com/OpenNebula/one/issues/7698).
 * Fix `opennebula-exporter` crash when monitoring diskless VMs [#7703](https://github.com/OpenNebula/one/issues/7703).
 * Fix PCI attach to prevent bus address collisions [#7695](https://github.com/OpenNebula/one/issues/7695).
-* Fix lack of VLAN tags clearance in OVS when removing them from virtual network [#7707](https://github.com/OpenNebula/one/issues/7707)
+* Fix lack of VLAN tags clearance in OVS when removing them from virtual network [#7707](https://github.com/OpenNebula/one/issues/7707).
 * Fix LVM (EE) post-reboot activation silently skipping VM disks [#7720](https://github.com/OpenNebula/one/issues/7720).
 * Fix OVS port QinQ vlan mode being overwritten with changes introduced in[#7657](https://github.com/OpenNebula/one/issues/7657).
 * Fix MAC address range parsing for invalid MAD address ranges [#7233](https://github.com/OpenNebula/one/issues/7233).
