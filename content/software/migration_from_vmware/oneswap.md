@@ -216,6 +216,22 @@ Ubuntu 24.04 and AlmaLinux/RHEL 9 provide up to date versions of the packages.
 
 The script builds the nbdkit version matching the installed distro package and copies only the VDDK plugin into nbdkit's plugin directory. It requires internet access, or an internal mirror via the `NBDKIT_REPO_URL` environment variable.
 
+VDDK mode is also required for VMware vSAN-backed VMDKs. vSAN disks are object-backed and are not available through the classic vCenter datastore `*-flat.vmdk` download path used by the non-VDDK and hybrid transfer modes.
+
+To convert VMs stored on a vSAN datastore, configure VDDK in `/etc/one/oneswap.yaml`:
+
+```yaml
+:vddk_path: '/opt/vmware-vix-disklib-distrib/'
+```
+
+or pass it on the command line:
+
+```bash
+oneswap convert VM_NAME --vddk /opt/vmware-vix-disklib-distrib/
+```
+
+Delta and hybrid modes are currently not supported for vSAN-backed disks. Use full conversion with VDDK for vSAN-backed VMs.
+
 ### Required software for migrating Windows Virtual machines
 
 There are two requirements to convert Windows Virtual Machines:
