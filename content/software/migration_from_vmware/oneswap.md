@@ -232,6 +232,59 @@ oneswap convert VM_NAME --vddk /opt/vmware-vix-disklib-distrib/
 
 Delta and hybrid modes are currently not supported for vSAN-backed disks. Use full conversion with VDDK for vSAN-backed VMs.
 
+### Non-root libguestfs appliance
+
+When OneSwap is executed as a non-root user, for example `oneadmin`, libguestfs may invoke `supermin` to build an appliance from the host kernel. If the active kernel image under `/boot/vmlinuz-*` is readable only by root, `supermin` can fail with:
+
+```text
+cp: cannot open '/boot/vmlinuz-...-generic' for reading: Permission denied
+libguestfs: error: /usr/bin/supermin exited with error status 1
+```
+
+To avoid relying on local kernel image permissions, configure OneSwap to use a prebuilt libguestfs appliance:
+
+```bash
+cd /var/lib/one
+wget https://download.libguestfs.org/binaries/appliance/appliance-1.56.0.tar.xz
+tar -xJf appliance-1.56.0.tar.xz
+mv appliance libguestfs-appliance
+chown -R oneadmin:oneadmin libguestfs-appliance
+```
+
+The appliance version can be adjusted to a newer available version from the [libguestfs appliance directory](https://download.libguestfs.org/binaries/appliance/).
+
+Configure the appliance path in `/etc/one/oneswap.yaml`:
+
+```yaml
+:libguestfs_path: /var/lib/one/libguestfs-appliance
+```
+
+Alternatively, pass the path on the command line:
+
+```bash
+oneswap convert VM_NAME --libguestfs-path /var/lib/one/libguestfs-appliance
+```
+
+Validate that libguestfs can start with the prebuilt appliance as the OneSwap user:
+
+```bash
+sudo -u oneadmin -H bash -lc 'LIBGUESTFS_PATH=/var/lib/one/libguestfs-appliance libguestfs-test-tool'
+```
+
+The expected result is:
+
+```text
+===== TEST FINISHED OK =====
+```
+
+If `/dev/kvm` exists, add the OneSwap user to the `kvm` group to allow libguestfs to use hardware virtualization:
+
+```bash
+usermod -aG kvm oneadmin
+```
+
+If `/dev/kvm` is not present, hardware virtualization or nested virtualization must be enabled. Otherwise libguestfs may fall back to TCG and run much slower.
+
 ### Required software for migrating Windows Virtual machines
 
 There are two requirements to convert Windows Virtual Machines:
