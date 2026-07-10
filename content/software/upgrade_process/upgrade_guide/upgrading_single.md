@@ -93,9 +93,9 @@ Before proceeding, back up the `/etc/one/sunstone-views.yaml` file. After comple
 Before upgrading OpenNebula, ensure that the configuration state is clean, with no pending migrations from previous or outdated configurations. To verify this, run `onecfg status`. A clean state should produce output similar to:
 
 ```default
-$ onecfg status
+onecfg status
 --- Versions ------------------------------
-OpenNebula:  7.0.0
+OpenNebula:  7.4.0
 Config:      6.10.0
 
 --- Backup to Process ---------------------
@@ -103,9 +103,9 @@ Snapshot:    /var/lib/one/backups/config/2025-06-27_11:05:47-v6.10.0
 (will be used as one-shot source for next update)
 
 --- Available Configuration Updates -------
-New config:  7.0.0
+New config:  7.4.0
 - from 6.10.0 to 6.10.2 (YAML, Ruby)
-- from 6.10.2 to 7.0.0 (YAML, Ruby)
+- from 6.10.2 to 7.4.0 (YAML, Ruby)
 ```
 
 {{< alert title="Note" type="info" >}}
@@ -118,11 +118,11 @@ After running `onecfg status`, you might encounter one of the following messages
 After confirming the configuration state, in most cases you can proceed with the following command, which uses OpenNebula's internal version tracking to apply the appropriate configuration updates:
 
 ```default
-# onecfg upgrade
+onecfg upgrade
 ANY   : Found backed up configuration to process!
 ANY   : Snapshot to update from '/var/lib/one/backups/config/2025-06-27_11:05:47-v6.10.0'
 ANY   : Backup stored in '/var/lib/one/backups/config/2025-06-27_11:39:36_30392'
-ANY   : Configuration updated to 7.0.0
+ANY   : Configuration updated to 7.4.0
 ```
 
 If you get conflicts when running the `onecfg` upgrade, refer to the [onecfg upgrade basic usage documentation]({{% relref "../configuration_management_ee/usage#cfg-usage" %}}) on how to upgrade and troubleshoot the configurations, in particular the [onecfg upgrade doc]({{% relref "../configuration_management_ee/usage#cfg-upgrade" %}}) and the [Troubleshooting section]({{% relref "../configuration_management_ee/conflicts#cfg-conflicts" %}}).
@@ -131,8 +131,8 @@ Finally, check the configuration state via `onecfg status`. There should be no e
 
 ```default
 --- Versions ------------------------------
-OpenNebula:  7.0.0
-Config:      7.0.0
+OpenNebula:  7.4.0
+Config:      7.4.0
 
 --- Available Configuration Updates -------
 No updates available.
@@ -145,8 +145,8 @@ If you have backed up `/etc/one/sunstone-views.yaml` restore the file to `/etc/o
 
 Simply run the `onedb upgrade -v` command. The connection parameters are automatically retrieved from `/etc/one/oned.conf`. Example:
 
-```default
-$ onedb upgrade -v
+```shell
+onedb upgrade -v
 Version read:
 Shared tables 6.10.0 : OpenNebula 6.10.0 (5d6b8571) daemon bootstrap
 Local tables  6.10.0 : OpenNebula 6.10.0 (5d6b8571) daemon bootstrap
@@ -155,16 +155,16 @@ Sqlite database backup stored in /var/lib/one/one.db_2025-6-27_11:45:51.bck
 Use 'onedb restore' to restore the DB.
 
 >>> Running migrators for shared tables
-  > Running migrator /usr/lib/one/ruby/onedb/shared/6.10.0_to_7.0.0.rb
+  > Running migrator /usr/lib/one/ruby/onedb/shared/6.10.0_to_7.4.0.rb
   > Done in 0.00s
 
-Database migrated from 6.10.0 to 7.0.0 (OpenNebula 7.0.0) by onedb command.
+Database migrated from 6.10.0 to 7.4.0 (OpenNebula 7.4.0) by onedb command.
 
 >>> Running migrators for local tables
-  > Running migrator /usr/lib/one/ruby/onedb/local/6.10.0_to_7.0.0.rb
+  > Running migrator /usr/lib/one/ruby/onedb/local/6.10.0_to_7.4.0.rb
   > Done in 0.08s
 
-Database migrated from 6.10.0 to 7.0.0 (OpenNebula 7.0.0) by onedb command.
+Database migrated from 6.10.0 to 7.4.0 (OpenNebula 7.4.0) by onedb command.
 
 Total time: 0.12s
 ```

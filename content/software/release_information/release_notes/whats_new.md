@@ -10,7 +10,7 @@ weight: "1"
 
 <a id="whats-new"></a>
 
-The OpenNebula team is excited to announce the availability of OpenNebula 7.4! This release introduces a broad set of usability, automation, and operational improvements across the platform, led by a redesigned Sunstone interface that makes day-to-day cloud management more modern and intuitive.
+The OpenNebula team is excited to announce the availability of **OpenNebula 7.4 "Helix"**! This release introduces a broad set of usability, automation, and operational improvements across the platform, led by a redesigned Sunstone interface that makes day-to-day cloud management more modern and intuitive.
 
 OpenNebula 7.4 also delivers important enhancements for operating virtualized infrastructure at scale, including OneSwap batch VMware migrations, improved OneDRS datastore selection, dynamic VM group management through the CLI, bulk operations for service VMs, Ubuntu 26.04 support, expanded backup capabilities with OneBEX, new VLAN group-level authorization policies, support for SR-IOV-capable PCI network interfaces in Switchdev mode with Open vSwitch, an enhanced Slurm appliance with out-of-the-box NVIDIA GPU support and LDAP identity integration, and a wide range of fixes and improvements across HA, networking, storage, monitoring, and vCenter compatibility.
 
@@ -96,7 +96,7 @@ Thank you to our incredible community and partners for your continued support in
 
 Additionally, the following functionalities are present that were not in OpenNebula 7.2.0, although they debuted in subsequent maintenance releases of the 7.2.x series:
 
-* [Allow the customization of the favicon in FireEdge]({{% relref "product/operation_references/opennebula_services_configuration/fireedge.md#branding-fireedge" %}}).
+* [Enabled the customization of the favicon in FireEdge]({{% relref "product/operation_references/opennebula_services_configuration/fireedge.md#branding-fireedge" %}}).
 * Added the capacity to [batch delete scheduled actions from all service VMs]({{% relref "product/virtual_machines_operation/multi-vm_workflows/appflow_use_cli/#deleting-scheduled-actions-from-service-vms" %}}), negating the need to delete actions from each individual VM.
 
 ## Other Issues Solved
