@@ -13,23 +13,30 @@ weight: "2"
 
 <!--# Backup Datastore: Restic -->
 
-[Restic](https://restic.net/) is an open source (BSD 2-Clause License) backup tool designed for speed, security, and efficiency. The current implementation of the driver uses the SFTP storage type. Restic offers interesting features to store backups, like deduplication (only transferring image blobs not already present in the repository) or compression (enabled by default).
+[Restic](https://restic.net/) is an open source (BSD 2-Clause License) backup tool designed for speed, security, and efficiency. The current implementation of the driver supports SFTP and S3 storage types. Restic offers interesting features to store backups, like deduplication (only transferring image blobs not already present in the repository) or compression (enabled by default).
 
 In both the Enterprise and Community editions of OpenNebula, the correct version of restic is included as a dependency. In this guide we will use the following terminology (introduced by restic):
 
-- *Repository*: This is the storage volume where the disk images backups will be stored. Restic creates a specific interval structure to store the backups efficiently. The restic driver accesses the repository through the sftp. protocol. OpenNebula will create a separate restic repository for each VM or backup job.
+- *Repository*: This is the storage location where VM disk backups will be stored. Depending on the selected backend, it can be a directory on an SFTP backup server or a path inside an S3 bucket. Restic creates a specific internal structure to store the backups efficiently. OpenNebula will create a separate restic repository for each VM or backup job.
 - *Snapshot*: It represents a backup and it is referenced by a unique hash (e.g., `eda52f34`). Each snapshot stores a VM backup and includes the backed up disks and the metadata description of the VM at the time you make the backup.
-- *Backup Server*: A Host that will store the VM backups and the restic repositories.
+- *Backup Server*: A Host that stores VM backups and restic repositories when using the SFTP backend.
+- *S3 Bucket*: An AWS S3 or S3-compatible bucket that stores the restic repositories when using the S3 backend.
 
-## Step 1. [Backup Server] Set up the backup server
+## Step 1. Backend Configuration
 
-The first thing you need to do is set up a server to hold the restic repository. Typically the server will have a dedicated storage medium dedicated to store the backups (e.g., iSCSI volume). Also, the Hosts and Front-end need to reach the server IP.
+The first thing you need to do is prepare the storage backend that will hold the restic repositories. The required setup depends on the backend selected for the datastore.
 
-To set up the server perform the following steps:
+The restic repository itself does not need to be created manually. OpenNebula initializes the repository automatically during the first backup, using the datastore configuration.
+
+### SFTP Backend
+
+For the SFTP backend, set up a backup server to hold the restic repositories. Typically the server will have a dedicated storage medium to store the backups (e.g., iSCSI volume). Also, the Hosts and Front-end need to reach the server IP.
+
+To set up the backup server perform the following steps:
 
 - Create a user account with username `oneadmin`. This account will be used to connect to the server.
 - Copy the SSH public key of existing `oneadmin` from the OpenNebula Front-end to this new `oneadmin` account.
-- Check that `oneadmin` can SSH access the server **without being prompt for a password** from the Front-end and Hosts.
+- Check that `oneadmin` can SSH access the server **without being prompted for a password** from the Front-end and Hosts.
 - Create the following folder in the backup server `/var/lib/one/datastores`, change the ownership to `oneadmin`.
 - Mount the storage volume in `/var/lib/one/datastores`.
 - Finally make sure **rsync** and **qemu-img** commands are installed in the backup server.
@@ -53,9 +60,23 @@ $ ls -ld /var/lib/one/datastores/
 drwxrwxr-x 2 oneadmin oneadmin 4096 Sep  3 12:04 /var/lib/one/datastores/
 ```
 
+### S3 Backend
+
+For the S3 backend, prepare an AWS S3 bucket or an S3-compatible bucket before creating the OpenNebula Backup Datastore. The bucket must be reachable from the Front-end and Hosts.
+
+The S3 credentials configured in the datastore must allow OpenNebula to list the bucket and to create, read, and delete objects in it.
+
+For AWS S3, use an access key and secret access key with permissions for the target bucket. For S3-compatible backends, use the equivalent credentials and enable path-style access if required by the service.
+
+If the S3 endpoint uses a private CA certificate, make the CA certificate file available on the KVM Hosts where restic commands run. For lab or debugging environments, TLS verification can also be disabled in the datastore configuration.
+
 ## Step 2. [Front-end] Create a Restic Datastore
 
-Now that we have the backup server prepared, let’s create an OpenNebula Backup Datastore. We just need to pick a password to access our repository and create a datastore template:
+Create an OpenNebula Backup Datastore with the attributes required by the selected backend. The `RESTIC_PASSWORD` attribute is used by restic to encrypt and access the repository.
+
+### SFTP Backend
+
+For SFTP, create a datastore template with the backup server address. `RESTIC_BACKEND` can be omitted because SFTP is the default backend.
 
 ```default
 $ cat ds_restic.txt
@@ -65,11 +86,12 @@ TYPE   = "BACKUP_DS"
 DS_MAD = "restic"
 TM_MAD = "-"
 
+RESTIC_BACKEND     = "SFTP"
 RESTIC_PASSWORD    = "opennebula"
 RESTIC_SFTP_SERVER = "192.168.1.8"
 ```
 
-*Note*: The `RESTIC_SFTP_SERVER` is the IP address of the backup server, it needs to be reachable from the Front-end and Hosts.
+*Note*: The `RESTIC_SFTP_SERVER` is the IP address of the backup server. It needs to be reachable from the Front-end and Hosts.
 
 ```default
 $ onedatastore create ds_restic.txt
@@ -91,7 +113,65 @@ ID  NAME                                         SIZE AVA CLUSTERS IMAGES TYPE D
   0 system                                          - -   0             0 sys  -       local   on
 ```
 
-That’s it, we are all set to make VM backups!
+### AWS S3 Backend
+
+For AWS S3, use `RESTIC_BACKEND="S3"`. The endpoint can be omitted, in which case it defaults to `s3.amazonaws.com`, and path-style access is normally not required.
+
+```default
+$ cat ds_restic_aws_s3.txt
+NAME   = "RBackups-AWS-S3"
+TYPE   = "BACKUP_DS"
+
+DS_MAD = "restic"
+TM_MAD = "-"
+
+RESTIC_BACKEND              = "S3"
+RESTIC_PASSWORD             = "opennebula"
+RESTIC_S3_BUCKET            = "opennebula-backups"
+RESTIC_S3_REGION            = "us-west-1"
+RESTIC_S3_ACCESS_KEY_ID     = "S3ACCESSKEYID"
+RESTIC_S3_SECRET_ACCESS_KEY = "S3SECRETACCESSKEY"
+TOTAL_MB                    = "512000"
+```
+
+```default
+$ onedatastore create ds_restic_aws_s3.txt
+ID: 101
+```
+
+### S3-Compatible Backend
+
+For non-AWS S3-compatible backends, create a datastore template with `RESTIC_BACKEND="S3"` and set the S3 endpoint explicitly. The endpoint can include the scheme; for plain HTTP endpoints, specify it explicitly, for example `http://s3-storage:8080`. Many S3-compatible backends require path-style access. In that case set `RESTIC_S3_FORCE_PATH_STYLE="YES"`.
+
+```default
+$ cat ds_restic_s3.txt
+NAME   = "RBackups-S3"
+TYPE   = "BACKUP_DS"
+
+DS_MAD = "restic"
+TM_MAD = "-"
+
+RESTIC_BACKEND              = "S3"
+RESTIC_PASSWORD             = "opennebula"
+RESTIC_S3_ENDPOINT          = "http://s3-storage:8080"
+RESTIC_S3_BUCKET            = "opennebula-backups"
+RESTIC_S3_ACCESS_KEY_ID     = "S3ACCESSKEYID"
+RESTIC_S3_SECRET_ACCESS_KEY = "S3SECRETACCESSKEY"
+RESTIC_S3_FORCE_PATH_STYLE  = "YES"
+TOTAL_MB                    = "512000"
+```
+
+```default
+$ onedatastore create ds_restic_s3.txt
+ID: 102
+```
+
+For S3 datastores, OpenNebula does not discover the bucket quota automatically. The total capacity is taken from the `TOTAL_MB` datastore attribute. The examples above set `TOTAL_MB="512000"` to configure a custom `500G` capacity. If `TOTAL_MB` is omitted, the driver uses `1048576` MB (`1024G`) as the default capacity. Used capacity is computed from backup images registered in OpenNebula.
+
+OpenNebula creates a separate restic repository inside the SFTP path or S3 bucket for each VM or backup job.
+
+{{< alert title="Note" type="info" >}}
+At this time, S3 Restic datastore creation is expected to be performed through the CLI, or through the standard XML-RPC datastore allocation API by passing the datastore template attributes shown above. No new XML-RPC method is required for the driver itself: once the Backup Datastore exists, backup and restore operations use the regular OpenNebula backup APIs. FireEdge configuration support for S3-specific attributes will be added in future releases.{{< /alert >}}
 
 ## Repository Maintenance and Troubleshooting
 
@@ -153,9 +233,8 @@ This feature is only supported for **shared system datastores** (currently only 
 All Hosts listed in `BRIDGE_LIST` must meet the following requirements:
 
 - Must have **network access** to the Backup Datastore.
-- Must be able to establish **passwordless SSH connections** to:
-  - The **OpenNebula Frontend**
-  - The **Backup Server**
+- Must be able to establish **passwordless SSH connections** to the **OpenNebula Front-end**.
+- For the SFTP backend, must be able to establish **passwordless SSH connections** to the **Backup Server**.
 
 During the backup process:
 
@@ -167,19 +246,41 @@ During the backup process:
 
 ## Reference: Restic Datastore Attributes
 
+### Common Attributes
+
 | Attribute            | Description                                                                                                 |
 |----------------------|-------------------------------------------------------------------------------------------------------------|
-| `RESTIC_SFTP_USER`   | User to connect to the backup server (default `oneadmin`)                                                   |
-| `RESTIC_SFTP_SERVER` | IP address of the backup server                                                                             |
-| `RESTIC_PASSWORD`    | Password to access the restic repository                                                                    |
-| `RESTIC_IONICE`      | Run backups under a given ionice priority (best-effort, class 2). Value: 0 (high) - 7 (low)                 |
-| `RESTIC_NICE`        | Run backups under a given nice. Value: -19 (high) to 19 (low)                                               |
-| `RESTIC_MAX_RIOPS`   | Run backups in a systemd slice, limiting the max number of read iops                                        |
-| `RESTIC_MAX_WIOPS`   | Run backups in a systemd slice, limiting the max number of write iops                                       |
-| `RESTIC_CPU_QUOTA`   | Run backups in a systemd slice with a given cpu quota (percentage). Use > 100 for using several CPUs        |
-| `RESTIC_BWLIMIT`     | Limit restic upload/download bandwidth                                                                      |
-| `RESTIC_COMPRESSION` | Compression (three modes:off, auto, max), default is `auto` (average compression without to much CPU usage) |
+| `RESTIC_BACKEND`     | Restic backend to use. Allowed values: `SFTP`, `S3`. Defaults to `SFTP` when omitted.                       |
+| `RESTIC_PASSWORD`    | Password to access the restic repository.                                                                   |
+| `RESTIC_IONICE`      | Run backups under a given ionice priority (best-effort, class 2). Value: 0 (high) - 7 (low).                |
+| `RESTIC_NICE`        | Run backups under a given nice. Value: -19 (high) to 19 (low).                                              |
+| `RESTIC_MAX_RIOPS`   | Run backups in a systemd slice, limiting the max number of read IOPS.                                       |
+| `RESTIC_MAX_WIOPS`   | Run backups in a systemd slice, limiting the max number of write IOPS.                                      |
+| `RESTIC_CPU_QUOTA`   | Run backups in a systemd slice with a given CPU quota (percentage). Use > 100 for using several CPUs.       |
+| `RESTIC_BWLIMIT`     | Limit restic upload/download bandwidth.                                                                     |
+| `RESTIC_COMPRESSION` | Compression (three modes: off, auto, max), default is `auto` (average compression without too much CPU use). |
 | `RESTIC_CONNECTIONS` | Number of concurrent connections (default 5). For high-latency backends this number can be increased.       |
 | `RESTIC_MAXPROC`     | Sets `GOMAXPROCS` for restic to limit the OS threads that execute user-level Go code simultaneously.        |
-| `RESTIC_SPARSIFY`    | Runs `virt-sparsify` on flatten backups to reduce backup size. It requires `libguestfs` package.            |
-| `BRIDGE_LIST`        | List of hosts responsible for transferring VM backups from the hypervisor to the Backup Datastore           |
+| `RESTIC_SPARSIFY`    | Runs `virt-sparsify` on flatten backups to reduce backup size. It requires the `libguestfs` package.        |
+| `BRIDGE_LIST`        | List of hosts responsible for transferring VM backups from the hypervisor to the Backup Datastore.          |
+
+### SFTP Backend Attributes
+
+| Attribute            | Description                                                     |
+|----------------------|-----------------------------------------------------------------|
+| `RESTIC_SFTP_USER`   | User to connect to the backup server (default `oneadmin`).      |
+| `RESTIC_SFTP_SERVER` | IP address of the backup server. Mandatory for the SFTP backend. |
+
+### S3 Backend Attributes
+
+| Attribute                     | Description                                                                                                 |
+|-------------------------------|-------------------------------------------------------------------------------------------------------------|
+| `RESTIC_S3_ACCESS_KEY_ID`     | S3 access key ID. Mandatory for the S3 backend.                                                              |
+| `RESTIC_S3_SECRET_ACCESS_KEY` | S3 secret access key. Mandatory for the S3 backend. Stored encrypted in OpenNebula.                          |
+| `RESTIC_S3_BUCKET`            | S3 bucket name only, without endpoint URL. Mandatory for the S3 backend.                                     |
+| `RESTIC_S3_REGION`            | S3 region. Optional, defaults to `us-east-1` when omitted.                                                  |
+| `RESTIC_S3_ENDPOINT`          | S3 endpoint. Defaults to `s3.amazonaws.com` for AWS S3. Mandatory for non-AWS S3-compatible backends. Can include a scheme, e.g. `http://s3-storage:8080`. |
+| `RESTIC_S3_FORCE_PATH_STYLE`  | Use `YES` to force path-style S3 access. Needed for many non-AWS S3-compatible backends.                    |
+| `RESTIC_S3_CACERT`            | Path to a custom CA certificate file available on the KVM Hosts where restic commands run.                                           |
+| `RESTIC_S3_INSECURE_TLS`      | Use `YES` to disable TLS certificate verification. Intended for lab or debug environments only.             |
+| `TOTAL_MB`                    | Datastore capacity in MB for S3 monitoring. Defaults to `1048576` MB (`1024G`).                             |
