@@ -10,9 +10,13 @@ weight: "1"
 
 <a id="whats-new"></a>
 
-The OpenNebula team is excited to announce the availability of **OpenNebula 7.4 "Helix"**! This release introduces a broad set of usability, automation, and operational improvements across the platform, led by a redesigned Sunstone interface that makes day-to-day cloud management more modern and intuitive.
+The OpenNebula team is excited to announce the availability of **OpenNebula 7.4 "Helix"**! This release introduces a broad set of usability, automation, and operational improvements across the platform for operating virtualized infrastructure at scale, led by a redesigned Sunstone interface that makes day-to-day cloud management more modern and intuitive.
 
-OpenNebula 7.4 also delivers important enhancements for operating virtualized infrastructure at scale, including OneSwap batch VMware migrations, improved OneDRS datastore selection, dynamic VM group management through the CLI, bulk operations for service VMs, Ubuntu 26.04 support, expanded backup capabilities with OneBEX, new VLAN group-level authorization policies, support for SR-IOV-capable PCI network interfaces in Switchdev mode with Open vSwitch, an enhanced Slurm appliance with out-of-the-box NVIDIA GPU support and LDAP identity integration, and a wide range of fixes and improvements across HA, networking, storage, monitoring, and vCenter compatibility.
+{{< image
+  pathDark="images/sunstone/common/dark/sunstone_dashboard.png"
+  path="images/sunstone/common/light/sunstone_dashboard.png"
+  alt="Sunstone login" align="center" width="90%" mb="20px"
+>}}
 
 Together with this release, OpenNebula also introduces new extension capabilities for advanced infrastructure use cases, including automated AI Factory-scale Bare Metal as a Service with NVIDIA NICo and enhanced Kubernetes provisioning and pre-deployment diagnostics with OneKS. These extensions further expand OpenNebula’s role as a flexible, production-ready platform for private cloud, edge, HPC, and sovereign AI infrastructure.
 
@@ -35,23 +39,28 @@ The Enterprise Subscription also includes advanced extensions designed for enter
 
 Thank you to our incredible community and partners for your continued support in building the future of open-source cloud orchestration!
 
+## Sunstone
+
+* Complete redesign of the Sunstone interface, introducing a new design system driven by a systematic useability audit. This redesign is the first step in the implementation of an improved Sunstone experience with simpler, more streamlined user navigation and workflows. The following aspects have been improved in the redesign:
+
+    * **Completely Redesigned Interface** — A new design system built on a systematic usability audit delivers a cleaner, more consistent visual language with improved information architecture, updated typography, and a refined colour palette that scales across screen sizes and devices.
+    * **Redesigned Settings and Navigation** — The application structure has been reorganized from the ground up. A new settings experience and clearer navigation hierarchy make it faster to find what you need and easier to understand where you are in the app.
+    * **New Item Exploration via Side Drawer** — Resources can now be inspected without leaving the current context. A new slide-in drawer lets operators quickly explore the details of any item — VMs, hosts, networks — without losing their place in the workflow.
+    * **Richer Resource Visualization** — Individual resource views have been redesigned to surface the most relevant information upfront, reducing the need to dig through tabs to get a clear picture of an item's state, configuration, and relationships.
+    * **Added FSaaS (VirtioFS) Support** — Users can now manage shared storage file systems, create filesystem images, and attach disks directly from the Sunstone GUI.
+
 ## OpenNebula Core
 
 * Added the capacity to [batch delete scheduled actions from all service VMs]({{% relref "product/virtual_machines_operation/multi-vm_workflows/appflow_use_cli/#deleting-scheduled-actions-from-service-vms" %}}), negating the need to delete actions from each individual VM.
 
 ## Storage & Backups
 
-* Added [interactive backup integration support]({{% relref "../../../product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}), enabling third-party backup integrations to pull full and CBT incremental `qcow2` VM backups directly from KVM hypervisors through the OpenNebula Backup Exporter (OneBEX).
-* Added [selected disk backups]({{% relref "../../../product/virtual_machines_operation/virtual_machine_backups/operations#vm-backups-selected-disks" %}}), allowing VM backup configurations and Backup Jobs to back up only a defined subset of eligible VM disks. Selected-disk backups can be restored as [individual disks]({{% relref "../../../product/virtual_machines_operation/virtual_machine_backups/operations#vm-backups-selected-disks-restore" %}}).
+* Added [interactive backup integration support]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}), enabling third-party backup integrations to pull full and CBT incremental `qcow2` VM backups directly from KVM hypervisors through the OpenNebula Backup Exporter (OneBEX).
+* Added [selected disk backups]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations#vm-backups-selected-disks" %}}), allowing VM backup configurations and Backup Jobs to back up only a defined subset of eligible VM disks. Selected-disk backups can be restored as [individual disks]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations#vm-backups-selected-disks-restore" %}}).
 
 ## AI Factories
 
-* Integration of the NVIDIA Infra Controller (NICo) delivers automated AI Factory-scale provisioning of accelerated bare-metal hardware, with full lifecycle management including hardware discovery, firmware validation, DPU provisioning, and multi-tenant operation.
-
-## Sunstone
-
-* Complete redesign of interface, improving useability.
-* Added FSaaS (VirtioFS) support in Sunstone, allowing users to manage shared storage file systems, create filesystem images, and attach disks directly from the GUI.
+* Integration of the [NVIDIA Infra Controller (NICo)]({{% relref "product/virtual_machines_operation/metal_instances/bare_metal_nico/" %}}) delivers automated AI Factory-scale provisioning of accelerated bare-metal hardware, with full lifecycle management including hardware discovery, firmware validation, DPU provisioning, and multi-tenant operation through an API.
 
 ## API and CLI
 
@@ -76,12 +85,12 @@ Thank you to our incredible community and partners for your continued support in
 
 ## Packaging
 
-* Added OpenNebula packages for for Ubuntu 26.04 (Resolute Raccoon).
+* Added [OpenNebula packages for for Ubuntu 26.04 (Resolute Raccoon)]({{% relref "software/installation_process/frontend_installation/opennebula_repository_configuration_ce/#debianubuntu" %}}).
 
 ## OneSwap
 
 * Added Windows OS Profile/Best practices VM template options to OneSwap Windows conversion.
-* OneSwap batch VM conversion enables the migration of multiple VMs in a single execution.
+* OneSwap [batch VM conversion]({{% relref "software/migration_from_vmware/oneswap/#batch-conversion" %}}) enables the migration of multiple VMs in a single execution.
 
 ## AI Factories
 

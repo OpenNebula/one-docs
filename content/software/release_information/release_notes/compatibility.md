@@ -16,6 +16,10 @@ This guide is aimed at OpenNebula 7.2.x users and administrators who want to upg
 
 Visit the [Features list]({{% relref "/getting_started/understand_opennebula/opennebula_concepts/key_features" %}}) and the [What’s New guide]({{% relref "whats_new#whats-new" %}}) for a comprehensive list of what’s new in OpenNebula 7.4.
 
+## Sunstone Interface Redesign
+
+The Sunstone interface has been completely redesigned in the OpenNebula 7.4 release to improve useability. The redesign significantly changes the look and feel of Sunstone. While the interface has been significantly redesigned, the underlying concepts, workflows, and features remain the same. Existing users will primarily need to familiarize themselves with the new layout and the location of interface elements.
+
 ## Daemon Logs Are No Longer Truncated on Start
 
 The OpenNebula daemons (`oned`, the monitor, and the scheduler) now open their log files in append mode instead of truncating them on start. Previously the log was reset on every service start and relied on the forced log rotation (see below) to preserve its contents; with that rotation no longer triggered on start, restarts would otherwise have discarded the existing log. No action is required.
