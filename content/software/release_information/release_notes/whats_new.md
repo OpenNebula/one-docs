@@ -80,8 +80,8 @@ Thank you to our incredible community and partners for your continued support in
 
 ## Networking
 
-* VLAN Groups enable cloud administrators fo delegate VLAN management to tenants in multi-tenant clouds, allowing tenant self-provisioning of Virtual Networks.
-* Support for [SR-IOV capable PCI network interfaces in Switchdev mode]({{% relref "product/cluster_configuration/hosts_and_clusters/pci_passthrough/#usage-as-network-interfaces" %}}) with Open vSwitch.  
+* [VLAN Rules]({{% relref "manage_vnets#group-vlan-rules" %}}) enable cloud administrators to delegate VLAN management to tenants in multi-tenant clouds, enabling tenant self-provisioning of Virtual Networks.
+* Support for [SR-IOV capable PCI network interfaces in Switchdev mode]({{% relref "product/cluster_configuration/hosts_and_clusters/pci_passthrough/#usage-as-network-interfaces" %}}) with Open vSwitch.
 
 ## Packaging
 

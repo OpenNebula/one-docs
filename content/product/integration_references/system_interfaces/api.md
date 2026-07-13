@@ -193,6 +193,7 @@ onehost sync is not performed by the core, it is done by the ruby command onehos
 | addadmin           | one.group.addadmin    | GROUP:MANAGE<br/><br/>USER:MANAGE      |
 | deladmin           | one.group.deladmin    | GROUP:MANAGE<br/><br/>USER:MANAGE      |
 | quota              | one.group.quota       | GROUP:ADMIN                            |
+| vlan               | one.group.vlan        | GROUP:ADMIN                            |
 | list               | one.grouppool.info    | GROUP:USE                              |
 | –                  | one.groupquota.info   | –                                      |
 | defaultquota       | one.groupquota.update | Only for users in the `oneadmin` group |
@@ -4036,6 +4037,26 @@ The range can be used to retrieve a subset of the pool, from the ‘start’ to 
 | OUT    | Int/String  | The resource ID / The error string.                                                |
 | OUT    | Int         | Error code.                                                                        |
 | OUT    | Int         | ID of the group that caused the error.                                             |
+
+### one.group.vlan
+
+- **Description**: Sets the user group VLAN rules used to authorize tenant Virtual Network template instantiation and updates of Virtual Networks derived from templates.
+- **Parameters**:
+
+| Type   | Data Type   | Description                                                                                         |
+|--------|-------------|-----------------------------------------------------------------------------------------------------|
+| IN     | String      | The session string.                                                                                 |
+| IN     | Int         | The object ID.                                                                                      |
+| IN     | String      | The VLAN rule template contents. Syntax can be the usual `attribute=value` or XML.                  |
+| OUT    | Boolean     | `true` or `false` indicating success or failure of VLAN rule application.                           |
+| OUT    | Int/String  | The resource ID / error string.                                                                     |
+| OUT    | Int         | Error code.                                                                                         |
+
+Sample VLAN rule template:
+
+```none
+RULE=[ID="100-199",SCOPE="VLAN_ID",VNTEMPLATE="10"]
+```
 
 ### one.grouppool.info
 
