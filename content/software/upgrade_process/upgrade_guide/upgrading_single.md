@@ -76,10 +76,18 @@ apt-get install --only-upgrade opennebula opennebula-gate opennebula-flow openne
 RHEL
 
 ```bash
-yum upgrade opennebula opennebula-gate opennebula-flow opennebula-fireedge opennebula-migration python3-pyone
+yum upgrade opennebula opennebula-gate opennebula-flow opennebula-fireedge opennebula-form opennebula-guacd opennebula-migration python3-pyone
 ```
 
-<!-- TODO: Add SLES/openSUSE upgrade instructions (zypper) once there is a previous SUSE release to upgrade from (SUSE support was introduced in 7.2). -->
+SLES/openSUSE
+
+```bash
+zypper refresh
+zypper update opennebula opennebula-gate opennebula-flow opennebula-fireedge opennebula-form opennebula-guacd opennebula-migration python313-pyone
+```
+
+{{< alert title="Warning" type="warning" >}}
+The Python bindings package is named after the Python version of the distribution: use `python313-pyone` on openSUSE 16 and `python311-pyone` on SLES 15. {{< /alert >}}
 
 ### Step 7. Update Configuration Files
 
@@ -226,7 +234,12 @@ RHEL
 yum upgrade opennebula-node-<hypervisor>
 ```
 
-<!-- TODO: Add SLES/openSUSE node upgrade instructions (zypper) once there is a previous SUSE release to upgrade from (SUSE support was introduced in 7.2). -->
+SLES/openSUSE
+
+```bash
+zypper refresh
+zypper update opennebula-node-<hypervisor>
+```
 
 {{< alert title="Note" type="info" >}}
 Note that the `<hypervisor>` tag should be replaced by the name of the corresponding hypervisor (i.e., `kvm` or `lxc`).{{< /alert >}}
