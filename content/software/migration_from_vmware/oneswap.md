@@ -285,13 +285,22 @@ usermod -aG kvm oneadmin
 
 If `/dev/kvm` is not present, hardware virtualization or nested virtualization must be enabled. Otherwise libguestfs may fall back to TCG and run much slower.
 
-### Required software for migrating Windows Virtual machines
+### Required software for migrating Windows Virtual Machines
 
 There are two requirements to convert Windows Virtual Machines:
-- [VirtIO ISO drivers](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso) must be stored in the `/usr/local/share/virtio-win` directory.
+- [VirtIO ISO drivers](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso) are required when the converted Windows VM uses VirtIO block devices (`vd`). Store the ISO on the host where OneSwap runs and configure its path with `:virtio_path` in `/etc/one/oneswap.yaml` or pass `--virtio /path/to/virtio-win.iso`.
 - [RHsrvany, an Open Source srvany implementation](https://github.com/rwmjones/rhsrvany) to create the needed Windows services during the migration.
   - In Alma Linux and RHEL this package is a dependency of OneSwap and will be installed automatically
   - In Ubuntu [the package can be downloaded from fedoraproject.org](https://kojipkgs.fedoraproject.org/packages/mingw-srvany/1.1/11.eln153/noarch/mingw-srvany-redistributable-1.1-11.eln153.noarch.rpm). <br/>
+
+For example:
+
+```yaml
+:virtio_path: /usr/local/share/virtio-win/virtio-win.iso
+```
+
+When a Windows guest is going to use the `vd` device prefix and no VirtIO ISO is configured, OneSwap displays a warning before starting the conversion. The warning does not stop the conversion, but the resulting VM may fail to boot if the required storage drivers are not already installed in the guest.
+
 For compatibility with older versions of virt-v2v the following symlinks are needed
 
 ```
@@ -575,7 +584,14 @@ Before starting a conversion, OneSwap runs a set of prechecks against the destin
 - The OpenNebula Virtual Network passed with `--network` does not exist.
 - `--vddk` is used but the nbdkit VDDK plugin is not installed (see [VDDK Transfer Support](#vddk-transfer-support)).
 
-For Windows guests, OneSwap also warns when the conversion host lacks CompactOS/WOF support (see [Windows CompactOS Support](#windows-compactos-support)). The prechecks can be skipped with `--skip-prechecks`.
+For Windows guests, OneSwap also warns when:
+
+- the conversion host lacks CompactOS/WOF support (see [Windows CompactOS Support](#windows-compactos-support));
+- the effective disk device prefix is `vd` and no VirtIO driver ISO is configured through `virtio_path` or `--virtio`.
+
+The missing VirtIO ISO warning is informational and does not stop the conversion. Continuing without the drivers may result in a Windows VM that cannot boot from its VirtIO disk.
+
+The prechecks can be skipped with `--skip-prechecks`.
 
 #### Network mapping
 
@@ -596,8 +612,8 @@ OneSwap injects the [OpenNebula context packages]({{% relref "kvm_contextualizat
 
 Additional guest software can be injected during the conversion:
 
-- `--virtio /path/to/iso`: full path of the win-virtio ISO file, required to inject VirtIO drivers into Windows guests.
-- `--virt-tools /path/to/virt-tools`: path to the directory containing `rhsrvany.exe`, defaults to `/usr/local/share/virt-tools` (see [Required software for migrating Windows Virtual machines](#required-software-for-migrating-windows-virtual-machines)).
+- `--virtio /path/to/iso`: full path of the VirtIO driver ISO used to inject storage and network drivers into Windows guests. Configure this option when Windows disks use the `vd` device prefix; otherwise the converted VM may fail to boot if the drivers are not already installed.
+- `--virt-tools /path/to/virt-tools`: path to the directory containing `rhsrvany.exe`, defaults to `/usr/local/share/virt-tools` (see [Required software for migrating Windows Virtual Machines](#required-software-for-migrating-windows-virtual-machines)).
 - `--win-qemu-ga /path/to/iso`: install the QEMU Guest Agent into a Windows guest.
 - `--qemu-ga`: install the `qemu-guest-agent` package into a Linux guest, useful with `--custom` or `--fallback`.
 - `--remove-vmtools`: inject a firstboot script that removes VMware Tools from the guest on its first boot in OpenNebula (supported for both Linux and Windows guests, including Windows Server 2025).
