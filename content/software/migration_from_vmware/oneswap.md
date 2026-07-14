@@ -593,6 +593,8 @@ The missing VirtIO ISO warning is informational and does not stop the conversion
 
 The prechecks can be skipped with `--skip-prechecks`.
 
+If OpenNebula fails to allocate an Image or VM Template during the import phase, OneSwap reports the full error returned by the OpenNebula API and stops the current conversion. It does not continue with an invalid object ID or wait for an Image that was not created. Converted local disks are preserved according to the existing failed-conversion cleanup behavior.
+
 #### Network mapping
 
 For each NIC of the source VM, OneSwap looks for an OpenNebula Virtual Network whose `VCENTER_NETWORK_MATCH` attribute matches the name of the vCenter network the NIC is attached to. If no network matches, the OpenNebula Virtual Network ID passed with `--network` is used as a fallback (a comma-separated list of IDs, one per NIC, can also be passed). The NIC addresses copied from vCenter can be controlled with:
