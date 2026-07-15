@@ -145,7 +145,7 @@ search_url = "/search/"
 # The short X.Y version
 version = "7.3"
 # The full version, including alpha/beta/rc tags
-release = "7.3.80"
+release = "7.3.85"
 # Docs version is part of the URL & invoked by the alert shortcode
 # Setting here in case it ever needs to differ from SW version
 docs_version = "devel"
