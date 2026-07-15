@@ -26,18 +26,9 @@ managed by the `onecfg` tool:
 | `/etc/one/auth/saml_auth.conf`                                   | YAML                   |
 | `/etc/one/auth/server_x509_auth.conf`                            | YAML                   |
 | `/etc/one/auth/x509_auth.conf`                                   | YAML                   |
-| `/etc/one/az_driver.conf`                                        | YAML                   |
-| `/etc/one/az_driver.default`                                     | Plain file (or XML)    |
 | `/etc/one/cli/*.yaml`                                            | YAML w/ ordered arrays |
 | `/etc/one/defaultrc`                                             | Shell                  |
-| `/etc/one/ec2_driver.conf`                                       | YAML                   |
-| `/etc/one/ec2_driver.default`                                    | Plain file (or XML)    |
-| `/etc/one/ec2query_templates/*.erb`                              | Plain file (or XML)    |
-| `/etc/one/econe.conf`                                            | YAML                   |
 | `/etc/one/fireedge-server.conf`                                  | YAML                   |
-| `/etc/one/fireedge/provision/providers.d-extra/*.yaml`           | YAML                   |
-| `/etc/one/fireedge/provision/providers.d/*.yaml`                 | YAML                   |
-| `/etc/one/fireedge/provision/provision-server.conf`              | YAML                   |
 | `/etc/one/fireedge/sunstone/*.yaml`                              | YAML                   |
 | `/etc/one/fireedge/sunstone/*/*.yaml`                            | YAML                   |
 | `/etc/one/fireedge/sunstone/*/*/*.yaml`                          | YAML                   |
@@ -47,24 +38,19 @@ managed by the `onecfg` tool:
 | `/etc/one/hm/hmrc`                                               | Shell                  |
 | `/etc/one/monitord.conf`                                         | oned.conf-like         |
 | `/etc/one/oned.conf`                                             | oned.conf-like         |
+| `/etc/one/oneform-server.conf`                                   | YAML                   |
+| `/etc/one/oneform.yaml`                                          | YAML                   |
 | `/etc/one/oneflow-server.conf`                                   | YAML                   |
 | `/etc/one/onegate-server.conf`                                   | YAML                   |
 | `/etc/one/onehem-server.conf`                                    | YAML                   |
-| `/etc/one/packet_driver.default`                                 | Plain file (or XML)    |
 | `/etc/one/prometheus/prometheus.yml`                             | YAML                   |
+| `/etc/one/fabricmanager.conf`                                    | YAML                   |
+| `/etc/one/one-fabricmanager.xml`                                 | XML                    |
 | `/etc/one/prometheus/rules.yml`                                  | YAML                   |
-| `/etc/one/sched.conf`                                            | oned.conf-like         |
 | `/etc/one/schedulers/one_drs.conf`                               | YAML w/ ordered arrays |
 | `/etc/one/schedulers/rank.conf`                                  | oned.conf-like         |
-| `/etc/one/sunstone-logos.yaml`                                   | YAML w/ ordered arrays |
-| `/etc/one/sunstone-server.conf`                                  | YAML                   |
-| `/etc/one/sunstone-views.yaml`                                   | YAML                   |
-| `/etc/one/sunstone-views/**/*.yaml`                              | YAML                   |
 | `/etc/one/tmrc`                                                  | Shell                  |
-| `/etc/one/vcenter_driver.conf`                                   | YAML                   |
-| `/etc/one/vcenter_driver.default`                                | Plain file (or XML)    |
 | `/etc/one/vmm_exec/vmm_exec_kvm.conf`                            | oned.conf-like         |
-| `/etc/one/vmm_exec/vmm_exec_vcenter.conf`                        | oned.conf-like         |
 | `/etc/one/vmm_exec/vmm_execrc`                                   | Shell                  |
 | `/var/lib/one/remotes/datastore/ceph/ceph.conf`                  | Shell                  |
 | `/var/lib/one/remotes/etc/datastore/ceph/ceph.conf`              | Shell                  |
