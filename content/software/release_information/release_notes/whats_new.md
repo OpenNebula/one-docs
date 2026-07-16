@@ -34,8 +34,10 @@ Key highlights of this release include:
 
 The Enterprise Subscription also includes advanced extensions designed for enterprise cloud and AI Factory deployments, including:
 
-* Enhanced Kubernetes management with multi-cluster deployment configuration options and pre-deployment diagnostics to validate cluster readiness and avoid time-consuming provisioning failures.
+* Enhanced Kubernetes management with multi-cluster deployment configuration options and pre-deployment diagnostics to validate Cluster readiness and avoid time-consuming provisioning failures.
 * Native integration with the NVIDIA Infrastructure Controller (NICo) to deliver automated Bare Metal as a Service (BMaaS) and AI Factory-scale provisioning and orchestration of accelerated infrastructure.
+
+The OpenNebula 7.4 release is accompanied by a companion release of [OpenNebula Apps 7.4.0](https://github.com/OpenNebula/one-apps/releases/tag/v7.4.0), delivering a multitude of improvements and fixes to OpenNebula's Appliance ecosystem. Highlights include the aforementioned Slurm appliance upgrades, AArch64 support for the OneKS service appliance, Alpine 3.24 support and multiple stability fixes.
 
 Thank you to our incredible community and partners for your continued support in building the future of open-source cloud orchestration!
 
@@ -45,7 +47,7 @@ Thank you to our incredible community and partners for your continued support in
 
     * **Completely Redesigned Interface** — A new design system built on a systematic usability audit delivers a cleaner, more consistent visual language with improved information architecture, updated typography, and a refined colour palette that scales across screen sizes and devices.
     * **Redesigned Settings and Navigation** — The application structure has been reorganized from the ground up. A new settings experience and clearer navigation hierarchy make it faster to find what you need and easier to understand where you are in the app.
-    * **New Item Exploration via Side Drawer** — Resources can now be inspected without leaving the current context. A new slide-in drawer lets operators quickly explore the details of any item — VMs, hosts, networks — without losing their place in the workflow.
+    * **New Item Exploration via Side Drawer** — Resources can now be inspected without leaving the current context. A new slide-in drawer lets operators quickly explore the details of any item — VMs, Hosts, networks — without losing their place in the workflow.
     * **Richer Resource Visualization** — Individual resource views have been redesigned to surface the most relevant information upfront, reducing the need to dig through tabs to get a clear picture of an item's state, configuration, and relationships.
     * **Added FSaaS (VirtioFS) Support** — Users can now manage shared storage file systems, create filesystem images, and attach disks directly from the Sunstone GUI.
 
@@ -98,7 +100,7 @@ Thank you to our incredible community and partners for your continued support in
 
 ## OpenNebula Distributed Resource Scheduler
 
-* [OneDRS]({{% relref "product/cloud_system_administration/scheduler/drs" %}}) now supports storage migrations in addition to migrations across hosts when optimizing Cluster workloads.
+* [OneDRS]({{% relref "product/cloud_system_administration/scheduler/drs" %}}) now supports storage migrations in addition to migrations across Hosts when optimizing Cluster workloads.
 * [OneDRS]({{% relref "product/cloud_system_administration/scheduler/drs" %}}) can now skip automatic migration for VMs whose user template sets `ONEDRS_BLOCKED` to `YES`.
 
 ## Features Backported to 7.2.x
@@ -122,19 +124,19 @@ Additionally, the following functionalities are present that were not in OpenNeb
 * Fix incorrect reporting of sizes for VirtioFS images [#7751](https://github.com/OpenNebula/one/issues/7751).
 * Fix OneKS Clusters stuck in DEPROVISIONING state if a OneKS group becomes empty during the deprovisioning process [#7749](https://github.com/OpenNebula/one/issues/7749).
 * Fix unrecoverable WARNING state of OneKS groups after recovery of OneKS Cluster [#7748](https://github.com/OpenNebula/one/issues/7748).
-* Fix OneKS lifecycle operations after renaming a cluster by using stable Kubernetes identifiers [#7724](https://github.com/OpenNebula/one/issues/7724).
+* Fix OneKS lifecycle operations after renaming a Cluster by using stable Kubernetes identifiers [#7724](https://github.com/OpenNebula/one/issues/7724).
 * Fix oneswap compatibility issue with vCenter 8.0.3 [#7698](https://github.com/OpenNebula/one/issues/7698).
 * Fix `opennebula-exporter` crash when monitoring diskless VMs [#7703](https://github.com/OpenNebula/one/issues/7703).
 * Fix PCI attach to prevent bus address collisions [#7695](https://github.com/OpenNebula/one/issues/7695).
-* Fix lack of VLAN tags clearance in OVS when removing them from virtual network [#7707](https://github.com/OpenNebula/one/issues/7707).
+* Fix lack of VLAN tags clearance in OVS when removing them from Virtual Network [#7707](https://github.com/OpenNebula/one/issues/7707).
 * Fix LVM (EE) post-reboot activation silently skipping VM disks [#7720](https://github.com/OpenNebula/one/issues/7720).
 * Fix OVS port QinQ vlan mode being overwritten with changes introduced in[#7657](https://github.com/OpenNebula/one/issues/7657).
 * Fix MAC address range parsing for invalid MAD address ranges [#7233](https://github.com/OpenNebula/one/issues/7233).
 * Fix file-based image cloning between two datastores with BRIDGE_LIST [#7762](https://github.com/OpenNebula/one/issues/7762).
 * Fix AutoNFS not working correctly when used on System Datastores of type `shared` [#7763](https://github.com/OpenNebula/one/issues/7763).
-* Fix LVM concurrency issue with parallel deployments from different hosts using the same VG [#7719](https://github.com/OpenNebula/one/issues/7719).
+* Fix LVM concurrency issue with parallel deployments from different Hosts using the same VG [#7719](https://github.com/OpenNebula/one/issues/7719).
 * Fix various logrotate issues [#7646](https://github.com/OpenNebula/one/issues/7646).
 * Fix Datastores rounding off capacity values [#7777](https://github.com/OpenNebula/one/issues/7777).
-* Fix `SD_DISK_BUS` not taken in account when attaching a disk[#7590](https://github.com/OpenNebula/one/issues/7590)
-* Fix `queues` attribute in disk driver element is only supported for virtio bus[#7586](https://github.com/OpenNebula/one/issues/7586)
-* Fix default `IOTHREAD` no applied when attaching a virtio disk[#7588](https://github.com/OpenNebula/one/issues/7588)
+* Fix `SD_DISK_BUS` not taken in account when attaching a disk [#7590](https://github.com/OpenNebula/one/issues/7590).
+* Fix `queues` attribute in disk driver element is only supported for virtio bus [#7586](https://github.com/OpenNebula/one/issues/7586).
+* Fix default `IOTHREAD` no applied when attaching a virtio disk [#7588](https://github.com/OpenNebula/one/issues/7588).

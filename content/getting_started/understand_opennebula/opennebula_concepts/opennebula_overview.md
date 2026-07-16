@@ -35,6 +35,10 @@ OpenNebula can manage both single VMs and complex multi-tier services composed o
 
 OpenNebula supports the automated deployment of Kubernetes Clusters through OneKS, the OpenNebula Elastic Kubernetes Service. OneKS provides Kubernetes-as-a-Service on top of OpenNebula, offering a structured way to create, access, operate, scale, upgrade, recover, and deprovision Kubernetes Clusters across cloud and edge environments. It combines a user-facing service layer with Cluster API-based infrastructure provisioning through CAPONE, the Cluster API provider for OpenNebula.
 
+### Accelerated Computing for AI and HPC
+
+OpenNebula provides native integration with accelerated hardware architectures from multiple vendors facilitating AI and HPC workloads. OpenNebula's accelerated computing capabilities include full compatibility with NVIDIA Hopper and Blackwell GPUs, flexible GPU allocation with passthrough, vGPU and MIG, GPU scheduling, optimized multi-GPU communication with enhanced networking, DPU integration and multi-tenant, bare-metal AI Factory-scale infrastructure management with NVIDIA NIco. OpenNebula further supports pre-built inference applications and native integration with frameworks and platforms such as vLLM, Hugging Face, Run, and NVIDIA Dynamo for the deployment, scheduling, orchestration, and monitoring of AI and LLM workloads.
+
 ### Management Model and Tools
 
 OpenNebula’s management model provides multi-tenancy by design, offering different user interfaces depending on users’ roles within an organization, or the level of required expertise or functionality.
