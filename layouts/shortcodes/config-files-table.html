@@ -1,0 +1,30 @@
+{{- $csvPath := .Get "src" | default "tables/config_files.csv" -}}
+{{- $csvResource := resources.Get $csvPath -}}
+{{- if not $csvResource -}}
+  {{- errorf "config-files-table shortcode could not find assets/%s" $csvPath -}}
+{{- end -}}
+{{- $rows := transform.Unmarshal (dict "targetType" "slice") $csvResource -}}
+{{- if not $rows -}}
+  {{- errorf "config-files-table shortcode found no rows in assets/%s" $csvPath -}}
+{{- end -}}
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{- range after 1 $rows }}
+      {{- $filename := index . 0 | strings.TrimSpace | strings.TrimPrefix "`" | strings.TrimSuffix "`" -}}
+      {{- $type := index . 1 | strings.TrimSpace -}}
+      {{- if or $filename $type }}
+        <tr>
+          <td><code>{{ $filename }}</code></td>
+          <td>{{ $type }}</td>
+        </tr>
+      {{- end }}
+    {{- end }}
+  </tbody>
+</table>

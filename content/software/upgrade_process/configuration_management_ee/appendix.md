@@ -8,75 +8,17 @@ tags:
 weight: "5"
 ---
 
-<a id="cfg-files"></a>
+<!-- The table in this document is generated automatically using a Hugo shortcode from a 
+CSV file: /assets/tables/config_files.csv. Modify the CSV in order to update the table.
 
-<!--# Appendix - List of Configuration Files -->
+A helper script /scripts/compare_config_files.py exists to compare the contents of the 
+CSV with the config files of an OpenNebula installation for audit purposes.  -->
 
-The following table describes all configuration files and their type from directories
+The following table describes all configuration files and their type from the following directories:
 
 - `/etc/one/`
 - `/var/lib/one/remotes/`
 
-managed by the `onecfg` tool:
+These files can be managed using the `onecfg` tool, refer to the [onecfg documentation]({{% relref "software/upgrade_process/configuration_management_ee/usage/" %}}) for more details:
 
-| Name                                                             | Type                   |
-| ---------------------------------------------------------------- | ---------------------- |
-| `/etc/one/alertmanager/alertmanager.yml`                         | YAML                   |
-| `/etc/one/auth/ldap_auth.conf`                                   | YAML w/ ordered arrays |
-| `/etc/one/auth/saml_auth.conf`                                   | YAML                   |
-| `/etc/one/auth/server_x509_auth.conf`                            | YAML                   |
-| `/etc/one/auth/x509_auth.conf`                                   | YAML                   |
-| `/etc/one/cli/*.yaml`                                            | YAML w/ ordered arrays |
-| `/etc/one/defaultrc`                                             | Shell                  |
-| `/etc/one/fireedge-server.conf`                                  | YAML                   |
-| `/etc/one/fireedge/sunstone/*.yaml`                              | YAML                   |
-| `/etc/one/fireedge/sunstone/*/*.yaml`                            | YAML                   |
-| `/etc/one/fireedge/sunstone/*/*/*.yaml`                          | YAML                   |
-| `/etc/one/fireedge/sunstone/profiles/base.template`              | YAML                   |
-| `/etc/one/fireedge/sunstone/sunstone-server.conf`                | YAML                   |
-| `/etc/one/guacd`                                                 | Shell                  |
-| `/etc/one/hm/hmrc`                                               | Shell                  |
-| `/etc/one/monitord.conf`                                         | oned.conf-like         |
-| `/etc/one/oned.conf`                                             | oned.conf-like         |
-| `/etc/one/oneform-server.conf`                                   | YAML                   |
-| `/etc/one/oneform.yaml`                                          | YAML                   |
-| `/etc/one/oneflow-server.conf`                                   | YAML                   |
-| `/etc/one/onegate-server.conf`                                   | YAML                   |
-| `/etc/one/onehem-server.conf`                                    | YAML                   |
-| `/etc/one/prometheus/prometheus.yml`                             | YAML                   |
-| `/etc/one/fabricmanager.conf`                                    | YAML                   |
-| `/etc/one/one-fabricmanager.xml`                                 | XML                    |
-| `/etc/one/prometheus/rules.yml`                                  | YAML                   |
-| `/etc/one/schedulers/one_drs.conf`                               | YAML w/ ordered arrays |
-| `/etc/one/schedulers/rank.conf`                                  | oned.conf-like         |
-| `/etc/one/tmrc`                                                  | Shell                  |
-| `/etc/one/vmm_exec/vmm_exec_kvm.conf`                            | oned.conf-like         |
-| `/etc/one/vmm_exec/vmm_execrc`                                   | Shell                  |
-| `/var/lib/one/remotes/datastore/ceph/ceph.conf`                  | Shell                  |
-| `/var/lib/one/remotes/etc/datastore/ceph/ceph.conf`              | Shell                  |
-| `/var/lib/one/remotes/etc/datastore/datastore.conf`              | Shell                  |
-| `/var/lib/one/remotes/etc/datastore/fs/fs.conf`                  | Shell                  |
-| `/var/lib/one/remotes/etc/im/firecracker-probes.d/probe_db.conf` | YAML                   |
-| `/var/lib/one/remotes/etc/im/kvm-probes.d/forecast.conf`         | YAML                   |
-| `/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf`       | YAML                   |
-| `/var/lib/one/remotes/etc/im/kvm-probes.d/pci.conf`              | YAML                   |
-| `/var/lib/one/remotes/etc/im/kvm-probes.d/probe_db.conf`         | YAML                   |
-| `/var/lib/one/remotes/etc/im/lxc-probes.d/forecast.conf`         | YAML                   |
-| `/var/lib/one/remotes/etc/im/lxc-probes.d/probe_db.conf`         | YAML                   |
-| `/var/lib/one/remotes/etc/im/lxd-probes.d/pci.conf`              | YAML                   |
-| `/var/lib/one/remotes/etc/im/lxd-probes.d/probe_db.conf`         | YAML                   |
-| `/var/lib/one/remotes/etc/im/qemu-probes.d/pci.conf`             | YAML                   |
-| `/var/lib/one/remotes/etc/im/qemu-probes.d/probe_db.conf`        | YAML                   |
-| `/var/lib/one/remotes/etc/market/http/http.conf`                 | Shell                  |
-| `/var/lib/one/remotes/etc/onegate-proxy.conf`                    | YAML                   |
-| `/var/lib/one/remotes/etc/tm/fs_lvm/fs_lvm.conf`                 | Shell                  |
-| `/var/lib/one/remotes/etc/tm/ssh/sshrc`                          | Shell                  |
-| `/var/lib/one/remotes/etc/vmm/firecracker/firecrackerrc`         | YAML                   |
-| `/var/lib/one/remotes/etc/vmm/kvm/kvmrc`                         | Shell                  |
-| `/var/lib/one/remotes/etc/vmm/lxc/lxcrc`                         | YAML                   |
-| `/var/lib/one/remotes/etc/vmm/lxc/profiles/*`                    | Plain file (or XML)    |
-| `/var/lib/one/remotes/etc/vmm/lxd/lxdrc`                         | YAML                   |
-| `/var/lib/one/remotes/etc/vmm/vcenter/vcenterrc`                 | YAML                   |
-| `/var/lib/one/remotes/etc/vnm/OpenNebulaNetwork.conf`            | YAML                   |
-| `/var/lib/one/remotes/vmm/kvm/kvmrc`                             | Shell                  |
-| `/var/lib/one/remotes/vnm/OpenNebulaNetwork.conf`                | YAML                   |
+{{< config-files-table >}}
