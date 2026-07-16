@@ -27,7 +27,7 @@ Key highlights of this release include:
 * Removed Veeam integration storage requirements using expanded backup capabilities via the OpenNebula Backup Exporter (OneBEX), allowing third-party tools to interactively pull full incremental changes on virtual disks — qcow2 and LVM based disks are supported in this first release.
 * Enhanced Slurm appliance simplifies the creation of Slurm Clusters for AI and HPC workloads with out-of-the-box NVIDIA GPU support and LDAP identity integration.
 * Improved OneDRS datastore selection during VM migrations, helping identify optimal datastores based on space and usage requirements.
-* New VLAN group-level authorization policies, allowing cloud administrators to delegate VLAN management to tenants and enable Virtual Network self-provisioning in multi-tenant environments. 
+* New VLAN group-level authorization policies, allowing cloud administrators to delegate VLAN management to tenants and enable Virtual Network self-provisioning in multi-tenant environments.
 * Support for SR-IOV-capable PCI network interfaces in Switchdev mode with Open vSwitch.
 * Updated OS compatibility with production-ready packages fully supporting Ubuntu 26.04 (Resolute Raccoon).
 * Multiple fixes and stability improvements across the platform, and much more!...
@@ -78,7 +78,7 @@ Thank you to our incredible community and partners for your continued support in
 ## OpenNebula Elastic Kubernetes Service
 
 * Added multi-cluster deployment support in OneKS, allowing users to select the target OpenNebula Cluster and deployment networks when creating Kubernetes Clusters.
-* Added [pre-deployment diagnostics for OneKS provisioning]({{% relref "platform_services/oneks/management/configuration/#readiness-check-configuration" %}}), enabling users to validate the readiness a deployment placement option prior to deployment to avoid time-consuming provisioning failures. 
+* Added [pre-deployment diagnostics for OneKS provisioning]({{% relref "platform_services/oneks/management/configuration/#readiness-check-configuration" %}}), enabling users to validate the readiness a deployment placement option prior to deployment to avoid time-consuming provisioning failures.
 
 ## Networking
 
@@ -142,3 +142,4 @@ Additionally, the following functionalities are present that were not in OpenNeb
 * Fix `queues` attribute in disk driver element is only supported for virtio bus [#7586](https://github.com/OpenNebula/one/issues/7586).
 * Fix default `IOTHREAD` no applied when attaching a virtio disk [#7588](https://github.com/OpenNebula/one/issues/7588).
 * Fix Ceph/RBD VM backup leaving temporary RBD snapshots after successful backup [#7717](https://github.com/OpenNebula/one/issues/7717).
+* Fix OneDRS not using predictive resource usage when generating optimization plans [#7915](https://github.com/OpenNebula/one/issues/7915).
