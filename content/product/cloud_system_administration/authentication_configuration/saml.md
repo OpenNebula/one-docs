@@ -119,37 +119,37 @@ This section includes configuration guides for some common SAML Identity Provide
 
 In order to configure Keycloak as an Identity Provider for OpenNebula, your will need to create a SAML client. Navigate to your Keycloak realm (or create a new one for OpenNebula)
 
-![keycloak_realm_selection](/images/auth/keycloak/realm_selection.png)
+{{< image path="/images/auth/keycloak/realm_selection.png" alt="Realm selection" align="center" width="80%" mb="20px" border="false" >}}
 
 Now go to the Clients section and create a new client by clicking on `Create client`. 
 
-![keycloak_realm_selection](/images/auth/keycloak/client_creation_1.png)
+{{< image path="/images/auth/keycloak/client_creation_1.png" alt="Client Creation 1" align="center" width="80%" mb="20px" border="false" >}}
 
 Set the following general settings:
 - **Client type** - `SAML`
 - **Client ID** - Service provider entity ID, i.e. `opennebula-sp`. This value will be the `:sp_entity_id` attribute defined in `/etc/one/auth/saml_auth.conf`.
 - The name and the description are not compulsory.
 
-![keycloak_realm_selection](/images/auth/keycloak/client_settings_1.png)
+{{< image path="/images/auth/keycloak/client_settings_1.png" alt="Client Settings" align="center" width="80%" mb="20px" border="false" >}}
 
 Click `Next` and set the following Login settings:
 - **IDP-Initiated SSO URL name** - Same value as `Client ID`.
 - **Master SAML Processing URL** - Refers to the ACS URL. Must match the value of the  `:acs_url` field in the OpenNebula SAML configuration file. E.g.: `https://<FIREEDGE.DOMAIN.COM>/fireedge/api/auth/acs`
 
-![keycloak_realm_selection](/images/auth/keycloak/client_settings_2.png)
+{{< image path="/images/auth/keycloak/client_settings_2.png" alt="Client Settings 2" align="center" width="80%" mb="20px" border="false" >}}
 
 Save the client configuration. Once the client has been successfully created, you can configure Keycloak to report group membership to OpenNebula:
 1. Navigate to the new Client, select the **Client scopes** tab and select the scope with the `-dedicated` termination
 
-![keycloak_realm_selection](/images/auth/keycloak/scope_selection_1.png)
+{{< image path="/images/auth/keycloak/scope_selection_1.png" alt="Scope Selection 1" align="center" width="80%" mb="20px" border="false" >}}
 
 2. On the **Mappers** tab, click on **Configure new mapper**.  
 
-![keycloak_realm_selection](/images/auth/keycloak/create_mapper_1.png)
+{{< image path="/images/auth/keycloak/create_mapper_1.png" alt="Create Mapper 1" align="center" width="80%" mb="20px" border="false" >}}
 
 3. Choose **Group list** from the list of possible mappers.
 
-![keycloak_realm_selection](/images/auth/keycloak/create_mapper_2.png)
+{{< image path="/images/auth/keycloak/create_mapper_2.png" alt="Create Mapper 2" align="center" width="80%" mb="20px" border="false" >}}
 
 4. Use the following settings:
     - **Name**: `group_mapper`
@@ -159,7 +159,7 @@ Save the client configuration. Once the client has been successfully created, yo
     - **Full group path**: `On`
     - For additional settings not specified here, use the default value.
 
-![keycloak_realm_selection](/images/auth/keycloak/create_mapper_3.png)
+{{< image path="/images/auth/keycloak/create_mapper_3.png" alt="Create Mapper 3" align="center" width="80%" mb="20px" border="false" >}}
 
 5. Click **Save**.
 
@@ -225,7 +225,6 @@ Microsoft Entra ID SAML is compatible with OpenNebula SAML authentication but ha
 - Groups are equivalent to roles. The free tiers of Entra do not allow the creation of roles, but groups can be retrieved with the same claim
 - Groups, roles and tenants are identified by a UUID (i.e. `94d6138b-d446-4236-9d37-934fead2033f`) instead of a name
 
-
 #### Creating the OpenNebula Entra ID application
 
 OpenNebula Service provider name `:sp_entity_id` and the Assertion consumer service URL `:acs_url` must be set up. The following base configuration will be used as example (these must be defined on the file `/etc/one/auth/saml_auth.conf`). 
@@ -241,45 +240,43 @@ On the Microsoft Cloud Entra interface
 
 - Select Enterprise applications 
 
-![entra_01_select_enterprise_application](/images/auth/entra/entra_01_select_enterprise_application.png)
+{{< image path="/images/auth/entra/entra_01_select_enterprise_application.png" alt="Entra Select" align="center" width="80%" mb="20px" border="false" >}}
 
 New Application 
 
-![entra_02_new_app](/images/auth/entra/entra_02_new_app.png)
+{{< image path="/images/auth/entra/entra_02_new_app.png" alt="Entra New App" align="center" width="80%" mb="20px" border="false" >}}
 
- Create your own application
+Create your own application:
 
-![entra_03_create_own_app](/images/auth/entra/entra_03_create_own_app.png)
+{{< image path="/images/auth/entra/entra_03_create_own_app.png" alt="Entra Create App" align="center" width="80%" mb="20px" border="false" >}}
 
 - A name for the application must be introduced. In this document, the name will be "OpenNebula local"
 - The option "Integrate any other application you don't find in the gallery (Non-gallery)" must be selected before pressing the button "Create"
 
-![entra_04_integrate_app](/images/auth/entra/entra_04_integrate_app.png)
+{{< image path="/images/auth/entra/entra_04_integrate_app.png" alt="Entra Integrate App" align="center" width="80%" mb="20px" border="false" >}}
 
 - On the option "Single sign-on" of the menu, the option SAML must be selected.
 
-![entra_05_select_saml](/images/auth/entra/entra_05_select_saml.png)
+{{< image path="/images/auth/entra/entra_05_select_saml.png" alt="Entra Select SAML" align="center" width="80%" mb="20px" border="false" >}}
 
   - The __Basic SAML configuration__ section requires two fields 
     - **Identifier (Entity ID)** must match `:sp_entity_id`
     - **Reply URL (Assertion Consumer Service)** must match `:acs_url`
 
-![entra_06_basic_saml_config](/images/auth/entra/entra_06_basic_saml_config.png)
+{{< image path="/images/auth/entra/entra_06_basic_saml_config.png" alt="Entra Basic SAML Config" align="center" width="80%" mb="20px" border="false" >}}
 
   - The __Attributes and claims__ section requires two claims (the other ones can be deleted because OpenNebula won't use them)
     - The **Unique User Identifier (name ID)** will be the field of the user name in OpenNebula. By default is the full email of the user, so using `user.mailnickname` is recommended. The changes must be saved and will be applied immediately.
 
-![entra_10_modify_NameID](/images/auth/entra/entra_10_modify_NameID.png)
-
+{{< image path="/images/auth/entra/entra_10_modify_NameID.png" alt="Entra Name ID" align="center" width="80%" mb="20px" border="false" >}}
 
 As commented previously, the default additional claims can be deleted (pressing the ... close to the name).
 
-
-![entra_09_delete_claims](/images/auth/entra/entra_09_delete_claims.png)
+{{< image path="/images/auth/entra/entra_09_delete_claims.png" alt="Entra Delete Claims" align="center" width="80%" mb="20px" border="false" >}}
 
 To do OpenNebula group mapping, a group claim must be created, pressing "Add a group claim" and setting one of the group options, normally "Security groups". The changes must be saved.
 
-![entra_11_add_group_claim](/images/auth/entra/entra_11_add_group_claim.png)
+{{< image path="/images/auth/entra/entra_11_add_group_claim.png" alt="Entra Add Group Claim" align="center" width="80%" mb="20px" border="false" >}}
 
 {{< alert title="Groups/Roles in Entra ID" type="info" >}}
 This claim will provide Entra ID groups and roles, because they are treated as if they were the same. Note that in some Azure tiers roles cannot be created but groups can.{{< /alert >}}
@@ -291,17 +288,17 @@ This claim will provide Entra ID groups and roles, because they are treated as i
 ```
   - On the __Set up OpenNebula local__ (or the name of the app that was chosen), the field **Microsoft Entra Identifier** will be needed for further configuration as the `:issuer` field for OpenNebula Entra identity provider
 
-![entra_07_sts_cert](/images/auth/entra/entra_07_sts_cert.png)
+{{< image path="/images/auth/entra/entra_07_sts_cert.png" alt="Entra STS Cert" align="center" width="80%" mb="20px" border="false" >}}
 
 After the application has been created **users/roles must be added to have permissions**. As commented previously, on some Entra ID plans roles cannot be assigned, so users must be added one by one (selectint the link "None selected", choosing the desired users and pressing "Select" and then "Assign").
 
-![entra_12_add_users](/images/auth/entra/entra_12_add_users.png)
+{{< image path="/images/auth/entra/entra_12_add_users.png" alt="Entra Add Users" align="center" width="80%" mb="20px" border="false" >}}
 
 A Entra ID required and admin group should be configured in OpenNebula. The group UUIDs are the field __Object Id__ shown on the **All groups** list.
 
 After these steps, the configuration file `/etc/one/auth/saml_auth.conf` will look like follows. 
 
-```
+```yaml
 :sp_entity_id: 'onelocal'
 :acs_url: 'https://onelocal:8443/fireedge/api/auth/acs'
 
@@ -323,12 +320,31 @@ After these steps, the configuration file `/etc/one/auth/saml_auth.conf` will lo
 
 On the other hand, FireEdge configuration must be modified as well redirecting to the "User access URL" field value on the properties page of the application.
 
-![entra_08_URL_app](/images/auth/entra/entra_08_URL_app.png)
+{{< image path="/images/auth/entra/entra_08_URL_app.png" alt="Entra URL App" align="center" width="90%" mb="20px" border="false" >}}
 
-That is set modifying the value of the following two parametes on the file `/etc/one/fireedge-server.conf`
+That is set modifying the value of the following two parameters on the file `/etc/one/fireedge-server.conf`
 
-```
-auth: 'saml'
+```yaml
+auth: 'opennebula'
 auth_redirect: 'https://launcher.myapps.microsoft.com/api/signin/................'
 ```
 
+{{< alert title="Note" type="info" >}}
+Depending on Entra configuration, the URL `https://launcher.myapps.microsoft.com/api/signin/....` may not redirect to Microsoft login screen for OpenNebula app.
+In that case the URL `https://myapps.microsoft.com/signin/APP_NAME/APP_UUID?tenantId=TENANT_UUID` may be correct.
+{{< /alert >}}
+
+#### Mapping Entra Groups to OpenNebula groups
+
+By default:
+
+- Entra users belonging to `:group_required` will have access to OpenNebula, being members of the `:mapping_default` configured group.
+- the users that are also members of `:group_admin_name` will be administrators of that group.
+
+To map an Entra group to another primary group, the `:mapping_key` attribute must be defined in the OpenNebula group. In our configuration, the default `:mapping_key` value is `SAML_GROUP`.
+
+To map the users of the Entra group `abcdabcd-abcd-abcd-abcd-0123456789ab` to OpenNebula group `101`, the following one-liner can be executed:
+
+```shell
+echo 'SAML_GROUP="abcdabcd-abcd-abcd-abcd-0123456789ab"' | onegroup update -a 101
+```

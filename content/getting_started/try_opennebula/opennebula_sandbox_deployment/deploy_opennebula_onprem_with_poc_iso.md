@@ -13,7 +13,6 @@ Once the ISO has booted and finished setup, a pre-configured OpenNebula cloud wi
 
 {{< image path="/images/ISO/00-onepoc_architecture.svg" alt="OnePOC Architecture" align="center" width="80%" mb="20px" border="false" >}}
 
-
 ## Requirements
 
 The OpenNebula ISO is based on AlmaLinux 9, thus it shares the same requirements to run. Note that only the x86-64-v2 instruction set (2008\) is supported. The following table outlines the minimum requirements for installing the ISO.
@@ -87,7 +86,7 @@ Answer `yes` to continue. You may be prompted to choose the disk to which you wa
 
 ![anaconda_unattended_install](/images/ISO/02-anaconda_unattended_install.png)
 
-## Frontend Configuration
+## Front-end Configuration
 
 Once the installation is completed, the machine should reboot. No network card will be configured, so access to the server's console must be provided to login. It will look like the following (the colours and the font may vary on different systems):
 
@@ -281,7 +280,7 @@ After the installation, the server runs only the Front-end and needs to be added
 When a node is added, always use it's external IP, neither `localhost` nor a loopback addres `127.x.x.x'.
 {{< /alert >}}
 
-After selecting `add_host`, the IP for the host will be requested. In this case we are using the IP that was configured before, 172.20.0.7. In the **User (with root permissions)** field, enter `root`. The **Host IP** and **User (with root permissions)** fields may be displayed in sequential dialogs in some cases.
+After selecting `add_host`, the IP for the Host will be requested. In this case we are using the IP that was configured before, 172.20.0.7. In the **User (with root permissions)** field, enter `root`. The **Host IP** and **User (with root permissions)** fields may be displayed in sequential dialogs in some cases.
 
 ```
          ┌─────────────────────────────────────────────────────────────────┐
@@ -574,7 +573,7 @@ For OpenNebula to manage the GPU, the VFIO device files in `/dev/vfio/` must be 
     
 ### OpenNebula Configuration
 
-Configure the PCI probe on the front-end node to monitor NVIDIA devices in order to make the GPUs available in OpenNebula 
+Configure the PCI probe on the Front-end node to monitor NVIDIA devices in order to make the GPUs available in OpenNebula 
 
 1.  Edit the PCI probe configuration file at `/var/lib/one/remotes/etc/im/kvm-probes.d/pci.conf`.
 2.  Add a filter for NVIDIA devices:
@@ -586,8 +585,8 @@ Configure the PCI probe on the front-end node to monitor NVIDIA devices in order
 3.  Synchronize the Hosts from the Front-end to apply the new configuration:
 
     ```default
-    # su - oneadmin
-    $ onehost sync -f
+    # sudo su - oneadmin
+    onehost sync -f
     ```
 
 After a few moments, you can check if the GPU is being monitored correctly by showing the Host information (`onehost show <HOST_ID>`). The GPU should appear in the `PCI DEVICES` section.
@@ -596,15 +595,15 @@ After a few moments, you can check if the GPU is being monitored correctly by sh
 
 To instantiate VM with a GPU login into the OpenNebula GUI and navigate to the VMs tab. Click “Create”. Then select one of the VM templates On the next screen enter the VM name and click “Next”.
 
-![VM Instantiation](/images/ISO/06-vm-instantiate-1.png)
+{{< image path="/images/ISO/06-vm-instantiate-1.png" alt="Instantiate VM" align="center" width="90%" mb="20px" border="false" >}}
 
 On the next screen select required Storage and Network options. In the “PCI Devices” section click “Attach PCI device”
 
-![PCI Device attachment](/images/ISO/07-vm-instantiate-pci-device.png)
+{{< image path="/images/ISO/07-vm-instantiate-pci-device.png" alt="PCI Device" align="center" width="90%" mb="20px" border="false" >}}
 
 In the dropdown menu select available GPU device which will be attached to the VM. Then click “Accept” button and finalize VM configuration.
 
-![PCI Device attachment](/images/ISO/08-vm-instantiate-pci-device-select.png)
+{{< image path="/images/ISO/08-vm-instantiate-pci-device-select.png" alt="PCI Device select" align="center" width="90%" mb="20px" border="false" >}}
 
 Click the “Finish” button to start VM instantiation. After a while, the VM will be instantiated and may be used. 
 
@@ -615,11 +614,11 @@ The vLLM appliance is available through the OpenNebula Marketplace. Follow steps
 1. Go to Storage -> Apps section.
 Search for vLLM appliance and import it. Select DataStore where to save image
 
-![PCI Device attachment](/images/ISO/09-vllm-appliance.png)
+{{< image path="/images/ISO/09-vllm-appliance.png" alt="vLLM Appliance" align="center" width="90%" mb="20px" border="false" >}}
 
-2. Go to VMs section and instantiate vLLM appliance. Specify common VM parameters. In the “Advanced Settings” go to “PCI devices” and ensure that required GPU device selected for attachment to the VM. Click “Accept” and then “Finish” to instantiate vLLM appliance.
+2. Go to VMs section and instantiate vLLM appliance. Specify common VM parameters. In the **Advanced Settings** go to **PCI devices** and ensure that required GPU device selected for attachment to the VM. Click **Accept** and then **Finisn** to instantiate vLLM appliance.
 
-3. Once vLLM appliance instantiated, follow steps from [the LLM inference guide]({{% relref "solutions/ai_factory_blueprints/direct_ai_execution/llm_inference_certification" %}}) to access a webchat app or execute benchmarking tests
+3. Once vLLM appliance instantiated, follow steps from [the LLM inference guide]({{% relref "solutions/ai_factory_blueprints/direct_ai_execution/llm_inference_certification" %}}) to access a webchat app or execute benchmarking tests.
 
 ## Next Steps
 
