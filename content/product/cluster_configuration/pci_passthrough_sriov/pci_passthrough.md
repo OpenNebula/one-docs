@@ -5,7 +5,7 @@ description:
 categories:
 pageintoc: "56"
 tags:
-weight: "5"
+weight: "4"
 ---
 
 It is possible to discover PCI devices in the Hosts and directly assign them to Virtual Machines in the KVM hypervisor.

@@ -286,7 +286,7 @@ The CAPI appliance takes some minutes to be in “Ready” status. Once the appl
     EOF
     ```
 
-    The number of GPU devices mounted in each worker node depends on the definition of the `PCI` attribute in the worker nodes template (note that the attributes of this map could change depending on the GPU model). In our case, we are deploying 2 worker nodes, with 1 GPU attached to each one. In case you only have available a single GPU card, change the number or `WORKER_MACHINE_COUNT` to 1. More information on [NVIDIA GPU Passthrough]({{% relref "product/cluster_configuration/hosts_and_clusters/nvidia_gpu_passthrough.md#pci-device-passthrough" %}}) section. In this example, we will attach a single NVIDIA GPU card to each worker nodes.
+    The number of GPU devices mounted in each worker node depends on the definition of the `PCI` attribute in the worker nodes template (note that the attributes of this map could change depending on the GPU model). In our case, we are deploying 2 worker nodes, with 1 GPU attached to each one. In case you only have available a single GPU card, change the number or `WORKER_MACHINE_COUNT` to 1. More information on [NVIDIA GPU Passthrough]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough.md#pci-device-passthrough" %}}) section. In this example, we will attach a single NVIDIA GPU card to each worker nodes.
 
 5. Once the `values.yaml` file is available, you can proceed to deploy the workload Cluster with Helm. First, add the helm chart repo for CAPONE and apply the helm chart referencing the values file:
 

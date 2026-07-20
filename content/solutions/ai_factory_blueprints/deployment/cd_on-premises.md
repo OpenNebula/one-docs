@@ -41,7 +41,7 @@ If IOMMU is not active, add the appropriate parameter to the kernel's boot comma
 *   For Intel CPUs: `intel_iommu=on`
 *   For AMD CPUs: `amd_iommu=on`
 
-For a detailed guide on how to perform this kernel configuration, refer to the [NVIDIA GPU Passthrough documentation]({{% relref "product/cluster_configuration/hosts_and_clusters/nvidia_gpu_passthrough.md" %}}).
+For a detailed guide on how to perform this kernel configuration, refer to the [NVIDIA GPU Passthrough documentation]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough.md" %}}).
 
 ### Hypervisor Preparation
 

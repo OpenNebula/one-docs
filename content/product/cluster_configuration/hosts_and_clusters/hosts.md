@@ -1,5 +1,5 @@
 ---
-title: "Hosts"
+title: "Host Management"
 date: "2025-02-17"
 description:
 categories:
@@ -12,9 +12,9 @@ weight: "2"
 
 <a id="hosts-guide"></a>
 
-<!--# Hosts -->
+In order to use a physical or virtual server as a Host, you must first prepare the server with a hypervisor and configure it to be added to OpenNebula as a Host, refer to the guides to prepare a [KVM node]({{% relref "software/installation_process/cluster_installation/kvm_node_installation/" %}}) or an [LXC node]({{% relref "software/installation_process/cluster_installation/lxc_node_installation/" %}}).
 
-In order to use your existing physical nodes, you have to add them to OpenNebula as Hosts. To add a Host only its hostname and type is needed.
+Once you have prepared your physical or virtual nodes, you can add them to OpenNebula as Hosts. To add a Host only its hostname and type is needed. 
 
 {{< alert title="Warning" type="warning" >}}
 Before adding a Linux Host check that you can SSH to it without being prompted for a password.{{< /alert >}}
@@ -25,8 +25,8 @@ Hosts are the servers managed by OpenNebula responsible for running VMs. To use 
 
 Creating a Host:
 
-```default
-$ onehost create host01 --im kvm --vm kvm
+```shell
+onehost create host01 --im kvm --vm kvm
 ID: 0
 ```
 
@@ -40,17 +40,17 @@ In the examples included in this guide we’ll use KVM as the hypervisor. Note t
 
 To remove a Host you can either specify it by ID or by name. The following commands are equivalent:
 
-```default
-$ onehost delete host01
-$ onehost delete 0
+```shell
+onehost delete host01
+onehost delete 0
 ```
 
 ## Showing and Listing Hosts
 
 To display information about a single Host, use the `show` command:
 
-```default
-$ onehost show server
+```shell
+onehost show server
 
 HOST 0 INFORMATION
 ID                    : 0
@@ -131,8 +131,8 @@ The information of a Host contains:
 
 To see a list of all the Hosts:
 
-```default
-$ onehost list
+```shell
+onehost list
   ID NAME            CLUSTER   RVM      ALLOCATED_CPU      ALLOCATED_MEM STAT
    0 server          server      1    100 / 400 (25%) 1024M / 7.3G (13%) on
    1 kvm1            kvm         0                  -                  - off
@@ -204,20 +204,20 @@ In order to manage the life cycle of a Host it can be set to different operation
 
 The `onehost` tool provides commands to set the operation mode of a Host: `disable`, `offline`, and `enable`, for example:
 
-```default
-$ onehost disable 0
+```shell
+onehost disable 0
 ```
 
 To re-enable the Host, use the `enable` command:
 
-```default
-$ onehost enable 0
+```shell
+onehost enable 0
 ```
 
 Similarly, to take the Host offline:
 
-```default
-$ onehost offline 0
+```shell
+onehost offline 0
 ```
 
 {{< alert title="Note" type="info" >}}
@@ -227,13 +227,13 @@ Apart from the commands above, the `onehost` tool also provides some commands th
 
 You can use `forceupdate` subcommand to reset the monitoring process on the Host:
 
-```default
-$ onehost forceupdate 0
+```shell
+onehost forceupdate 0
 ```
 
 The `flush` command will migrate all the active VMs in the specified Host to another server with enough capacity. At the same time, the specified Host will be disabled so no more Virtual Machines are deployed in it. This command is useful to clean a Host of active VMs. The migration process can be done by a `resched` action or by a recover `delete-recreate` action; it can be configured in `/etc/one/cli/onehost.yaml` by setting the field `default_actions\flush` to `delete-recreate` or to `resched`. Here is an example:
 
-```default
+```shell
 :default_actions:
   - :flush: delete-recreate
 ```
@@ -246,8 +246,8 @@ You can add custom attributes either by [creating a probe in the host]({{% relre
 
 For example, to label a Host as *production* we can add a custom tag *TYPE*:
 
-```default
-$ onehost update
+```shell
+onehost update
 ...
 TYPE="production"
 ```
@@ -260,8 +260,8 @@ This tag can be used at a later time for scheduling purposes, [see more details 
 
 When OpenNebula monitors a Host it copies driver files to `/var/tmp/one`. When these files are updated they need to be copied again to the Hosts with the `sync` command. To keep track of the probes version there’s a file in `/var/lib/one/remotes/VERSION`. By default this holds the OpenNebula version (e.g., ‘7.0.0’). This version can be seen in the Hosts by using `onehost show <host>`:
 
-```default
-$ onehost show 0
+```shell
+onehost show 0
 HOST 0 INFORMATION
 ID                    : 0
 [...]
@@ -274,15 +274,15 @@ The command `onehost sync` only updates the Hosts with `VERSION` lower than the 
 
 In case you want to force an upgrade, that is, without any `VERSION` checking, you can do it by using the `--force` option:
 
-```default
-$ onehost sync --force
+```shell
+onehost sync --force
 ```
 
-You can also select which Hosts you want to upgrade by naming them or selecting a cluster:
+You can also select which Hosts you want to upgrade by naming them or selecting a Cluster:
 
-```default
-$ onehost sync host01,host02,host03
-$ onehost sync -c myCluster
+```shell
+onehost sync host01,host02,host03
+onehost sync -c myCluster
 ```
 
 <a id="host-pci-devices"></a>
@@ -332,8 +332,8 @@ The cache is cleared when the monitoring daemon restarts.
 
 The monitoring mechanism in OpenNebula reports all VMs found in a hypervisor, even those not launched through OpenNebula. These VMs are referred to as Wild VMs. The Wild VMs can be spotted through the `onehost show` command:
 
-```default
-$ onehost show 3
+```shell
+onehost show 3
 HOST 3 INFORMATION
 ID                    : 3
 NAME                  : MyAWSHost
@@ -353,8 +353,10 @@ Wild VMs’ support and limitations may differ depending on the virtualization d
 
 You can also manage your Hosts using [Sunstone UI Interface]({{% relref "../../control_plane_configuration/graphical_user_interface/fireedge_sunstone#fireedge-sunstone" %}}). Select the Host tab and there you will be able to create, enable, disable, delete, and see information about your Hosts in a user-friendly way.
 
-![image1](/images/hosts_fireedge.png)
+{{< image path="/images/hosts_and_clusters/hosts_fireedge.png" alt="Sunstone login" align="center" width="90%" mb="20px"
+>}}
 
-- Create new hosts
+- Create new Hosts:
 
-![image2](/images/hosts_create.png)
+{{< image path="/images/hosts_and_clusters/hosts_create.png" alt="Sunstone login" align="center" width="90%" mb="20px"
+>}}

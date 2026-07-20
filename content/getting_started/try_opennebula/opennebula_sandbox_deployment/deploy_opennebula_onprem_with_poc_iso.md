@@ -496,7 +496,7 @@ The filesystem `/` now will be 10GiB bigger with no loss of service.
 
 ## GPU Configuration
 
-If the OpenNebula evaluation involves GPU management, GPU should be configured in pass-through mode. For the detailed process check [this guide from the official documentation]({{% relref "/product/cluster_configuration/hosts_and_clusters/nvidia_gpu_passthrough" %}}). Overall, a GPU configuration in OpenNebula consists from 2 main stages:
+If the OpenNebula evaluation involves GPU management, GPU should be configured in pass-through mode. For the detailed process check [this guide from the official documentation]({{% relref "/product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough" %}}). Overall, a GPU configuration in OpenNebula consists from 2 main stages:
 - Host preparation and driver configuration
 - OpenNebula settings for PCI pass-through devices
 

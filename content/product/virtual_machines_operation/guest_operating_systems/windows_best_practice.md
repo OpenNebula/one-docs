@@ -133,7 +133,7 @@ Under the Inputs section select a Tablet type on USB bus, then click Add. This w
 
 Defining a Virtio model display device at a higher resolution can be useful here as well; this can allow higher resolutions in the desktop.
 
-If you are using non-networking PCI Passthrough devices, this is the place to add them too, such as GPUs. See the [PCI Passthrough Guide]({{% relref "../../cluster_configuration/hosts_and_clusters/pci_passthrough#kvm-pci-passthrough" %}}).
+If you are using non-networking PCI Passthrough devices, this is the place to add them too, such as GPUs. See the [PCI Passthrough Guide]({{% relref "../../cluster_configuration/pci_passthrough_sriov/pci_passthrough#kvm-pci-passthrough" %}}).
 
 #### Tags
 

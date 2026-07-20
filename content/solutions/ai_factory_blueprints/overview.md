@@ -23,7 +23,7 @@ The purpose of the AI Factory collection is to provide a step-by-step process fo
 
 Configuring, deploying and validating a high-performance AI infrastructure using OpenNebula involves these steps:
 
-1. Familiarize yourself with **Architecture and Specifications**. We recommend consulting the [guide on GPU PCI-passthrough]({{% relref "product/cluster_configuration/hosts_and_clusters/nvidia_gpu_passthrough" %}}) for details relating to your GPU hardware and IOMMU.
+1. Familiarize yourself with **Architecture and Specifications**. We recommend consulting the [guide on GPU PCI-passthrough]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough" %}}) for details relating to your GPU hardware and IOMMU.
 <br>
 
 2. Deploy and configure your AI Factory with one of these alternatives:

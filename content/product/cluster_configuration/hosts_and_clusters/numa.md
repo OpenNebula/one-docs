@@ -16,9 +16,9 @@ weight: "4"
 
 In this guide you’ll learn to set up OpenNebula to control how VM resources are mapped onto the hypervisor ones. These settings will help you to fine tune the performance of VMs. We will use the following concepts:
 
-* **Cores, Threads, and Sockets**. A computer processor is connected to the motherboard through a *socket*. A processor can pack one or more *cores*, each one implements a separate processing unit that shares some cache levels, memory, and I/O ports. CPU cores’ performance can be improved by the use of hardware *multi-threading* (SMT) that permits multiple execution flows to run simultaneously on a single core.
-* **NUMA**. Multi-processor servers are usually arranged in nodes or cells. Each *NUMA node* holds a fraction of the overall system memory. In this configuration, a processor accesses memory and I/O ports local to its node faster than those of non-local ones.
-* **Hugepages**. Systems with big physical memory also use a large number of virtual memory pages. This big number makes the use of virtual-to-physical translation caches inefficient. Hugepages reduces the number of virtual pages in the system and optimizes the virtual memory subsystem.
+* **Cores, Threads, and Sockets**: A computer processor is connected to the motherboard through a *socket*. A processor can pack one or more *cores*, each one implements a separate processing unit that shares some cache levels, memory, and I/O ports. CPU cores’ performance can be improved by the use of hardware *multi-threading* (SMT) that permits multiple execution flows to run simultaneously on a single core.
+* **NUMA**: Multi-processor servers are usually arranged in nodes or cells. Each *NUMA node* holds a fraction of the overall system memory. In this configuration, a processor accesses memory and I/O ports local to its node faster than those of non-local ones.
+* **Hugepages**: Systems with big physical memory also use a large number of virtual memory pages. This big number makes the use of virtual-to-physical translation caches inefficient. Hugepages reduces the number of virtual pages in the system and optimizes the virtual memory subsystem.
 
 In OpenNebula the virtual topology of a VM is defined by the number of sockets, cores, and threads. We assume that a NUMA node or cell is equivalent to a socket and they will be used interchangeably in this guide.
 

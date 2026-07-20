@@ -16,16 +16,28 @@ When a new Virtual Machine is launched, OpenNebula will connect its virtual netw
 
 OpenNebula supports the following networking modes:
 
-* [Bridged]({{% relref "bridged#bridged" %}}). The VM NIC is added to a Linux bridge on the Host. This mode can be configured to use Security Groups and network isolation.
-* [802.1Q VLAN]({{% relref "vlan#hm-vlan" %}}). The VM NIC is added to a Linux bridge on the Host and the Virtual Network is configured to handle 802.1Q VLAN isolation.
-* [VXLAN]({{% relref "vxlan#vxlan" %}}). The VM NIC is added to a Linux bridge on the Host and the Virtual Network implements isolation using the VXLAN encapsulation.
-* [Open vSwitch]({{% relref "openvswitch#openvswitch" %}}). The VM NIC is added to a Open vSwitch bridge on the Host and the Virtual Network optionally handles 802.1Q VLAN isolation.
-* [Open vSwitch on VXLAN]({{% relref "openvswitch#openvswitch-vxlan" %}}). The VM NIC is added to a Open vSwitch bridge on the Host and the Virtual Network is configured to provide both isolation with VXLAN encapsulation and optionally 802.1Q VLAN.
+* [Bridged]({{% relref "bridged#bridged" %}}): The VM NIC is added to a Linux bridge on the Host. This mode can be configured to use Security Groups and network isolation.
+* [802.1Q VLAN]({{% relref "vlan#hm-vlan" %}}): The VM NIC is added to a Linux bridge on the Host and the Virtual Network is configured to handle 802.1Q VLAN isolation.
+* [VXLAN]({{% relref "vxlan#vxlan" %}}): The VM NIC is added to a Linux bridge on the Host and the Virtual Network implements isolation using the VXLAN encapsulation.
+* [Open vSwitch]({{% relref "openvswitch#openvswitch" %}}): The VM NIC is added to a Open vSwitch bridge on the Host and the Virtual Network optionally handles 802.1Q VLAN isolation.
+* [Open vSwitch on VXLAN]({{% relref "openvswitch#openvswitch-vxlan" %}}): The VM NIC is added to a Open vSwitch bridge on the Host and the Virtual Network is configured to provide both isolation with VXLAN encapsulation and optionally 802.1Q VLAN.
 
 The attribute `VN_MAD` of a Virtual Network determines which of the above networking modes is used.
 
 {{< alert title="Note" type="info" >}}
 Security Groups are not supported in the Open vSwitch modes.{{< /alert >}} 
+
+## Accelerated Networking
+
+OpenNebula supports accelerated networking and interconnect technologies for AI and HPC environments. These technologies complement the standard Virtual Network modes by providing high-bandwidth, low-latency communication, direct device access, hardware offload, and optimized communication between GPUs and compute nodes.
+
+* [InfiniBand]({{% relref "product/cluster_configuration/networking_system/infiniband/" %}}): Provides a high-throughput, low-latency network fabric for distributed AI and HPC workloads. InfiniBand devices can be exposed to Virtual Machines through mechanisms such as PCI passthrough or SR-IOV.
+
+* [NVIDIA Spectrum-X]({{% relref "product/cluster_configuration/networking_system/spectrumx/" %}}): Provides an accelerated Ethernet fabric optimized for AI workloads, combining NVIDIA Spectrum switches and high-performance network adapters to improve communication between compute nodes.
+
+* [NVIDIA BlueField DPU]({{% relref "product/cluster_configuration/networking_system/nvidia_bluefield_dpu/" %}}): Offloads networking, security, encryption, and infrastructure services from the Host CPU. BlueField devices can be integrated into the infrastructure to provide accelerated and isolated data paths for tenant workloads.
+
+* [NVIDIA Fabric Manager]({{% relref "product/cluster_configuration/pci_passthrough_sriov/one_fabricmanager/" %}}): Manages and monitors the NVSwitch fabric used for high-speed communication between multiple NVIDIA GPUs within a Host. It initializes the fabric and coordinates GPU connectivity for supported multi-GPU systems.
 
 ## How Should I Read This Chapter
 
