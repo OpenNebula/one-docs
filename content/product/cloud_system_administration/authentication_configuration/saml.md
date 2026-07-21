@@ -42,7 +42,7 @@ AUTH_MAD_CONF = [
 ]
 ```
 
-The `saml` authentication driver can be configured in [/etc/one/auth/saml_auth.conf](https://github.com/OpenNebula/one/blob/release-{{< release >}}/src/authm_mad/remotes/saml/saml_auth.conf).
+The `saml` authentication driver can be configured in [/etc/one/auth/saml_auth.conf](https://github.com/OpenNebula/one/blob/{{< github_branch >}}/src/authm_mad/remotes/saml/saml_auth.conf).
 
 Each one of the configuration parameters is explained in the file itself through comments. The SAML authentication driver supports the definition of several trusted Identity Providers through the `:identity_providers` hash.
 
