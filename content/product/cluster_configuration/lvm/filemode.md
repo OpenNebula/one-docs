@@ -177,6 +177,10 @@ The `LVM_THIN_ENABLE` attribute can only be modified while there are no images o
 You can take a look at the [Datastore Internals]({{% relref "#datastore-internals" %}}) section for
 more info about the differences in thin and non-thin operation.
 
+{{< alert title="Note" type="info" >}}
+To enable LVM Thin for a volatile disk, set `LVM_THIN_ENABLE=YES` in the volatile disk template.
+{{< /alert >}}
+
 <a id="lvm-driver-conf"></a>
 
 ### Driver Configuration
