@@ -72,11 +72,15 @@ The recommended options are the following:
 
 The installation interface will be in text mode and will only ask for confirmation before deleting all the data on the first disk that it finds on a screen that looks like the following:
 
-![validation_script](/images/ISO/01-validation_script.png)
+{{< image path="/images/ISO/01-validation_script.png"
+  alt="Validation script" align="center" width="60%" mb="20px"
+>}}
 
 After that, a little menu showing all the available, non-removable disks, will be shown in the format `disk|sizeGB`. After choosing the disk, a confirmation menu with the options `yes` and `no` will be shown.
 
-![disk_selection](/images/ISO/011-disk_selection.png)
+{{< image path="/images/ISO/011-disk_selection.png"
+  alt="Disk selection" align="center" width="60%" mb="20px"
+>}}
 
 {{< alert title="Warning: data will be deleted" type="warning" >}}
 
@@ -84,13 +88,15 @@ After that, a little menu showing all the available, non-removable disks, will b
 
 Answer `yes` to continue. You may be prompted to choose the disk to which you want to install. After choosing the disk and confirming, the installation will commence. The installation will take several minutes:
 
-![anaconda_unattended_install](/images/ISO/02-anaconda_unattended_install.png)
+{{< image path="/images/ISO/02-anaconda_unattended_install.png"
+  alt="Anaconda unattended install" align="center" width="60%" mb="20px"
+>}}
 
 ## Front-end Configuration
 
 Once the installation is completed, the machine should reboot. No network card will be configured, so access to the server's console must be provided to login. It will look like the following (the colours and the font may vary on different systems):
 
-```
+```default
 Welcome to OpenNebula Proof of Concept (onepoc) !
 
 - Please, log in as user `root`
@@ -341,17 +347,25 @@ The `oneadmin` default password is 32 hex chars long (128 bits of entropy). It i
 
 This ISO deployment does not automatically configure Virtual Networks. Instead Free Range Routing (FRR) is configured, allowing BGP-EVPN to automate creation of VXLANs that provide secure isolation between Virtual Machines. VXLAN is a technology that facilitates isolation between Virtual Machines using 'tags' that allow for over 16 million unique, isolated Virtual Networks.
 
-To set up a Virtual Network using VXLAN, in the Sunstone UI go to **Networks** -> **Virtual Networks** and select **+ Create**. Name the network and click **Next**. Select **VXLAN** in the following page. Choose a number below the maximum 16777215 for the **VLAN ID** (e.g. 100) and select `evpn` for the **VXLAN mode**. The **Physical device** field should be set to the name of the network interface of the OpenNebula Front-end server that was selected earlier during the ISO installation. Run `nmcli device status` on the command line of your Front-end if you need to recall the name.
+To set up a Virtual Network using VXLAN, in the Sunstone UI go to **Networks** -> **Virtual Networks** and select **+ Create Virtual Network** and then **From Scratch**. Name the network and click **Next**. Select **VXLAN** in the following page. Choose a number below the maximum 16777215 for the **VLAN ID** (e.g. 100) and select `evpn` for the **VXLAN mode**. The **Physical device** field should be set to the name of the network interface of the OpenNebula Front-end server that was selected earlier during the ISO installation. Run `nmcli device status` on the command line of your Front-end if you need to recall the name.
 
-![sunstone-network_config](/images/ISO/03-sunstone-network-config.png)
+{{< image
+  pathDark="/images/ISO/dark/sunstone_network_config.png"
+  path="/images/ISO/light/sunstone_network_config.png"
+  alt="Sunstone network config" align="center" width="90%" mb="20px"
+>}}
 
 {{< alert title="VXLAN evpn" type="info" >}}
 To allow automatic network discovery, the VXLAN mode must be set to `evpn` in all cases.
 {{< /alert >}}
 
-Select the **Addresses** tab and create a new address range with **+ Address Range**. Select a starting address from a private range (such as 172.16.10.1 or 10.0.0.1) that is distinct from your Host’s current IP network to avoid confusion. In this case we chose an IPv4 address range starting from 172.16.100.8 with 100 consecutive IPs (172.16.100.0-7 should be reserved for the network base address, the gateway and other infrastructure).
+Select the **Addresses** tab and create a new address range with **+ Add Address Range**. Select a starting address from a private range (such as 172.16.10.1 or 10.0.0.1) that is distinct from your Host’s current IP network to avoid confusion. In this case we chose an IPv4 address range starting from 172.16.100.8 with 100 consecutive IPs (172.16.100.0-7 should be reserved for the network base address, the gateway and other infrastructure).
 
-![sunstone-network_ip_range](/images/ISO/04-sunstone-network-ip-range.png)
+{{< image
+  pathDark="/images/ISO/dark/sunstone_vnet_ip_range.png"
+  path="/images/ISO/light/sunstone_vnet_ip_range.png"
+  alt="Sunstone network IP range" align="center" width="90%" mb="20px"
+>}}
 
 Select the **Context** tab and enter values similar to the following, based on the **First IPv4 address** you chose in the previous step:
 
@@ -365,7 +379,11 @@ Select the **Context** tab and enter values similar to the following, based on t
 | DNS | 8.8.8.8 (Google) |
 | MTU of the Guest interfaces | 1450 |
 
-![sunstone-network_context](/images/ISO/05-sunstone-network-context.png)
+{{< image
+  pathDark="/images/ISO/dark/sunstone_network_context.png"
+  path="/images/ISO/light/sunstone_network_context.png"
+  alt="Sunstone network IP range" align="center" width="90%" mb="20px"
+>}}
 
 {{< alert title="MTU size" type="warning" >}}
 The contextualization MTU for this network MUST be the MTU of the physical interface minus 50 bytes (the size of the VXLAN encapsulation) or smaller. 1450 is a safe default (regular ethernet frame size).
@@ -503,6 +521,7 @@ If the OpenNebula evaluation involves GPU management, GPU should be configured i
 
 To prepare the OpenNebula Host complete the following steps:
 - Check that IOMMU was enabled on the Host using the following command:
+
 ```default
 dmesg | grep -i iommu
 ```
@@ -593,17 +612,29 @@ After a few moments, you can check if the GPU is being monitored correctly by sh
 
 ###  VM with GPU Instantiation
 
-To instantiate VM with a GPU login into the OpenNebula GUI and navigate to the VMs tab. Click “Create”. Then select one of the VM templates On the next screen enter the VM name and click “Next”.
+To instantiate VM with a GPU login into the OpenNebula GUI and navigate to the VMs tab. Click “Create”. Then select one of the VM templates On the next screen, enter the VM name and click **Next**.
 
-{{< image path="/images/ISO/06-vm-instantiate-1.png" alt="Instantiate VM" align="center" width="90%" mb="20px" border="false" >}}
+{{< image
+  pathDark="/images/ISO/dark/instantiate_vm_1.png"
+  path="/images/ISO/light/instantiate_vm_1.png"
+  alt="Sunstone login" align="center" width="90%" mb="20px"
+>}}
 
 On the next screen select required Storage and Network options. In the “PCI Devices” section click “Attach PCI device”
 
-{{< image path="/images/ISO/07-vm-instantiate-pci-device.png" alt="PCI Device" align="center" width="90%" mb="20px" border="false" >}}
+{{< image
+  pathDark="/images/ISO/dark/instantiate_vm_pci_device.png"
+  path="/images/ISO/light/instantiate_vm_pci_device.png"
+  alt="Attach PCI device" align="center" width="90%" mb="20px"
+>}}
 
 In the dropdown menu select available GPU device which will be attached to the VM. Then click “Accept” button and finalize VM configuration.
 
-{{< image path="/images/ISO/08-vm-instantiate-pci-device-select.png" alt="PCI Device select" align="center" width="90%" mb="20px" border="false" >}}
+{{< image
+  pathDark="/images/ISO/dark/instantiate_pci_device_select.png"
+  path="/images/ISO/light/instantiate_pci_device_select.png"
+  alt="PCI device select" align="center" width="90%" mb="20px"
+>}}
 
 Click the “Finish” button to start VM instantiation. After a while, the VM will be instantiated and may be used. 
 
@@ -611,10 +642,14 @@ Click the “Finish” button to start VM instantiation. After a while, the VM w
      
 The vLLM appliance is available through the OpenNebula Marketplace. Follow steps from [this guide from the official documentation]({{% relref "solutions/ai_factory_blueprints/direct_ai_execution/llm_inference_certification" %}}). To download vLLM appliance and instantiate with a GPU in passthrough mode, the following steps have to be performed:
 
-1. Go to Storage -> Apps section.
+1. Go to **Storage -> Apps** section.
 Search for vLLM appliance and import it. Select DataStore where to save image
 
-{{< image path="/images/ISO/09-vllm-appliance.png" alt="vLLM Appliance" align="center" width="90%" mb="20px" border="false" >}}
+{{< image
+  pathDark="/images/ISO/dark/vllm_appliance.png"
+  path="/images/ISO/light/vllm_appliance.png"
+  alt="vLLM appliance" align="center" width="90%" mb="20px"
+>}}
 
 2. Go to VMs section and instantiate vLLM appliance. Specify common VM parameters. In the **Advanced Settings** go to **PCI devices** and ensure that required GPU device selected for attachment to the VM. Click **Accept** and then **Finisn** to instantiate vLLM appliance.
 

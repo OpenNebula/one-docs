@@ -379,7 +379,7 @@ The green dot to the left of the VM name indicates that the VM is running. Note 
 
 ### Logging into the Virtual Machine
 
-The quickest way to login to the VM is by VNC, available directly in Sunstone. Just click the VNC icon <svg width="1.5em" height="1.5em" stroke-width="1.5" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" color="rgb(143,147,146)"><path d="M2 15.5V2.6a.6.6 0 01.6-.6h18.8a.6.6 0 01.6.6v12.9m-20 0v1.9a.6.6 0 00.6.6h18.8a.6.6 0 00.6-.6v-1.9m-20 0h20M9 22h1.5m0 0v-4m0 4h3m0 0H15m-1.5 0v-4" stroke="rgb(143,147,146)" stroke-linecap="round" stroke-linejoin="round" fill="white" ></path></svg> and Sunstone will display the VM boot messages screen directly in your browser in another tab. 
+The quickest way to log into the VM is by VNC, available directly in Sunstone. Select the Alpine Linux 3.20 VM from the list to open it's details panel. On larger screens, you will see a **Console** dropdown menu, click this and select **VNC** from the menu. On smaller screens this option will be found in the dropdown menu opened using the ellipsis icon <svg width="16px" height="16px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor" class="toggle-button-icon"><path d="M12 12.5a.5.5 0 100-1 .5.5 0 000 1zM12 20.5a.5.5 0 100-1 .5.5 0 000 1zM12 4.5a.5.5 0 100-1 .5.5 0 000 1z" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg> and Sunstone will display the VM boot messages screen directly in your browser in another tab. 
 
 {{< image
   pathDark="/images/quickstart/dark/sunstone_vnc_alpine.png"
