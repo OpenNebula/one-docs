@@ -187,9 +187,14 @@ CACHE_UPSTREAMS = "hostname0,hostname2"
 CACHE_MIN_AGE   = "3600"
 ```
 
-When you create a new Datastore, configure these settings through Sunstone .
+When you create a new Datastore in Sunstone, you can configure these settings in the **Configuration attributes** step of the **Create Datastore** workflow:
 
-![sunstone_ds_cache_config](/images/sunstone_ds_cache_config.png)
+{{< image
+  pathDark="/images/storage/dark/sunstone_ds_cache_config.png"
+  path="/images/storage/light/sunstone_ds_cache_config.png"
+  alt="Datastore cache configuration" align="center" mb="20px"
+>}}
+
 
 {{< alert title="Warning" type="warning" >}}
 For the distributed cache to work, the `oneadmin` user (see [Node installation]({{% relref "../../../product/operation_references/hypervisor_configuration" %}})) must have SSH passwordless authentication configured on all Hosts.{{< /alert >}}
