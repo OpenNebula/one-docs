@@ -18,6 +18,8 @@ This is the list of the individual platform components that have been through th
 
 OpenNebula is certified over all the following platforms, taking into account that mixing different operating systems in the front-end and the nodes, including different versions of the same operating system, does not form part of our QA testing, and therefore is not supported.
 
+{{< alert title="Note" type="info" >}}
+For supported deployments, hypervisor nodes in the same Cluster must run the same operating system and version. In High Availability Front-end deployments, all Front-end nodes must also run the same operating system and version. Homogeneous deployments require matching both the OS distribution and its release version.{{< /alert >}}
 
 ## Certified Components Version
 
