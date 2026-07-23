@@ -48,11 +48,13 @@ Deployment options let you choose where each K8s Cluster is placed and which Ope
 {{% tab header="**Interfaces**:" disabled=true /%}}
 
 {{% tab header="Sunstone"%}}
-From the left-hand navigation menu in Sunstone, go to **Kubernetes -> K8S Clusters** and click **Create** to start the K8s Cluster creation wizard.
+From the left-hand navigation menu in Sunstone, go to **Kubernetes -> K8S Clusters** and click **+ Create Kubernetes Cluster** to start the K8s Cluster creation wizard.
 
-{{< image path="/images/oneks/light/create_k8s_cluster_1.png"
-          pathDark="/images/oneks/dark/create_k8s_cluster_1.png"
-alt="OneKS create Cluster step 1" align="center" width="90%" mb="20px" >}}
+{{< image
+  path="/images/oneks/light/create_k8s_cluster_1.png"
+  pathDark="/images/oneks/dark/create_k8s_cluster_1.png"
+  alt="OneKS create Cluster step 1" align="center" width="90%" mb="20px"
+>}}
 
 The wizard guides you through the required configuration steps:
 
@@ -66,9 +68,11 @@ The wizard guides you through the required configuration steps:
 
 After completing the required fields, finish the wizard to start K8s Cluster creation. You will be redirected to the **Kubernetes Logs** view, where you can monitor the provisioning process.
 
-{{< image path="/images/oneks/light/create_k8s_logs_running.png"
-          pathDark="/images/oneks/dark/create_k8s_logs_running.png"
-alt="OneKS K8s Cluster running logs" align="center" width="90%" mb="20px" >}}
+{{< image
+  path="/images/oneks/light/create_k8s_logs_running.png"
+  pathDark="/images/oneks/dark/create_k8s_logs_running.png"
+  alt="OneKS K8s Cluster running logs" align="center" width="90%" mb="20px"
+>}}
 
 For a complete Sunstone walkthrough, see the [OneKS Quick Start]({{% relref "platform_services/oneks/getting_started/quick_start/" %}}).
 {{% /tab %}}
@@ -218,9 +222,11 @@ After the K8s Cluster reaches the `RUNNING` state, retrieve its kubeconfig. The 
 {{% tab header="Sunstone"%}}
 From **Kubernetes -> K8S Clusters**, open the target K8s Cluster. In the K8s Cluster detail view, select the **Kubeconfig** tab.
 
-{{< image path="/images/oneks/light/k8s_kubeconfig.png"
-          pathDark="/images/oneks/dark/k8s_kubeconfig.png"
-alt="OneKS K8s Cluster kubeconfig" align="center" width="90%" mb="20px" >}}
+{{< image
+  path="/images/oneks/light/k8s_kubeconfig.png"
+  pathDark="/images/oneks/dark/k8s_kubeconfig.png"
+  alt="OneKS K8s Cluster kubeconfig" align="center" width="90%" mb="20px"
+>}}
 
 Copy the kubeconfig content and save it locally as a kubeconfig file.
 {{% /tab %}}
@@ -270,11 +276,13 @@ Node groups are the main operational unit for managing worker capacity in OneKS.
 {{% tab header="**Interfaces**:" disabled=true /%}}
 
 {{% tab header="Sunstone"%}}
-From **Kubernetes -> K8S Clusters**, open the target K8s Cluster. Select the **NodeGroup** tab, then click **Add Node Group**.
+From **Kubernetes -> K8S Clusters**, open the target K8s Cluster. Select the **Node groups** tab, then click **+ Create**.
 
-{{< image path="/images/oneks/light/k8s_add_node_group.png"
-          pathDark="/images/oneks/dark/k8s_add_node_group.png"
-alt="OneKS add node group" align="center" width="90%" mb="20px" >}}
+{{< image
+  path="/images/oneks/light/k8s_add_node_group.png"
+  pathDark="/images/oneks/dark/k8s_add_node_group.png"
+  alt="OneKS add node group" align="center" width="90%" mb="20px"
+>}}
 
 The node-group creation wizard guides you through:
 
@@ -282,9 +290,11 @@ The node-group creation wizard guides you through:
 * **Flavours**: Worker node flavour.
 * **User Inputs**: Node count and remaining values required by the selected flavour.
 
-{{< image path="/images/oneks/light/k8s_user_inputs.png"
-          pathDark="/images/oneks/dark/k8s_user_inputs.png"
-alt="OneKS node group user inputs" align="center" width="90%" mb="20px" >}}
+{{< image
+  path="/images/oneks/light/k8s_user_inputs.png"
+  pathDark="/images/oneks/dark/k8s_user_inputs.png"
+  alt="OneKS node group user inputs" align="center" width="90%" mb="20px"
+>}}
 
 After finishing the wizard, monitor the K8s Cluster logs until the node group reaches `RUNNING`.
 {{% /tab %}}
@@ -416,9 +426,11 @@ In the **K8S Clusters** view, select the K8s Cluster you want to upgrade. Open t
 
 Use the dropdown menu to select the target Kubernetes version, then confirm the upgrade.
 
-{{< image path="/images/oneks/light/k8s_upgrade_cluster_sunstone.png"
-          pathDark="/images/oneks/dark/k8s_upgrade_cluster_sunstone.png"
-alt="OneKS upgrade cluster Sunstone" align="center" width="90%" mb="20px" >}}
+{{< image
+  path="/images/oneks/light/k8s_upgrade_cluster_sunstone.png"
+  pathDark="/images/oneks/dark/k8s_upgrade_cluster_sunstone.png"
+  alt="OneKS upgrade cluster Sunstone" align="center" width="90%" mb="20px"
+>}}
 
 The selected version must be supported by the K8s Cluster profile. After starting the upgrade, monitor the K8s Cluster state and logs until the K8s Cluster returns to `RUNNING`.
 {{% /tab %}}
@@ -475,11 +487,13 @@ Recovery is not a general rollback mechanism. It should not be assumed to fix ev
 {{% tab header="**Interfaces**:" disabled=true /%}}
 
 {{% tab header="Sunstone"%}}
-In the **K8S Clusters** view, select the K8s Cluster that contains the affected node group. Open the **NodeGroup** tab and locate the node group you want to recover. Click the **Recover Node Group** action button on the node group row.
+In the **K8S Clusters** view, select the K8s Cluster that contains the affected node group. Open the **NodeGroup** tab and locate the node group you want to recover. Click the **Recover Node Group** action button from the dropdown menu.
 
-{{< image path="/images/oneks/light/k8s_recover_nodegroup_sunstone.png"
-          pathDark="/images/oneks/dark/k8s_recover_nodegroup_sunstone.png"
-alt="OneKS recover nodegroup Sunstone" align="center" width="90%" mb="20px" >}}
+{{< image
+  path="/images/oneks/light/k8s_recover_nodegroup_sunstone.png"
+  pathDark="/images/oneks/dark/k8s_recover_nodegroup_sunstone.png"
+  alt="OneKS recover nodegroup Sunstone" align="center" width="90%" mb="20px"
+>}}
 
 The recovery action retries the last failed lifecycle operation where possible. It is intended for node groups in a warning or failure state, such as `PROVISIONING_FAILURE`, `SCALING_FAILURE`, or `WARNING`.
 {{% /tab %}}
@@ -543,11 +557,13 @@ Use force option during deletion cautiously. It may skip parts of the normal dep
 {{% tab header="**Interfaces**:" disabled=true /%}}
 
 {{% tab header="Sunstone"%}}
-In the **K8S Clusters** view, select the K8s Cluster you want to delete. Click the red **Delete** button next to the **Create** button.
+In the **K8S Clusters** view, select the K8s Cluster you want to delete. Click the red dustbin icon to delete the K8s Cluster:
 
-{{< image path="/images/oneks/light/delete_k8s_cluster.png"
-          pathDark="/images/oneks/dark/delete_k8s_cluster.png"
-alt="OneKS recover nodegroup Sunstone" align="center" width="90%" mb="20px" >}}
+{{< image
+  path="/images/oneks/light/delete_k8s_cluster.png"
+  pathDark="/images/oneks/dark/delete_k8s_cluster.png"
+  alt="OneKS recover nodegroup Sunstone" align="center" width="90%" mb="20px"
+>}}
 
 The deletion operation deprovisions the OneKS K8s Cluster and its managed resources, including the control plane and managed node groups. Referenced infrastructure, such as the public and private Virtual Networks selected during K8s Cluster creation, is not normally deleted by OneKS.
 {{% /tab %}}
