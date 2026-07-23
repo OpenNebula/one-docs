@@ -45,7 +45,11 @@ OpenNebula’s management model provides multi-tenancy by design, offering diffe
 
 Management tools include the **Sunstone Web UI**, an easy-to-use visual interface for managing cloud infrastructure. The UI implements the full multi-tenancy features of the underlying system, allowing access to users with different roles, access, and management permissions.
 
-{{< image path="/images/sunstone-full_dashboard.png" align="center" width="80%" mb="20px" border="false" >}}
+{{< image
+  pathDark="/images/sunstone/common/dark/sunstone_full_dashboard.png"
+  path="/images/sunstone/common/light/sunstone_full_dashboard.png"
+  alt="Sunstone Dashboard" align="center" width="90%" mb="20px"
+>}}
 
 Among other features, Sunstone offers support for easily managing single VMs and multi-VM services, as well as datastores, Hosts and Clusters; visualizing metrics and logs; and creating and editing templates for VMs, services, networks, and devices.
 

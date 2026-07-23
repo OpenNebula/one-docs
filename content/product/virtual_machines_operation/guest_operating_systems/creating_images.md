@@ -16,9 +16,9 @@ weight: "3"
 
 When it comes to creating OS disk images for your VM guests, you have several options:
 
-* **OpenNebula Marketplace Appliances:** Utilize ready-to-use [OpenNebula Marketplace appliances](https://marketplace.opennebula.io/appliance).
-* **OpenNebula Apps Project:** Build or customize your own images using the build toolchain provided by the [OpenNebula Apps project](https://github.com/OpenNebula/one-apps).
-* **Manual Installation:** Perform a manual installation directly in a running VM guest.
+* **OpenNebula Marketplace Appliances**: Utilize ready-to-use [OpenNebula Marketplace appliances](https://marketplace.opennebula.io/appliance).
+* **OpenNebula Apps Project**: Build or customize your own images using the build toolchain provided by the [OpenNebula Apps project](https://github.com/OpenNebula/one-apps).
+* **Manual Installation**: Perform a manual installation directly in a running VM guest.
 
 <a id="add-content-marketplace"></a>
 
@@ -28,34 +28,38 @@ If you have access to the public OpenNebula Marketplace from your Front-end, you
 
 To retrieve images from the OpenNebula Marketplace:
 
-1. In Sunstone, select the **Storage –> Apps** tab.
-2. Select one of the available images.
-3. Click **Download**.
+1. In Sunstone, select the **Storage –> Apps** tab
+2. Select one of the available images
+3. Click **Download**
 
-![sunstone_marketplace_list_import](/images/sunstone_marketplace_list_import.png)
+{{< image
+  pathDark="/images/workload/dark/sunstone_marketplace_list_import.png"
+  path="/images/workload/light/sunstone_marketplace_list_import.png"
+  alt="Sunstone marketplace import" align="center" width="90%" mb="20px"
+>}}
 
 Using the CLI, you can list and import images using these commands:
 
-```default
-$ onemarketapp list
+```shell
+onemarketapp list
   ID NAME                         VERSION  SIZE STAT TYPE  REGTIME MARKET               ZONE
-[...]
+  [...]
   43 alpine-vrouter                 1.0.3  256M  rdy  img 03/10/16 OpenNebula Public       0
   44 CoreOS alpha                1000.0.0  245M  rdy  img 04/03/16 OpenNebula Public       0
   45 Devuan                      1.0 Beta    8M  rdy  img 05/03/16 OpenNebula Public       0
-$ onemarketapp export Devuan Devuan --datastore default
-IMAGE
-        ID: 12
-VMTEMPLATE
-        ID: -1
+onemarketapp export Devuan Devuan --datastore default
+  IMAGE
+          ID: 12
+  VMTEMPLATE
+          ID: -1
 ```
 
 ## OpenNebula Apps Project
 
 The OpenNebula Apps project provides an extensive toolkit for creating specialized appliances tailored to your OpenNebula cloud environment. If you wish to rebuild the provided appliances yourself, check the following information:
 
-* **Requirements:** Review the [requirements](https://github.com/OpenNebula/one-apps/wiki/tool_reqs) for building context packages and appliances.
-* **Build Tools Usage:** Learn how to [use the build tools](https://github.com/OpenNebula/one-apps/wiki/tool_use) effectively.
+* **Requirements**: Review the [requirements](https://github.com/OpenNebula/one-apps/wiki/tool_reqs) for building context packages and appliances.
+* **Build Tools Usage**: Learn how to [use the build tools](https://github.com/OpenNebula/one-apps/wiki/tool_use) effectively.
 
 If you need to incorporate additional content or include a new base OS, refer to the [developer information](https://github.com/OpenNebula/one-apps/wiki/tool_dev) for detailed guidance.
 
@@ -78,24 +82,52 @@ In this case, jump to Step 2 and register a persistent VM disk using the downloa
 
 ### Step 1. Add the Installation Medium
 
-You can add the installation CD to OpenNebula by uploading the image using Sunstone and setting its type to CDROM or using the command line.
-For example, to add the CentOS ISO file you can use this command:
+You can add the installation CD to OpenNebula by uploading the image using Sunstone and setting its type to CDROM or using the command line. 
 
-```default
-$ oneimage create --name centos7-install --path https://buildlogs.centos.org/rolling/7/isos/x86_64/CentOS-7-x86_64-DVD-1910-01.iso --type CDROM --datastore default
+{{< tabpane text=true right=false >}}
+{{% tab header="**Interfaces**:" disabled=true /%}}
+{{% tab header="Sunstone"%}}
+In Sunstone, go to **Storage -> Images** and select **+ Create Image**.
+
+{{< image
+  pathDark="/images/workload/dark/sunstone_create_install_image.png"
+  path="/images/workload/light/sunstone_create_install_image.png"
+  alt="Sunstone install image" align="center" width="90%" mb="20px"
+>}}
+
+{{% /tab %}}
+{{% tab header="CLI"%}}
+
+For example, to add the CentOS ISO file use this command:
+
+```shell
+oneimage create --name centos7-install --path https://buildlogs.centos.org/rolling/7/isos/x86_64/CentOS-7-x86_64-DVD-1910-01.iso --type CDROM --datastore default
 ```
+{{% /tab %}}
+{{< /tabpane >}}
 
 ### Step 2. Create Installation Disk
 
 The disk where the OS will be installed needs to be created as a `DATABLOCK`. Don’t make the image too big as it can be resized afterwards on VM instantiation. Also make sure to make it persistent so you won’t lose the disk changes when the Virtual Machine terminates.
 
-![sunstone_datablock_create](/images/sunstone_datablock_create.png)
+{{< tabpane text=true right=false >}}
+{{% tab header="**Interfaces**:" disabled=true /%}}
+{{% tab header="Sunstone"%}}
+{{< image
+  pathDark="/images/workload/dark/sunstone_datablock_create.png"
+  path="/images/workload/light/sunstone_datablock_create.png"
+  alt="Sunstone datablock create" align="center" width="90%" mb="20px"
+>}}
 
-If you are using the CLI you can do the same with this command:
+{{% /tab %}}
+{{% tab header="CLI"%}}
+If you are using the CLI use this command:
 
-```default
-$ oneimage create --name centos7 --description "Base CentOS 7 Installation" --type DATABLOCK --persistent --prefix vd --driver qcow2 --size 10240 --datastore default
+```shell
+oneimage create --name centos7 --description "Base CentOS 7 Installation" --type DATABLOCK --persistent --prefix vd --driver qcow2 --size 10240 --datastore default
 ```
+{{% /tab %}}
+{{< /tabpane >}}
 
 ### Step 3. Create a Template to do the Installation
 
@@ -112,8 +144,8 @@ In the **Advanced Options** step:
 
 This can be done from the CLI as well using this command:
 
-```default
-$ onetemplate create --name centos7-cli --cpu 1 --memory 1G --disk centos7,centos7-install --nic network --boot disk0,disk1 --vnc --raw "INPUT=[TYPE=tablet,BUS=usb]"
+```shell
+onetemplate create --name centos7-cli --cpu 1 --memory 1G --disk centos7,centos7-install --nic network --boot disk0,disk1 --vnc --raw "INPUT=[TYPE=tablet,BUS=usb]"
 ```
 
 Now, instantiate the recently created VM Template and do the guest OS installation using the VNC viewer.
@@ -130,7 +162,7 @@ Make sure to change the attribute `PERSISTENT` of the installation disk image to
 
 Using the CLI you can do:
 
-```default
-$ oneimage nonpersistent centos7
-$ oneimage chmod centos7 744
+```shell
+oneimage nonpersistent centos7
+oneimage chmod centos7 744
 ```

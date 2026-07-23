@@ -28,7 +28,12 @@ In order to begin installing Windows we will need to create a template which wil
 - [Create a persistent empty image]({{% relref "creating_images#creating-images" %}}) which will be the target disk for Windows to be installed on. Different versions of Windows require different minimum disk space.
   Under Advanced Options set BUS to Virtio, and setting the format to RAW will also increase disk performance but QCOW2 is sparse and saves disk space.
 
-![image](/images/windows_bp_create_image.png)
+{{< image
+  pathDark="/images/workload/dark/windows_bp_create_image.png"
+  path="/images/workload/light/windows_bp_create_image.png"
+  alt="Windows BP create" align="center" width="90%" mb="20px"
+>}}
+
 - Download the [VirtIO Drivers ISO from the virtio-win github page](https://github.com/virtio-win/virtio-win-pkg-scripts/blob/master/README.md) and add it to OpenNebula as a CDROM type.
   If you require WHQL-signed VirtIO drivers then you may need to obtain those through a paid RHEL License as noted in that README.
 - Download the latest [OpenNebula Contextualization ISO](https://github.com/OpenNebula/one-apps/releases) and add it to OpenNebula as a CDROM type.
@@ -217,14 +222,20 @@ When prompted for a product key, select the option: I don’t have a product key
 
 In order to do this, click Load Driver then Browse.  In here, scroll down to and open the CD Drive virtio-win-\*, then expand the amd64 folder and select the edition of Windows, after that click OK. Select the Red Hat VirtIO SCSI controller and click Next.  The disk should be visible once this is installed.  You should see a Drive 0 Unallocated Space with the size of the image we created earlier to be the target image. Select this disk and click Next.
 
-![image](/images/windows_bp_virtio_drivers.png)
+{{< image
+  path="/images/workload/light/windows_bp_virtio_drivers.png"
+  alt="Sunstone datablock create" align="center" width="60%" mb="20px"
+>}}
 
 Windows will now begin installing.  This will take some time depending on the hardware but once it is complete and has rebooted you should be prompted to begin the setup. Proceed as normal here until it prompts for network access.  Select the option: I don’t have internet, then: Continue with limited setup.
 
 {{< alert title="Note" type="info" >}}
 For Windows 11 this may not be an option depending on how old the image is. If you are unable to bypass the network requirement part of Windows 11, press Shift + F10 to open a Command Prompt in the Virtual Machine.  Then type oobe/BypassNRO and hit enter. This will reboot the machine and allow you to bypass the network requirements.{{< /alert >}} 
 
-![image](/images/windows_bp_bypassnro.png)
+{{< image
+  path="/images/workload/light/windows_bp_bypassnro.png"
+  alt="Sunstone bypass NRO" align="center" width="60%" mb="20px"
+>}}
 
 You should have to create a local account here at this point, so continue through that setup.  We recommend disabling all telemetry, diagnostic options, and ad identification, which may impact performance. The same applies to Cortana, this can be skipped or disabled later on. Windows should continue setting up now. Once completed you should be at the Windows Desktop.
 

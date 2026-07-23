@@ -268,7 +268,7 @@ exit
 
 ## Step 5. Networking Configuration
 
-{{< image path="/images/network-02.png" alt="Network" align="center" width="40%" mb="20px" border="false" shadow="false" >}}
+{{< image path="/images/installation/light/network-02.svg" alt="Network" align="center" width="40%" mb="20px" border="false" shadow="false" >}}
 
 Network connection is needed by the OpenNebula Front-end Daemons to access, manage, and monitor the Hosts, and to transfer the Image files. It is highly recommended to use a dedicated network for this purpose.
 
@@ -297,7 +297,7 @@ Remember that this is only required in the Hosts, not in the Front-end. Also rem
 
 In default OpenNebula configuration, the local storage is used for storing Images and running Virtual Machines. This is enough for basic use and you don’t need to take any extra steps now unless you want to deploy an advanced storage solution.
 
-Follow the [Open Cloud Storage Setup]({{% relref "../../../product/cluster_configuration/storage_system/overview#storage" %}}) guide to learn how to use Ceph, NFS, LVM, etc.
+Follow the [Open Cloud Storage Setup]({{% relref "product/cluster_configuration/storage_system/overview#storage" %}}) guide to learn how to use Ceph, NFS, LVM, etc.
 
 <a id="kvm-addhost"></a>
 
@@ -305,7 +305,7 @@ Follow the [Open Cloud Storage Setup]({{% relref "../../../product/cluster_confi
 
 In this step, we’ll register the hypervisor node we have configured above into the OpenNebula Front-end, so that OpenNebula can launch Virtual Machines on it. This step is documented for Sunstone GUI and CLI but both accomplish the same. Select one of the two options only.
 
-Learn more in [Hosts and Clusters Management]({{% relref "../../../product/cluster_configuration/hosts_and_clusters/overview#hostsubsystem" %}}).
+Learn more in [Hosts and Clusters Management]({{% relref "product/cluster_configuration/hosts_and_clusters/overview#hostsubsystem" %}}).
 
 {{< alert title="Note" type="info" >}}
 If the Host turns to `err` state instead of `on`, check OpenNebula log `/var/log/one/oned.log`. The problem might be with connecting over SSH.{{< /alert >}} 
@@ -316,17 +316,15 @@ If the Host turns to `err` state instead of `on`, check OpenNebula log `/var/log
 {{% tab header="Sunstone"%}}
 ### Add Host with Sunstone
 
-Open Sunstone as documented [here]({{% relref "frontend_install#verify-frontend-section-sunstone" %}}). On the left side menu go to **Infrastructure -> Hosts**. Click on the `+` button.
+Open Sunstone as documented [here]({{% relref "frontend_install#verify-frontend-section-sunstone" %}}). On the left side menu go to **Infrastructure -> Hosts**. Click on the **+ Create Host** button, select **KVM** as the hypervisor then fill in the hostname, FQDN, or IP of the node in the `Hostname` field.
 
-{{< image path="/images/sunstone_select_create_host.png" alt="Sunstone create host" align="center" width="90%" mb="20px" >}}
-
-Then fill in the hostname, FQDN, or IP of the node in the `Hostname` field.
-
-{{< image path="/images/sunstone_create_host_dialog.png" alt="Sunstone create host dialog" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/installation/dark/sunstone_create_host_dialog_kvm.png"
+  path="/images/installation/light/sunstone_create_host_dialog_kvm.png"
+  alt="Create Host Dialog" align="center" width="90%" mb="20px"
+>}}
 
 Finally, return back to the **Hosts** list, and check that the Host has switched to `ON` status. It can take up to one minute. Click on the refresh button to check the status more frequently.
-
-{{< image path="/images/sunstone_list_hosts.png" alt="Sunstone list hosts" align="center" width="90%" mb="20px" >}}
 
 {{% /tab %}}
 

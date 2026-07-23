@@ -1,6 +1,6 @@
 ---
-title: "LVM SAN Datastore (EE)"
-linktitle: "LVM (EE)"
+title: "LVM SAN Datastore"
+linktitle: "LVM"
 date: "2025-02-17"
 description:
 categories:
@@ -9,7 +9,7 @@ tags:
 weight: "5"
 ---
 
-With LVM SAN Datastore (EE), both disks images and actual VM drives are stored as Logical Volumes
+With LVM SAN Datastore, both disks images and actual VM drives are stored as Logical Volumes
 (LVs) in the SAN storage. This allows for fast and efficient VM instantiation, as no data needs to
 be copied or moved.
 

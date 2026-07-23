@@ -18,16 +18,18 @@ In Sunstone you can quickly flavor a VM template by using an Operating System Pr
 
 ## Defining a Profile
 
-1. **Navigate to the profiles directory**
+1. **Navigate to the profiles directory**:
 
    By default found in `etc/one/fireedge/sunstone/profiles`.
-2. **Create a new YAML file**
+
+2. **Create a new YAML file**:
 
    Name your profile by defining a new `.yaml` file
 
    {{< alert title="Note" type="info" >}}
    The filename is used to identify the profile in Sunstone. The filename is sentence-cased and all `_` characters are displayed as spaces. For example, `windows_optimized.yaml` becomes `Windows Optimized`.{{< /alert >}}
-3. **Configure the profile**
+
+3. **Configure the profile**:
 
    Define the profile according to the [Operating System Profiles schema]({{% relref "#os-profile-schema" %}}).
 
@@ -57,7 +59,11 @@ In Sunstone you can quickly flavor a VM template by using an Operating System Pr
 
    The profile can then be saved and accessed in Sunstone from the first step in the VM Templates Create/Update dialog:
 
-   ![os_profile_selector](/images/os_profile_selector.png)
+    {{< image
+    pathDark="/images/workload/dark/os_profile_selector.png"
+    path="/images/workload/light/os_profile_selector.png"
+    alt="Windows BP create" align="center" width="90%" mb="20px"
+    >}}
 
 {{< alert title="Important" type="info" >}}
 Sunstone also ships with a `base.template` file (found in the default profiles directory), which includes examples for majority of the inputs for a VM template. This base template should only be used as a reference when creating new profiles and not directly used as-is.{{< /alert >}}
@@ -152,7 +158,11 @@ The `OS_PROFILE` value being referenced should match the one on disk exactly, ex
 
 Sunstone now sequentially loads each profile and applies them on top of each other. This means that if two fields modify the same values, e.g., `NAME`, the last profile to modify that field will be used.
 
-![chain_loaded_profiles](/images/os_profile_chain_loaded.png)
+{{< image
+  pathDark="/images/workload/dark/os_profile_chain_loaded.png"
+  path="/images/workload/light/os_profile_chain_loaded.png"
+  alt="Windows BP create" align="center" width="90%" mb="20px"
+>}}
 
 <a id="os-profile-schema"></a>
 

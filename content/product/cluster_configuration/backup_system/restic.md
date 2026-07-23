@@ -43,21 +43,21 @@ To set up the backup server perform the following steps:
 
 The following example showcases this setup using a dedicated 1.5T volume for backups:
 
-```default
-$ id oneadmin
-uid=9869(oneadmin) gid=9869(oneadmin) groups=9869(oneadmin)
+```shell
+id oneadmin
+ uid=9869(oneadmin) gid=9869(oneadmin) groups=9869(oneadmin)
 ```
 
-```default
-$ lsblk
-sdb                         8:16   0  1.5T  0 disk
-└─sdb1                      8:17   0  1.5T  0 part
-  └─vgBackup-lvBackup     253:0    0  1.5T  0 lvm  /var/lib/one/datastores
+```shell
+lsblk
+ sdb                         8:16   0  1.5T  0 disk
+ └─sdb1                      8:17   0  1.5T  0 part
+   └─vgBackup-lvBackup     253:0    0  1.5T  0 lvm  /var/lib/one/datastores
 ```
 
-```default
-$ ls -ld /var/lib/one/datastores/
-drwxrwxr-x 2 oneadmin oneadmin 4096 Sep  3 12:04 /var/lib/one/datastores/
+```shell
+ls -ld /var/lib/one/datastores/
+  drwxrwxr-x 2 oneadmin oneadmin 4096 Sep  3 12:04 /var/lib/one/datastores/
 ```
 
 ### S3 Backend
@@ -78,92 +78,96 @@ Create an OpenNebula Backup Datastore with the attributes required by the select
 
 For SFTP, create a datastore template with the backup server address. `RESTIC_BACKEND` can be omitted because SFTP is the default backend.
 
-```default
-$ cat ds_restic.txt
-NAME   = "RBackups"
-TYPE   = "BACKUP_DS"
-
-DS_MAD = "restic"
-TM_MAD = "-"
-
-RESTIC_BACKEND     = "SFTP"
-RESTIC_PASSWORD    = "opennebula"
-RESTIC_SFTP_SERVER = "192.168.1.8"
+```shell
+cat ds_restic.txt
+ NAME   = "RBackups"
+ TYPE   = "BACKUP_DS"
+ 
+ DS_MAD = "restic"
+ TM_MAD = "-"
+ 
+ RESTIC_BACKEND     = "SFTP"
+ RESTIC_PASSWORD    = "opennebula"
+ RESTIC_SFTP_SERVER = "192.168.1.8"
 ```
 
 *Note*: The `RESTIC_SFTP_SERVER` is the IP address of the backup server. It needs to be reachable from the Front-end and Hosts.
 
-```default
-$ onedatastore create ds_restic.txt
-ID: 100
+```shell
+onedatastore create ds_restic.txt
+ ID: 100
 ```
 
-You can also create the DS through Sunstone like any other datastore:
+You can also create the DS through Sunstone like any other datastore, go to **Storage -> Datastores** and select **Backup**, in the **Storage backend** menu select **Backup - Restic**:
 
-![restic_create](/images/backup_restic_create.png)
+{{< image
+  pathDark="/images/storage/dark/backup_restic_create.png"
+  path="/images/storage/light/backup_restic_create.png"
+  alt="Create Restic Backup" align="center" width="90%" mb="20px"
+>}}
 
 After some time, the datastore should be monitored:
 
-```default
-$ onedatastore list
-ID  NAME                                         SIZE AVA CLUSTERS IMAGES TYPE DS      TM      STAT
-100 RBackups                                     1.5T 91% 0             0 bck  restic  -       on
-  2 files                                       19.8G 84% 0             0 fil  fs      local   on
-  1 default                                     19.8G 84% 0             1 img  fs      local   on
-  0 system                                          - -   0             0 sys  -       local   on
+```shell
+onedatastore list
+ ID  NAME                                         SIZE AVA CLUSTERS IMAGES TYPE DS      TM      STAT
+ 100 RBackups                                     1.5T 91% 0             0 bck  restic  -       on
+   2 files                                       19.8G 84% 0             0 fil  fs      local   on
+   1 default                                     19.8G 84% 0             1 img  fs      local   on
+   0 system                                          - -   0             0 sys  -       local   on
 ```
 
 ### AWS S3 Backend
 
 For AWS S3, use `RESTIC_BACKEND="S3"`. The endpoint can be omitted, in which case it defaults to `s3.amazonaws.com`, and path-style access is normally not required.
 
-```default
-$ cat ds_restic_aws_s3.txt
-NAME   = "RBackups-AWS-S3"
-TYPE   = "BACKUP_DS"
-
-DS_MAD = "restic"
-TM_MAD = "-"
-
-RESTIC_BACKEND              = "S3"
-RESTIC_PASSWORD             = "opennebula"
-RESTIC_S3_BUCKET            = "opennebula-backups"
-RESTIC_S3_REGION            = "us-west-1"
-RESTIC_S3_ACCESS_KEY_ID     = "S3ACCESSKEYID"
-RESTIC_S3_SECRET_ACCESS_KEY = "S3SECRETACCESSKEY"
-TOTAL_MB                    = "512000"
+```shell
+cat ds_restic_aws_s3.txt
+ NAME   = "RBackups-AWS-S3"
+ TYPE   = "BACKUP_DS"
+ 
+ DS_MAD = "restic"
+ TM_MAD = "-"
+ 
+ RESTIC_BACKEND              = "S3"
+ RESTIC_PASSWORD             = "opennebula"
+ RESTIC_S3_BUCKET            = "opennebula-backups"
+ RESTIC_S3_REGION            = "us-west-1"
+ RESTIC_S3_ACCESS_KEY_ID     = "S3ACCESSKEYID"
+ RESTIC_S3_SECRET_ACCESS_KEY = "S3SECRETACCESSKEY"
+ TOTAL_MB                    = "512000"
 ```
 
-```default
-$ onedatastore create ds_restic_aws_s3.txt
-ID: 101
+```shell
+onedatastore create ds_restic_aws_s3.txt
+ ID: 101
 ```
 
 ### S3-Compatible Backend
 
 For non-AWS S3-compatible backends, create a datastore template with `RESTIC_BACKEND="S3"` and set the S3 endpoint explicitly. The endpoint can include the scheme; for plain HTTP endpoints, specify it explicitly, for example `http://s3-storage:8080`. Many S3-compatible backends require path-style access. In that case set `RESTIC_S3_FORCE_PATH_STYLE="YES"`.
 
-```default
-$ cat ds_restic_s3.txt
-NAME   = "RBackups-S3"
-TYPE   = "BACKUP_DS"
-
-DS_MAD = "restic"
-TM_MAD = "-"
-
-RESTIC_BACKEND              = "S3"
-RESTIC_PASSWORD             = "opennebula"
-RESTIC_S3_ENDPOINT          = "http://s3-storage:8080"
-RESTIC_S3_BUCKET            = "opennebula-backups"
-RESTIC_S3_ACCESS_KEY_ID     = "S3ACCESSKEYID"
-RESTIC_S3_SECRET_ACCESS_KEY = "S3SECRETACCESSKEY"
-RESTIC_S3_FORCE_PATH_STYLE  = "YES"
-TOTAL_MB                    = "512000"
+```shell
+cat ds_restic_s3.txt
+ NAME   = "RBackups-S3"
+ TYPE   = "BACKUP_DS"
+ 
+ DS_MAD = "restic"
+ TM_MAD = "-"
+ 
+ RESTIC_BACKEND              = "S3"
+ RESTIC_PASSWORD             = "opennebula"
+ RESTIC_S3_ENDPOINT          = "http://s3-storage:8080"
+ RESTIC_S3_BUCKET            = "opennebula-backups"
+ RESTIC_S3_ACCESS_KEY_ID     = "S3ACCESSKEYID"
+ RESTIC_S3_SECRET_ACCESS_KEY = "S3SECRETACCESSKEY"
+ RESTIC_S3_FORCE_PATH_STYLE  = "YES"
+ TOTAL_MB                    = "512000"
 ```
 
-```default
-$ onedatastore create ds_restic_s3.txt
-ID: 102
+```shell
+onedatastore create ds_restic_s3.txt
+ ID: 102
 ```
 
 For S3 datastores, OpenNebula does not discover the bucket quota automatically. The total capacity is taken from the `TOTAL_MB` datastore attribute. The examples above set `TOTAL_MB="512000"` to configure a custom `500G` capacity. If `TOTAL_MB` is omitted, the driver uses `1048576` MB (`1024G`) as the default capacity. Used capacity is computed from backup images registered in OpenNebula.
@@ -195,24 +199,24 @@ To recover from this error, check there are no ongoing operations and execute `r
 
 Backup operations may incur in high I/O or CPU demands. This will add noise to the VMs running in the hypervisor. You can control resource usage of the backup operations by:
 
-> * Lowering the priority of the associated processes. Backup commands are run under a given ionice priority (best-effort, class 2 scheduler); and a given nice.
-> * Confining the associated processes in a cgroup. OpenNebula will create a systemd slice for each Backup Datastore so the backup commands run with a limited number or read/write IOPS and CPU Quota.
+* Lowering the priority of the associated processes. Backup commands are run under a given ionice priority (best-effort, class 2 scheduler); and a given nice.
+* Confining the associated processes in a cgroup. OpenNebula will create a systemd slice for each Backup Datastore so the backup commands run with a limited number or read/write IOPS and CPU Quota.
 
 Note that for the latter, you need to delegate the `cpu` and `io` cgroup controllers to the `oneadmin` user. This way OpenNebula can set `CPUQuota`, `IOReadIOPSMax` and `IOWriteIOPSMax`.
 
 To delegate the controllers you need to add the following file for `oneadmin` account (id 9869) in **all the Hosts** (note that you’d probably need to create the user service folder):
 
-```default
-$ cat /etc/systemd/system/user@9869.service.d/delegate.conf
-[Service]
-Delegate=cpu cpuset io
+```shell
+cat /etc/systemd/system/user@9869.service.d/delegate.conf
+ [Service]
+ Delegate=cpu cpuset io
 ```
 
 After that, reboot the hypervisor and double check that the setting is correct (you need to login as `oneadmin`):
 
-```default
-$ cat /sys/fs/cgroup/user.slice/user-9869.slice/cgroup.controllers
-cpuset cpu io memory pids
+```shell
+cat /sys/fs/cgroup/user.slice/user-9869.slice/cgroup.controllers
+ cpuset cpu io memory pids
 ```
 
 ### Temporary Backup Path

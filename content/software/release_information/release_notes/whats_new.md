@@ -129,7 +129,7 @@ Additionally, the following functionalities are present that were not in OpenNeb
 * Fix `opennebula-exporter` crash when monitoring diskless VMs [#7703](https://github.com/OpenNebula/one/issues/7703).
 * Fix PCI attach to prevent bus address collisions [#7695](https://github.com/OpenNebula/one/issues/7695).
 * Fix lack of VLAN tags clearance in OVS when removing them from Virtual Network [#7707](https://github.com/OpenNebula/one/issues/7707).
-* Fix LVM (EE) post-reboot activation silently skipping VM disks [#7720](https://github.com/OpenNebula/one/issues/7720).
+* Fix LVM post-reboot activation silently skipping VM disks [#7720](https://github.com/OpenNebula/one/issues/7720).
 * Fix OVS port QinQ vlan mode being overwritten with changes introduced in[#7657](https://github.com/OpenNebula/one/issues/7657).
 * Fix MAC address range parsing for invalid MAD address ranges [#7233](https://github.com/OpenNebula/one/issues/7233).
 * Fix file-based image cloning between two datastores with BRIDGE_LIST [#7762](https://github.com/OpenNebula/one/issues/7762).

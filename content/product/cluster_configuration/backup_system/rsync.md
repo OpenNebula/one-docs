@@ -32,30 +32,34 @@ Perform the following steps:
 
 Once the rsync server is prepared to receive backup files from all of the nodes, we just need to create a datastore detailing the user and Host:
 
-```default
-$ cat ds_rsync.txt
-NAME   = "rsync Backups"
-TYPE   = "BACKUP_DS"
-
-DS_MAD = "rsync"
-TM_MAD = "-"
-
-RSYNC_USER = "oneadmin"
-RSYNC_HOST = "192.168.100.1"
+```shell
+cat ds_rsync.txt
+ NAME   = "rsync Backups"
+ TYPE   = "BACKUP_DS"
+ 
+ DS_MAD = "rsync"
+ TM_MAD = "-"
+ 
+ RSYNC_USER = "oneadmin"
+ RSYNC_HOST = "192.168.100.1"
 ```
 
 *Note*: Transferring the backups over a separate network can improve performance and availability of the rest of the cloud.
 
 With that file in place we just need to create the datastore from that:
 
-```default
-$ onedatastore create ds_rsync.txt
-ID: 100
+```shell
+onedatastore create ds_rsync.txt
+ ID: 100
 ```
 
 After applying this configuration and verifying that all of the Hosts can access RSYNC_HOST using the RSYNC_USER, you should be able to start utilizing the rsync backup system.  You can also create the DS through Sunstone like any other datastore:
 
-![rsync_create](/images/backup_rsync_create.png)
+{{< image
+  pathDark="/images/storage/dark/backup_rsync_create.png"
+  path="/images/storage/light/backup_rsync_create.png"
+  alt="Create Rsync Backup" align="center" width="90%" mb="20px"
+>}}
 
 ## Other Configurations
 
@@ -63,24 +67,24 @@ After applying this configuration and verifying that all of the Hosts can access
 
 Backup operations may incur in high I/O or CPU demands. This will add noise to the VMs running in the hypervisor. You can control resource usage of the backup operations by:
 
-> * Lowering the priority of the associated processes. Backup commands are run under a given ionice priority (best-effort, class 2 scheduler); and a given nice.
-> * Confining the associated processes in a cgroup. OpenNebula will create a systemd slice for each Backup Datastore so the backup commands run with a limited number or read/write IOPS and CPU Quota.
+* Lowering the priority of the associated processes. Backup commands are run under a given ionice priority (best-effort, class 2 scheduler); and a given nice.
+* Confining the associated processes in a cgroup. OpenNebula will create a systemd slice for each Backup Datastore so the backup commands run with a limited number or read/write IOPS and CPU Quota.
 
 Note that for the latter, you need to delegate the `cpu` and `io` cgroup controllers to the `oneadmin` user. This way OpenNebula can set `CPUQuota`, `IOReadIOPSMax` and `IOWriteIOPSMax`.
 
 To delegate the controllers you need to add the following file for `oneadmin` account (id 9869) in **all the Hosts** (note that you’d probably need to create the user service folder):
 
-```default
-$ cat /etc/systemd/system/user@9869.service.d/delegate.conf
-[Service]
-Delegate=cpu cpuset io
+```shell
+cat /etc/systemd/system/user@9869.service.d/delegate.conf
+ [Service]
+ Delegate=cpu cpuset io
 ```
 
 After that, reboot the hypervisor and double check that the setting is correct (you need to login as `oneadmin`):
 
-```default
-$ cat /sys/fs/cgroup/user.slice/user-9869.slice/cgroup.controllers
-cpuset cpu io memory pids
+```shell
+cat /sys/fs/cgroup/user.slice/user-9869.slice/cgroup.controllers
+ cpuset cpu io memory pids
 ```
 
 ### Temporary Backup Path
