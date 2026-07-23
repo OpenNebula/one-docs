@@ -164,7 +164,7 @@ gpgcheck=1
 repo_gpgcheck=1
 EOT
 
-zypper ar -f https://download.opensuse.org/repositories/science/openSUSE_Leap_16.0/ science
+zypper ar -f https://download.opensuse.org/repositories/science/16.0/ science
 zypper refresh
 ```
 
