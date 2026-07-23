@@ -114,8 +114,16 @@ Note that for using the newly created Virtual Network, the user needs to define 
 
 You can also manage your Virtual Networks Templates using [Sunstone UI Interface]({{% relref "../../control_plane_configuration/graphical_user_interface/fireedge_sunstone#fireedge-sunstone" %}}). Select the **Networks Template** tab to create and operate your Virtual Networks Templates in a user-friendly way.
 
-![image0](/images/sunstone_vnetstemplate.png)
+{{< image
+  pathDark="/images/virtual_networks/templates/dark/vnet_template_dark.png"
+  path="/images/virtual_networks/templates/light/vnet_template_light.png"
+  alt="Sunstone vnets" align="center" width="90%" mb="20px"
+>}}
 
 - Create new Virtual Networks Template
 
-![image1](/images/sunstone_vnetstemplate_create.png)
+{{< image
+  pathDark="/images/virtual_networks/templates/dark/vnet_template_create_dark.png"
+  path="/images/virtual_networks/templates/light/vnet_template_create_light.png"
+  alt="Sunstone vnets" align="center" width="90%" mb="20px"
+>}}

@@ -53,7 +53,11 @@ For each Virtual Network, define the relevant options:
 
 Once ready, click the **Create** button to finish. OpenNebula automatically creates the Virtual Router and the corresponding Virtual Machines.
 
-{{< image path="/images/sunstone_create_vrouter.png" alt="Sunstone create Vrouter" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/virtual_networks/virtual_router/dark/create_vr_template.png"
+  path="/images/virtual_networks/virtual_router/light/create_vr_template.png"
+  alt="Sunstone create security group" align="center" width="90%" mb="20px"
+>}}
 
 {{% /tab %}}
 
@@ -96,7 +100,11 @@ The Virtual Networks connected to the VR machines can be modified with the attac
 
 In the [Sunstone GUI]({{% relref "../../control_plane_configuration/graphical_user_interface/fireedge_sunstone#fireedge-sunstone" %}}) the actions can be found in the Virtual Router’s main information panel, in the networks table. The options to add a new Virtual Network are the same as for the creation wizard, see previous section.
 
-{{< image path="/images/sunstone_vrouter.png" alt="Sunstone create Vrouter" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/virtual_networks/virtual_router/dark/virtual_router_dark.png"
+  path="/images/virtual_networks/virtual_router/light/virtual_router_light.png"
+  alt="Sunstone virtual routers" align="center" width="90%" mb="20px"
+>}}
 
 The `onevrouter nic-attach` command takes a file containing a single NIC attribute. Alternatively, you can provide the new Virtual Network settings with command options, see `onevrouter nic-attach -h` for more information.
 

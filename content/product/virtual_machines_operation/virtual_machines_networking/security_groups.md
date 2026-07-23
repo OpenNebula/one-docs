@@ -68,7 +68,11 @@ ID: 102
 {{< alert title="Tip" type="tip" >}}
 This guide focuses on the CLI command `onesecgroup` but you can also manage Security Groups using the [Sunstone GUI interface]({{% relref "../../control_plane_configuration/graphical_user_interface/fireedge_sunstone#fireedge-sunstone" %}}). Select the **Security Group** tab to create and manage groups in a user-friendly way.{{< /alert >}} 
 
-![sg_wizard_create](/images/sg_wizard_create.png)
+{{< image
+  pathDark="/images/virtual_networks/security_groups/dark/create_security_group_dark.png"
+  path="/images/virtual_networks/security_groups/light/create_security_group_light.png"
+  alt="Sunstone create security group" align="center" width="90%" mb="20px"
+>}}
 
 ## Using a Security Group
 
@@ -82,7 +86,11 @@ SECURITY_GROUPS = "100, 102, 110"
 
 When a Virtual Machine is instantiated, the rules are copied to the VM resource and can be seen in the CLI and Sunstone.
 
-![sg_vm_view](/images/sg_vm_view.png)
+{{< image
+  pathDark="/images/virtual_networks/security_groups/dark/use_security_group_dark.png"
+  path="/images/virtual_networks/security_groups/light/use_security_group_light.png"
+  alt="Sunstone security group" align="center" width="90%" mb="20px"
+>}}
 
 ### Advanced Usage
 
