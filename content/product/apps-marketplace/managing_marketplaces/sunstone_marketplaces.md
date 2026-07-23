@@ -25,23 +25,40 @@ The [Sunstone web UI]({{% relref "../../../product/control_plane_configuration/g
 {{< alert title="Note" type="info" >}}
 Only [OpenNebula Systems]({{% relref "../public_marketplaces/opennebula#market-one" %}}), [LinuxContainers]({{% relref "../public_marketplaces/lxc#market-linux-container" %}}), [HTTP]({{% relref "../private_marketplaces/market_http#market-http" %}}) and [S3]({{% relref "../private_marketplaces/market_s3#market-s3" %}}) Marketplaces can be created with Sunstone.{{< /alert >}} 
 
-![marketplace_dashboard](/images/marketplaces/dashboard.png)
+{{< image
+  pathDark="/images/marketplaces/dark/marketplace_dashboard_dark.png"
+  path="images/marketplaces/light/marketplace_dashboard_light.png"
+  alt="Marketplace dashboard" align="center" width="90%" mb="20px"
+>}}
 
 <a id="sunstone-marketplaces-create"></a>
 
 ## Create a Marketplace
 
-1. Click on the create button:
+1. Click on the **+ Create Marketplace** button:
 
-![marketplace_create1](/images/marketplaces/create_1.png)
+{{< image
+  pathDark="/images/marketplaces/dark/marketplace_create_dark.png"
+  path="images/marketplaces/light/marketplace_create_light.png"
+  alt="Marketplace create" align="center" width="90%" mb="20px"
+>}}
 
 2. Fill in the name, description, and type of the Marketplace:
 
-![marketplace_create2](/images/marketplaces/create_2.png)
+{{< image
+  pathDark="/images/marketplaces/dark/marketplace_create_step1_dark.png"
+  path="images/marketplaces/light/marketplace_create_step1_light.png"
+  alt="Marketplace create 1" align="center" width="90%" mb="20px"
+>}}
+
 
 3. Fill in the fields of the Marketplace. Depending on the Marketplace type, these fields are different. Please see [Public]({{% relref "../public_marketplaces/index#public-marketplaces" %}}) and [Private]({{% relref "../private_marketplaces/index#private-marketplaces" %}}) Marketplaces documentation:
 
-![marketplace_create3](/images/marketplaces/create_3.png)
+{{< image
+  pathDark="/images/marketplaces/dark/marketplace_create_step2_dark.png"
+  path="images/marketplaces/light/marketplace_create_step2_light.png"
+  alt="Marketplace create 2" align="center" width="90%" mb="20px"
+>}}
 
 <a id="sunstone-marketplaces-update"></a>
 
@@ -49,7 +66,11 @@ Only [OpenNebula Systems]({{% relref "../public_marketplaces/opennebula#market-o
 
 Select a Marketplace and click on the update button:
 
-![marketplace_update](/images/marketplaces/update.png)
+{{< image
+  pathDark="/images/marketplaces/dark/marketplace_update_dark.png"
+  path="images/marketplaces/light/marketplace_update_light.png"
+  alt="Marketplace update" align="center" width="90%" mb="20px"
+>}}
 
 <a id="sunstone-marketplaces-delete"></a>
 
@@ -57,7 +78,11 @@ Select a Marketplace and click on the update button:
 
 Select a Marketplace and click on the delete button:
 
-![marketplace_delete](/images/marketplaces/delete.png)
+{{< image
+  pathDark="/images/marketplaces/dark/marketplace_delete_dark.png"
+  path="images/marketplaces/light/marketplace_delete_light.png"
+  alt="Marketplace delete" align="center" width="90%" mb="20px"
+>}}
 
 <a id="sunstone-marketplaces-enable"></a>
 
@@ -65,7 +90,11 @@ Select a Marketplace and click on the delete button:
 
 Select a Marketplace and click on the enable/disable menu:
 
-![marketplace_enable](/images/marketplaces/enable.png)
+{{< image
+  pathDark="/images/marketplaces/dark/marketplace_disable_dark.png"
+  path="images/marketplaces/light/marketplace_disable_light.png"
+  alt="Marketplace disable" align="center" width="90%" mb="20px"
+>}}
 
 <a id="sunstone-marketplaces-change"></a>
 
@@ -73,7 +102,19 @@ Select a Marketplace and click on the enable/disable menu:
 
 Select a Marketplace and click on the change owner/change group menu:
 
-![marketplace_change](/images/marketplaces/change.png)
+{{< image
+  pathDark="/images/marketplaces/dark/marketplace_change_owner1_dark.png"
+  path="images/marketplaces/light/marketplace_change_owner1_light.png"
+  alt="Marketplace owner" align="center" width="90%" mb="20px"
+>}}
+
+Select the new owner and press **Continue**:
+
+{{< image
+  pathDark="/images/marketplaces/dark/marketplace_change_owner2_dark.png"
+  path="images/marketplaces/light/marketplace_change_owner2_light.png"
+  alt="Marketplace owner" align="center" width="90%" mb="20px"
+>}}
 
 <a id="sunstone-marketplaces-details"></a>
 
@@ -81,7 +122,11 @@ Select a Marketplace and click on the change owner/change group menu:
 
 Select a Marketplace and click on Info tab to see its details:
 
-![marketplace_details](/images/marketplaces/details.png)
+{{< image
+  pathDark="/images/marketplaces/dark/marketplace_info_dark.png"
+  path="images/marketplaces/light/marketplace_info_light.png"
+  alt="Marketplace info" align="center" width="90%" mb="20px"
+>}}
 
 <a id="sunstone-marketplaces-appliances"></a>
 
@@ -89,4 +134,8 @@ Select a Marketplace and click on Info tab to see its details:
 
 Select a Marketplace and click on Apps tab to see the Appliances available:
 
-![marketplace_apps](/images/marketplaces/apps.png)
+{{< image
+  pathDark="/images/marketplaces/dark/marketplace_appliances_dark.png"
+  path="/images/marketplaces/light/marketplace_appliances_light.png"
+  alt="Marketplace appliances" align="center" width="90%" mb="20px"
+>}}

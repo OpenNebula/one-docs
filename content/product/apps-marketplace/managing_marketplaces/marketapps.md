@@ -244,4 +244,8 @@ Please take a look at the CLI reference to see how to use these actions. These o
 
 You can also import and export Marketplace Appliances using [Sunstone]({{% relref "../../../product/operation_references/opennebula_services_configuration/fireedge#fireedge" %}}). Select the Storage > Apps tab and there you will be able see the available Appliances in a user-friendly way.
 
-![image](/images/show_marketplaceapp.png)
+{{< image
+  pathDark="/images/marketplaces/dark/marketplace_app_list_dark.png"
+  path="/images/marketplaces/light/marketplace_app_list_light.png"
+  alt="Maketplace Apps List" align="center" width="90%" mb="20px"
+>}}
