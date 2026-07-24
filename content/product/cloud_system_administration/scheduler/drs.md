@@ -28,13 +28,30 @@ A VM might be migrated to another Host or another datastore, but can't change bo
 
 ## Configuration and Usage
 
-**To enable OneDRS**: In Sunstone, go to **Ifrastructure -> Clusters**, select the relevant Cluster then click **Enable OneDRS** in the **OneDRS** tab. Alternatively, in the Cluster template set the `ONE_DRS` configuration attribute.
+**To enable OneDRS**: In Sunstone, go to **Infrastructure -> Clusters**, select the relevant Cluster then click **Enable OneDRS** in the **OneDRS** tab. Alternatively, in the Cluster template set the `ONE_DRS` configuration attribute.
 
 Configuring OneDRS for the Cluster requires setting the following options:
 
+- **Automation**: Determines how OneDRS is used in a workflow.
 - **Policies**: Defines how workloads are distributed across Hosts and datastores.
 - **Usage Metrics and Predictions**: Specifies which resource metrics (CPU, Memory, Network, Disk) to consider for balancing.
-- **Migration Threshold**: Limits the number of migrations generated in an optimization cycle.
+- **Migration Thresholds**: Limits the number of migrations generated in an optimization cycle.
+
+### Automation Levels
+
+Administrators can choose between different automation levels:
+
+- **Manual**: Recommendations are displayed, but migrations must be manually approved.
+- **Partial**: Migrations are periodically generated and require approval before execution.
+- **Full**: Migrations are generated and applied automatically based on recommendations.
+
+The following is an example of how manual automation appears in a Cluster template:
+
+```
+ONE_DRS=[
+  AUTOMATION="manual",
+  ... ]
+```
 
 ### Policy Configuration
 
@@ -43,9 +60,17 @@ OneDRS migrates VMs according to the defined policy:
 - **Packing**: Minimizes the number of active Hosts to save energy or prepare for maintenance.
 - **Load Balancing**: Distributes VMs across available Hosts or datastores to prevent resource contention.
 
-#### Load Balancing Objectives
+The following is an example how the Load Balancing policy is specified within a Cluster template:
 
-The load balancing goal can combine multiple performance indicators:
+```
+ONE_DRS=[
+  POLICY="balance",
+  ... ]
+```
+
+### Load Balancing Objectives
+
+The Load Balancing policy can combine multiple performance indicators:
 
 - **CPU Usage**: Load distribution based on actual CPU utilization of the VM.
 - **CPU Capacity**: Allocation based on requested CPU (the VM template attribute).
@@ -53,31 +78,70 @@ The load balancing goal can combine multiple performance indicators:
 - **Disk I/O**: Consideration of read/write operations.
 - **Network Traffic**: Optimization based on network throughput.
 
-For example, you can balance CPU and disk usage equally, setting CPU and disk-associated weights to 50% each.
+For example, you can balance CPU and disk usage equally, setting CPU and disk-associated weights to 50% each:
 
-#### Predictive DRS
+```
+ONE_DRS=[
+  CPU_USAGE_WEIGHT="0.5",
+  CPU_WEIGHT="0",
+  DISK_WEIGHT="0.5",
+  MEMORY_WEIGHT="0",
+  NET_WEIGHT="0",
+  ... ]
+```
+
+### Predictive DRS
 
 OneDRS allows balancing based on monitored or predicted values. A **prediction weight** between `0` and `1` determines the influence of forecasts:
 
 - `0`: Only monitored values are used.
 - `1`: Only forecasted values are used.
-- Between `0` and `1` a linear combination of both is used.
+- Between `0` and `1`: Linear combination of both is used.
 
 By default, DRS uses only monitored values.
 
-#### Migration Threshold Configuration
+It might also be specified within a cluster template, for example:
 
-Since migrations add overhead, administrators can set a **migration threshold** to limit the number of migrations per optimization cycle. You need to balance this setting: an aggressive threshold may negatively impact performance, while a conservative approach could overlook opportunities for improving the performance of the Cluster.
+```
+ONE_DRS=[
+  PREDICTIVE="0",
+  ... ]
+```
 
-By default, the number of migrations is not limited (i.e. the migration threshold is `-1`).
+### Migration Threshold Configuration
 
-#### Automation Levels
+Since migrations add overhead, administrators can set **migration thresholds** to limit the number of migrations per optimization cycle. You need to balance this setting: an aggressive threshold may negatively impact performance, while a conservative approach could overlook opportunities for improving the performance of the Cluster.
 
-Administrators can choose between different automation levels:
+There are three values related to migration thresholds to set:
 
-- **Manual**: Recommendations are displayed, but migrations must be manually approved.
-- **Partial**: Migrations are periodically generated and require approval before execution.
-- **Full**: Migrations are generated and applied automatically based on recommendations.
+- **Migration Threshold**: The maximum combined number of VM migrations allowed between Hosts and datastores. By default, this number is not limited (i.e. the migration threshold is `-1`).
+- **Host Migration Threshold**: The maximum number of VM migrations allowed between Hosts. By default, this number is not limited (i.e. the migration threshold is `-1`).
+- **Datastore Migration Threshold**: The maximum number of VM migrations allowed between datastores. By default, this number is `0`, which means that VM migrations between datastores are not allowed. For unlimited migrations, the threshold should be `-1`.
+
+The following is an example of how migration thresholds can be defined in a Cluster template, if a user wants to allow 2 VM migrations between datastores, 3 VM migrations between Hosts, but only 4 migrations in total:
+
+```
+ONE_DRS=[
+  DS_MIGRATION_THRESHOLD="2",
+  HOST_MIGRATION_THRESHOLD="3",
+  MIGRATION_THRESHOLD="4",
+  ... ]
+```
+
+Each setting creates an additional constraint and all constraints must be obeyed.
+
+### Storage DRS
+
+In addition to VM migrations between Hosts, DRS allows migrations between datastores. Storage migrations might be used to further improve the workload distribution across a Cluster. They are potentially effective for any policy or weight combination, because a storage migration can remove a datastore-capacity constraint that otherwise prevents a beneficial Host placement. Therefore, optimizing the workload using any policy or weight might include migrations between datastores.
+
+The main limitation is the fact that a single VM can't be migrated to another Host and another datastore during the same optimization cycle.
+
+By default, storage migrations are _disabled_ in OneDRS, by setting the datastore migration threshold to `0`. To enable them, either set this value in Sunstone, the Cluster template, or the configuration file to:
+
+- A positive integer to impose a limit
+- "Unlimited" (Sunstone) or `-1` (template and configuration) to avoid limitations
+
+Note that even when storage migrations are disabled, a user might still be able to balance disk I/O by performing Host migrations, possibly with differing degrees of effectiveness.
 
 ## Initial Placement
 
@@ -98,7 +162,7 @@ When using OneDRS for placement, the following differences from workload optimiz
 - Predictive DRS is **not applicable** (forecasts are unavailable for pending VMs).
 - Migration threshold settings **do not apply**.
 
-## OneDRS Configuration
+## OneDRS Configuration File
 
 The main DRS configuration file is `/etc/one/schedulers/one_drs.conf`. This file defines default behavior, which can be overridden per Cluster. The following options can be defined:
 
@@ -111,7 +175,7 @@ The main DRS configuration file is `/etc/one/schedulers/one_drs.conf`. This file
 
 ### Solver Configuration
 
-OneDRS uses the [**PuLP** library](https://pypi.org/project/PuLP/) for ILP solvers, supporting:
+OneDRS uses the [**PuLP** library](https://pypi.org/project/PuLP/) for ILP/MILP solvers, supporting multiple solvers such as:
 
 - **CBC Solver** (default)
 - **GLPK**
@@ -150,15 +214,17 @@ PLACE:
 
 ### Migration Configuration
 
-Migration configuration options are relevant only for workload optimization.
+Migration configuration options are relevant only for workload optimization, and can contain the same settings as the Cluster template:
 
-`MIGRATION_THRESHOLD` limits the number of migrations per cycle.
+- `MIGRATION_THRESHOLD`: The maximum combined number of VM migrations allowed between Hosts and datastores within an optimization cycle
+- `HOST_MIGRATION_THRESHOLD`: The maximum number of VM migrations allowed between Hosts
+- `DS_MIGRATION_THRESHOLD`: The maximum number of VM migrations allowed between datastores
 
-`PRIORITIZE_STORAGE_MIGRATIONS` decides if storage migrations will be prioritized over host migrations (value `"YES"`), when they bring the same improvement with respect to the selected policy.
+Another option is `PRIORITIZE_STORAGE_MIGRATIONS`. It decides if storage migrations will be prioritized over Host migrations (value `"YES"`), when they bring the same improvement with respect to the selected policy.
 
 ### Complete Configuration Example
 
-The following shows a complete configuration file for the OneDRS scheduler:
+The following is a complete configuration file example for the OneDRS scheduler:
 
 ```yaml
 DEFAULT_SCHED:
@@ -171,6 +237,8 @@ PLACE:
 OPTIMIZE:
   POLICY: "BALANCE"
   MIGRATION_THRESHOLD: 10
+  HOST_MIGRATION_THRESHOLD: -1
+  DS_MIGRATION_THRESHOLD: 2
   PRIORITIZE_STORAGE_MIGRATIONS: "YES"
   WEIGHTS:
     CPU_USAGE: 0.2
