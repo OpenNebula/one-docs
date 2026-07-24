@@ -351,12 +351,18 @@ Wild VMs’ support and limitations may differ depending on the virtualization d
 
 ## Using Sunstone to Manage Hosts
 
-You can also manage your Hosts using [Sunstone UI Interface]({{% relref "../../control_plane_configuration/graphical_user_interface/fireedge_sunstone#fireedge-sunstone" %}}). Select the Host tab and there you will be able to create, enable, disable, delete, and see information about your Hosts in a user-friendly way.
+You can also manage your Hosts using [Sunstone UI Interface]({{% relref "../../control_plane_configuration/graphical_user_interface/fireedge_sunstone#fireedge-sunstone" %}}). Select **Infrastructure > Hosts** to create, enable, disable, delete, and see information about your Hosts in a user-friendly way.
 
-{{< image path="/images/hosts_and_clusters/hosts_fireedge.png" alt="Sunstone login" align="center" width="90%" mb="20px"
+{{< image
+  pathDark="/images/host/dark/host_tab.png"
+  path="/images/host/light/host_tab.png"
+  alt="Sunstone Host tab" align="center" width="90%" mb="20px"
 >}}
 
-- Create new Hosts:
+Click **Create Host** and complete the wizard to create the host.
 
-{{< image path="/images/hosts_and_clusters/hosts_create.png" alt="Sunstone login" align="center" width="90%" mb="20px"
+{{< image
+  pathDark="/images/host/dark/host_create.png"
+  path="/images/host/light/host_create.png"
+  alt="Sunstone Host create" align="center" width="90%" mb="20px"
 >}}

@@ -247,11 +247,19 @@ Note that OpenNebula will only deploy the VM in a Host with the available PCI de
 
 In Sunstone the information is displayed in the **PCI** tab of a Host:
 
-{{< image path="/images/sunstone_host_pci.png" alt="Sunstone PCI Passthrough" align="center" width="90%" mb="20px">}}
+{{< image
+  pathDark="/images/host/dark/host_pci.png"
+  path="/images/host/light/host_pci.png"
+  alt="Sunstone PCI Passthrough" align="center" width="90%" mb="20px"
+>}}
 
 To add a PCI device to a template, select the **PCI Devices** tab when you are creating a Virtual Machine template:
 
-{{< image path="/images/sunstone_template_pci.png" alt="Sunstone PCI Devices" align="center" width="90%" mb="20px">}}
+{{< image
+  pathDark="/images/host/dark/host_vm_pci.png"
+  path="/images/host/light/host_vm_pci.png"
+  alt="Sunstone PCI Devices" align="center" width="90%" mb="20px"
+>}}
 
 {{% /tab %}}
 
@@ -346,7 +354,11 @@ In the **Network** tab, under **Advanced options**, the hardware profile of the 
 
 Use the rest of the dialog as usual by selecting a network from the table.
 
-{{< image path="/images/sunstone_nic_passthrough.png" alt="Sunstone PCI Passthrough" align="center" width="90%" mb="20px">}}
+{{< image
+  pathDark="/images/host/dark/host_vm_nic_passthrough.png"
+  path="/images/host/light/host_vm_nic_passthrough.png"
+  alt="Sunstone PCI Passthrough" align="center" width="90%" mb="20px"
+>}}
 
 {{% /tab %}}
 

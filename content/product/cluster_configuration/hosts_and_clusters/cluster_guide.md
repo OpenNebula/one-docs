@@ -137,16 +137,26 @@ The [Sunstone UI interface]({{% relref "../../control_plane_configuration/graphi
 
 - Create new Clusters selecting the resources you want to include in this Cluster.
 
-{{< image path="/images/hosts_and_clusters/sunstone_cluster_create.png" alt="Sunstone login" align="center" width="90%" mb="20px"
+{{< image
+  pathDark="/images/cluster/dark/cluster_create.png"
+  path="/images/cluster/light/cluster_create.png"
+  alt="Sunstone Cluster create" align="center" width="90%" mb="20px"
 >}}
 
 - See the list of current Clusters, from which you can update or delete existing ones.
 
-{{< image path="/images/hosts_and_clusters/sunstone_cluster_dashboard.png" alt="Sunstone login" align="center" width="90%" mb="20px"
+{{< image
+  pathDark="/images/cluster/dark/cluster_tab.png"
+  path="/images/cluster/light/cluster_tab.png"
+  alt="Sunstone Cluster tab" align="center" width="90%" mb="20px"
 >}}
-- See Cluster details and update overcommitment.
 
-{{< image path="/images/hosts_and_clusters/sunstone_cluster_details.png" alt="Sunstone login" align="center" width="90%" mb="20px"
+- See cluster details and update overcommitment.
+
+{{< image
+  pathDark="/images/cluster/dark/cluster_details.png"
+  path="/images/cluster/light/cluster_details.png"
+  alt="Sunstone Cluster details" align="center" width="90%" mb="20px"
 >}}
 
 ## Enhanced VM Compatibility (EVC)
@@ -185,8 +195,7 @@ The exact CPU model string depends on the hypervisor's supported CPU map. You ca
 onehost show <host-id> -j
 ```
 
-Make sure to select a cpu model available in all Hosts in the Cluster, otherwise you may fail to deploy VMs on unsupported Hosts. 
-
+Make sure to select a cpu model available in all hosts in the cluster, otherwise you may fail to deploy VMs on unsupported hosts.
 
 3. To revert or remove EVC, update the Cluster template to remove the `EVC_MODE` attribute (for example by setting it to an empty string or re-applying a template without the attribute).
 
@@ -198,10 +207,16 @@ The Fireedge / Sunstone web UI provides a convenient way to enable and change EV
 
 2. Click the Update button and go to the Select Hosts tabs, there you will see the EVC Mode section. To enable EVC, choose a model from the droplist. Afterwards you can click Finish.
 
-{{< image path="/images/hosts_and_clusters/sunstone_cluster_evc_update.png" alt="Update cluster EVC mode" align="center" width="90%" mb="20px"
+{{< image
+  pathDark="/images/cluster/dark/cluster_evc.png"
+  path="/images/cluster/light/cluster_evc.png"
+  alt="Sunstone EVC tab" align="center" width="90%" mb="20px"
 >}}
 
 3. Once the EVC mode is set, you can see it listed in the Cluster attributes the same way as if the CLI had been used.
 
-{{< image path="/images/hosts_and_clusters/sunstone_cluster_evc_attributes.png" alt="EVC set in cluster attributes" align="center" width="90%" mb="20px"
+{{< image
+  pathDark="/images/cluster/dark/cluster_evc_details.png"
+  path="/images/cluster/light/cluster_evc_details.png"
+  alt="Sunstone EVC details" align="center" width="90%" mb="20px"
 >}}
