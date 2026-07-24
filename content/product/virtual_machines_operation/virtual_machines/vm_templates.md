@@ -36,7 +36,7 @@ VM Templates are stored in the system and can be easily browsed and used to inst
 
 Defines the basic attributes of the VM including its NAME, amount of RAM (`MEMORY`), or number of Virtual CPUs.
 
-[See Capacity Section in the VM Template reference]({{% relref "../../operation_references/configuration_references/template#template-capacity-section" %}}).
+[See Capacity Section in the VM Template reference]({{% relref "product/operation_references/configuration_references/template#template-capacity-section" %}}).
 
 <a id="vm-disks"></a>
 
@@ -82,8 +82,13 @@ relref "../../operation_references/configuration_references/template#tpm-section
 so, every VM instance will also spawn a companion TPM emulator process (swtpm) in charge of
 emulating a physical TPM device for its VM.
 
-In Sunstone the TPM attribute can be added to a VM Template in the Update/Create dialog, in the second step (Advanced options) under the "OS & CPU" tab.
-![sunstone_vtpm_selector](/images/sunstone_vtpm_selector.png)
+In Sunstone the TPM attribute can be added to a VM Template in the Update/Create dialog, in the second step (Advanced options) under the **OS & CPU** tab.
+
+{{< image
+  pathDark="/images/virtual_machines/management/dark/vtpm_selector.png"
+  path="/images/virtual_machines/management/light/vtpm_selector.png"
+  alt="VM Template TPM" align="center" width="90%" mb="20px"
+>}}
 
 #### Initial host setup
 
@@ -99,20 +104,20 @@ deploy TPM-enabled VMs:
 
 1. Edit `/etc/libvirt/qemu.conf` and set
 
-```
+```shell
 swtpm_user = "oneadmin"
 swtpm_group = "oneadmin"
 ```
 
 2. Change the owner of the swtpm's CA directory:
 
-```
+```shell
 chown -R oneadmin:oneadmin /var/lib/swtpm-localca/
 ```
 
 3. Restart libvirtd. For example:
 
-```
+```shell
 systemctl restart libvirtd
 ```
 
@@ -151,7 +156,7 @@ ones depending on a TPM state.
 
 Memory encryption can be enabled in Virtual Machines by adding the following information to the VM Template
 
-```none
+```default
 MEMORY_ENCRYPTION=[
   TYPE="SEV"
 ]
@@ -159,7 +164,7 @@ MEMORY_ENCRYPTION=[
 
 There are several **virtualization security types**. We currently support `SEV` and `SEV-ES`. The KVM driver monitoring will automatically detect the memory encryption supported by each host. Depending on the CPU capabilities and BIOS configuration, different values can be shown by the monitoring probe.
 
-```none
+```shell
 oneadmin@one-fe:~$ onehost show 5 -j | jq .HOST.TEMPLATE.MEMORY_ENCRYPTION
 "SEV"
 ```
@@ -168,7 +173,7 @@ Possible values are: `NONE|SEV|SEV-ES|SEV-SNP|TDX`
 
 More template configuration is required, otherwise the Guest OS might not load correctly.
 
-```none
+```default
 CPU_MODEL=[
   MODEL="host-passthrough" ]
 OS=[
@@ -180,7 +185,7 @@ The VM will be automatically deployed to hosts with the desired memory encryptio
 
 A VM with encrypted memory will have a report in the Guest OS kernel message
 
-```none
+```default
 localhost:~ # dmesg | grep -i sev
 [    0.054053] Memory Encryption Features active: AMD SEV
 ```
@@ -189,7 +194,7 @@ localhost:~ # dmesg | grep -i sev
 
 You need a CPU in the KVM host that is able to encrypt memory. You can check this capability on the CPU flags. Note the following AMD CPU includes `sev` and `sev_es`
 
-```none
+```shell
 oneadmin@sm23:~$ lscpu | grep -i sev
 Flags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good amd_lbr_v2 nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba perfmon_v2 ibrs ibpb stibp ibrs_enhanced vmmcall fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local user_shstk avx_vnni avx512_bf16 clzero irperf xsaveerptr rdpru wbnoinvd amd_ppin cppc amd_ibpb_ret arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif x2avic v_spec_ctrl vnmi avx512vbmi umip pku ospke avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq la57 rdpid bus_lock_detect movdiri movdir64b overflow_recov succor smca fsrm avx512_vp2intersect flush_l1d sev sev_es debug_swap
 ```
@@ -350,7 +355,11 @@ USER_INPUTS = [
 
 The result will be a step with all the user inputs that are defined in the Template:
 
-![sunstone_user_inputs_no_convention](/images/sunstone_user_inputs_no_convention.png)
+{{< image
+  pathDark="/images/virtual_machines/management/dark/sunstone_user_inputs_no_convention.png"
+  path="/images/virtual_machines/management/light/sunstone_user_inputs_no_convention.png"
+  alt="VM Template User Inputs No Convention" align="center" width="90%" mb="20px"
+>}}
 
 In order to improve the user experience, Sunstone can render these user inputs in a different way that is easy to understand for the Sunstone user. To do that, Sunstone uses rules based on the name of the user inputs. These rules are:
 
@@ -378,15 +387,27 @@ USER_INPUTS = [
 
 The user inputs will be grouped in a tab called BLOG with a group called CONF:
 
-![sunstone_user_inputs_convention_blog](/images/sunstone_user_inputs_convention_blog.png)
+{{< image
+  pathDark="/images/virtual_machines/management/dark/user_inputs_convention_blog.png"
+  path="/images/virtual_machines/management/light/user_inputs_convention_blog.png"
+  alt="VM Template Convention Blog" align="center" width="90%" mb="20px"
+>}}
 
 Also, there will be a tab called MYSQL with two groups, CONFIG and ADDITIONAL:
 
-![sunstone_user_inputs_convention_mysql_1](/images/sunstone_user_inputs_convention_mysql_1.png)
+{{< image
+  pathDark="/images/virtual_machines/management/dark/user_inputs_convention_sql.png"
+  path="/images/virtual_machines/management/light/user_inputs_convention_sql.png"
+  alt="VM Template Convention Blog" align="center" width="90%" mb="20px"
+>}}
 
 To set the user inputs in the ADDITIONAL group, activate the **Define additional parameters** option:
 
-![sunstone_user_inputs_convention_mysql_2](/images/sunstone_user_inputs_convention_mysql_2.png)
+{{< image
+  pathDark="/images/virtual_machines/management/dark/user_inputs_convention_sql_additional.png"
+  path="/images/virtual_machines/management/light/user_inputs_convention_sql_additional.png"
+  alt="VM Template Convention Blog" align="center" width="90%" mb="20px"
+>}}
 
 #### Additional Data for User Inputs in Sunstone
 
@@ -423,11 +444,19 @@ USER_INPUTS_METADATA=[
 
 Due to the elements with TYPE equal to APP, the BLOG tab has the title Blog and the MYSQL tab has the title MySQL (TITLE attribute). Also, due to these elements we have an info note in the Blog tab (DESCRIPTION attribute):
 
-![sunstone_user_inputs_metadata_1](/images/sunstone_user_inputs_metadata_1.png)
+{{< image
+  pathDark="/images/virtual_machines/management/dark/user_inputs_metadata_1.png"
+  path="/images/virtual_machines/management/light/user_inputs_metadata_1.png"
+  alt="VM Template User Inputs Metadata" align="center" width="90%" mb="20px"
+>}}
 
 Due to the elements with TYPE equal to GROUP, CONFIG group has the title Configuration and ADDITIONAL group has the title Additional parameters (TTILE attribute). Also, due to these elements Sunstone shows an info text in both groups (DESCRIPTION attribute):
 
-![sunstone_user_inputs_metadata_2](/images/sunstone_user_inputs_metadata_2.png)
+{{< image
+  pathDark="/images/virtual_machines/management/dark/user_inputs_metadata_2.png"
+  path="/images/virtual_machines/management/light/user_inputs_metadata_2.png"
+  alt="VM Template User Inputs Metadata" align="center" width="90%" mb="20px"
+>}}
 
 <a id="sched-actions-templ"></a>
 
@@ -696,12 +725,22 @@ OTHER          : u--
 
 The `onetemplate chmod --recursive` option will also perform the chmod action on each one of the Images used in the Template disks.
 
-Sunstone offers an “alias” for `onetemplate chmod --recursive 640`, the share action:
-
-![sunstone_template_share](/images/sunstone_template_share.png)
-
 ## Managing VM Templates with Sunstone
 
-Sunstone exposes the above functionality in the Templates > VM Templates tab:
+Sunstone exposes the above functionality in the **Templates -> VM Templates** tab:
 
-![sunstone_template_create](/images/sunstone_template_create.png)
+{{< image
+  pathDark="/images/virtual_machines/management/dark/sunstone_vm_templates_view.png"
+  path="/images/virtual_machines/management/light/sunstone_vm_templates_view.png"
+  alt="VM Template User Inputs Metadata" align="center" width="90%" mb="20px"
+>}}
+
+Use **+ Create VM Template** to create a new VM template or select an existing template to open the details view and use the menu items at the top right to update, clone, label, delete or instantiate a VM template:
+
+{{< image
+  pathDark="/images/virtual_machines/management/dark/sunstone_vm_template_details_view.png"
+  path="/images/virtual_machines/management/light/sunstone_vm_template_details_view.png"
+  alt="VM Template User Inputs Metadata" align="center" width="90%" mb="20px"
+>}}
+
+

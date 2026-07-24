@@ -505,10 +505,42 @@ In case the Virtual Network is not in `READY` state, use `onevnet recover` to fi
 
 You can also manage your Virtual Networks using the [Sunstone GUI]({{% relref "../../control_plane_configuration/graphical_user_interface/fireedge_sunstone#fireedge-sunstone" %}}). Select the **Virtual Networks** tab to create, enable, and operate your Virtual Networks in a user-friendly way.
 
-![image0](/images/sunstone_vnets.png)
+{{< image
+  pathDark="/images/virtual_networks/management/dark/sunstone_vnets_list.png"
+  path="/images/virtual_networks/management/light/sunstone_vnets_list.png"
+  alt="Sunstone Virtual Networks list" align="center" width="90%" mb="20px"
+>}}
 
-- Create new Virtual Networks
+- Create new Virtual Networks using the **+ Create Virtual Network** button, you can choose to create a new network fro scratch or from an existing template:
 
-![image1](/images/sunstone_vnet_create_general.png)
+{{< image
+  pathDark="/images/virtual_networks/management/dark/create_vnet_option.png"
+  path="/images/virtual_networks/management/light/create_vnet_option.png"
+  alt="Sunstone Virtual Networks create" align="center" width="70%" mb="20px"
+>}}
 
-![image2](/images/sunstone_vnet_create_advanced.png)
+- If you are creating a Virtual Network from scratch, fill in the details in each step of the creation wizard:
+
+  * General details:
+
+  {{< image
+    pathDark="/images/virtual_networks/management/dark/create_vnet_general.png"
+    path="/images/virtual_networks/management/light/create_vnet_general.png"
+    alt="Sunstone Virtual Networks create general step" align="center" width="90%" mb="20px"
+  >}}
+
+  * Advanced details:
+
+  {{< image
+    pathDark="/images/virtual_networks/management/dark/create_vnet_advanced.png"
+    path="/images/virtual_networks/management/light/create_vnet_advanced.png"
+    alt="Sunstone Virtual Networks create advanced step" align="center" width="90%" mb="20px"
+  >}}
+
+- If creating a Virtual Network from a template, choose your preferred template from the menu:
+
+{{< image
+  pathDark="/images/virtual_networks/management/dark/create_vnet_from_template.png"
+  path="/images/virtual_networks/management/light/create_vnet_from_template.png"
+  alt="Sunstone Virtual Networks create from template" align="center" width="80%" mb="20px"
+>}}

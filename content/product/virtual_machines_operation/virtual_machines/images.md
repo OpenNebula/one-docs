@@ -234,7 +234,11 @@ Now you need to open LUKS-encrypted Image properties in Sunstone interface and a
 
 <a id="img-sunstone-luks-secret-create"></a>
 
-![image2](/images/sunstone_luks_secret_create.png)
+{{< image
+  pathDark="/images/virtual_machines/management/dark/luks_secret.png"
+  path="/images/virtual_machines/management/light/luks_secret.png"
+  alt="VM Instance Security Groups" align="center" width="90%" mb="20px"
+>}}
 
 Copy `passphrase.luks` and `secret.xml` files on all your hypervisor nodes and execute the following commands on all of them as **oneadmin** user:
 
@@ -457,9 +461,13 @@ CONTEXT = [
 
 ## Using Sunstone to Manage Images
 
-You can also manage your Images using the [Sunstone GUI]({{% relref "../../control_plane_configuration/graphical_user_interface/fireedge_sunstone#fireedge-sunstone" %}}). Select the **Images** tab to manage and check information about your Images in a user-friendly way. By default this tab is available in the `admin` view but not in the `cloud` or `groupadmin` views.
+You can also manage your Images using the [Sunstone GUI]({{% relref "../../control_plane_configuration/graphical_user_interface/fireedge_sunstone#fireedge-sunstone" %}}). Select the **Storage -> Images** view to manage and inspect information about your Images in a user-friendly way. By default this tab is available in the `admin` view but not in the `cloud` or `groupadmin` views. To create a new image select **+ Create Image** in the top right corner and fill in the details in each step of the wizard:
 
-![image3](/images/sunstone_image_create.png)
+{{< image
+  pathDark="/images/virtual_machines/management/dark/sunstone_create_image.png"
+  path="/images/virtual_machines/management/light/sunstone_create_image.png"
+  alt="VM Instance Security Groups" align="center" width="90%" mb="20px"
+>}}
 
 ### Uploading Images from Sunstone
 

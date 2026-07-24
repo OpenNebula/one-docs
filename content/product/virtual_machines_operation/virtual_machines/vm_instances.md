@@ -314,13 +314,21 @@ Similarly to detach a security group execute:.
 onevm sg-detach centos-server 0 101
 ```
 
-On Sunstone, you can attach and detach security groups to an NIC on a running or powered off VM by going to the Network tab.
+On Sunstone, you can attach and detach security groups to an NIC on a running or powered off VM by going to the Network tab, select the NIC and open the dropdown menu (with the ellipsis icon), then select **Security Groups**:
 
-{{< image path="/images/sunstone_sg_main_view.png" alt="Sunstone main view" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/virtual_machines/management/dark/vm_instance_security_groups.png"
+  path="/images/virtual_machines/management/light/vm_instance_security_groups.png"
+  alt="VM Instance Security Groups" align="center" width="90%" mb="20px"
+>}}
 
 To attach a new security group, you need to click on the shield on the NIC row. A dialog will be displayed where you can find all the security groups that do not belong to the selected network.
 
-{{< image path="/images/sunstone_sg_attach.png" alt="Sunstone attach security group" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/virtual_machines/management/dark/add_security_group.png"
+  path="/images/virtual_machines/management/light/add_security_group.png"
+  alt="VM Instance Security Groups" align="center" width="90%" mb="20px"
+>}}
 
 To detach the security group, you must click on the Trash button next to the security group. A confirm dialog will be displayed to ensure that you want to detach the security group.
 
@@ -939,7 +947,11 @@ info-tabs:
       charter_create: true
 ```
 
-{{< image path="/images/sunstone_vm_charter.png" alt="Sunstone VM charter" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/virtual_machines/management/dark/add_charter.png"
+  path="/images/virtual_machines/management/light/add_charter.png"
+  alt="VM Instance Charters" align="center" width="90%" mb="20px"
+>}}
 
 After enabling the creation of Charters, you have to define the schedule actions that have a Charter. To do that, you only need to modify the file `sunstone-server.conf` in the [FireEdge configuration]({{% relref "product/operation_references/opennebula_services_configuration/fireedge#fireedge-conf" %}}).
 
@@ -962,7 +974,11 @@ The previous example will create two schedule actions:
 
 So, when the user clicks on the Charter button, the following info will appear:
 
-{{< image path="/images/sunstone_charter_info.png" alt="Sunstone VM charter info" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/virtual_machines/management/dark/charter_info.png"
+  path="/images/virtual_machines/management/light/charter_info.png"
+  alt="VM Instance Charter Info" align="center" width="60%" mb="20px"
+>}}
 
 The first action cannot be edited but in the second one, you can change the action and the time. Also, you can tune the definition of a Charter:
 
@@ -1121,8 +1137,11 @@ To configure it via Sunstone, you need to update the VM template. In the second 
 you can see the graphics section where you can add the IP, the port, a connection password,
 or define your keymap.
 
-{{< image path="/images/sunstone_guac_vnc.png" alt="Sunstone GUAC VNC" align="center" width="90%" mb="20px" >}}
-
+{{< image
+  pathDark="/images/virtual_machines/management/dark/sunstone_guac_vnc.png"
+  path="/images/virtual_machines/management/light/sunstone_guac_vnc.png"
+  alt="VM Instance GUAC VNC" align="center" width="90%" mb="20px"
+>}}
 <a id="rdp-sunstone"></a>
 
 ### Configure VM for RDP
@@ -1136,11 +1155,13 @@ To enable RDP connections to the VM, you must have one `NIC`
 with `RDP` attribute equal to `YES` in the template.
 
 Via Sunstone, you need to enable an RDP connection on one of the VM template networks, **after or
-before its instantiation**.
+before its instantiation**. Update the template and select  **Attach NIC** in the **Network** tab and activate **RDP**:
 
-{{< image path="/images/sunstone_guac_nic_1.png" alt="Sunstone GUAC NIC 1" align="center" width="90%" mb="20px" >}}
-
-{{< image path="/images/sunstone_guac_nic_2.png" alt="Sunstone GUAC NIC 2" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/virtual_machines/management/dark/sunstone_nic_rdp.png"
+  path="/images/virtual_machines/management/light/sunstone_nic_rdp.png"
+  alt="VM Instance NIC RDP" align="center" width="90%" mb="20px"
+>}}
 
 To configure this in the Virtual Machine template in **advanced mode**:
 
@@ -1151,10 +1172,13 @@ NIC=[
 ]
 ```
 
-Once the VM is instantiated, users will be able to **connect via browser**.
+Once the VM is instantiated, users will be able to **connect via browser**. Click on the ellipsis icon, **Console -> RDP**:
 
-
-{{< image path="/images/sunstone_guac_rdp.png" alt="Sunstone GUAC RDP" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/virtual_machines/management/dark/vm_rdp.png"
+  path="/images/virtual_machines/management/light/vm_rdp.png"
+  alt="VM Instance RDP" align="center" width="90%" mb="20px"
+>}}
 
 RDP connection permits users to **choose the screen resolution** from Sunstone interface.
 
@@ -1217,8 +1241,18 @@ root@<guest-VM>:~$ service sshd restart
 root@<guest-VM>:~$ adduser <username>
 ```
 
-{{< image path="/images/fireedge_sunstone_ssh_list.png" alt="Sunstone SSH list" align="center" width="90%" mb="20px" >}}
-{{< image path="/images/fireedge_sunstone_ssh_console.png" alt="Sunstone SSH console" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/virtual_machines/management/dark/vm_ssh_dropdown.png"
+  path="/images/virtual_machines/management/light/vm_ssh_dropdown.png"
+  alt="VM Instance SSH" align="center" width="90%" mb="20px"
+>}}
+
+This will open the SSH console in another tab:
+
+{{< image
+  path="/images/virtual_machines/management/light/vm_ssh_console.png"
+  alt="VM Instance SSH console" align="center" width="90%" mb="20px"
+>}}
 
 {{< alert title="Note" type="info" >}}
 Guacamole SSH uses RSA encryption. Make sure the VM SSH accepts RSA, otherwise you need to explicitly enable it in the VM SSH configuration (HostkeyAlgorithms and PubkeyAcceptedAlgorithms set as ‘+ssh-rsa){{< /alert >}} 
