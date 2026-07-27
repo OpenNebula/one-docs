@@ -52,7 +52,7 @@ To run the miniONE script, you will need a physical server with a fresh installa
 **Supported operating systems:**
 : - RHEL/AlmaLinux 9 or 10
   - Debian 12 or 13
-  - Ubuntu 22.04 or 24.04
+  - Ubuntu 24.04 or 26.04
   - openSUSE 16.0, SLES 15.7
 
 **Minimum hardware:**
@@ -66,7 +66,7 @@ To run the miniONE script, you will need a physical server with a fresh installa
     : - 22 (SSH)
       - 80 (for the web UI)
 
-This tutorial was tested on on Ubuntu 22.04 and 24.04. We strongly advise to use a physical server rather than a Virtual Machine (VM). If you choose to follow this installation on a VM you may experience instability due to nested virtualization during the follow-up [Kubernetes Installation Guides]({{% relref try_kubernetes_on_opennebula %}}). You may also need to use [port forwarding](#ssh-and-port-forwarding) to access the Sunstone UI.
+This tutorial applies to any of the supported operating systems listed above. We strongly advise to use a physical server rather than a Virtual Machine (VM). If you choose to follow this installation on a VM you may experience instability due to nested virtualization during the follow-up [Kubernetes Installation Guides]({{% relref try_kubernetes_on_opennebula %}}). You may also need to use [port forwarding](#ssh-and-port-forwarding) to access the Sunstone UI.
 
 ## Step 2: Download and Install miniONE
 

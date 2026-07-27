@@ -89,13 +89,6 @@ echo "deb [signed-by=/etc/apt/keyrings/opennebula.gpg] https://downloads.openneb
 apt-get update
 ```
 
-**Ubuntu 22.04**
-
-```shell
-echo "deb [signed-by=/etc/apt/keyrings/opennebula.gpg] https://downloads.opennebula.io/repo/{{< release >}}/Ubuntu/22.04 stable opennebula" > /etc/apt/sources.list.d/opennebula.list
-apt-get update
-```
-
 **Ubuntu 24.04**
 
 ```shell

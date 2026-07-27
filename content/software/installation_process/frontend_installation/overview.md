@@ -67,7 +67,7 @@ Regardless of the method chosen, you must ensure that your Host meets the minimu
 **Supported operating systems:**
 * RHEL/AlmaLinux 9 or 10
 * Debian 12 or 13
-* Ubuntu 22.04 or 24.04
+* Ubuntu 24.04 or 26.04
 * openSUSE 16.0, SLES 15.7
 * See the [Platform Notes]({{% relref "software/release_information/release_notes/platform_notes.md" %}}) for further details on compatible operating systems
 

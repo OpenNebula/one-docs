@@ -112,19 +112,6 @@ echo "deb [signed-by=/etc/apt/keyrings/opennebula.gpg] https://enterprise.openne
 apt-get update
 ```
 
-**Ubuntu 22.04**
-
-```shell
-cat << "EOT" > /etc/apt/auth.conf.d/opennebula.conf
-machine enterprise.opennebula.io
-login <user>
-password <password>
-EOT
-chmod 600 /etc/apt/auth.conf.d/opennebula.conf
-echo "deb [signed-by=/etc/apt/keyrings/opennebula.gpg] https://enterprise.opennebula.io/repo/{{< release >}}/Ubuntu/22.04 stable opennebula" > /etc/apt/sources.list.d/opennebula.list
-apt-get update
-```
-
 **Ubuntu 24.04**
 
 ```shell
@@ -224,7 +211,7 @@ zypper refresh
 ```
 
 {{< alert title="Note" color="success" >}}
-You can point to a specific 7.2.x version by changing the occurrence of shorter version number 7.2 in any of the above commands to the full three components. For instance, to point to version 7.2.1 on Ubuntu 22.04, use the following command:
+You can point to a specific 7.4.x version by changing the occurrence of shorter version number 7.4 in any of the above commands to the full three components. For instance, to point to version 7.4.1 on Ubuntu 24.04, use the following command:
 
 ```shell
 cat << "EOT" > /etc/apt/auth.conf.d/opennebula.conf
@@ -233,7 +220,7 @@ login <user>
 password <password>
 EOT
 chmod 600 /etc/apt/auth.conf.d/opennebula.conf
-echo "deb [signed-by=/etc/apt/keyrings/opennebula.gpg] https://enterprise.opennebula.io/repo/7.2.1/Ubuntu/22.04 stable opennebula" > /etc/apt/sources.list.d/opennebula.list
+echo "deb [signed-by=/etc/apt/keyrings/opennebula.gpg] https://enterprise.opennebula.io/repo/7.4.1/Ubuntu/24.04 stable opennebula" > /etc/apt/sources.list.d/opennebula.list
 apt-get update
 ```
 {{< /alert >}}
