@@ -33,7 +33,7 @@ The OpenNebula ISO is based on AlmaLinux 9, thus it shares the same requirements
 
 Download the OpenNebula ISO (based on Alma Linux). Currently, the following versions are available:
 
-- [OpenNebula 7.2 Community Edition](https://one-poc.s3.eu-central-1.amazonaws.com/7.2/CE/opennebula-7.2-CE.iso) \([SHA256 checksum](https://one-poc.s3.eu-central-1.amazonaws.com/7.2/CE/opennebula-7.2-CE.iso.sha)\)
+- [OpenNebula 7.4 Community Edition](https://one-poc.s3.eu-central-1.amazonaws.com/7.4/CE/opennebula-7.4-CE.iso) \([SHA256 checksum](https://one-poc.s3.eu-central-1.amazonaws.com/7.4/CE/opennebula-7.4-CE.iso.sha)\)
 
 Once the image is downloaded, there are two installation options:
 
@@ -43,7 +43,7 @@ Once the image is downloaded, there are two installation options:
 From Linux or MacOS, the image can be dumped on the USB with the following command
 
 ```bash
-dd if=/path/to/your/opennebula-7.0.1-CE.iso of=/dev/sdXX
+dd if=/path/to/your/opennebula-7.4-CE.iso of=/dev/sdXX
 ```
 
 {{< alert title="Check the USB drive" type="warning" >}}

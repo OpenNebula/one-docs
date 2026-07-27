@@ -52,7 +52,7 @@ OpenNebula can be also configured to enable external SAML authentication for all
 DEFAULT_AUTH = "saml"
 ```
 
-This will avoid cloud admins having to manually create users with the SAML authentication driver. If  `DEFAULT_AUTH` is set to "saml", successfully authenticated users that are not present in the OpenNebula database will be automatically provisioned.
+This will avoid cloud admins having to manually create users with the SAML authentication driver. If `DEFAULT_AUTH` is set to "saml", successfully authenticated users that are not present in the OpenNebula database will be automatically provisioned.
 
 Note that this authentication method provides only access to fireedge. API/CLI access rely on generating a temporary token ( Settings -> Security -> Login Token -> Get a new token ).
 
