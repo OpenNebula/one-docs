@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - "master"
-      - "one-7.0"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -99,11 +98,11 @@ jobs:
           HOST: ${{ secrets.HOST }}
           HOST_PATH: ${{ secrets.HOST_PATH }}
         run: ruby ./publish/publish.rb ${{ steps.get_branch.outputs.branch }}
-     
+
       # ------------------------------------------------------------------------------
       # Cleanup SSH private key
       # ------------------------------------------------------------------------------
-      
+
       - name: Cleanup SSH private key
         if: always()
         run: |
