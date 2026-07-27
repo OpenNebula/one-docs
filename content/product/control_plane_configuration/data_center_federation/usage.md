@@ -20,7 +20,11 @@ In the upper right corner of the Sunstone page, users will see a globe icon next
 
 What’s happening behind the scenes is that the Sunstone server you are using is redirecting its requests to the OpenNebula oned process present in the other Zone. In the example above, if the user clicks on **ZoneB**, Sunstone contacts the OpenNebula listening at `http://zoneb.opennebula.front-end.server:2633/RPC2`.
 
-{{< image path="/images/zoneswitchsunstone.png" alt="Sunstone create Vrouter" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="images/federation/dark/zoneswitchsunstone.png"
+  path="images/federation/light/zoneswitchsunstone.png"
+  alt="Scaling provisions"
+>}}
 
 Uploading Virtual Machine Images over Sunstone works only for the main Zone to which the particular Sunstone instance belongs, not with other Zones users can switch to.
 {{% /tab %}}
