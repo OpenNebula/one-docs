@@ -328,16 +328,15 @@ $ onehost show -j 13
       }
 ```
 
-This monitoring information is also available under the VMs PCI tab in the instances section.
-
-![sunstone_gpu_graph](/images/sunstone_gpu_graph.png)
-
 In order to use and assign these profiles to a VM or VM Templates, we will need to add the vGPU PCI device to the template and select the desired profile:
 
 In sunstone. select "Attach PCI device" under PCI Devices section on "Advanced options":
 
-![sunstone_gpu_profile](/images/sunstone_gpu_profile.png)
-
+{{< image
+  pathDark="/images/host/dark/host_vm_gpu_profile.png"
+  path="/images/host/light/host_vm_gpu_profile.png"
+  alt="Sunstone GPU profile" align="center" width="90%" mb="20px"
+>}}
 
 Using CLI Template:
 
