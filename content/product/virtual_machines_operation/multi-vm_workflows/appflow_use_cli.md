@@ -184,7 +184,7 @@ TEMPLATE CONTENTS
 
 As shown in the image below, you can also create and list Service templates from Sunstone from `Templates` > `Service Templates`.
 
-{{< image path="/images/oneflow-templates-list.png" alt="OneFlow templates list" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/templates/list.png" pathDark="/images/oneflow/dark/templates/list.png" alt="OneFlow templates list" align="center" width="90%" mb="20px"
 >}}
 
 ### Updating a Service Template
@@ -219,7 +219,7 @@ The above example will update the description of the Service template and the ca
 
 Updating Service templates can also be done through Sunstone. Simply select the desired Service template, making the changes through the graphical interface selecting the `Update` button in the toolbar:
 
-{{< image path="/images/oneflow-templates-update.png" alt="OneFlow templates update" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/templates/update.png" pathDark="/images/oneflow/dark/templates/update.png" alt="OneFlow templates update" align="center" width="90%" mb="20px"
 >}}
 
 ### Deleting a Service Templates
@@ -233,7 +233,7 @@ In case you need it, you can also delete VM templates associated to the Service 
 
 You can delete Service templates in Sunstone as well by clicking on the trash can icon once the desired Service template is selected.
 
-{{< image path="/images/oneflow-templates-delete.png" alt="OneFlow templates delete" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/templates/delete.png" pathDark="/images/oneflow/dark/templates/delete.png" alt="OneFlow templates delete" align="center" width="90%" mb="20px"
 >}}
 
 <a id="service-clone"></a>
@@ -379,7 +379,7 @@ To enhance the flexibility of User Inputs in Service templates, they can be conf
 
 From Sunstone, you can add User Inputs as fields during the creation of the OneFlow Service template or update an already existing one in the following form:
 
-{{< image path="/images/oneflow-templates-attrs.png" alt="OneFlow templates attrs" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/templates/create-inputs-tab.png" pathDark="/images/oneflow/dark/templates/create-inputs-tab.png" alt="OneFlow templates attrs" align="center" width="90%" mb="20px"
 >}}
 
 In the same way as in the CLI, Sunstone will prompt the user for the User Inputs declared in the Service template during instantiation.
@@ -399,7 +399,7 @@ When a Service template is instantiated using Sunstone, the user will be asked t
 
 A step called Service Inputs will render the User Inputs for the service:
 
-{{< image path="/images/sunstone_oneflow_serviceinputs_noconvention.png" alt="OneFlow Service Inputs No Convention" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/templates/inputs-noconvention.png" pathDark="/images/oneflow/dark/templates/inputs-noconvention.png" alt="OneFlow Service Inputs No Convention" align="center" width="90%" mb="20px"
 >}}
 
 In order to improve the user experience, Sunstone can render these user inputs in a different way, easier to understand for the Sunstone user. To do that, Sunstone uses rules based on the name of the User Inputs. [These rules are the same as the ones used in Virtual Machines templates]({{% relref "../virtual_machines/vm_templates#sunstone-layout-rules" %}}).
@@ -415,14 +415,14 @@ So, if the previous template is modified as follows:
 
 The user inputs will be grouped in a tab called APACHE with a group called CONFIG:
 
-{{< image path="/images/sunstone_oneflow_serviceinputs_convention.png" alt="OneFlow Service Inputs Convention" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/templates/inputs-convention.png" pathDark="/images/oneflow/dark/templates/inputs-convention.png" alt="OneFlow Service Inputs Convention" align="center" width="90%" mb="20px"
 >}}
 
 If the service has a Role with a Virtual Machine template that has User Inputs that do not exist on the Service template, these User Inputs that belong to the Virtual Machine template will be rendered in a different step called Roles Inputs.
 
 So, if the Service template references to the [Virtual Machine template defined in]({{% relref "../virtual_machines/vm_templates#vm-guide-user-inputs-sunstone" %}}) Sunstone look like this:
 
-{{< image path="/images/sunstone_oneflow_serviceinputs_noconvention_template.png" alt="OneFlow Service Inputs No Convention Template" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/templates/inputs-template.png" pathDark="/images/oneflow/dark/templates/inptus-template.png" alt="OneFlow Service Inputs No Convention Template" align="center" width="90%" mb="20px"
 >}}
 
 All the user inputs that belong to the Virtual Machine template and are not in the Service template are grouped in a tab with the name of the Role.
@@ -456,7 +456,7 @@ So, if we use the previous template and add the following information:
 
 Where BASE64_IMAGE is an image in base64 format, Sunstone will render the following:
 
-{{< image path="/images/sunstone_oneflow_serviceinputs_layout.png" alt="OneFlow Service Inputs Layout" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/templates/create_inputs_metadata.png" pathDark="/images/oneflow/dark/templates/create_inputs_metadata.png" alt="OneFlow Service Inputs Layout" align="center" width="90%" mb="20px"
 >}}
 
 Using logo attribute we can add a logo to the Service template in base64. Also, we can add info objects with metadata ([please see User Inputs metadata]({{% relref "../../operation_references/configuration_references/template#template-user-inputs-metadata" %}}) to get info about the object structure).
@@ -560,12 +560,12 @@ In this example, the `worker` Role has a network interface attached described by
 
 All these functionalities are also available through the Sunstone portal, allowing you to quickly create dynamic networks with ease.
 
-{{< image path="/images/oneflow-templates-net-1.png" alt="OneFlow Templates Network" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/templates/create-networks-tab.png" pathDark="/images/oneflow/dark/templates/create-networks-tab.png" alt="OneFlow Templates Network" align="center" width="90%" mb="20px"
 >}}
 
-As you can see in the picture above, each Role of the service can be attached to one or more dynamic networks individually. The network can be attached to the Role as an alias. In this case, you need to specify the interface to add the alias by selecting the Virtual Network it will be attached to. For example, the Role `slave` in the next picture will have one physical interface attached to the `PRIVATE` network. This interface will also have an IP alias configured from network `PUBLIC`. Additionally you can set whether the VMs in the Role expose an RDP endpoint. Additionally, you need to specify the IP of the VM for the RDP connection by selecting the Virtual Network the interface is attached to.
+As you can see in the picture above, each Role of the service can be attached to one or more dynamic networks individually. The network can be attached to the Role as an alias. In this case, you need to specify the interface to add the alias by selecting the Virtual Network it will be attached to. For example, the Role `worker` in the next picture will have one physical interface attached to the `PRIVATE` network. This interface will also have an IP alias configured from network `PUBLIC`. Additionally you can set whether the VMs in the Role expose an RDP endpoint. Additionally, you need to specify the IP of the VM for the RDP connection by selecting the Virtual Network the interface is attached to.
 
-{{< image path="/images/oneflow-templates-net-2.png" alt="OneFlow Templates Network 2" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/templates/create-roles-tab.png" pathDark="/images/oneflow/dark/templates/create-roles-tab.png" alt="OneFlow Templates Network 2" align="center" width="90%" mb="20px"
 >}}
 
 ## Service
@@ -789,7 +789,7 @@ Each Role has an individual state, described in the following table:
 
 Depending on the deployment strategy, OneFlow will wait until all the VMs in a specific Role are all in `RUNNING` state before deploying VMs that belong to a child Role. How OneFlow determines the running state of the VMs can be specified with the checkbox `Consider VMs as running only when they report READY status via OneGate` available in the Service creation dialog in Sunstone, or the attribute in `ready_status_gate` in the top level of the Service Template JSON.
 
-{{< image path="/images/oneflow-ready-status-checkbox.png" alt="OneFlow Ready Status" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/templates/create-advanced-tab.png" pathDark="/images/oneflow/dark/templates/create-advanced-tab.png" alt="OneFlow Ready Status" align="center" width="90%" mb="20px"
 >}}
 
 If `ready_status_gate` is set to `true`, a VM will only be considered to be in running state if the following points are true:
@@ -820,12 +820,12 @@ The Service will eventually change to `DEPLOYING`. You can see information for e
 
 From Sunstone, you can instantiate a new Service from the tab `Instances` > `Services`, clicking in the `Create` button located in the toolbar.
 
-{{< image path="/images/oneflow-services-create.png" alt="OneFlow Services Create" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/services/list.png" pathDark="/images/oneflow/dark/services/list.png" alt="OneFlow Services Create" align="center" width="90%" mb="20px"
 >}}
 
 By selecting the Role tab once you have selected a Service, you can see the deployment state of each Role:
 
-{{< image path="/images/oneflow-service.png" alt="OneFlow Service" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/services/roles-tab.png" pathDark="/images/oneflow/dark/services/roles-tab.png" alt="OneFlow Service" align="center" width="90%" mb="20px"
 >}}
 
 ### Instantiation of Roles with VMs on Hold
@@ -1195,7 +1195,7 @@ In many cases, the networks and the IP of the router are dynamically assigned. T
 
 This functionality automatically adds scheduling actions in VM when the service is instantiated; for more information about this, please check the [VM Charter]({{% relref "../virtual_machines/vm_instances#vm-charter" %}})
 
-{{< image path="/images/charterts_on_services.png" alt="OneFlow Charters" align="center" width="90%" mb="20px"
+{{< image path="/images/oneflow/light/services/scheduled-actions-tab.png" pathDark="/images/oneflow/dark/services/scheduled-actions-tab.png" alt="OneFlow Charters" align="center" width="90%" mb="20px"
 >}}
 
 <a id="service-global"></a>

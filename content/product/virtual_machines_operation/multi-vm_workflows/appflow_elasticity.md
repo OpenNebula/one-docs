@@ -173,7 +173,14 @@ All the VMs created by a Service can be managed as regular VMs. When VMs are mon
 - VMs in the final `done` state are cleaned from the Role. They do not appear in the nodes information table, and the cardinality is updated to reflect the new number of VMs. This can be seen as an manual scale-down action.
 - VMs in `poweroff`, `unknown` or `failed` are in an anomalous state, and the user must be notified. The Role and Service are set to the `WARNING` state.
 
-![image1](/images/oneflow-service.png)
+{{< image
+  path="/images/oneflow/light/services/roles-tab.png"
+  pathDark="/images/oneflow/dark/services/roles-tab.png"
+  alt="OneFlow service roles"
+  align="center"
+  width="90%"
+  mb="20px"
+>}}
 
 ## Examples
 

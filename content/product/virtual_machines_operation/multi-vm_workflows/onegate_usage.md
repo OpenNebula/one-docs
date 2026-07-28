@@ -48,7 +48,14 @@ CONTEXT = [
 
 or check the OneGate checkbox in Sunstone:
 
-![onegate_context](/images/onegate_context.png)
+{{< image
+  path="/images/onegate/light/vm-gate-token.png"
+  pathDark="/images/onegate/dark/vm-gate-token.png"
+  alt="OneGate VM token setting"
+  align="center"
+  width="90%"
+  mb="20px"
+>}}
 
 When this Template is instantiated, OpenNebula will automatically add the `ONEGATE_ENDPOINT` context variable, and a `token.txt` will be placed in the [context cdrom]({{% relref "../virtual_machines/vm_templates#context-overview" %}}). This `token.txt` file is only accessible from inside the VM.
 
