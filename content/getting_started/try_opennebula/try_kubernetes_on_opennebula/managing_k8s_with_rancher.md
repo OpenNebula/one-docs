@@ -7,6 +7,11 @@ description:
 
 <a id="running-kubernetes-clusters"></a>
 
+{{< alert title="Work In Progress" type="primary" >}}
+The Getting Started section is currently under development. Please refer to the [OneKS Getting Started guide]({{% relref "platform_services/oneks/getting_started/" %}}) for more streamlined process to get a Kuybernetes cluster up and running in your new OpenNebual cloud.
+{{< /alert >}}
+
+
 ## Overview
 
 In this tutorial, we will deploy a Kubernetes Cluster using the [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/introduction) (CAPI) and the [Rancher](https://www.rancher.com) Kubernetes management platform through the [OpenNebula Kubernetes (CAPI) appliance](https://marketplace.opennebula.io/appliance/c33522e7-7b7e-4046-bc23-833797431bf0).
@@ -43,7 +48,7 @@ For the CAPI appliance to function correctly, we need to modify the configuratio
 
 ### Modify the Default Public Network
 
-Select the default public network named `vnet`. Click **Update** at the top of the screen: 
+Select the default public network named `vnet`. Click **Update** at the top of the screen:
 
 {{< image path="/images/quickstart/sunstone-rancher-update-vnet.png" alt="Sunstone configure networks" align="center" width="90%" mb="20px" >}}
 
@@ -145,7 +150,7 @@ There are some parameters that require user input. Use the string <<EDITOR>> to 
   * (ONEAPP_CAPI_RANCHER_PASSWORD) Rancher Password
   * (ONEAPP_CAPI_RANCHER_VERSION) Rancher Chart Version
   * (ONEAPP_CAPI_TURTLES_VERSION) Turtles Chart Version
-VM ID: 
+VM ID:
 2
 ```
 
@@ -503,7 +508,7 @@ To upgrade the Cluster from within Rancher, select **Cluster Management** at bot
 
 {{< image path="/images/rancher_edit_config.png" alt="Rancher edit config" align="center" width="90%" mb="20px" >}}
 
-Rancher should display the configuration screen for the Cluster. In the **Basics** section, select the desired version for upgrading, then press **Save**. 
+Rancher should display the configuration screen for the Cluster. In the **Basics** section, select the desired version for upgrading, then press **Save**.
 
 {{< image path="/images/rancher_cluster_conf_screen.png" alt="Rancher cluster conf" align="center" width="90%" mb="20px" >}}
 
@@ -523,7 +528,7 @@ If you are interested in installing OpenNebula by following further tutorials, y
 
 ## Using SSH on Remote Hardware
 
-If you are working with OpenNebula deployed on a remote server or an AWS instance, you will need to use port forwarding to access the Rancher UI. From the command line of the OpenNebula Front-end run: 
+If you are working with OpenNebula deployed on a remote server or an AWS instance, you will need to use port forwarding to access the Rancher UI. From the command line of the OpenNebula Front-end run:
 
 ```bash
 sudo su - oneadmin
@@ -535,7 +540,7 @@ Run `onevm list` to obtain the ID of the CAPI VM, then run `onevm ssh <CAPI_VM_I
 nohup kubectl -n cattle-system port-forward svc/rancher 8443:443 --address 0.0.0.0 > pf.log 2>&1 &
 ```
 
-Then from your local machine, run the following port forwarding command, inserting the appropriate IP addresses for the CAPI VM and the remote server (include `-i pem-file.pem` if needed): 
+Then from your local machine, run the following port forwarding command, inserting the appropriate IP addresses for the CAPI VM and the remote server (include `-i pem-file.pem` if needed):
 
 ```bash
 ssh -L 8443:<CAPI_VM_IP>:8443 user@<REMOTE_IP> # -i pem-file.pem
