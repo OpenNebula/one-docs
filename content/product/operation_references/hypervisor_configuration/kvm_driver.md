@@ -267,7 +267,11 @@ If Secure Boot is enabled, the attribute `OS/MACHINE` must be set to `q35`.{{< /
 
 All the OS & CPU options can be accessed in Sunstone from the VM Template Update/Create dialog, in the second step (Advanced options) under the "OS & CPU" tab.
 
-![sunstone_os_cpu_tab](/images/sunstone_os_cpu_tab.png)
+{{< image
+  pathDark="/images/virtual_machines/templates/dark/os-cpu-tab.png"
+  path="/images/virtual_machines/templates/light/os-cpu-tab.png"
+  alt="Sunstone OS and CPU tab" align="center" width="90%" mb="20px"
+>}}
 
 #### Additional Attributes
 

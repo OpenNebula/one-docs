@@ -295,6 +295,8 @@ IMAGE USAGE & QUOTAS
 
 You can easily set the user/group quotas in Sunstone through the user/group tab. Similarly, usage and quota information is also available as part of the user/group information:
 
-![image1](/images/sunstone_user_info_quotas.png)
-
-![image2](/images/sunstone_update_quota.png)
+{{< image
+  pathDark="/images/capacity/dark/group-quota.png"
+  path="/images/capacity/light/group-quota.png"
+  alt="Sunstone group quota" align="center" width="90%" mb="20px"
+>}}

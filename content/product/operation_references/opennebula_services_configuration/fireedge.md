@@ -75,7 +75,11 @@ The Sunstone server configuration file can be found in `/etc/one/fireedge/sunsto
 {{< alert title="Note" type="info" >}}
 After a configuration change the FireEdge server must be [restarted]({{% relref "fireedge#fireedge-conf-service" %}}) to take effect.{{< /alert >}}
 
-{{< image path="/images/fireedge_sunstone_dashboard.png" alt="Fireedge Sunstone dashboard" align="center" width="90%" mb="40px" >}}
+{{< image
+  pathDark="/images/sunstone/common/dark/sunstone_dashboard.png"
+  path="/images/sunstone/common/light/sunstone_dashboard.png"
+  alt="FireEdge Sunstone dashboard" align="center" width="90%" mb="40px"
+>}}
 
 | Parameter              | Default Value                           | Description                                                  |
 | ---------------------- | --------------------------------------- | ------------------------------------------------------------ |
@@ -94,7 +98,6 @@ After a configuration change the FireEdge server must be [restarted]({{% relref 
 | `use_extended_vmpool`  | `true`                                  | True to use the extended information fetch for vm pools      |
 | `currentTimeZone`      |                                         | Time Zone                                                    |
 | `rowStyle`             | `card`                                  | Changes the style of rows in tables. Values can be `card` or `list`. |
-| `fullViewMode`         | `false`                                 | Changes to full mode view when see details of a resource. Values can be `true` or `false`. |
 
 Once the server is initialized, it creates the file `/var/lib/one/.one/fireedge_key`, used to encrypt communication with Guacd.
 
@@ -142,36 +145,45 @@ If the attribute `logo:` is defined and the attribute `favicon:` is not defined,
 {{< alert title="Note" type="info" >}}
 The logo and the favicon can be updated without needing to restart the FireEdge server!{{< /alert >}} 
 
-{{< image path="/images/fireedge_login_linux_logo.png" alt="Sunstone login" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/sunstone/common/dark/sunstone-login-page-custom-logo.png"
+  path="/images/sunstone/common/light/sunstone-login-page-custom-logo.png"
+  alt="Sunstone login with custom logo" align="center" width="90%" mb="20px"
+>}}
 
-{{< image path="/images/fireedge_drawer_linux_logo.png" alt="Sunstone drawer" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/sunstone/common/dark/sunstone-full-dashboard-custom-logo.png"
+  path="/images/sunstone/common/light/sunstone-full-dashboard-custom-logo.png"
+  alt="Sunstone dashboard with custom logo" align="center" width="90%" mb="20px"
+>}}
 
 <a id="fireedge-conf-guacamole"></a>
 
 ### Configure Tables
 
-Tables in Sunstone can be configured to visualize data as a list of plain text or as a list of cards:
+Tables in Sunstone can be configured to visualize data as a table or as a list of cards:
 
-{{< image path="/images/sunstone_list_datatable.png" alt="Sunstone list datatable" align="center" width="90%" mb="40px" >}}
+{{< image
+  pathDark="/images/sunstone/common/dark/sunstone-vms-card-view.png"
+  path="/images/sunstone/common/light/sunstone-vms-card-view.png"
+  alt="Sunstone virtual machines card view" align="center" width="90%" mb="20px"
+>}}
 
-{{< image path="/images/sunstone_card_datatable.png" alt="Sunstone card datatable" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/sunstone/common/dark/sunstone-vms-table-view.png"
+  path="/images/sunstone/common/light/sunstone-vms-table-view.png"
+  alt="Sunstone virtual machines table view" align="center" width="90%" mb="40px"
+>}}
 
 This configuration could be modified in the `/etc/one/fireedge/sunstone/sunstone-server.conf` file modifying the parameter `rowStyle`. [See this table](fireedge#fireedge-sunstone-configuration).
 
-Moreover, Suntone has the capacity to show the detail of a resource in a full screen mode or in a split mode:
+This configuration will be overridden for a specific user if the user changes the configuration in the settings section.
 
-{{< image path="/images/sunstone_resource_full_mode.png" alt="Sunstone resource full mode" align="center" width="90%" mb="40px" >}}
-
-{{< image path="/images/sunstone_resource_split_mode.png" alt="Sunstone resource split mode" align="center" width="90%" mb="40px" >}}
-
-This configuration can be modified in the `/etc/one/fireedge/sunstone/sunstone-server.conf` file modifying the parameter `fullViewMode`. [See this table](#fireedge-sunstone-configuration).
-
-{{< alert title="Warning" type="warning" >}}
-Changes will not be visible for users whose template has the `TEMPLATE/FIREEDGE/FULL_SCREEN_INFO` attribute configured, as this value takes precedence over the general Sunstone configuration.{{< /alert >}} 
-
-Also, both configurations will be overridden for a specific user if the user changes the configuration in the settings section.
-
-{{< image path="/images/sunstone_setting_list_datatable.png" alt="Sunstone setting list datatable" align="center" width="90%" mb="40px" >}}
+{{< image
+  pathDark="/images/sunstone/common/dark/sunstone-preferences.png"
+  path="/images/sunstone/common/light/sunstone-preferences.png"
+  alt="Sunstone preferences" align="center" width="90%" mb="40px"
+>}}
 
 ### Customize colors
 

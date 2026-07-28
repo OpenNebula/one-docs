@@ -1068,7 +1068,11 @@ For example:
 In Sunstone, the `USER_INPUTS` can be ordered with the mouse.
 
 
-{{< image path="/images/sunstone_user_inputs.png" alt="Sunstone user inputs" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/virtual_machines/templates/dark/ordering-inputs.png"
+  path="/images/virtual_machines/templates/light/ordering-inputs.png"
+  alt="Sunstone user inputs" align="center" width="90%" mb="20px"
+>}}
 
 <a id="template-user-inputs-metadata"></a>
 
@@ -1236,8 +1240,20 @@ SUNSTONE = [
 ]
 ```
 
-{{< image path="/images/sunstone_network_options.png" alt="Sunstone network options" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/virtual_machines/templates/dark/net-no-automatic.png"
+  path="/images/virtual_machines/templates/light/net-no-automatic.png"
+  alt="Sunstone network selection option" align="center" width="90%" mb="20px"
+>}}
 
-{{< image path="/images/sunstone_network_options-2.png" alt="Sunstone network options 2" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/virtual_machines/templates/dark/select-net.png"
+  path="/images/virtual_machines/templates/light/select-net.png"
+  alt="Sunstone network selection option" align="center" width="90%" mb="20px"
+>}}
 
-{{< image path="/images/sunstone_network_options-3.png" alt="Sunstone network options 3" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/virtual_machines/templates/dark/net-alias.png"
+  path="/images/virtual_machines/templates/light/net-alias.png"
+  alt="Sunstone network alias option" align="center" width="90%" mb="20px"
+>}}

@@ -168,5 +168,14 @@ Note also that the same ACL/permission system is applied to VM Groups, so use ac
 
 You can also manage VM Groups using [Sunstone]({{% relref "../../control_plane_configuration/graphical_user_interface/overview" %}}), through the VM Group tab.
 
-![vmg_wizard_create](/images/vmg_wizard_create.png)
-![vmg_wizard_create-2](/images/vmg_wizard_create-2.png)
+{{< image
+  pathDark="/images/capacity/dark/vmgroup-role-definition.png"
+  path="/images/capacity/light/vmgroup-role-definition.png"
+  alt="VM Group role definition" align="center" width="90%" mb="20px"
+>}}
+
+{{< image
+  pathDark="/images/capacity/dark/vm-group-role-affinity.png"
+  path="/images/capacity/light/vm-group-role-affinity.png"
+  alt="VM Group role affinity" align="center" width="90%" mb="20px"
+>}}
