@@ -1,6 +1,7 @@
 <!-- Update verision numbers X.Y.Z, date and milestone number -->
 
 ---
+
 title: "Resolved Issues in 7.4.1 (EE)"
 date: "2026-10-01"
 ---
@@ -18,14 +19,13 @@ Include a high level description and a link to the documentation explaining the 
 -->
 
 ## Resolved Issues
-
-The following issues have been solved in 7.4.1:
-
 <!-- item structure
 One line per issue starting with "Fix ...". Descrive the issue so the user understands the fix. Add link to GH. Example:
 
 * Fix failure of `onegroup create` CLI command with empty `--resource` parameter [#7458](https://github.com/OpenNebula/one/issues/7458).
 -->
 
-* Fix ARP tables not being updated on HA leader election [#7920](https://github.com/OpenNebula/one/issues/7920.
+The following issues have been solved in 7.4.1:
 
+* Fix VM configuration update call in Sunstone [#7502](https://github.com/OpenNebula/one/issues/7502).
+* Fix ARP tables not being updated on HA leader election [#7920](https://github.com/OpenNebula/one/issues/7920).
