@@ -27,3 +27,5 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 * Fix failure of `onegroup create` CLI command with empty `--resource` parameter [#7458](https://github.com/OpenNebula/one/issues/7458).
 -->
 
+* Fix ARP tables not being updated on HA leader election [#7920](https://github.com/OpenNebula/one/issues/7920.
+
