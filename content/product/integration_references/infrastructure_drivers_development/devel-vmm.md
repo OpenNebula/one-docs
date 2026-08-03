@@ -90,13 +90,13 @@ VMM actions are the same as the names of the scripts:
   - Arguments
     - **DOMAIN**: Domain name: one-101
     - **SOURCE**: Image path
-    - **TARGET**: Device in the guest: hda, sdc, vda, xvdc
+    - **TARGET**: Device in the guest: `hda`, `sdc`, `vda`, `xvdc`
     - **TARGET_INDEX**: Position in the list of disks
     - **DRV_ACTION**: action xml. Base: `/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']`
-      - `DRIVER`: Disk format: raw, qcow2
-      - `TYPE`: Disk type: block, cdrom, rbd, fs or swap
+      - `DRIVER`: Disk format: `raw`, `qcow2`
+      - `TYPE`: Disk type: `block`, `cdrom`, `rbd`, `fs` or `swap`
       - `READONLY`: The value is `YES` when it’s read only
-      - `CACHE`: Cache mode: none, writethrough, writeback
+      - `CACHE`: Cache mode: `none`, `default`, `unsafe`, `writethrough`, `writeback`, `directsync`
       - `SOURCE`: Image source, used for ceph
   - Response
     - Success: -

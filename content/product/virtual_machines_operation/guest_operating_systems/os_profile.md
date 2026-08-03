@@ -228,7 +228,7 @@ All configuration options are grouped by tab.
 | **Storage**                   |         | **Storage Configuration**           |                                                                            |
 | **→ DISK**                    | array   | List of disk configurations         |                                                                            |
 | →→ NAME                       | string  | Disk identifier                     | Any string (e.g.,<br/>“DISK1”, “DISK2”)                                    |
-| →→ CACHE                      | string  | Cache mode                          | “default”, “unsafe”,<br/>“writethrough”,<br/>“writeback”,<br/>“directsync” |
+| →→ CACHE                      | string  | Cache mode                          | "none",<br/> “default”,<br/> “unsafe”,<br/>“writethrough”,<br/>“writeback”,<br/>“directsync” |
 | →→ TARGET                     | string  | Target device                       | Any string (e.g., “sdc”)                                                   |
 | →→ DEV_PREFIX                 | string  | Device prefix (BUS)                 | “vd”, “sd”, “hd”,<br/>“xvd”, “custom”                                      |
 | →→ DISCARD                    | string  | Discard mode                        | “ignore”, “unmap”                                                          |
