@@ -1,7 +1,4 @@
-<!-- Update verision numbers X.Y.Z, date and milestone number -->
-
 ---
-
 title: "Resolved Issues in 7.4.1 (EE)"
 date: "2026-10-01"
 ---
@@ -28,4 +25,5 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 The following issues have been solved in 7.4.1:
 
 * Fix VM configuration update call in Sunstone [#7502](https://github.com/OpenNebula/one/issues/7502).
-* Fix ARP tables not being updated on HA leader election [#7920](https://github.com/OpenNebula/one/issues/7920).
+* Fix ARP tables not being updated on HA leader election [#7935](https://github.com/OpenNebula/one/issues/7935).
+* Fix repeated attributes in Cluster template [#7941](https://github.com/OpenNebula/one/issues/7941).
