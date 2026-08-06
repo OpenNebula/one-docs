@@ -19,7 +19,25 @@ Verify that the OneKS service is running. On the command line of your OpenNebula
 sudo systemctl status opennebula-ks.service
 ```
 
-The service should be in the active (`running`) state.
+The service should be in the active (`running`) state. 
+
+  * If the service is inactive, start it:
+
+    ```shell
+    sudo systemctl start opennebula-ks.service
+    ```
+
+  * If the service is in a failed state, try restarting it:
+
+    ```shell
+    sudo systemctl restart opennebula-ks.service
+    ```
+
+  * If the service is not found, you may need to install the OneKS package:
+
+    ```shell
+    sudo apt install -y opennebula-ks
+    ```
 
 ## OneGate Service
 
@@ -172,7 +190,7 @@ The generated image is used by the Seed VM to start the K8s Cluster deployment p
 The appliance name and ID can be configured from the control-plane spec configuration file:
 
 ```default
-/var/lib/one/oneks/controlplane/general/controlplane.conf
+/var/lib/one/oneks/controlplanes/general/controlplane.conf
 ```
 
 You can also configure the datastore where the appliance image will be stored. This datastore must be accessible by the OpenNebula Hosts where the K8s Cluster VMs will be deployed.

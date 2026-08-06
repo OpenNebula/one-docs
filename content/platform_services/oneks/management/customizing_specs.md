@@ -14,8 +14,8 @@ OpenNebula Elastic Kubernetes Service (OneKS) defines Kubernetes deployment prof
 Profiles are used by both control-plane and node-group profiles. By default, the OneKS profile configuration files are located in the following paths:
 
 ```default
-/var/lib/one/oneks/controlplane/general/controlplane.conf
-/var/lib/one/oneks/nodegroup/general/nodegroup.conf
+/var/lib/one/oneks/controlplanes/general/controlplane.conf
+/var/lib/one/oneks/nodegroups/general/nodegroup.conf
 ```
 
 After changing a profile configuration, restart the OneKS service so the updated profile definition is loaded. For service commands, see [Service Management]({{% relref "platform_services/oneks/management/configuration/#service-management" %}}).
