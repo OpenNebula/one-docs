@@ -42,12 +42,12 @@ yum -y install epel-release
 ```
 
 {{% /tab %}}
-{{% tab header="**RHEL 9**"%}}
+{{% tab header="**RHEL 9, 10**"%}}
 
-**RHEL 9**
+**RHEL 9, 10**
 
 ```shell
-rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhel).noarch.rpm
 ```
 
 {{% /tab %}}
@@ -64,6 +64,7 @@ Available packages for OpenNebula clients, the Front-end and hypervisor nodes:
 | **opennebula-fireedge**                                                                                  | Next-generation GUI [FireEdge]({{% relref "fireedge#fireedge-setup" %}})                                                                             |
 | **opennebula-gate**                                                                                      | [OneGate]({{% relref "onegate_usage#onegate-overview" %}}) server which allows communication between VMs and OpenNebula                              |
 | **opennebula-flow**                                                                                      | [OneFlow]({{% relref "/product/virtual_machines_operation/multi-vm_workflows/overview#oneflow-overview" %}}) manages services and elasticity |
+| **opennebula-ks**                                                                                      | [OneKS]({{% relref "/platform_services/oneks/" %}}), OpenNebula's elastic Kubernetes service |
 | **opennebula-migration**                                                                                 | Database migration tools                                                                                                                             |
 | **opennebula-node-kvm**                                                                                  | Base setup for KVM hypervisor Node                                                                                                                   |
 | **opennebula-node-lxc**                                                                                  | Base setup for LXC hypervisor Node (*not on RHEL 7*)                                                                                                 |
@@ -93,14 +94,22 @@ Install all OpenNebula Front-end components by executing the following commands 
 {{% tab header="**OS**:" disabled=true /%}}
 
 {{% tab header="**AlmaLinux 9, 10**"%}}
-**AlmaLinux / RHEL**
+**AlmaLinux 9, 10**
 
 ```shell
 yum -y install opennebula opennebula-fireedge opennebula-gate opennebula-flow
 ```
 
 {{% /tab %}}
-{{% tab header="**RHEL 9**"%}}
+{{% tab header="**RHEL 9, 10**"%}}
+**RHEL 9 / 10**
+
+```shell
+yum -y install opennebula opennebula-fireedge opennebula-gate opennebula-flow
+```
+
+{{% /tab %}}
+{{% tab header="**Debian / Ubuntu**"%}}
 
 **Debian / Ubuntu**
 

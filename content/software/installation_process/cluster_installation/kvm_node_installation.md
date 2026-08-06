@@ -52,11 +52,11 @@ yum -y install epel-release
 
 {{% /tab %}}
 
-{{% tab header="**RHEL 9**"%}}
-**RHEL 9**
+{{% tab header="**RHEL 9, 10**"%}}
+**RHEL 9, 10**
 
 ```shell
-rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhel).noarch.rpm
 ```
 {{% /tab %}}
 {{< /tabpane >}}

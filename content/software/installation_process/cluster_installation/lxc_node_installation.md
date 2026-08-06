@@ -47,17 +47,17 @@ OpenNebula depends on packages which aren’t in the base distribution repositor
 {{% tab header="**OS**:" disabled=true /%}}
 
 {{% tab header="**AlmaLinux 9, 10**"%}}
-### AlmaLinux 9, 10
+**AlmaLinux 9, 10**
 ```shell
 yum -y install epel-release
 ```
 {{% /tab %}}
 
-{{% tab header="RHEL 9"%}}
-### RHEL 9
+{{% tab header="**RHEL 9, 10**"%}}
+**RHEL 9, 10**
 
 ```shell
-rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhel).noarch.rpm
 ```
 {{% /tab %}}
 {{< /tabpane >}}
@@ -68,15 +68,15 @@ Execute the following commands to install the OpenNebula LXC Node package:
 
 {{< tabpane text=true right=false >}}
 {{% tab header="**OS**:" disabled=true /%}}
-{{% tab header="AlmaLinux/RHEL"%}}
-#### Installing on AlmaLinux/RHEL
+{{% tab header="**AlmaLinux / RHEL**"%}}
+**AlmaLinux / RHEL**
 
 ```shell
 yum -y install opennebula-node-lxc
 ```
 {{% /tab %}}
-{{% tab header="Debian/Ubuntu"%}}
-#### Installing on Debian/Ubuntu
+{{% tab header="**Debian / Ubuntu**"%}}
+**Debian / Ubuntu**
 
 ```shell
 apt-get update
