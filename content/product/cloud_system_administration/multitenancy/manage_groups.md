@@ -86,8 +86,11 @@ $ onegroup create --name groupA \
 --admin_user admin_userA --admin_password somestr \
 --resources TEMPLATE+VM
 ```
-
-![manage_groups_1](/images/manage_groups_1.png)
+{{< image
+  pathDark="/images/sunstone/groups/dark/create_group.png"
+  path="/images/sunstone/groups/light/create_group.png"
+  alt="Create group" align="center" width="90%" mb="20px"
+>}}
 
 <a id="add-admin-user-to-group"></a>
 
@@ -95,7 +98,11 @@ $ onegroup create --name groupA \
 
 Any user can be configured to be Admin of a group with the commands `onegroup addadmin` and `deladmin`.
 
-![manage_groups_2](/images/manage_groups_2.png)
+{{< image
+  pathDark="/images/sunstone/groups/dark/edit_administrators.png"
+  path="/images/sunstone/groups/light/edit_administrators.png"
+  alt="Edit administrators" align="center" width="90%" mb="20px"
+>}}
 
 <a id="manage-groups-virtual-resources"></a>
 
@@ -113,7 +120,11 @@ To make a virtual resource owned by oneadmin available to users of the new group
 * Change the resource’s group and give it `GROUP USE` permissions. This will make the resource available only to users in that group. The recommended practice to assign golden resources to groups is to first clone the resource and then assign it to the desired group for users’ consumption.
 * Leave the resource in the oneadmin group and give it `OTHER USE` permissions. This will make the resource available to every user in OpenNebula.
 
-![prepare-tmpl-chgrp](/images/prepare-tmpl-chgrp.png)
+{{< image
+  pathDark="/images/sunstone/groups/dark/change_template_group.png"
+  path="/images/sunstone/groups/light/change_template_group.png"
+  alt="Edit administrators" align="center" width="90%" mb="20px"
+>}}
 
 The Virtual Machine and Service Templates are visible to the group users when they want to create a new VM or Service. The Images (including File Images) used by those Templates are not visible to the users but must be also made available, otherwise the VM creation will fail with an error message similar to this one:
 
@@ -127,7 +138,11 @@ You can read more about OpenNebula permissions in the [Managing Permissions]({{%
 
 When a new group is created the cloud administrator can define if the users of this view will be allowed to view the VMs and Services of other users in the same group. If this option is checked a new ACL rule will be created to give users in this group access to the VMS and Services in the same group. Users will not able to manage these resources but they will be included in the list views of each resource.
 
-![cloud_resource_sharing](/images/cloud_resource_sharing.png)
+{{< image
+  pathDark="/images/sunstone/groups/dark/group_permissions.png"
+  path="/images/sunstone/groups/light/group_permissions.png"
+  alt="Edit administrators" align="center" width="90%" mb="20px"
+>}}
 
 <a id="manage-users-primary-and-secondary-groups"></a>
 
@@ -195,7 +210,11 @@ OPENNEBULA = [
 
 All the described functionality is available graphically using [Sunstone]({{% relref "../../operation_references/opennebula_services_configuration/fireedge#fireedge-setup" %}}):
 
-![sunstone_group_list](/images/sunstone_group_list.png)
+{{< image
+  pathDark="/images/sunstone/groups/dark/sunstone_group_list.png"
+  path="/images/sunstone/groups/light/sunstone_group_list.png"
+  alt="Sunstone group list" align="center" width="90%" mb="20px"
+>}}
 
 In the user’s menu the groups where the user can filter all system resources by `group` appear. When you filter by group, you also change the effective group of the user.
 
@@ -203,4 +222,8 @@ There is the option `Show all` to see all system resources, the option `Show all
 
 This allows users to work more comfortably on projects by isolating the resources belonging to one group from others.
 
-![sunstone_filter](/images/sunstone_filter.png)
+{{< image
+  pathDark="/images/sunstone/groups/dark/group_filters.png"
+  path="/images/sunstone/groups/light/group_filters.png"
+  alt="Sunstone group filters" align="center" width="90%" mb="20px"
+>}}

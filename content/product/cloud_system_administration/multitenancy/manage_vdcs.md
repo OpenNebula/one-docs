@@ -124,4 +124,9 @@ The groups will share the physical resources, but without being aware of it. If 
 
 All the described functionality is available graphically using [Sunstone]({{% relref "../../operation_references/opennebula_services_configuration/fireedge#fireedge-conf" %}}):
 
-![sunstone_vdcs](/images/sunstone_vdcs.png)
+
+{{< image
+  pathDark="/images/sunstone/misc/dark/vdc_list.png"
+  path="/images/sunstone/misc/light/vdc_list.png"
+  alt="Sunstone VDC list" align="center" width="90%" mb="20px"
+>}}

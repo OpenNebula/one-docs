@@ -229,7 +229,11 @@ As you can see, any user can find out his or her ID using the `oneuser show` com
 
 Regular users can retrieve their information in the Settings section of Sunstone:
 
-![sunstone_user_settings](/images/sunstone_user_settings.png)
+{{< image
+  pathDark="/images/sunstone/users/dark/user_settings.png"
+  path="/images/sunstone/users/light/user_settings.png"
+  alt="User settings" align="center" width="90%" mb="20px"
+>}}
 
 Finally some configuration attributes can be set to tune the behavior of Sunstone or OpenNebula for the user. For a description of these attributes please check [the group configuration guide]({{% relref "manage_groups#manage-users-primary-and-secondary-groups" %}}).
 
@@ -239,7 +243,11 @@ Finally some configuration attributes can be set to tune the behavior of Sunston
 
 All the described functionality is available graphically using [Sunstone]({{% relref "../../operation_references/opennebula_services_configuration/fireedge#fireedge-configuration" %}}):
 
-![sunstone_user_list](/images/sunstone_user_list.png)
+{{< image
+  pathDark="/images/sunstone/users/dark/user_list.png"
+  path="/images/sunstone/users/light/user_list.png"
+  alt="User list" align="center" width="90%" mb="20px"
+>}}
 
 <a id="change-credentials"></a>
 
