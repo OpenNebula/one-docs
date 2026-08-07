@@ -13,31 +13,49 @@ Before creating a K8s Cluster, ensure that the minimum required components are c
 
 ## OneKS Service
 
-Verify that the OneKS service is running. On the command line of your OpenNebula Front-end, run the following command:
+Install the OneKS package on the OpenNebula Front-end if it is not already installed:
+```shell
+sudo apt install -y opennebula-ks
+```
 
+Before starting the OneKS service for the first time, configure the datastore where the OneKS appliance image will be stored. OneKS creates the appliance image and VM template when the service starts, so the target datastore must be configured beforehand.
+
+Edit the control-plane specification file:
+```shell
+/var/lib/one/oneks/controlplanes/general/controlplane.conf
+```
+
+Set `appliance_ds` under the `seed_vm` dependency to the ID of the image datastore where the OneKS appliance should be stored:
+```shell
+dependencies:
+- object: seed_vm
+  options:
+    creation_timeout: 2000
+    destroy_on_running: true
+    appliance_id: c3ecb387-e726-49fe-975d-fa39c6d40d05
+    appliance_ds: 1
+```
+
+Replace `1` with the ID of the target OpenNebula image datastore. The selected datastore must be accessible by the OpenNebula Hosts where the K8s Cluster VMs will be deployed.
+
+Once the datastore configuration is correct, start the OneKS service on the command line of your OpenNebula Front-end:
+
+```shell
+sudo systemctl start opennebula-ks.service
+```
+Verify that the OneKS service is running:
 ```shell
 sudo systemctl status opennebula-ks.service
 ```
 
-The service should be in the active (`running`) state. 
+The service should be in the active (`running`) state. If the service is in a failed state, try restarting it:
+```shell
+sudo systemctl restart opennebula-ks.service
+```
 
-  * If the service is inactive, start it:
-
-    ```shell
-    sudo systemctl start opennebula-ks.service
-    ```
-
-  * If the service is in a failed state, try restarting it:
-
-    ```shell
-    sudo systemctl restart opennebula-ks.service
-    ```
-
-  * If the service is not found, you may need to install the OneKS package:
-
-    ```shell
-    sudo apt install -y opennebula-ks
-    ```
+{{< alert title="Warning" type="warning" >}}
+Configure `appliance_ds` before starting `opennebula-ks.service` for the first time. If the service is started with the wrong datastore, OneKS may create the appliance image and VM template there. Changing `appliance_ds` afterwards does not automatically move or recreate these resources and may result in errors indicating that the IMAGE or TEMPLATE name is already in use. In that case, remove the previously generated OneKS image and VM template from OpenNebula, then restart `opennebula-ks.service` so OneKS can create them again using the configured datastore.
+{{< /alert >}}
 
 ## OneGate Service
 
@@ -179,16 +197,17 @@ If the above command is not suitable for your Front-end Host configuration, cons
 
 When OneKS starts, it automatically downloads the OneKS appliance from the OpenNebula Marketplace. During this process, OneKS creates the corresponding OpenNebula image and VM template in the OpenNebula database, making them ready to deploy K8s Clusters.
 
+The datastore used for the appliance image must be configured before the first time that the OneKS service is started. See the OneKS Service section above.
+
 {{< alert title="Warning" type="warning" >}}
-If the OneKS appliance cannot be downloaded correctly, the OneKS service will not start. See [Service Management]({{% relref "platform_services/oneks/management/configuration/#service-management" %}}) to restart the service or inspect its journal.
+If the OneKS appliance cannot be downloaded correctly, the OneKS service will not start. Refer to the [Service Management Documentation]({{% relref "platform_services/oneks/management/configuration/#service-management" %}}) for details on how to restart the service or inspect its journal.
 
 You can also check the OneKS service logs at `/var/log/one/oneks.log`.
 {{< /alert >}}
 
 The generated image is used by the Seed VM to start the K8s Cluster deployment process. For more information about the Seed VM role during provisioning, see the [Seed VM section]({{% relref "platform_services/oneks/getting_started/core_concepts/#seed-vm" %}}) in Core Concepts.
 
-The appliance name and ID can be configured from the control-plane spec configuration file:
-
+The appliance ID and target image datastore can be configured from the control-plane specification file:
 ```default
 /var/lib/one/oneks/controlplanes/general/controlplane.conf
 ```
@@ -207,6 +226,10 @@ dependencies:
       appliance_id: c3ecb387-e726-49fe-975d-fa39c6d40d05
       appliance_ds: 1
 ```
+
+`appliance_ds` specifies the OpenNebula image datastore where the downloaded appliance image will be created. The datastore must be accessible by the OpenNebula Hosts where the K8s Cluster VMs will be deployed.
+
+Do not change `appliance_ds` after OneKS has already generated the appliance resources unless you also remove the existing OneKS image and VM template. Otherwise, OneKS may fail to recreate them because resources with the same names already exist.
 
 ## Next Steps
 
