@@ -3,7 +3,6 @@ title: "Deploy OpenNebula On-prem with an ISO"
 linkTitle: "ISO Deployment"
 description:
 weight: 3
-toc_hide: true
 ---
 
 ## Introduction
@@ -658,4 +657,4 @@ Search for vLLM appliance and import it. Select DataStore where to save image
 
 ## Next Steps
 
-Additionally, we recommend checking [Validate the environment]({{% relref "validate_the_environment" %}}), that describes how to explore the resources installed and how to download and run appliances from the [OpenNebula Marketplace](https://marketplace.opennebula.io/).
+Additionally, we recommend checking [Validate the environment]({{% relref "getting_started/install_opennebula/evaluation/validate_the_environment" %}}), that describes how to explore the resources installed and how to download and run appliances from the [OpenNebula Marketplace](https://marketplace.opennebula.io/).

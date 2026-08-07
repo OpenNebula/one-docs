@@ -1,6 +1,6 @@
 ---
 title: "Manual Installation - Database Setup"
-linkTitle: "Manual - Database"
+linkTitle: "Database"
 date: "2025-02-17"
 description:
 categories:

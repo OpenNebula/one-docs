@@ -1,7 +1,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/medium-zoom/1.0.7/medium-zoom.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
-const images = Array.from(document.querySelectorAll("img"));
+const images = Array.from(document.querySelectorAll("img:not(.screencast-card__thumbnail)"));
 images.forEach(img => {
   mediumZoom(img, {
     margin: 0, /* The space outside the zoomed image */
@@ -9,5 +9,19 @@ images.forEach(img => {
     container: null, /* The viewport to render the zoom in */
     template: null /* The template element to display on zoom */
   });
+});
+
+document.addEventListener("click", event => {
+  const preview = event.target.closest(".screencast-card__preview");
+  if (!preview) return;
+  event.preventDefault();
+
+  const iframe = document.createElement("iframe");
+  iframe.src = `https://www.youtube-nocookie.com/embed/${preview.dataset.videoId}?autoplay=1`;
+  iframe.title = preview.dataset.videoTitle;
+  iframe.referrerPolicy = "strict-origin-when-cross-origin";
+  iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+  iframe.allowFullscreen = true;
+  preview.replaceWith(iframe);
 });
 </script>

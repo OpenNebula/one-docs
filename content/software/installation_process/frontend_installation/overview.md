@@ -23,15 +23,15 @@ Depending on your environment (evaluation, testing, or production) and your pref
 
 ### 1. Automated Installation via miniONE
 
-The miniONE tool is the fastest method to get an OpenNebula cloud up and running. It is a lightweight installation script designed for deploying an OpenNebula cloud configuration specialized for evaluation, testing, and development environments.  
+The miniONE tool is the fastest method to get an OpenNebula cloud up and running. It is a lightweight installation script designed for deploying an OpenNebula cloud configuration specialized for quick startup. miniONE is ideal for evaluation, testing and learning, but can also be used to quickly bootstrap a production deployment, with later reconfiguration for production hardening.  
 
-* **Best for**: Rapid prototyping, sandboxes, testing, and learning.  
+* **Best for**: Rapid prototyping, sandboxes, testing, learning and quickly bootstrapping a production deployment.  
 
 * **Workflow**: A single command installs the Front-end and, optionally, a local KVM or LXC hypervisor on the same Host.
 
 * **Environment**: Typically used on a fresh Linux installation (Ubuntu or AlmaLinux).
 
-Refer to the [Automatic Installation with miniONE Documentation]({{% relref "software/installation_process/frontend_installation/automated/" %}}) for more details. 
+Refer to the [Automatic Installation with miniONE Documentation]({{% relref "getting_started/install_opennebula/production/minione_frontend_install/" %}}) for more details. 
 
 {{< alert title="Note" type="info" >}}
 The miniONE installation is not appropriate for production environments, if you intend to deploy a production cloud, we recommend that you use the [Manual Installation Process](#2-manual-installation-with-system-packages) or [OneDeploy](#3-advanced-deployment-with-onedeploy).
@@ -39,7 +39,7 @@ The miniONE installation is not appropriate for production environments, if you 
 
 ### 2. Manual Installation with System Packages
 
-For users who require granular control over an OpenNebula cloud deployment, the manual method involves installing OpenNebula directly from official system repositories.  
+For users who require granular control over an OpenNebula cloud deployment, the manual method involves installing OpenNebula directly from official system repositories. The guides in this section outline the manual installation process.
 
 * **Best for**: Custom production architectures, specific security hardening, or integration with existing databases.
 
@@ -54,7 +54,7 @@ For users who require granular control over an OpenNebula cloud deployment, the 
 
 ### 3. Advanced Deployment with OneDeploy
 
-OneDeploy is an Ansible-based automation toolset intended for complex, production-ready, or High Availability (HA) deployments. If you are looking to automate the deployment of OpenNebula with high flexibility (such as a multi-node production environment distributed across various infrastructure providers), please refer to the [Advanced Installation with OneDeploy]({{% relref "software/installation_process/advanced_installation_with_onedeploy/" %}}) section of the documentation.  
+OneDeploy is an Ansible-based automation toolset intended for complex, production-ready, or High Availability (HA) deployments. If you are looking to automate the deployment of OpenNebula with high flexibility (such as a multi-node production environment distributed across various infrastructure providers), please refer to the [Advanced Installation with OneDeploy]({{% relref "getting_started/install_opennebula/one_deploy/one_deploy_overview/" %}}) section of the documentation.  
 
 ## Cluster Installation 
 

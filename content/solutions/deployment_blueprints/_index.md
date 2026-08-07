@@ -1,5 +1,5 @@
 ---
-title: "Deployment Blueprints"
+title: "Enterprise Cloud Blueprints"
 description: "Real-world deployment types for common use cases in cloud computing."
 weight: 1
 ---

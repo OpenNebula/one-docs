@@ -75,7 +75,7 @@ Each driver must include a defined set of configuration files for both the Terra
 <br>
 - **Ansible** required files:
   - `site.yaml`: Serves as the main entry point to the OneDeploy playbooks. It may also include additional tasks or roles such as connectivity checks or custom configuration steps to prepare the environment.
-  - `templates/`: Contains Jinja2-formatted inventory templates for each supported deployment configuration. These templates follow the standard OneDeploy inventory format. The driver uses the `opennebula_form` dynamic inventory plugin to render these templates at runtime, enabling support for multiple environment configurations. For further information, refer to the [OneDeploy usage guide]({{% relref "/software/installation_process/advanced_installation_with_onedeploy/" %}}).
+  - `templates/`: Contains Jinja2-formatted inventory templates for each supported deployment configuration. These templates follow the standard OneDeploy inventory format. The driver uses the `opennebula_form` dynamic inventory plugin to render these templates at runtime, enabling support for multiple environment configurations. For further information, refer to the [OneDeploy usage guide]({{% relref "getting_started/install_opennebula/one_deploy/one_deploy_overview/" %}}).
   - `inventory`: You must provide a minimal inventory file which declares `opennebula_form` as the dynamic inventory source. This enables OneForm to dynamically construct the actual inventory used during deployment.
 
 ## Driver Workflow

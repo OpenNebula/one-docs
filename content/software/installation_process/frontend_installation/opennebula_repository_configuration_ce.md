@@ -1,6 +1,6 @@
 ---
 title: "Manual Installation - OpenNebula Repositories for Community Edition"
-linkTitle: "Manual - Repositories (CE)"
+linkTitle: "Repositories (CE)"
 date: "2025-02-17"
 description:
 categories:

@@ -17,12 +17,12 @@ This page describes the high-level steps to design and deploy an OpenNebula clou
 
 To familiarize yourself with deployment and daily operations, or if you want to quickly try an Edge, Hybrid or Multi-cloud deployment, we strongly recommend you begin with the [Quick Start Guide]({{% relref "understand_opennebula" %}}). In the Quick Start, you can:
 
-* [Install an OpenNebula Front-end]({{% relref "try_opennebula" %}})
-* Deploy [Virtual Machines]({{% relref "validate_the_environment" %}}) to validate the installed infrastructure
+* [Install an OpenNebula Front-end]({{% relref "/getting_started/install_opennebula/evaluation/" %}})
+* Deploy [Virtual Machines]({{% relref "getting_started/install_opennebula/evaluation/validate_the_environment" %}}) to validate the installed infrastructure
 
 As you follow the tutorials you will learn the basic usage and operation of your cloud. This trial of a real cloud deployment can help you to plan for the most suitable features for performance and scalability, to get the most out of your OpenNebula cloud.
 
-To install a production-ready OpenNebula cloud, we highly recommend using [OneDeploy]({{% relref "advanced_installation_with_onedeploy" %}}), a tool for automated installation. With OneDeploy you can install a complete cloud by defining your desired configuration and running a few simple commands. The tutorials provide step-by-step instructions with complete commands for sample deployment scenarios.
+To install a production-ready OpenNebula cloud, we highly recommend using [OneDeploy]({{% relref "getting_started/install_opennebula/one_deploy/one_deploy_overview" %}}), a tool for automated installation. With OneDeploy you can install a complete cloud by defining your desired configuration and running a few simple commands. The tutorials provide step-by-step instructions with complete commands for sample deployment scenarios.
 
 For a sequential outline of the tasks involved in designing an OpenNebula cloud, read on.
 

@@ -20,7 +20,7 @@ In this tutorial, we will install an OpenNebula Front-end and a KVM hypervisor n
 
 miniONE is a straightforward tool for deploying an evaluation version of OpenNebula. After running the miniONE script, all the OpenNebula services needed to use, manage and run a small cloud deployment will be installed on a single AWS instance.
 
-This tutorial covers installation of a Front-end and KVM hypervisor node on an AWS instance. To complete the procedures detailed in the following [Kubernetes quickstart guides]({{% relref "getting_started/try_opennebula/try_kubernetes_on_opennebula/" %}}) it is necessary to complete this installation using a `c5.metal` "bare metal" AWS instance.
+This tutorial covers installation of a Front-end and KVM hypervisor node on an AWS instance. To complete the procedures detailed in the following [OneKS Kubernetes Quickstart Guide]({{% relref "getting_started/install_opennebula/evaluation/oneks_quickstart/" %}}) we advise performing this installation using a `c5.metal` "bare metal" AWS instance for best performance.
 
 During this tutorial we will complete the following steps:
 
@@ -400,6 +400,6 @@ Congratulations! You've now installed an OpenNebula Front-end on an AWS instance
 
 Now that you have a working miniONE OpenNebula installation, we suggest that you explore OpenNebula's functionality further with the following guides:
 
-* [Deploy a WordPress Virtual Machine]({{% relref "/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md#downloading-and-deploying-a-virtual-machine" %}})
-* [Deploy a Kubernetes Cluster using Rancher and the Cluster API]({{% relref "/getting_started/try_opennebula/try_kubernetes_on_opennebula/managing_k8s_with_rancher" %}})
-* [Further validate your miniONE installation]({{% relref "/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md" %}}) and learn how to download appliances from the [OpenNebula Marketplace](https://marketplace.opennebula.io/)
+* [Deploy a WordPress Virtual Machine]({{% relref "/getting_started/install_opennebula/evaluation/validate_the_environment.md#downloading-and-deploying-a-virtual-machine" %}})
+* [Deploy a Kubernetes Cluster using OneKS]({{% relref "/getting_started/install_opennebula/evaluation/oneks_quickstart/" %}})
+* [Further validate your miniONE installation]({{% relref "/getting_started/install_opennebula/evaluation/validate_the_environment.md" %}}) and learn how to download appliances from the [OpenNebula Marketplace](https://marketplace.opennebula.io/)

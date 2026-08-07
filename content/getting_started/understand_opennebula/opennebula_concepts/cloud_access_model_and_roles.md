@@ -1,5 +1,5 @@
 ---
-title: "Cloud Access Model and Roles"
+title: "Multi-tenancy Models and User Roles"
 date: "2025-02-17"
 description:
 categories: [Introduction]

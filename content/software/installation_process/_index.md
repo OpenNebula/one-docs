@@ -1,6 +1,6 @@
 ---
-title: "OpenNebula Installation Process"
-linkTitle: "Installation Process"
+title: "OpenNebula Manual Installation Process"
+linkTitle: "Manual Installation"
 date: "2025-02-17"
 description: "OpenNebula installation processes, including manual and automated options."
 categories:

@@ -1,6 +1,6 @@
 ---
 title: "Manual Installation - OpenNebula Repositories for Enterprise Edition"
-linkTitle: "Manual - Repositories (EE)"
+linkTitle: "Repositories (EE)"
 date: "2025-02-17"
 description:
 categories:

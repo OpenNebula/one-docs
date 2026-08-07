@@ -6,7 +6,7 @@ categories: [Introduction, Overview]
 pageintoc: "5"
 tags: [Features]
 type: docs
-weight: "2"
+weight: "3"
 ---
 
 OpenNebula offers a simple but feature-rich and flexible solution to build and manage data center virtualization and enterprise clouds. This page provides a summary of its key features**.

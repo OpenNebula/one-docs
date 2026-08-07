@@ -1,0 +1,21 @@
+{{- $id := .Get "id" -}}
+{{- $title := .Get "title" -}}
+<article class="screencast-card">
+  <div class="screencast-card__video">
+    <a
+      class="screencast-card__preview"
+      href="https://www.youtube.com/watch?v={{ $id }}"
+      target="_blank"
+      rel="noopener noreferrer"
+      data-video-id="{{ $id }}"
+      data-video-title="{{ $title }}"
+      aria-label="Play {{ $title }}">
+      <img
+        class="screencast-card__thumbnail"
+        src="https://i.ytimg.com/vi/{{ $id }}/hqdefault.jpg"
+        alt=""
+        loading="lazy"
+        decoding="async">
+    </a>
+  </div>
+</article>

@@ -7,7 +7,7 @@ categories: [Introduction, Evaluation, Learning]
 pageintoc: "15"
 tags: [miniONE]
 type: docs
-weight: "1"
+weight: 1
 ---
 
 <a id="create-an-emulated-environment-with-minione"></a>
@@ -66,7 +66,7 @@ To run the miniONE script, you will need a physical server with a fresh installa
     : - 22 (SSH)
       - 80 (for the web UI)
 
-This tutorial applies to any of the supported operating systems listed above. We strongly advise to use a physical server rather than a Virtual Machine (VM). If you choose to follow this installation on a VM you may experience instability due to nested virtualization during the follow-up [Kubernetes Installation Guides]({{% relref try_kubernetes_on_opennebula %}}). You may also need to use [port forwarding](#ssh-and-port-forwarding) to access the Sunstone UI.
+This tutorial applies to any of the supported operating systems listed above. We strongly advise to use a physical server rather than a Virtual Machine (VM). If you choose to follow this installation on a VM you may experience instability due to nested virtualization during the follow-up [Kubernetes Quickstart Guide]({{% relref "/getting_started/install_opennebula/evaluation/oneks_quickstart/" %}}). You may also need to use [port forwarding](#ssh-and-port-forwarding) to access the Sunstone UI.
 
 ## Step 2: Download and Install miniONE
 
@@ -256,9 +256,9 @@ Congratulations! You've now installed an OpenNebula Front-end with a KVM hypervi
 
 Now that you have a working miniONE OpenNebula installation, we suggest that you explore OpenNebula's functionality further with the following guides:
 
-* [Deploy a WordPress Virtual Machine]({{% relref "/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md#downloading-and-deploying-a-virtual-machine" %}})
-* [Deploy a Kubernetes Cluster using Rancher and the Cluster API]({{% relref "/getting_started/try_opennebula/try_kubernetes_on_opennebula/managing_k8s_with_rancher" %}})
-* [Further validate your miniONE Installation]({{% relref "/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md" %}}) and learn how to download appliances from the [OpenNebula Marketplace](https://marketplace.opennebula.io/)
+* [Deploy a WordPress Virtual Machine]({{% relref "/getting_started/install_opennebula/evaluation/validate_the_environment.md#downloading-and-deploying-a-virtual-machine" %}})
+* [Deploy a Kubernetes Cluster with OneKS]({{% relref "/getting_started/install_opennebula/evaluation/oneks_quickstart/" %}})
+* [Further validate your miniONE Installation]({{% relref "/getting_started/install_opennebula/evaluation/validate_the_environment.md" %}}) and learn how to download appliances from the [OpenNebula Marketplace](https://marketplace.opennebula.io/)
 
 ## SSH and Port Forwarding
 

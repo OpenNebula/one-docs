@@ -17,7 +17,7 @@ weight: "1"
 
 Welcome to OpenNebula, the open source **Cloud & Edge Computing Platform** bringing real freedom to your Enterprise Cloud 🚀
 
-This page provides a high-level overview of the OpenNebula cloud model, architecture, and components. To familiarize yourself with OpenNebula and build an evaluation environment, we strongly recommend you follow the tutorials in our [Getting Started Guide]({{% relref "getting_started" %}}). For a description of the steps needed to build a production environment, please refer to [Cloud Architecture Design]({{% relref "cloud_architecture_design#intro" %}}).
+This page provides a high-level overview of the OpenNebula cloud model, architecture, and components. To familiarize yourself with OpenNebula and build an evaluation environment or quickly start a production environment, we strongly recommend you follow the tutorials in our [Getting Started Guides]({{% relref "getting_started" %}}). For a description of the steps needed to build a production environment, please refer to [Cloud Architecture Design]({{% relref "cloud_architecture_design#intro" %}}).
 
 OpenNebula is a **powerful, but easy-to-use, open source platform to build and manage enterprise clouds and virtualized Data Centers**. It combines existing virtualization technologies with advanced features for multi-tenancy, automatic provision and elasticity on private, hybrid, and edge environments. It unifies management of IT infrastructure and applications, preventing vendor lock-in and reducing complexity, resource consumption, and operational costs.
 
@@ -25,7 +25,7 @@ OpenNebula is a **powerful, but easy-to-use, open source platform to build and m
 
 ## OpenNebula Infrastructure and Management
 
-An OpenNebula infrastructure can be deployed on-premises, in the cloud, at the edge, or in hybrid and multi-cloud environments. Virtualization is based on the KVM open source hypervisor, with support for LXC. Cloud resources are orchestrated by one or more OpenNebula **Front-ends**. The Front-end executes and interacts with components such as daemons, services, and interfaces to provide deployment, management, orchestration, and monitoring of infrastructure resources. It persists the state of the cloud on a designated SQL database. The system is modular and designed for flexibility; it offers numerous possibilities for deploying the infrastructure as well as the management layer itself, such as support for different database backends, external authentication systems, and integration with accounting, chargeback, or other platforms.
+An OpenNebula infrastructure can be deployed on-premises, in the cloud, at the edge, or in hybrid and multi-cloud environments. Virtualization is based principally on the KVM open source hypervisor, with support for LXC. Cloud resources are orchestrated by one or more OpenNebula **Front-ends**. The Front-end executes and interacts with components such as daemons, services, and interfaces to provide deployment, management, orchestration, and monitoring of infrastructure resources. It persists the state of the cloud on a designated SQL database. The system is modular and designed for flexibility; it offers numerous possibilities for deploying the infrastructure as well as the management layer itself, such as support for different database backends, external authentication systems, and integration with accounting, chargeback, or other platforms.
 
 ### Virtualized Applications
 
@@ -33,11 +33,11 @@ OpenNebula can manage both single VMs and complex multi-tier services composed o
 
 ### Containerized Applications through Elastic Kubernetes
 
-OpenNebula supports the automated deployment of Kubernetes Clusters through OneKS, the OpenNebula Elastic Kubernetes Service. OneKS provides Kubernetes-as-a-Service on top of OpenNebula, offering a structured way to create, access, operate, scale, upgrade, recover, and deprovision Kubernetes Clusters across cloud and edge environments. It combines a user-facing service layer with Cluster API-based infrastructure provisioning through CAPONE, the Cluster API provider for OpenNebula.
+OpenNebula supports the automated deployment of Kubernetes Clusters through [OneKS]({{% relref "platform_services/oneks/" %}}), the OpenNebula Elastic Kubernetes Service. OneKS provides Kubernetes-as-a-Service on top of OpenNebula, offering a structured way to create, access, operate, scale, upgrade, recover, and deprovision Kubernetes Clusters across cloud and edge environments. It combines a user-facing service layer with Cluster API-based infrastructure provisioning through CAPONE, the Cluster API provider for OpenNebula.
 
 ### Accelerated Computing for AI and HPC
 
-OpenNebula provides native integration with accelerated hardware architectures from multiple vendors facilitating AI and HPC workloads. OpenNebula's accelerated computing capabilities include full compatibility with NVIDIA Hopper and Blackwell GPUs, flexible GPU allocation with passthrough, vGPU and MIG, GPU scheduling, optimized multi-GPU communication with enhanced networking, DPU integration and multi-tenant, bare-metal AI Factory-scale infrastructure management with NVIDIA NIco. OpenNebula further supports pre-built inference applications and native integration with frameworks and platforms such as vLLM, Hugging Face, Run, and NVIDIA Dynamo for the deployment, scheduling, orchestration, and monitoring of AI and LLM workloads.
+OpenNebula provides native integration with accelerated hardware architectures from multiple vendors facilitating AI and HPC workloads. OpenNebula's accelerated computing capabilities include full compatibility with NVIDIA Hopper and Blackwell GPUs, flexible GPU allocation with passthrough, vGPU and MIG, GPU scheduling, optimized multi-GPU communication with enhanced networking, DPU integration and multi-tenant, bare-metal AI Factory-scale infrastructure management with NVIDIA NICo. OpenNebula further supports pre-built inference applications and native integration with frameworks and platforms such as vLLM, Hugging Face, Run, and NVIDIA Dynamo for the deployment, scheduling, orchestration, and monitoring of AI and LLM workloads.
 
 ### Management Model and Tools
 
@@ -136,21 +136,22 @@ The OpenNebula documentation provides a summary of its [key features]({{% relref
 
 ## Next Steps
 
-**Building an Evaluation Environment**
+### Building an Evaluation Environment
 
-To evaluate OpenNebula, we strongly recommend that you follow our [Getting Started Guide]({{% relref "getting_started" %}}). The Guide will walk you through a series of tutorials to progressively build infrastructure. All tutorials use the Sunstone UI and most take under ten minutes to complete.
+To evaluate OpenNebula, we strongly recommend that you follow our [Getting Started Guides]({{% relref "getting_started/install_opennebula/evaluation" %}}). The guides will walk you through a series of tutorials to progressively build infrastructure. The guides use the Sunstone UI and most take under ten minutes to complete.
 
-Following the Guide, you can:
+Following the guides, you can:
 
-* [Install an OpenNebula Front-end]({{% relref "deploy_opennebula_on_aws" %}}), then use that Front-end to
-* [Deploy a Virtual Machine]({{% relref "validate_the_environment" %}})
+* [Install an OpenNebula Front-end with miniONE]({{% relref "/getting_started/install_opennebula/evaluation/deploy_opennebula_onprem_with_minione.md" %}})
+* [Deploy a Virtual Machine]({{% relref "/getting_started/install_opennebula/evaluation/validate_the_environment.md" %}})
+* [Deploy a Kubernetes Cluster with OneKS]({{% relref "/getting_started/install_opennebula/evaluation/oneks_quickstart" %}})
 
 The Getting Started Guide is by far the fastest way to familiarize yourself with OpenNebula.
 
-**Setting Up a Production Environment**
+### Setting Up a Production Environment**
 
-If you are interested in building a production environment, then [Cloud Architecture Design]({{% relref "../cloud_architecture_and_design/cloud_architecture_design#intro" %}}) is a good resource to explore and consider the available options and choices.
+If you are interested in building a production environment, then [Cloud Architecture Design]({{% relref "../cloud_architecture_and_design/cloud_architecture_design#intro" %}}) is a good resource to explore and consider the available options and choices and we refer you to the [Production Installation Guides]({{% relref "getting_started/install_opennebula/production/" %}}) help you to start your deployment.
 
-If you are interested in automatic, DevOps-like deployment of a production-ready OpenNebula cloud, please refer to the [Automatic Deployment]({{% relref "../../../software/installation_process/advanced_installation_with_onedeploy/index#automatic-deployment" %}}) section of the Installation Guide.
+If you are interested in automatic, DevOps-like deployment of a production-ready OpenNebula cloud, please refer to the [Automatic Deployment]({{% relref "/getting_started/install_opennebula/one_deploy/one_deploy_overview.md" %}}) section of the Installation Guide.
 
-Remember that if you need our support at any time, or access to our professional services or to the **Enterprise Edition**, you can always [contact us](https://opennebula.io/enterprise).
+Remember that if you need our support at any time, access to our professional services or to the **Enterprise Edition**, you can always [contact us](https://opennebula.io/enterprise).

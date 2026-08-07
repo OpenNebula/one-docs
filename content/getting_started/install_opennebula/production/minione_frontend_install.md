@@ -1,25 +1,32 @@
 ---
-title: "Automatic Installation with miniONE"
-linkTitle: "Automatic - miniONE"
+title: "Automated Front-end Installation with miniONE for Production"
+linkTitle: "Front-end Installation with miniONE"
 date: "2026-04-15"
 description:
 categories:
 pageintoc: "26"
 tags: [miniONE, deployment, installation, automatic]
-weight: "2"
+weight: "1"
 ---
 
-Automatic installation of an OpenNebula Front-end can be achieved using the miniONE quick installation script. The miniONE installation script automatically configures the target server to deploy a stripped-down version of OpenNebula with the essential modules to run a cloud Cluster. After installing miniONE, you will be able to deploy Virtual Machines, provision Clusters with on-premises or cloud resources and manage your cloud using the command line, the API or the Sunstone user interface.
+Automatic installation of an OpenNebula Front-end can be achieved using the miniONE rapid installation script. The miniONE installation script automatically configures the target server to deploy OpenNebula with the essential modules to run a cloud. After installing OpenNebula with miniONE, you will be able to deploy Virtual Machines, provision Clusters with on-premises or cloud resources and manage your cloud using the command line, the API or the Sunstone user interface.
+
+This automated miniONE OpenNebula installation is recommended for most users to quickly bootstrap a production cloud deployment. However, if you require more fine-grained control over your installation or require advanced automation options, you may wish to consult the following documentation:
+
+* [Manual Front-end deployment]({{% relref "software/installation_process/frontend_installation/" %}})
+* [Advanced deployment with OneDeploy]({{% relref "getting_started/install_opennebula/one_deploy/one_deploy_overview/" %}})
+
+miniONE establishes a network bridge as a convenience measure to simplify network connectivity within the newly installed OpenNebula cloud, enabling quick validation, learning, and testing. This configuration is generally inappropriate for expanding a cloud within a data center. The network configuration should be modified at a later stage to include relevant network interfaces and facilitate network connectivity within a data center. Refer to the [Networking System Guides]({{% relref "product/cluster_configuration/networking_system/" %}}) for details on network configuration. 
 
 ## Prerequisites
 
-You may wish to install the miniONE OpenNebula Front-end on its own dedicated machine, that is only intended for management and not workload, in which case you should follow the guidelines for "Front-end only". You may also install the miniONE OpenNebula Front-end on the same machine you intend to use for compute workloads, in which case you should consider your intended use-case, guidance is given below for a small Kubernetes Cluster and an AI Factory. 
+You may wish to install the miniONE OpenNebula Front-end on its own dedicated machine, which is only intended for management and not workload, in which case you should follow the guidelines for "Front-end only". You may also install the miniONE OpenNebula Front-end on the same machine you intend to use for compute workloads, in which case you should consider your intended use-case, guidance is given below for a small Kubernetes Cluster and an AI Factory. 
 
 You may use on-premises hardware, virtual or bare-metal resources from a cloud provider to install miniONE. If you are intending to use the target machine only for the OpenNebula Front-end and not Cluster workloads, a Virtual Machine meeting the requirements given below would suffice. If you are intending to use the target machine for Cluster workloads, particularly Kubernetes workloads, it is highly recommended to use a bare-metal instance.
 
 To install miniONE it is important to meet the following prerequisites for the machine on which you intend to install miniONE:
 
- **Supported operating systems:**
+ **Supported operating systems**:
 * RHEL/AlmaLinux 9 or 10
 * Debian 12 or 13
 * Ubuntu 24.04 or 26.04
@@ -27,15 +34,13 @@ To install miniONE it is important to meet the following prerequisites for the m
 * See the [Platform Notes]({{% relref "software/release_information/release_notes/platform_notes.md" %}}) for further details on compatible operating systems
 
 **Minimum hardware:**
-* Front-end only:
+* **Front-end only**:
   * 16 GiB RAM
   * 80 GiB free disk space
-
-* Kubernetes:
+* **Kubernetes**:
   * 64 GiB RAM
   * 120 GiB free disk space
-    
-* AI Factory:
+* **AI Factory**:
   * 128 GiB RAM
   * 512 GiB free disk space
   * NVIDIA L40S or H100 GPU
@@ -45,7 +50,7 @@ To install miniONE it is important to meet the following prerequisites for the m
   - An SSH server running on port 22
   - Open ports:
     - 22 (SSH)
-    - 80 (for the web UI)
+    - 80 (for the Sunstone web UI)
 
 ## Installing miniONE
 
@@ -89,11 +94,25 @@ Make the `minione` script executable:
 chmod +x minione
 ```
 
-Now run the installation script:
+Now run the installation script, choosing one of the following options as appropriate:
 
-```bash
-./minione
-```
+  * **Front-end only**:
+
+    ```bash
+    ./minione --frontend
+    ```
+  * **Front-end and single KVM node**:
+
+    ```bash
+    ./minione
+    ```
+
+  * **Front-end and single LXC node**:
+
+    ```bash
+    ./minione --lxc
+    ```
+
 
 {{< alert title="Tip" type="primary" >}} miniONE will create credentials with a randomized password for logging into the Sunstone UI. You can use the `--password` option to enter a secure and memorable password of your own: `./minione --password <password>`{{< /alert >}} 
 
@@ -111,7 +130,7 @@ Use following to login:
 
 Please take a note of the IP address and login credentials, you will need them later.
 
-Finally update the ``localhost`` status:
+Finally, if you have installed a local hypervisor node, update the `localhost` status:
 
 ```bash
 sudo -u oneadmin onehost sync --force
@@ -169,6 +188,8 @@ During installation, a KVM virtualization Host was automatically configured on t
 
 ### Deploy a Virtual Machine Locally
 
+{{< alert title="Note" type="primary" >}}Deploying a Virtual Machine locally will only work if you chose to install a KVM node on the same Host as the Front-end. If you chose to only install the Front-end, or an LXC node, you will first need to [deploy a Cluster with OneForm]({{% relref "getting_started/install_opennebula/production/cluster_oneform/" %}}).{{< /alert >}} 
+
 miniONE automatically downloaded the template for a VM with Alpine Linux 3.20 preinstalled. Through the Sunstone UI, we can now instantiate this VM on the local KVM Host with a few clicks.
 
 To deploy the Alpine Linux VM, in the left-hand sidebar go to **Templates** -> **VM Templates**. This screen displays a list of all VM templates installed on the system. In this case, only the **Alpine Linux 3.20** template is installed:
@@ -217,7 +238,7 @@ The green dot to the left of the VM name indicates that the VM is running. Note 
 <g>
 </svg> at top left for the VM to display the running state.
 
-### Log in to the Virtual Machine
+#### Log in to the Virtual Machine
 
 The quickest way to log into the VM is by VNC, available directly in Sunstone. Just click the VNC icon <svg width="1.5em" height="1.5em" stroke-width="1.5" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" color="rgb(143,147,146)"><path d="M2 15.5V2.6a.6.6 0 01.6-.6h18.8a.6.6 0 01.6.6v12.9m-20 0v1.9a.6.6 0 00.6.6h18.8a.6.6 0 00.6-.6v-1.9m-20 0h20M9 22h1.5m0 0v-4m0 4h3m0 0H15m-1.5 0v-4" stroke="rgb(143,147,146)" stroke-linecap="round" stroke-linejoin="round" fill="white" ></path></svg> and Sunstone will display the VM boot messages screen directly in your browser in another tab. 
 
@@ -236,9 +257,12 @@ If the above procedure works, you have successfully installed miniONE and it is 
 
 ## Next Steps
 
-After completing the miniONE installation process and validation, you can proceed to deploy Clusters automatically or manually. Proceed to the [Cluster Deployment Documentation]({{% relref "software/installation_process/cluster_installation/" %}}) for details. 
+After completing the miniONE installation process and validation, you can proceed to deploy Clusters automatically or manually:
 
-You can also try deploying Kubernetes Clusters with the [Kubernetes Quickstart Guides](getting_started/try_opennebula/try_kubernetes_on_opennebula/).
+* [Automatically deploy Clusters with OneForm]({{% relref "/getting_started/install_opennebula/production/cluster_oneform" %}})
+* Manually install Cluster nodes with [KVM]({{% relref "software/installation_process/cluster_installation/kvm_node_installation/" %}}) or [LXC]({{% relref "software/installation_process/cluster_installation/lxc_node_installation/" %}})
+* Try deploying Kubernetes Clusters with the [OneKS Kubernetes Guides]({{% relref "platform_services/oneks/" %}})
+* [Modify your network configuration to facilitate connectivity with other hardware]({{% relref "product/cluster_configuration/networking_system/" %}})
 
 
 

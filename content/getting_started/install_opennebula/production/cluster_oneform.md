@@ -1,6 +1,6 @@
 ---
-title: "Automatic Cluster Provisioning with OneForm"
-linkTitle: "Automatic - OneForm"
+title: "Automated Cluster Installation with OneForm"
+linkTitle: "Cluster Installation with OneForm"
 date: "2026-04-15"
 description:
 categories:
@@ -13,7 +13,7 @@ OneForm is OpenNebula’s automated cloud provisioning tool. It serves as an aut
 
 ## Before Starting
 
-In order to use OneForm, you must first install an OpenNebula Front-end using one of the available deployment options, refer to the [Front-end Installation Documentation]({{% relref "software/installation_process/frontend_installation/" %}}) for details. 
+In order to use OneForm, you must first install an OpenNebula Front-end using one of the available deployment options, refer to the [Front-end Installation Documentation]({{% relref "getting_started/install_opennebula/production/minione_frontend_install/" %}}) for details. 
 
 ## Provisioning Clusters with OneForm
 
@@ -40,4 +40,4 @@ Refer to the [Provisioning Documentation](https://github.com/OpenNebula/oneform-
 
 ### Step 3: Manage the Clusters
 
-OneForm provides various operations to manage Clusters once they have been provisioned. This includes deprovisioning, scaling and recovering Clusters. Please refer to the [OneForm Operations Documentation]({{% relref "product/cluster_provisioning/cluster_operations/provision_operations/" %}})
+OneForm provides various operations to manage Clusters once they have been provisioned. This includes deprovisioning, scaling and recovering Clusters. Please refer to the [OneForm Operations Documentation]({{% relref "product/cluster_provisioning/cluster_operations/provision_operations/" %}}).

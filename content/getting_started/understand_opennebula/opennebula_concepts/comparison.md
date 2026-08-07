@@ -1,13 +1,13 @@
 ---
-title: "OpenNebula Feature Comparison"
-linkTitle: "Comparison"
+title: "Why OpenNebula? - Feature Comparison"
+linkTitle: "Why OpenNebula?"
 date: "2025-11-03"
 description:
 categories: [Introduction, Comparison]
 pageintoc: "5"
 tags: [Comparison, Features]
 type: docs
-weight: "3"
+weight: "2"
 ---
 
 <a id="comparison"></a>

@@ -1,6 +1,6 @@
 ---
 title: "Manual Single Front-end Installation"
-linkTitle: "Manual - Front-end"
+linkTitle: "Front-end"
 date: "2025-02-17"
 description:
 categories:

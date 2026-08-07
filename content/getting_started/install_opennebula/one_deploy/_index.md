@@ -1,17 +1,10 @@
 ---
-title: "Advanced Installation with OneDeploy"
-date: "2025-02-17"
-description: "Perform Devops-like deployment of a production-ready OpenNebula cloud."
-categories:
-pageintoc: "1"
-tags:
-no_list: true
-weight: "3"
+title: "Advanced Production Deployment"
+linkTitle: "Advanced Production Deployment"
+description: "Deploy OpenNebula using advanced Ansible playbooks with OneDeploy for more complex, repeatable, and customizable production environments."
+type: docs
+weight: 3
 ---
-
-<a id="automatic-deployment"></a>
-
-<!--# Automatic Deployment -->
 
 This section provides instructions for automatically deploying an OpenNebula cloud using [OneDeploy](https://github.com/OpenNebula/one-deploy). OneDeploy is a set of Ansible playbooks for automatic deployment of complete, production-ready OpenNebula cloud architectures with advanced configuration options.
 
