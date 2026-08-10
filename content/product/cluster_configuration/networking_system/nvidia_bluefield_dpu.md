@@ -1,6 +1,6 @@
 ---
-title: "NVIDIA BlueField DPU (AE)"
-linkTitle: "NVIDIA BlueField DPU (AE)"
+title: "NVIDIA BlueField DPU (AF)"
+linkTitle: "NVIDIA BlueField DPU (AF)"
 date: "2026-06-30"
 categories: ["networking"]
 pageintoc: "64"

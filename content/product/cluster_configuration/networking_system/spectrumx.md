@@ -1,6 +1,6 @@
 ---
-title: "NVIDIA Spectrum-X Integration (AE)"
-linkTitle: "NVIDIA Spectrum-X (AE)"
+title: "NVIDIA Spectrum-X Integration (AF)"
+linkTitle: "NVIDIA Spectrum-X (AF)"
 date: "2025-12-17"
 categories: ["networking"]
 pageintoc: "64"

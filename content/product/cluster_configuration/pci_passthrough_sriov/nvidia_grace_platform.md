@@ -1,6 +1,6 @@
 ---
-title: "NVIDIA Grace Platform Virtualization (AE)"
-linkTitle: "NVIDIA Grace Platforms (AE)"
+title: "NVIDIA Grace Platform Virtualization (AF)"
+linkTitle: "NVIDIA Grace Platforms (AF)"
 date: "2026-07-09"
 description:
 categories:

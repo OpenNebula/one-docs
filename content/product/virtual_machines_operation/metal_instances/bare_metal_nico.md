@@ -1,5 +1,6 @@
 ---
-title: "Bare Metal as a Service with NICo"
+title: "Bare Metal as a Service with NVIDIA Infra Controller (AF)"
+linkTitle: "NVIDIA NICo (AF)"
 date: "2026-06-24"
 description: "Integrate OpenNebula with NVIDIA NICo to offer multi-tenant bare-metal instances as a service."
 weight: 2

@@ -529,7 +529,7 @@ The guest configuration is identical for conventional NVIDIA vGPU and MIG-backed
 
 ---
 
-## NVIDIA Grace Platforms (AE)
+## NVIDIA Grace Platforms (AF)
 
 ### Overview
 
