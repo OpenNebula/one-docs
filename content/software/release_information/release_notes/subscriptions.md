@@ -26,7 +26,7 @@ These suffixes do not represent different software editions, source code bases, 
 
 ## Public Community Releases
 
-Every OpenNebula major and minor version is released publicly as open-source software under the Apache License. Public Community Releases include the complete OpenNebula platform and are freely available to all users.
+Every OpenNebula major and minor version is released publicly as open source software under the Apache License. Public Community Releases include the complete OpenNebula platform and are freely available to all users.
 
 Organizations can deploy these releases without restrictions and upgrade to subsequent public releases as they become available.
 
@@ -37,11 +37,8 @@ The Enterprise Subscription uses the same OpenNebula source code and software pl
 Enterprise Subscription customers receive:
 
 * **Enterprise Maintenance Packages**, including tested bug fixes, security patches, stability improvements, and maintenance updates throughout the supported lifecycle of each release.
-
 * **Long-Term Support (LTS) and Support Lifecycle Extension (SLE)**, allowing organizations to operate selected OpenNebula versions for extended periods with continued maintenance and security updates.
-
 * **SLA-based Technical Support** through private support channels with defined response and escalation commitments.
-
 * **Professional Services**, including deployment assistance, upgrades, architecture reviews, migration services, and operational guidance.
 
 ## AI Factory Subscription
@@ -50,10 +47,11 @@ The AI Factory Subscription follows the same software model and uses the same Op
 
 It includes all Enterprise Subscription benefits together with specialized maintenance and support for AI infrastructure capabilities identified throughout the documentation with the **AF** suffix.
 
-* AI Factory Subscription customers receive:
+AI Factory Subscription customers receive:
+
 * Access to Enterprise Maintenance Packages.
 * Long-Term Support (LTS) and Support Lifecycle Extension (SLE).
 * SLA-based Technical Support and Professional Services.
-* Specialized support for AI Factory capabilities, including GPU infrastructure, automated bare-metal provisioning, AI clusters, Kubernetes-based AI environments, and large-scale AI Factory deployments.
+* Specialized support for AI Factory capabilities, including GPU infrastructure, automated bare-metal provisioning, AI Clusters, Kubernetes-based AI environments, and large-scale AI Factory deployments.
 
 The AI Factory Subscription is intended for organizations deploying AI Factories, AI Gigafactories, HPC platforms, and AI Neoclouds that require enterprise-grade support for GPU-accelerated and multi-tenant AI infrastructure.
