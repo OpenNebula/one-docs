@@ -67,9 +67,11 @@ To delete a user from a group, just move the user back to the default `users` gr
 
 Upon group creation, a special admin user account can be defined. This admin user will only have administrative privileges for the new group, not for all the resources in the OpenNebula cloud as the ‘oneadmin’ group users have.
 
-Another aspect that can be controlled when a group is created is the type of resources that group users will be allowed to create.
+Another aspect that can be controlled when a group is created or updated is the type of resources that group users will be allowed to create or view.
 
-This can be managed visually in Sunstone and can also be managed through the CLI. In the latter, details of the group are passed to the `onegroup create` command as arguments. This table lists the description of said arguments.
+In Sunstone, these permissions are configured in the **Permissions** step of the group creation and update forms. Saving the form creates or updates the corresponding ACL rules automatically, so the ACL tab does not need to be used for these standard group permissions.
+
+Creation permissions can also be configured through the CLI. In this case, details of the group are passed to the `onegroup create` command as arguments. This table lists the description of said arguments.
 
 | Argument            | M / O     | Value              | Description                                                                  |
 |---------------------|-----------|--------------------|------------------------------------------------------------------------------|
@@ -136,7 +138,7 @@ You can read more about OpenNebula permissions in the [Managing Permissions]({{%
 
 ## Resource Sharing
 
-When a new group is created the cloud administrator can define if the users of this view will be allowed to view the VMs and Services of other users in the same group. If this option is checked a new ACL rule will be created to give users in this group access to the VMS and Services in the same group. Users will not able to manage these resources but they will be included in the list views of each resource.
+When a group is created or updated, the cloud administrator can select the resource types that group users will be allowed to view when those resources belong to the same group. These options are available under **View** in the **Permissions** step. Saving the form creates or updates the corresponding ACL rules automatically. Users will be able to access and list the selected resources, but they will not be able to manage them.
 
 {{< image
   pathDark="/images/sunstone/groups/dark/group_permissions.png"
