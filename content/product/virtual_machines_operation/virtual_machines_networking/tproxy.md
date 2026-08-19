@@ -108,7 +108,7 @@ The internal implementation of Transparent Proxies involves several networking p
 * `nft` (`nftables`) to store the service mapping and manage ARP resolutions
 * `ip netns` / `nsenter` family of commands to manage and use network namespaces
 * `ip link` / `ip address` / `ip route` commands
-* `/usr/lib/one/sbin/tproxy` the actual implementation of the “String-Phone” daemon mesh
+* `/usr/libexec/one/tproxy` the actual implementation of the “String-Phone” daemon mesh
 
 Below are several example command invocations, to gain familiarity with the environment.
 
@@ -165,7 +165,7 @@ default dev br0a scope link
 **Listing PIDs of running proxy processes:**
 
 ```default
-$ /usr/lib/one/sbin/tproxy status
+$ /usr/libexec/one/tproxy status
 one_tproxy: 16803
 one_tproxy_br0: 16809
 ```
@@ -182,8 +182,8 @@ There is no PID file management implemented. For simplicity, all proxy processes
 **Restarting/reloading config of proxy daemons:**
 
 ```default
-$ /usr/lib/one/sbin/tproxy restart
-$ /usr/lib/one/sbin/tproxy reload
+$ /usr/libexec/one/tproxy restart
+$ /usr/libexec/one/tproxy reload
 ```
 
 {{< alert title="Important" type="info" >}}
