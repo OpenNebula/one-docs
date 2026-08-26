@@ -16,6 +16,7 @@ Include a high level description and a link to the documentation explaining the 
 -->
 
 * Edit permissions on update group form in Sunstone [#6394](https://github.com/OpenNebula/one/issues/6394)
+* Fix cluster quota generation in Sunstone [#7538](https://github.com/OpenNebula/one/issues/7538)
 
 ## Resolved Issues
 <!-- item structure
