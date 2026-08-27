@@ -15,4 +15,3 @@ weight: "6"
 A complete list of [known issues for OpenNebula is maintained here](https://github.com/OpenNebula/one/issues?q=is%3Aopen%20is%3Aissue%20type%3ABug%20label%3A%22Status%3A%20Accepted%22%20milestone%3A%22Release%207.4%22).
 
 This page will be updated with relevant information about bugs affecting OpenNebula, as well as possible workarounds until a patch is officially published.
-
