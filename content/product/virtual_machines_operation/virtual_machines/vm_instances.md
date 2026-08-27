@@ -766,7 +766,7 @@ The arguments are mandatory. If you use the CLI or Sunstone they are generated a
 
 ## Command Execution Inside the Virtual Machine
 Prerequisites:
-* Running commands within a VM rely on the QEMU Guest Agent, which must be installed and running on the VM. 
+* The VM Template must have the QEMU Guest Agent communication channel enabled with `GUEST_AGENT = "YES"` in `FEATURES`, and the agent must be installed and running inside the VM. See [Enabling QEMU Guest Agent]({{% relref "product/operation_references/hypervisor_configuration/kvm_driver#enabling-qemu-guest-agent" %}}) for more information.
 * The VM must be in the `RUNNING` state.
 
 With OpenNebula, run commands inside a Virtual Machine. Commands are sent to the VM through the QEMU Guest Agent, and results are stored in the VM template under `QEMU_GA_EXEC`. The following diagram depicts how commands are executed within a VM:
@@ -792,6 +792,39 @@ The `QEMU_GA_EXEC` section in the VM template contains the following fields:
 | `STDOUT`      | Command standard output (base64-encoded).                       |
 | `STDERR`      | Command standard error (base64-encoded).                        |
 
+### Executing a command from Sunstone
+
+The **Exec** tab in the Virtual Machine details view lets you execute commands inside a VM from Sunstone. Enter a command in the **Command** field and click **Run**. The tab displays the execution status, return code, when the command was executed, and its standard output and standard error. You can also copy the output, re-run the last command, or cancel a command that is still running.
+
+The prerequisites and the restriction of one command at a time described above also apply when commands are executed from Sunstone. The user must have `VM:MANAGE` permission for the Virtual Machine.
+
+{{< alert title="Note" type="info" >}}
+The **Exec** tab is not enabled in the default Sunstone views. You must enable it in every view where you want it to be available.{{< /alert >}}
+
+To enable the tab, add the following block under `info-tabs` in the `vm-tab.yaml` file of the corresponding [Sunstone view]({{% relref "product/control_plane_configuration/graphical_user_interface/fireedge_sunstone#fireedge-sunstone-views" %}}):
+
+```default
+info-tabs:
+  # Other information tabs
+
+  exec:
+    enabled: true
+    actions:
+      exec: true
+      exec-retry: true
+      exec-cancel: true
+```
+
+The standard view configuration files are:
+
+* `/etc/one/fireedge/sunstone/views/admin/vm-tab.yaml`
+* `/etc/one/fireedge/sunstone/views/cloud/vm-tab.yaml`
+* `/etc/one/fireedge/sunstone/views/groupadmin/vm-tab.yaml`
+* `/etc/one/fireedge/sunstone/views/user/vm-tab.yaml`
+
+The `enabled` attribute controls whether the **Exec** tab is displayed. The actions can be configured independently: `exec` displays the command form and **Run** button, `exec-retry` displays the **Re-run** button, and `exec-cancel` displays the **Cancel** button while a command is running. An omitted action behaves as if it were set to `false`.
+
+After modifying the view configuration, reload Sunstone in the browser to fetch the updated view.
 
 ### Executing a command from the CLI
 

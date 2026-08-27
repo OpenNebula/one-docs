@@ -318,6 +318,9 @@ The available actions in the info tabs are described in the following table.
 | `detach_secgroup`      | Users will be able to detach security groups to NICs.                 |
 | `disk_saveas`          | Users will be able to save disks as an image.                         |
 | `edit`                 | Users will be able to edit the information available in that panel.   |
+| `exec`                 | Users will be able to execute commands inside Virtual Machines.       |
+| `exec-cancel`          | Users will be able to cancel a command execution.                     |
+| `exec-retry`           | Users will be able to re-run the last command.                        |
 | `hold_lease`           | Users will be able to hold a lease.                                   |
 | `release_lease`        | Users will be able to release a lease.                                |
 | `rename`               | Users will be able to rename the resource.                            |
