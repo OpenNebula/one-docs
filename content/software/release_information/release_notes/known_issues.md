@@ -16,4 +16,3 @@ A complete list of [known issues for OpenNebula is maintained here](https://gith
 
 This page will be updated with relevant information about bugs affecting OpenNebula, as well as possible workarounds until a patch is officially published.
 
-
