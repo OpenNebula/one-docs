@@ -98,14 +98,6 @@ onedatastore create ds_restic.txt
  ID: 100
 ```
 
-You can also create the DS through Sunstone like any other datastore, go to **Storage -> Datastores** and select **Backup**, in the **Storage backend** menu select **Backup - Restic**:
-
-{{< image
-  pathDark="/images/storage/dark/backup_restic_create.png"
-  path="/images/storage/light/backup_restic_create.png"
-  alt="Create Restic Backup" align="center" width="90%" mb="20px"
->}}
-
 After some time, the datastore should be monitored:
 
 ```shell
@@ -170,12 +162,23 @@ onedatastore create ds_restic_s3.txt
  ID: 102
 ```
 
+### Sunstone
+
+You can create Restic Backup Datastores for SFTP, AWS S3, and S3-compatible backends through the Sunstone interface. Go to **Storage -> Datastores**, click **Create**, select **Backup** as the **Datastore type**, and select **Backup - Restic** as the **Storage backend**:
+
+{{< image
+  pathDark="/images/storage/dark/backup_restic_create.png"
+  path="/images/storage/light/backup_restic_create.png"
+  alt="Create Restic Backup" align="center" width="90%" mb="20px"
+>}}
+
+In the **Configuration attributes** step, use **Restic backend** to select `SFTP` or `S3`. `SFTP` is selected by default. When `S3` is selected, Sunstone displays the fields described in the [S3 Backend Attributes](#s3-backend-attributes) section.
+
+For AWS S3, you can leave the endpoint empty to use `s3.amazonaws.com`; path-style access is normally not required. For S3-compatible backends, set the endpoint explicitly and enable path-style access if required by the service.
+
 For S3 datastores, OpenNebula does not discover the bucket quota automatically. The total capacity is taken from the `TOTAL_MB` datastore attribute. The examples above set `TOTAL_MB="512000"` to configure a custom `500G` capacity. If `TOTAL_MB` is omitted, the driver uses `1048576` MB (`1024G`) as the default capacity. Used capacity is computed from backup images registered in OpenNebula.
 
 OpenNebula creates a separate restic repository inside the SFTP path or S3 bucket for each VM or backup job.
-
-{{< alert title="Note" type="info" >}}
-At this time, S3 Restic datastore creation is expected to be performed through the CLI, or through the standard XML-RPC datastore allocation API by passing the datastore template attributes shown above. No new XML-RPC method is required for the driver itself: once the Backup Datastore exists, backup and restore operations use the regular OpenNebula backup APIs. FireEdge configuration support for S3-specific attributes will be added in future releases.{{< /alert >}}
 
 ## Repository Maintenance and Troubleshooting
 
