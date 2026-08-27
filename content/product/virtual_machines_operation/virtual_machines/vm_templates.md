@@ -521,6 +521,8 @@ VM_RESTRICTED_ATTR = "VPU"
 VM_RESTRICTED_ATTR = "NIC"
 ```
 
+An attribute without a slash restricts the complete vector when its value is a vector. Consequently, `VM_RESTRICTED_ATTR = "NIC"` prevents users from adding, removing, or modifying any `NIC` vector. To restrict only a specific attribute within the vector, use the `VECTOR/ATTRIBUTE` form, such as `VM_RESTRICTED_ATTR = "NIC/MAC"`.
+
 And the following Template:
 
 ```none
@@ -649,6 +651,8 @@ VM_RESTRICTED_ATTR = "VPU"
 VM_RESTRICTED_ATTR = "NIC"
 ```
 
+Here, `NIC` restricts the complete vector. To restrict only one attribute within the vector instead, use the `VECTOR/ATTRIBUTE` form, such as `VM_RESTRICTED_ATTR = "NIC/MAC"`.
+
 And the following Template:
 
 ```none
@@ -742,5 +746,3 @@ Use **+ Create VM Template** to create a new VM template or select an existing t
   path="/images/virtual_machines/management/light/sunstone_vm_template_details_view.png"
   alt="VM Template User Inputs Metadata" align="center" width="90%" mb="20px"
 >}}
-
-

@@ -227,6 +227,7 @@ For showback the CPU and memory cost are counted if the resource is reserved on 
 
 - `NETWORK_SIZE`: Here you can define the default size for the Virtual Networks.
 - `MAC_PREFIX`: Default MAC prefix to be used to create the auto-generated MAC addresses. (This can be overwritten by the Virtual Network template.)
+- `REUSE_ADDRESS`: Controls the default lease allocation policy for internal Address Ranges. If set to `NO`, OpenNebula allocates leases in round-robin order. If set to `YES`, OpenNebula reuses the first available lease. This setting can be overridden by the `REUSE_ADDRESS` attribute in each Virtual Network template. Defaults to `NO`.
 - `VLAN_IDS`: VLAN ID pool for the automatic `VLAN_ID` assignment. This pool is for 802.1Q networks (Open vSwitch and 802.1Q drivers). The driver will try first to allocate `VLAN_IDS[START] + VNET_ID`
   - `START`: First `VLAN_ID` to use.
   - `RESERVED`: Comma-separated list of reserved VLAN_IDs or ranges. Two numbers separated by a colon indicate a range.
@@ -244,6 +245,8 @@ Sample configuration:
 NETWORK_SIZE = 254
 
 MAC_PREFIX   = "02:00"
+
+REUSE_ADDRESS = "NO"
 
 VLAN_IDS = [
     START    = "2",
@@ -621,13 +624,20 @@ Note that any generic quota attribute will be added to the `VM_RESTRICTED_ATTR` 
 
 ## Restricted Attributes Configuration
 
-Users outside the `oneadmin` group won’t be able to instantiate templates created by users outside the `oneadmin` group that include attributes restricted by:
+Restricted attributes prevent users outside the `oneadmin` group from setting or modifying selected object template attributes. Configure them with:
 
 - `VM_RESTRICTED_ATTR`: Virtual Machine attribute to be restricted for users outside the oneadmin group
 - `IMAGE_RESTRICTED_ATTR`: Image attribute to be restricted for users outside the oneadmin group
 - `VNET_RESTRICTED_ATTR`: Virtual Network attribute to be restricted for users outside the oneadmin group when updating a reservation. These attributes are not considered for regular VNET creation.
+- `USER_RESTRICTED_ATTR`: User template attribute to be restricted for users outside the oneadmin group
+- `GROUP_RESTRICTED_ATTR`: Group template attribute to be restricted for users outside the oneadmin group
 
-If the VM template has been created by admins in the `oneadmin` group then users outside the oneadmin group **can** instantiate these templates.
+For single attributes, specify the attribute name directly. For vector attributes, you can restrict either the complete vector or individual attributes within it:
+
+- `ATTRIBUTE`: Restricts the single attribute or the complete vector attribute. For example, `VM_RESTRICTED_ATTR = "DISK"` prevents users from adding, removing, or changing any `DISK` vector.
+- `VECTOR/ATTRIBUTE`: Restricts only the specified attribute in every occurrence of the vector. For example, `VM_RESTRICTED_ATTR = "DISK/SIZE"` protects `SIZE` while other attributes in the `DISK` vector remain customizable.
+
+Users outside the `oneadmin` group can instantiate VM templates created by an administrator even when those templates contain restricted attributes, but they cannot override the restricted values.
 
 Sample configuration:
 
@@ -669,6 +679,14 @@ VNET_RESTRICTED_ATTR = "AR/VN_MAD"
 VNET_RESTRICTED_ATTR = "AR/PHYDEV"
 VNET_RESTRICTED_ATTR = "AR/VLAN_ID"
 VNET_RESTRICTED_ATTR = "AR/BRIDGE"
+
+USER_RESTRICTED_ATTR = "VM_USE_OPERATIONS"
+USER_RESTRICTED_ATTR = "VM_MANAGE_OPERATIONS"
+USER_RESTRICTED_ATTR = "VM_ADMIN_OPERATIONS"
+
+GROUP_RESTRICTED_ATTR = "VM_USE_OPERATIONS"
+GROUP_RESTRICTED_ATTR = "VM_MANAGE_OPERATIONS"
+GROUP_RESTRICTED_ATTR = "VM_ADMIN_OPERATIONS"
 ```
 
 OpenNebula evaluates these attributes:
