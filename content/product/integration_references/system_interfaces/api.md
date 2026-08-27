@@ -75,58 +75,58 @@ Commands with marked with \* are asynchronous. The success response for these co
 
 ### onevm
 
-| onevm command                                                                                                                                           | XML-RPC Method            | Auth. Request                                            |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------|----------------------------------------------------------|
-| deploy\*                                                                                                                                                | one.vm.deploy             | VM:ADMIN<br/><br/>HOST:MANAGE                            |
-| undeploy\*<br/><br/>terminate\*<br/><br/>suspend\*<br/><br/>hold<br/><br/>stop\*<br/><br/>resume<br/><br/>release<br/><br/>poweroff\*<br/><br/>reboot\* | one.vm.action             | VM:MANAGE                                                |
-| resched<br/><br/>unresched                                                                                                                              | one.vm.action             | VM:ADMIN                                                 |
-| migrate\*                                                                                                                                               | one.vm.migrate            | VM:ADMIN<br/><br/>HOST:MANAGE                            |
-| disk-saveas\*                                                                                                                                           | one.vm.disksaveas         | VM:MANAGE<br/><br/>IMAGE:CREATE                          |
-| disk-snapshot-create\*                                                                                                                                  | one.vm.disksnapshotcreate | VM:MANAGE<br/><br/>IMAGE:MANAGE                          |
-| disk-snapshot-delete\*                                                                                                                                  | one.vm.disksnapshotdelete | VM:MANAGE<br/><br/>IMAGE:MANAGE                          |
-| disk-snapshot-revert\*                                                                                                                                  | one.vm.disksnapshotrevert | VM:MANAGE                                                |
-| disk-snapshot-rename                                                                                                                                    | one.vm.disksnapshotrename | VM:MANAGE                                                |
-| disk-snapshot-list                                                                                                                                      | one.vmpool.info           | VM:USE                                                   |
-| disk-attach\*                                                                                                                                           | one.vm.attach             | VM:MANAGE<br/><br/>IMAGE:USE                             |
-| disk-detach\*                                                                                                                                           | one.vm.detach             | VM:MANAGE                                                |
-| disk-resize\*                                                                                                                                           | one.vm.diskresize         | VM:MANAGE                                                |
-| nic-attach\*                                                                                                                                            | one.vm.attachnic          | VM:MANAGE<br/><br/>NET:USE                               |
-| nic-detach\*                                                                                                                                            | one.vm.detachnic          | VM:MANAGE                                                |
-| nic-update\*                                                                                                                                            | one.vm.updatenic          | VM:MANAGE                                                |
-| sg-attach\*                                                                                                                                             | one.vm.attachsg           | VM:MANAGE                                                |
-| sg-detach\*                                                                                                                                             | one.vm.detachsg           | VM:MANAGE                                                |
-| create                                                                                                                                                  | one.vm.allocate           | VM:CREATE<br/><br/>IMAGE:USE<br/><br/>NET:USE            |
-| show                                                                                                                                                    | one.vm.info               | VM:USE                                                   |
-| chown<br/><br/>chgrp                                                                                                                                    | one.vm.chown              | VM:MANAGE<br/><br/>[USER:MANAGE]<br/><br/>[GROUP:USE]    |
-| chmod                                                                                                                                                   | one.vm.chmod              | VM:<MANAGE/ADMIN>                                        |
-| rename                                                                                                                                                  | one.vm.rename             | VM:MANAGE                                                |
-| snapshot-create\*                                                                                                                                       | one.vm.snapshotcreate     | VM:MANAGE                                                |
-| snapshot-delete\*                                                                                                                                       | one.vm.snapshotdelete     | VM:MANAGE                                                |
-| snapshot-revert\*                                                                                                                                       | one.vm.snapshotrevert     | VM:MANAGE                                                |
-| snapshot-list                                                                                                                                           | one.vmpool.info           | VM:USE                                                   |
-| resize\*                                                                                                                                                | one.vm.resize             | VM:MANAGE                                                |
-| update                                                                                                                                                  | one.vm.update             | VM:MANAGE                                                |
-| recover\*                                                                                                                                               | one.vm.recover            | VM:ADMIN                                                 |
-| save\*                                                                                                                                                  | – (ruby method)           | VM:MANAGE<br/><br/>IMAGE:CREATE<br/><br/>TEMPLATE:CREATE |
-| updateconf                                                                                                                                              | one.vm.updateconf         | VM:MANAGE                                                |
-| list<br/>top                                                                                                                                            | one.vmpool.info           | VM:USE                                                   |
-| list                                                                                                                                                    | one.vmpool.infoextended   | VM:USE                                                   |
-| –                                                                                                                                                       | one.vm.monitoring         | VM:USE                                                   |
-| lock                                                                                                                                                    | one.vm.lock               | VM:MANAGE                                                |
-| unlock                                                                                                                                                  | one.vm.unlock             | VM:MANAGE                                                |
-| create-chart<br/><br/>--schedule                                                                                                                        | one.vm.schedadd           | VM:MANAGE                                                |
-| sched-update                                                                                                                                            | one.vm.schedupdate        | VM:MANAGE                                                |
-| sched-delete                                                                                                                                            | one.vm.scheddelete        | VM:MANAGE                                                |
-| backup <sub>\*</sub>                                                                                                                                    | one.vm.backup             | VM:ADMIN                                                 |
-| backup-cancel\*                                                                                                                                         | one.vm.backupcancel       | VM:ADMIN                                                 |
-| pci-attach                                                                                                                                              | one.vm.attachpci          | VM:MANAGE                                                |
-| pci-detach                                                                                                                                              | one.vm.detachpci          | VM:MANAGE                                                |
-| restore                                                                                                                                                 | one.vm.restore            | VM:MANAGE                                                |
-| exec                                                                                                                                                    | one.vm.exec               | VM:MANAGE                                                |
-| exec-retry                                                                                                                                              | one.vm.retryexec          | VM:MANAGE                                                |
-| exec-cancel                                                                                                                                             | one.vm.cancelexec         | VM:MANAGE                                                |
-| vmgroup-add                                                                                                                                             | one.vm.vmgroupadd         | VM:MANAGE                                                |
-| vmgroup-del                                                                                                                                             | one.vm.vmgroupdel         | VM:MANAGE                                                |
+| onevm command                     | XML-RPC Method            | Auth. Request                                            |
+|-----------------------------------|---------------------------|----------------------------------------------------------|
+| deploy\*                          | one.vm.deploy             | VM:ADMIN<br/><br/>HOST:MANAGE                            |
+| undeploy\*<br/><br/>terminate\*<br/><br/>suspend\*<br/><br/>hold<br/><br/>stop\*<br/><br/>resume<br/><br/>release<br/><br/>poweroff\*<br/><br/>reboot\* | one.vm.action | VM:MANAGE |
+| resched<br/><br/>unresched        | one.vm.action             | VM:ADMIN                                                 |
+| migrate\*                         | one.vm.migrate            | VM:ADMIN<br/><br/>HOST:MANAGE                            |
+| disk-saveas\*                     | one.vm.disksaveas         | VM:MANAGE<br/><br/>IMAGE:CREATE                          |
+| disk-snapshot-create\*            | one.vm.disksnapshotcreate | VM:MANAGE<br/><br/>IMAGE:MANAGE                          |
+| disk-snapshot-delete\*            | one.vm.disksnapshotdelete | VM:MANAGE<br/><br/>IMAGE:MANAGE                          |
+| disk-snapshot-revert\*            | one.vm.disksnapshotrevert | VM:MANAGE                                                |
+| disk-snapshot-rename              | one.vm.disksnapshotrename | VM:MANAGE                                                |
+| disk-snapshot-list                | one.vmpool.info           | VM:USE                                                   |
+| disk-attach\*                     | one.vm.attach             | VM:MANAGE<br/><br/>IMAGE:USE                             |
+| disk-detach\*                     | one.vm.detach             | VM:MANAGE                                                |
+| disk-resize\*                     | one.vm.diskresize         | VM:MANAGE                                                |
+| nic-attach\*                      | one.vm.attachnic          | VM:MANAGE<br/><br/>NET:USE                               |
+| nic-detach\*                      | one.vm.detachnic          | VM:MANAGE                                                |
+| nic-update\*                      | one.vm.updatenic          | VM:MANAGE                                                |
+| sg-attach\*                       | one.vm.attachsg           | VM:MANAGE                                                |
+| sg-detach\*                       | one.vm.detachsg           | VM:MANAGE                                                |
+| create                            | one.vm.allocate           | VM:CREATE<br/><br/>IMAGE:USE<br/><br/>NET:USE            |
+| show                              | one.vm.info               | VM:USE                                                   |
+| chown<br/><br/>chgrp              | one.vm.chown              | VM:MANAGE<br/><br/>[USER:MANAGE]<br/><br/>[GROUP:USE]    |
+| chmod                             | one.vm.chmod              | VM:<MANAGE/ADMIN>                                        |
+| rename                            | one.vm.rename             | VM:MANAGE                                                |
+| snapshot-create\*                 | one.vm.snapshotcreate     | VM:MANAGE                                                |
+| snapshot-delete\*                 | one.vm.snapshotdelete     | VM:MANAGE                                                |
+| snapshot-revert\*                 | one.vm.snapshotrevert     | VM:MANAGE                                                |
+| snapshot-list                     | one.vmpool.info           | VM:USE                                                   |
+| resize\*                          | one.vm.resize             | VM:MANAGE                                                |
+| update                            | one.vm.update             | VM:MANAGE                                                |
+| recover\*                         | one.vm.recover            | VM:ADMIN                                                 |
+| save\*                            | – (ruby method)           | VM:MANAGE<br/><br/>IMAGE:CREATE<br/><br/>TEMPLATE:CREATE |
+| updateconf                        | one.vm.updateconf         | VM:MANAGE                                                |
+| list<br/>top                      | one.vmpool.info           | VM:USE                                                   |
+| list                              | one.vmpool.infoextended   | VM:USE                                                   |
+| –                                 | one.vm.monitoring         | VM:USE                                                   |
+| lock                              | one.vm.lock               | VM:MANAGE                                                |
+| unlock                            | one.vm.unlock             | VM:MANAGE                                                |
+| create-chart<br/><br/>--schedule  | one.vm.schedadd           | VM:MANAGE                                                |
+| sched-update                      | one.vm.schedupdate        | VM:MANAGE                                                |
+| sched-delete                      | one.vm.scheddelete        | VM:MANAGE                                                |
+| backup <sub>\*</sub>              | one.vm.backup             | VM:ADMIN                                                 |
+| backup-cancel\*                   | one.vm.backupcancel       | VM:ADMIN                                                 |
+| pci-attach                        | one.vm.attachpci          | VM:MANAGE                                                |
+| pci-detach                        | one.vm.detachpci          | VM:MANAGE                                                |
+| restore*                          | one.vm.restore            | VM:ADMIN                                                 |
+| exec*                             | one.vm.exec               | VM:MANAGE                                                |
+| exec-retry*                       | one.vm.retryexec          | VM:MANAGE                                                |
+| exec-cancel*                      | one.vm.cancelexec         | VM:MANAGE                                                |
+| vmgroup-add                       | one.vm.vmgroupadd         | VM:MANAGE                                                |
+| vmgroup-del                       | one.vm.vmgroupdel         | VM:MANAGE                                                |
 
 {{< alert title="Note" type="info" >}}
 The **deploy** action requires the user issuing the command to have VM:ADMIN rights. This user will usually be the scheduler with the oneadmin credentials.
