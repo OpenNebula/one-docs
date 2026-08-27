@@ -63,7 +63,7 @@ Thank you to our incredible community and partners for your continued support in
 * Added [interactive backup integration support]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}), enabling third-party backup integrations to pull full and CBT incremental `qcow2` and LVM VM backups directly from KVM hypervisors through the OpenNebula Backup Exporter (OneBEX).
 * Added [S3 backend support for Restic Backup Datastores]({{% relref "product/cluster_configuration/backup_system/restic.md#vm-backups-restic" %}}), allowing backups to be stored in AWS S3 and S3-compatible object storage such as MinIO, Garage, or Ceph RGW.
 * Added [selected disk backups]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations#vm-backups-selected-disks" %}}), allowing VM backup configurations and Backup Jobs to back up only a defined subset of eligible VM disks. Selected-disk backups can be restored as [individual disks]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations#vm-backups-selected-disks-restore" %}}).
-* Updated the [Veeam Backup integration architecture]({{% relref "product/cluster_configuration/backup_system/veeam.md#architecture" %}}) to connect Veeam to OpenNebula through the Front-end and pull backup data directly from hypervisors through OneBEX, removing the need for a separate oVirtAPI server VM. 
+* Updated the [Veeam Backup integration architecture]({{% relref "product/cluster_configuration/backup_system/veeam.md#architecture" %}}) to connect Veeam to OpenNebula through the Front-end and pull backup data directly from hypervisors through OneBEX, removing the need for a separate oVirtAPI server VM.
 
 ## AI Factories
 
