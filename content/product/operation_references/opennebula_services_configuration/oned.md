@@ -227,7 +227,7 @@ For showback the CPU and memory cost are counted if the resource is reserved on 
 
 - `NETWORK_SIZE`: Here you can define the default size for the Virtual Networks.
 - `MAC_PREFIX`: Default MAC prefix to be used to create the auto-generated MAC addresses. (This can be overwritten by the Virtual Network template.)
-- `REUSE_ADDRESS`: Controls the default lease allocation policy for internal Address Ranges. If set to `NO`, OpenNebula allocates leases in round-robin order. If set to `YES`, OpenNebula reuses the first available lease. This setting can be overridden by the `REUSE_ADDRESS` attribute in each Virtual Network template. Defaults to `NO`.
+- `REUSE_ADDRESS`: Controls the default lease allocation policy for internal Address Ranges. If set to `NO`, OpenNebula allocates leases in round-robin order. If set to `YES`, OpenNebula reuses the first available lease. Defaults to `NO`.
 - `VLAN_IDS`: VLAN ID pool for the automatic `VLAN_ID` assignment. This pool is for 802.1Q networks (Open vSwitch and 802.1Q drivers). The driver will try first to allocate `VLAN_IDS[START] + VNET_ID`
   - `START`: First `VLAN_ID` to use.
   - `RESERVED`: Comma-separated list of reserved VLAN_IDs or ranges. Two numbers separated by a colon indicate a range.
