@@ -79,11 +79,17 @@ Consider that a temporary network/Host problem or a small hiccup combined with s
 
 ## Enabling Fencing
 
-In order to enable fencing you need to implement file `/var/lib/one/remotes/hooks/ft/fence_host.sh`:
+In order to enable fencing you need to create the file `/var/lib/one/remotes/hooks/ft/fence_host.sh`. The Host error hook attempts fencing only if this file exists. Start from the shipped example:
+
+```default
+cp -p /var/lib/one/remotes/hooks/ft/fence_host.sh.example \
+      /var/lib/one/remotes/hooks/ft/fence_host.sh
+```
+
+The `fence_host.sh` file is yours and is preserved across OpenNebula upgrades, while the example may be updated by them. Adapt it to your infrastructure:
 
 - Update your Hosts using `onehost update <HOST_ID>` and add there the attribute `FENCE_IP` with the fencing device IP.
-- Update the above script and add `USERNAME` and `PASSWORD` of your fencing device.
-- Remove the line `echo ""Fence host not configured, please edit ft/fence_host.sh"" && exit 1` from above script.
+- Update the script and add `USERNAME` and `PASSWORD` of your fencing device.
 - Depending on your hardware provider, you will need to use a different tool to control the ILO, so please check your hardware manual, for example:
 
 ```default
