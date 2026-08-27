@@ -57,3 +57,4 @@ The following issues have been solved in 7.4.1:
 * Fix the Virtual Machine and Host tables by adding the cluster filter [#7994](https://github.com/OpenNebula/one/issues/7994).
 * Fix interactive restores producing truncated images when trailing zeroed ranges are skipped during transfer [#8008](https://github.com/OpenNebula/one/issues/8008).
 * Fix cluster quota generation in Sunstone [#7538](https://github.com/OpenNebula/one/issues/7538)
+* Fix customized `hooks/ft/fence_host.sh` being overwritten on upgrade. Fencing is now enabled by creating `fence_host.sh` from the shipped `fence_host.sh.example`, see [Enabling Fencing]({{% relref "vm_ha.md#enabling-fencing" %}}) [#7996](https://github.com/OpenNebula/one/issues/7996).
