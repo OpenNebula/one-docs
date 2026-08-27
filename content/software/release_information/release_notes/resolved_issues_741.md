@@ -16,7 +16,7 @@ Include a high level description and a link to the documentation explaining the 
 -->
 
 * Edit permissions on update group form in Sunstone [#6394](https://github.com/OpenNebula/one/issues/6394)
-* Fix cluster quota generation in Sunstone [#7538](https://github.com/OpenNebula/one/issues/7538)
+* New parameter `--keep-ha` for CLI command `onezone serversync`, which keeps local [RAFT configuration]({{% relref "frontend_ha.md#server-sync-ha" %}}).
 
 ## Resolved Issues
 <!-- item structure
@@ -47,3 +47,4 @@ The following issues have been solved in 7.4.1:
 * Fix the Virtual machine template form by setting the name to read-only [#7951](https://github.com/OpenNebula/one/issues/7951).
 * Fix the Virtual Machine and Host tables by adding the cluster filter [#7994](https://github.com/OpenNebula/one/issues/7994).
 * Fix interactive restores producing truncated images when trailing zeroed ranges are skipped during transfer [#8008](https://github.com/OpenNebula/one/issues/8008).
+* Fix cluster quota generation in Sunstone [#7538](https://github.com/OpenNebula/one/issues/7538)
