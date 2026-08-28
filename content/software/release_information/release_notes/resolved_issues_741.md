@@ -20,6 +20,7 @@ Include a high level description and a link to the documentation explaining the 
 * New parameter `--keep-ha` for CLI command `onezone serversync`, which keeps local [RAFT configuration]({{% relref "frontend_ha.md#server-sync-ha" %}}).
 * Log HA hearbeat and replication messages at log level 5.
 * Option to configure network lease policy for internal Address Ranges. The policy can be set globally in [oned.conf]({{% relref "oned#virtual-networks" %}}).
+* Extend Network PCI physical functions (PF) card control with link state management and flags in switchdev mode.
 
 ## Resolved Issues
 <!-- item structure
