@@ -95,7 +95,7 @@ node   0
 ```
 
 {{< alert title="Important" type="info" >}}
-When defining a custom CPU Topology you need to set the number of sockets, cores, and threads, and it must match the total number of vCPUs, e.g., `VCPU = SOCKETS * CORES * THREAD`.{{< /alert >}} 
+When defining a custom CPU Topology you need to set the number of sockets, cores, and threads, and it must match the total number of vCPUs, e.g., `VCPU = SOCKETS * CORES * THREAD`.{{< /alert >}}
 
 ### NUMA Topology
 
@@ -159,7 +159,7 @@ NUMA_NODE = [ MEMORY = 2048, TOTAL_CPUS = 4 ]
 ```
 
 {{< alert title="Important" type="info" >}}
-OpenNebula will also check that the total MEMORY in all the nodes matches that set in the VM.{{< /alert >}} 
+OpenNebula will also check that the total MEMORY in all the nodes matches that set in the VM.{{< /alert >}}
 
 ## NUMA Node Affinity
 
@@ -176,10 +176,10 @@ TOPOLOGY = [ NODE_AFFINITY = 1 ]
 ```
 
 {{< alert title="Important" type="info" >}}
-It is recommended to use homogeneous cluster configurations (same number of nodes, cores, and threads per core) to allow the live-migration of VMs with NUMA node affinity.{{< /alert >}} 
+It is recommended to use homogeneous cluster configurations (same number of nodes, cores, and threads per core) to allow the live-migration of VMs with NUMA node affinity.{{< /alert >}}
 
 {{< alert title="Important" type="info" >}}
-NUMA node affinity cannot be used together with the PIN_POLICY attribute.{{< /alert >}} 
+NUMA node affinity cannot be used together with the PIN_POLICY attribute.{{< /alert >}}
 
 ## CPU and NUMA Pinning
 
@@ -200,7 +200,7 @@ When using a pinning policy it is recommended to fix only the number of vCPUs by
 * The configuration with the highest number of threads/cores that fits in the Host is preferred.
 
 {{< alert title="Important" type="info" >}}
-When `THREADS` is set, OpenNebula will look for a Host that can allocate that number of threads per core; if not found the VM will remain in `PENDING` state. This may be required if you want the VM to run with a fixed number of threads per core.{{< /alert >}} 
+When `THREADS` is set, OpenNebula will look for a Host that can allocate that number of threads per core; if not found the VM will remain in `PENDING` state. This may be required if you want the VM to run with a fixed number of threads per core.{{< /alert >}}
 
 For example to run a two NUMA node VM with eight vCPUS and 4G of memory, using the `THREAD` policy you can use:
 
@@ -249,7 +249,7 @@ TOPOLOGY = [ HUGEPAGE_SIZE = 2 ]
 ```
 
 {{< alert title="Important" type="info" >}}
-When no pin policy or NUMA node affinity is set, OpenNebula will pick the node with a higher number of free hugepages to try balancing the load.{{< /alert >}} 
+When no pin policy or NUMA node affinity is set, OpenNebula will pick the node with a higher number of free hugepages to try balancing the load.{{< /alert >}}
 
 ## Summary of Virtual Topology Attributes
 
@@ -274,7 +274,7 @@ First, you need to define which Hosts are going to be used to run pinned workloa
 * `PINNED`. VMs are allocated and pinned to specific nodes according to different policies.
 
 {{< alert title="Note" type="info" >}}
-You can also create an OpenNebula Cluster, including all the Hosts devoted to running pinned workloads, and set the `PIN_POLICY` at the cluster level.{{< /alert >}} 
+You can also create an OpenNebula Cluster, including all the Hosts devoted to running pinned workloads, and set the `PIN_POLICY` at the cluster level.{{< /alert >}}
 
 The Host monitoring probes should also return the NUMA topology and usage status of the hypervisors. The following command shows a single node hypervisor with four cores and two threads running a two vCPU VM:
 
@@ -299,9 +299,10 @@ NUMA MEMORY
 In this output, the string `X- X- -- --` represents the NUMA allocation: each group is a core and when a thread is free it’s shown as `-`; `x` means the thread is in use and `X` means that the thread is used *and* the core has no free threads. In this case the VM is using the `CORE` pin policy.
 
 {{< alert title="Note" type="info" >}}
-If you want to use hugepages of a given size you need to allocate them first. This can be done either at boot time or dynamically. Also you may need to mount the hugetlbfs filesystem. Please refer to your OS documentation to learn how to do this.{{< /alert >}} 
+If you want to use hugepages of a given size you need to allocate them first. This can be done either at boot time or dynamically. Also you may need to mount the hugetlbfs filesystem. Please refer to your OS documentation to learn how to do this.{{< /alert >}}
 
 You can also isolate some hypervisor CPUs from the NUMA scheduler. Isolated CPUs will not be used to pin any VM. The isolated CPUs are defined by the `ISOLCPUS` attribute; the attribute is a comma-separated list of CPU IDs. For example, `ISOLCPUS="0,5"` will isolate CPUs 0,5 and hence will not be used to pin any VM.
+In cases where pinning is not explicitly used, but a TOPOLOGY element is defined on the VM (like when using hugepages or node affinity), the VM will be pinned indirectly. That is, `oned` doesn't consider it a pinned VM (PIN_POLICY=NONE) but the domain xml of the resulting VM contains pinning configuration. The VM will be pinned to all available CPUs, given the the defined TOPOLOGY element (with or without pinning) and ISOLCPUS is excluded from that set of indirectly pinned CPUs.
 
 ### CPU Pinning and Overcommitment
 
@@ -310,7 +311,7 @@ When using a pinned policy, overcommitment is disabled by default (`CPU = 1` in 
 You can configure the number of VMs per physical thread for each Host by setting the `VMS_THREAD` (defaults to 1) variable in the Host template. For example `VMS_THREAD = 4` will pin up to four VMs per physical thread in each core.
 
 {{< alert title="Important" type="info" >}}
-When using overcommitment and NUMA you need to set the Host overcommitment in the same way, so the total CPU number accounts for the new `VMS_THREAD` value. For example, a Host with eight CPUs (`TOTAL_CPU=800`) and `VMS_THREAD=4` needs to overcommit the CPU number so the `TOTAL_CPU` is at most 3200 (8 \* 4 = 32 CPUs, max.). You can do this with the `RESERVED_CPU` attribute for the Host, `RESERVED_CPU = "-2400"` in this case (`3200 = 800 - (-2400`).{{< /alert >}} 
+When using overcommitment and NUMA you need to set the Host overcommitment in the same way, so the total CPU number accounts for the new `VMS_THREAD` value. For example, a Host with eight CPUs (`TOTAL_CPU=800`) and `VMS_THREAD=4` needs to overcommit the CPU number so the `TOTAL_CPU` is at most 3200 (8 \* 4 = 32 CPUs, max.). You can do this with the `RESERVED_CPU` attribute for the Host, `RESERVED_CPU = "-2400"` in this case (`3200 = 800 - (-2400`).{{< /alert >}}
 
 ## A Complete Example
 
