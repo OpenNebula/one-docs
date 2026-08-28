@@ -201,6 +201,7 @@ Normally that means populating the file `$HOME/.one/one_auth` with `username:pas
   - `libguestfs` library, version must be >= 1.50
   - `libvirt` library, version should be >= 8.7.0
   - `virt-v2v`, stable version
+- For [Migrating with NetApp Shift](#migrating-with-netapp-shift), `virt-v2v-in-place` must be available on `PATH`, and the source NFS datastore must be mounted on the OneSwap server. No VDDK library is needed, since the disks are converted on the storage side and are never transferred through the conversion host.
 
 Ubuntu 24.04 and AlmaLinux/RHEL 9 provide up to date versions of the packages.
 
@@ -390,7 +391,7 @@ The `oneswap` tool provides three commands:
 
 | Command | Description |
 | --- | --- |
-| `oneswap list <object>` | List vCenter objects (`vms`, `datacenters`, `clusters`) |
+| `oneswap list <object>` | List vCenter objects (`vms`, `datacenters`, `clusters`), or NetApp Shift `blueprints` |
 | `oneswap convert <vm_name>` | Convert one (or a batch of) vCenter Virtual Machines |
 | `oneswap import` | Import an OVA as a VM or a VMDK as an Image (see [Managing OVAs and VMDKs]({{% relref "import_ova" %}})) |
 
@@ -413,6 +414,8 @@ The VM listing shows for each VM its vCenter reference, name, power state, ESXi 
 - `--name text`: filter by VM name containing `text`.
 - `--datacenter text` / `--cluster text`: filter by Data Center / Cluster name.
 - `--state vm_state`: filter VMs by their power state: `poweroff`, `running` or `suspended`.
+
+When NetApp Shift is configured, `oneswap list vms` reads the VMs from a Shift blueprint instead of vCenter, and `oneswap list blueprints` becomes available. See [Migrating with NetApp Shift](#migrating-with-netapp-shift).
 
 ### Transfer methods
 
@@ -437,6 +440,8 @@ For example:
 ```bash
 oneswap convert VM_NAME --hybrid --download-stripes 4
 ```
+
+All four methods move the disk data through the OneSwap server. For VMs stored on NetApp ONTAP, [Migrating with NetApp Shift](#migrating-with-netapp-shift) converts the disks on the storage side instead, removing the transfer phase altogether. It cannot be combined with any of the transfer options above.
 
 A custom conversion option (`--custom`) is also provided, which is only recommended as a fallback, that does not use virt-v2v. It relies on RbVmomi2, using `qemu-img` and `virt-customize`/`guestfish` to prepare the image for OpenNebula. It can be useful for guest distributions which are not supported by virt-v2v or which fail to convert, but it does not support Windows guests. With `--fallback`, OneSwap first attempts the virt-v2v conversion and automatically retries with the custom conversion process if it fails. `--fallback` and `--custom` cannot be combined.
 
@@ -464,6 +469,10 @@ oneswap convert vm-1234 $VOPTS --delta
 
 # Convert using OpenNebula Custom Conversion (no virt-v2v)
 oneswap convert vm-1234 $VOPTS --custom
+
+# Convert through a NetApp Shift blueprint (disks converted on the ONTAP side)
+oneswap convert vm-1234 $VOPTS --shift https://12.34.56.80 --shift-user admin \
+  --shift-pass changeme123 --shift-blueprint bp1 --shift-mount /mnt/shift
 ```
 
 The conversion creates one OpenNebula Image per VM disk (named `<vm_name>_<index>`, in the Image Datastore selected with `--datastore`, default ID `1`) and a VM Template with the equivalent capacity (CPU, vCPU, memory), NICs, firmware and graphics configuration. Disk conversion takes place in the working directory (`--work-dir`, default `/var/tmp`), where a subdirectory is created for each VM; with `--delete-after` the leftover conversion directory is removed once the images are transferred. The disk format can be selected with `--format` (`qcow2`, the default, or `raw`), and a custom `virt-v2v` executable can be set with `--v2v-path`.
@@ -516,6 +525,8 @@ oneswap convert VM_NAME --dry-run --benchmark-export
 This creates a temporary benchmark file on the VMware datastore, downloads it through the same source transfer path, records the measured speed, and removes the temporary file afterward.
 
 The benchmark results are stored in the OneSwap work directory and reused by later dry-run estimates. For HTTP transfers, OneSwap uses import benchmark metrics or configured fallback values for future estimates; real HTTP import timings from full conversions are not reused as trusted metrics.
+
+Dry run is not available with `--shift`. The estimate is built around the source export and disk conversion phases, and in [Shift mode](#migrating-with-netapp-shift) neither is performed by OneSwap.
 
 #### Staged Delta Migration
 
@@ -593,6 +604,8 @@ The missing VirtIO ISO warning is informational and does not stop the conversion
 
 The prechecks can be skipped with `--skip-prechecks`.
 
+OneSwap also requires the source VM to be powered off and free of VMware snapshots, since `virt-v2v` reads the live VMDKs. Those two preconditions do not apply in [Shift mode](#migrating-with-netapp-shift), where the disks have already been converted on the storage side and OneSwap only reads qcow2 files from the mount.
+
 If OpenNebula fails to allocate an Image or VM Template during the import phase, OneSwap reports the full error returned by the OpenNebula API and stops the current conversion. It does not continue with an invalid object ID or wait for an Image that was not created. Converted local disks are preserved according to the existing failed-conversion cleanup behavior.
 
 #### Network mapping
@@ -647,6 +660,146 @@ The capacity and devices of the created VM Template default to the values read f
 - `--graphics-type type`: graphics type to enable in OpenNebula (`vnc`, `sdl`, `spice`), with the related `--graphics-listen`, `--graphics-port`, `--graphics-keymap`, `--graphics-password` and `--graphics-command` options.
 - `--uefi-path /path/to/uefi` / `--uefi-sec-path /path/to/uefi.secboot`: paths to the UEFI (Secure Boot) firmware files to be configured in the VM template for UEFI guests.
 - `--root option`: choose the root filesystem to be converted when the guest has several (`ask`, `single`, `first` or `/dev/sdX`). Default: `first`.
+
+### Migrating with NetApp Shift
+
+When the source VMs are stored on NetApp ONTAP, the disk conversion can be delegated to a [NetApp Shift Toolkit](https://docs.netapp.com/us-en/netapp-solutions/shift-toolkit/shift-overview.html) appliance instead of being performed by `virt-v2v` on the conversion host. Shift converts the VMDKs into qcow2 on the storage side using FlexClone, so **the disk data never travels through the OneSwap server**. This removes the transfer phase entirely, which is normally the longest part of a migration.
+
+OneSwap still performs the rest of the migration: it reads the VM properties from vCenter, prepares the guest (OS morph, contextualization, VirtIO, QEMU Guest Agent), creates the OpenNebula Images and builds the VM Template.
+
+{{< alert color="warning" title="Shift is a separate product" >}}
+The NetApp Shift Toolkit is licensed and operated by NetApp, and is not part of OpenNebula. OneSwap only drives an appliance that is already deployed and configured.
+{{< /alert >}}
+
+#### Prerequisites
+
+The following must be created **in the Shift UI** before OneSwap is used. OneSwap never writes to this side of the appliance:
+
+1. A **source site** (vCenter + ONTAP) and a **destination site** (KVM).
+2. One or more **resource groups** containing the VMs to convert.
+3. A **blueprint** (DR plan) referencing those resource groups.
+
+Keeping the blueprint as the unit of work is deliberate: a blueprint defines which wave of VMs moves together, and one execution converts every VM in its resource groups in parallel.
+
+On the OneSwap server:
+
+- The **source NFS datastore must be mounted locally**, and the mount point passed with `--shift-mount`. Shift writes the converted disks there, next to each VM folder: `<vm_name>.qcow2` for the first disk and `<vm_name>_1.qcow2`, `<vm_name>_2.qcow2`, … for the rest.
+- `virt-v2v-in-place` must be installed. On some distributions it lives in `/usr/libexec` and that directory must be added to `PATH`.
+- **vCenter credentials are still required.** The CPU, memory, firmware, NICs and tags used to build the VM Template come from vCenter even though the disks do not.
+- The mount point and the working directory (`--work-dir`) must not overlap, since the cleanup routines delete inside the working directory.
+
+#### Listing blueprints and their VMs
+
+With Shift configured, `oneswap list` can read from the appliance instead of vCenter, which is the recommended way to confirm the right blueprint before converting anything:
+
+| Command | Output |
+| --- | --- |
+| `oneswap list blueprints` | Blueprints on the appliance, their resource groups and VM count |
+| `oneswap list vms --shift-blueprint NAME` | The VMs that blueprint would convert |
+
+```bash
+SOPTS='--shift https://12.34.56.80 --shift-user admin --shift-pass changeme123'
+
+oneswap list blueprints $SOPTS
+oneswap list vms $SOPTS --shift-blueprint bp1 --no-expand
+```
+
+`oneswap list vms` reads from Shift whenever `--shift` is set (including from `oneswap.yaml`) and from vCenter otherwise. `list datacenters` and `list clusters` are vCenter concepts and always query vCenter. Since the Shift listings have few columns, `--no-expand` usually gives more readable output.
+
+#### Converting
+
+```bash
+VOPTS='--vcenter 12.34.56.78 --vuser Administrator@vsphere.local --vpass changeme123'
+SOPTS='--shift https://12.34.56.80 --shift-user admin --shift-pass changeme123'
+SOPTS="$SOPTS --shift-blueprint bp1 --shift-mount /mnt/shift"
+
+# Convert and import every VM in the blueprint
+oneswap convert $VOPTS $SOPTS
+
+# Import only some of them, in the given order (the blueprint still runs once)
+oneswap convert $VOPTS $SOPTS --vms vm-web-01,vm-db-01
+
+# Import a single VM
+oneswap convert vm-web-01 $VOPTS $SOPTS
+```
+
+Unlike the other conversion modes, the VM name is **optional**: with no VM name, `--vms` or `--vm-list`, OneSwap imports every VM in the blueprint. Requested names are validated against the blueprint contents before anything expensive happens, so a typo fails immediately instead of after the conversion.
+
+Each run performs, once per invocation:
+
+1. Reads the blueprint's current state. If it has already been converted, the trigger is skipped and the existing disks are reused; if an execution is still running, OneSwap attaches to it and waits.
+2. Runs the Shift compliance check.
+3. Triggers the blueprint execution in `convert` mode and waits for it to finish, polling the execution's job steps. The wait is unbounded by default; `:shift_wait_timeout:` in `oneswap.yaml` sets a ceiling in seconds.
+4. For each requested VM: locates its qcow2 disks on the mount, runs `virt-v2v-in-place` on them, then contextualizes, creates the Images and builds the VM Template exactly as the other modes do.
+
+{{< alert color="warning" title="The OS morph modifies the converted disks" >}}
+`virt-v2v-in-place` and the contextualization run **directly against the qcow2 files on the mount**, with no local copy, so that terabyte-sized disks do not need to fit on the conversion host. This modifies Shift's output. To regenerate a disk, clear the blueprint execution in the Shift UI and run it again. Importing the same VM twice without regenerating would morph an already-morphed guest.
+{{< /alert >}}
+
+#### Power state
+
+The two Shift operations disagree about whether the source VMs should be running, which is worth knowing before planning a migration window:
+
+- The **compliance check** expects the VMs to be powered **on**, and reports them as failed resources (`{"powerState":"POWERED_OFF"}`) when they are not — even though the conversion then succeeds.
+- The **convert execution** expects them to be powered **off**, and is rejected otherwise with `ERSCSTEX022`, listing the VMs that are still running. It checks every VM in the blueprint, not only the ones being imported.
+
+Both combinations work:
+
+```bash
+# VMs powered off: the compliance check objects to that state, so skip it
+oneswap convert $VOPTS $SOPTS --shift-skip-compliance
+
+# VMs left running: compliance passes, the convert execution needs the override
+oneswap convert $VOPTS $SOPTS --shift-ignore-running-vms
+```
+
+`--shift-ignore-running-vms` is the same override as the **Continue** button in the Shift UI prompt. Shift then converts from a point-in-time snapshot, so the resulting disks are crash-consistent rather than quiesced. That is acceptable for most guests but not for databases or other write-heavy workloads; powering the VM down first remains the safer option. When the execution is rejected for this reason, OneSwap names the flag in the error so the run can be retried directly.
+
+#### Guests that `virt-v2v` cannot convert
+
+`virt-v2v-in-place` only recognizes the guest operating systems it supports, and rejects the rest with `virt-v2v is unable to convert this guest type`. Alpine Linux is one example. Such guests frequently boot under KVM unmodified because VirtIO is already built into the kernel, so the OS morph can be skipped:
+
+```bash
+oneswap convert alpine-vm $VOPTS $SOPTS --shift-skip-morph
+```
+
+The disks are then imported exactly as Shift produced them. Contextualization and Image creation still run. OneSwap names this flag in the error when it encounters an unsupported guest type.
+
+#### Shift options
+
+| Option | Description |
+| --- | --- |
+| `--shift server` | Appliance URL, scheme and host only (the service ports are added per request) |
+| `--shift-user`, `--shift-pass` | Shift credentials |
+| `--shift-blueprint name` | Blueprint to execute |
+| `--shift-mount path` | Local mount point of the source NFS datastore |
+| `--shift-skip-compliance` | Skip the compliance check, still trigger the blueprint |
+| `--shift-ignore-running-vms` | Convert even if blueprint VMs are powered on |
+| `--shift-skip-morph` | Import the converted disks without running `virt-v2v-in-place` |
+| `--shift-skip-conversion` | Do not contact Shift at all; import disks already present on the mount |
+
+All of them can also be set in `oneswap.yaml` as `:shift:`, `:shift_user:`, and so on, along with `:shift_wait_timeout:`.
+
+{{< alert type="info" >}}
+An uncommented `:shift:` in `oneswap.yaml` puts **every** `oneswap convert` run into Shift mode, and makes `oneswap list vms` read from the appliance.
+{{< /alert >}}
+
+#### Compatibility with other OneSwap features
+
+Shift replaces the transfer and disk-conversion phases, so it cannot be combined with the options that implement those phases. OneSwap rejects the following combinations before doing any work:
+
+| Incompatible with `--shift` | Reason |
+| --- | --- |
+| `--vddk`, `--esxi`, `--hybrid`, `--download-stripes` | [Transfer methods](#transfer-methods) move the disks to the conversion host; Shift converts them on the storage side, so no transfer takes place |
+| `--custom`, `--fallback` | Alternative `virt-v2v` conversion paths, replaced by Shift |
+| `--delta`, `--delta-prepare`, `--delta-commit`, `--delta-cleanup` | [Staged Delta Migration](#staged-delta-migration) is a different low-downtime strategy, based on VMware snapshots and ESXi SSH access |
+| `--clone` | Clone mode exists to convert a running VM; Shift addresses that with `--shift-ignore-running-vms` |
+| `--dry-run` | The estimator models source export and disk conversion, neither of which OneSwap performs in Shift mode |
+
+Everything else behaves as usual, with two differences worth noting:
+
+- **Prechecks.** The OpenNebula-side [prechecks](#prechecks) (datastore space, name collisions, network) run normally. The powered-off and no-snapshot preconditions are **not** applied, because OneSwap never reads the VMware disks in this mode, and Shift's own clone leaves a snapshot behind.
+- **Batch conversion.** `--vms` and `--vm-list` work as described in [Batch conversion](#batch-conversion), except that the blueprint is executed only once for the whole batch rather than per VM.
 
 ### Running OneSwap on a dedicated server
 
