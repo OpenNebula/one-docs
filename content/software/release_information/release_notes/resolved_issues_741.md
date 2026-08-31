@@ -62,6 +62,7 @@ The following issues have been solved in 7.4.1:
 * Fix Backup Exporter service error reporting to cover additional error conditions [#8004](https://github.com/OpenNebula/one/issues/8004), [#7986](https://github.com/OpenNebula/one/issues/7986).
 * Fix Sunstone Virtual Network tab to include inputs for SR-IOV `TRUST` and `SPOOFCHK` attributes [#7933](https://github.com/OpenNebula/one/issues/7933).
 * Fix the Virtual Machine and Host tables by adding the cluster filter [#7994](https://github.com/OpenNebula/one/issues/7994).
+* Fix blank page in the host NUMA tab when a physical CPU is assigned to a VM [#7969](https://github.com/OpenNebula/one/issues/7969).
 * Fix allow RAW hypervisor VM configuration update [#7613](https://github.com/OpenNebula/one/issues/7613).
 * Fix interactive restores producing truncated images when trailing zeroed ranges are skipped during transfer [#8008](https://github.com/OpenNebula/one/issues/8008).
 * Fix persistent image creation when saving a VM as a template in Sunstone [#7425](https://github.com/OpenNebula/one/issues/7425).
