@@ -74,3 +74,4 @@ The following issues have been solved in 7.4.1:
 * Fix current host and datastore selection in the Sunstone migration dialog [#7995](https://github.com/OpenNebula/one/issues/7995).
 * Fix VM configuration update call in Sunstone [#7502](https://github.com/OpenNebula/one/issues/7502).
 * Fix the Add NIC form to include the DNS field [#7916](https://github.com/OpenNebula/one/issues/7916).
+* Fix ovirtAPI issue with truncated disk UUIDs [#7965](https://github.com/OpenNebula/one/issues/7965).
