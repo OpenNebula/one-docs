@@ -11,7 +11,7 @@ type: docs
 
 Before creating a K8s Cluster, ensure that the minimum required components are configured and available.
 
-## OneKS Service
+## Install and Configure the OneKS Service
 
 Install the OneKS package on the OpenNebula Front-end if it is not already installed:
 ```shell
@@ -38,28 +38,13 @@ dependencies:
 
 Replace `1` with the ID of the target OpenNebula image datastore. The selected datastore must be accessible by the OpenNebula Hosts where the K8s Cluster VMs will be deployed.
 
-Once the datastore configuration is correct, start the OneKS service on the command line of your OpenNebula Front-end:
-
-```shell
-sudo systemctl start opennebula-ks.service
-```
-Verify that the OneKS service is running:
-```shell
-sudo systemctl status opennebula-ks.service
-```
-
-The service should be in the active (`running`) state. If the service is in a failed state, try restarting it:
-```shell
-sudo systemctl restart opennebula-ks.service
-```
-
 {{< alert title="Warning" type="warning" >}}
 Configure `appliance_ds` before starting `opennebula-ks.service` for the first time. If the service is started with the wrong datastore, OneKS may create the appliance image and VM template there. Changing `appliance_ds` afterwards does not automatically move or recreate these resources and may result in errors indicating that the IMAGE or TEMPLATE name is already in use. In that case, remove the previously generated OneKS image and VM template from OpenNebula, then restart `opennebula-ks.service` so OneKS can create them again using the configured datastore.
 {{< /alert >}}
 
-## OneGate Service
+## Confirm the Status of the OneGate Service
 
-Verify that OneGate is configured and reachable. OneGate is required during K8s Cluster provisioning because the bootstrap process uses it to communicate with OpenNebula services.
+Verify that OneGate is properly configured and reachable. OneGate is required during K8s Cluster provisioning because the bootstrap process uses it to communicate with other OpenNebula services.
 
 Check the OneGate service status on the Front-end command line:
 
@@ -67,7 +52,7 @@ Check the OneGate service status on the Front-end command line:
 sudo systemctl status opennebula-gate.service
 ```
 
-Validate the OneGate configuration using the OpenNebula OneGate [documentation]({{% relref "product/operation_references/opennebula_services_configuration/onegate/" %}}).
+Validate the OneGate configuration using the OpenNebula [OneGate Documentation]({{% relref "product/operation_references/opennebula_services_configuration/onegate/" %}}).
 
 ## Transparent Proxy Configuration
 
@@ -98,6 +83,24 @@ Example configuration:
 ```
 
 Replace `192.168.150.1` with the Front-end IP address used to connect to the Hosts and save the file. On the Front-end command line, as the `oneadmin` system user, sync the `OpenNebulaNetwork.conf` file with the hypervisor Hosts by running `onehost sync -f`. Power-cycle any guests that are already running so they use the updated transparent proxy configuration.
+
+## Start the OneKS Service
+
+Once the above configuration steps are complete, start the OneKS service on the command line of your OpenNebula Front-end:
+
+```shell
+sudo systemctl start opennebula-ks.service
+```
+
+Verify that the OneKS service is running:
+```shell
+sudo systemctl status opennebula-ks.service
+```
+
+The service should be in the active (`running`) state. If the service is in a failed state, try restarting it:
+```shell
+sudo systemctl restart opennebula-ks.service
+```
 
 ## Public and Private Virtual Networks
 
