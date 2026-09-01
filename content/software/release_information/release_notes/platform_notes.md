@@ -92,13 +92,21 @@ More information: [one-apps wiki](https://github.com/OpenNebula/one-apps/wiki)
 
 ### Accelerated Infrastructure
 
-| **Component** | **Models/Generations** |
+#### NVIDIA
+
+| **Product Family** | **Models/Generations** |
 |-----------|--------------------------------------------|
 | Ampere GPUs  | A10, A30, A40, A100 |
 | Ada Lovelace GPUs   | L4, L40, L40S |
 | Hopper GPUs      | H100, H200, GH200  |
 | Blackwell GPUs   | B200, B300, GB200, GB300  |
 | BlueField DPUs   | 2, 3 |
+
+#### Axelera
+
+| **Product Family** | **Models/Generations** |
+|-----------|--------------------------------------------|
+| Metis  | Server 150p, Edge 130p, Embedded 110m, 113m, 111c  |
 
 ### Authentication
 
