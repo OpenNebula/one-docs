@@ -10,7 +10,7 @@ tags: ['AI']
 
 Machine Learning (ML) training and inference are resource-intensive tasks that often require the full power of a dedicated GPU. PCI passthrough allows a Virtual Machine (VM) to have exclusive access to a physical GPU, delivering bare-metal performance for the most demanding AI workloads.
 
-In this guide you will find the details to deploy and configure an AI-ready OpenNebula cloud using the [OneDeploy](https://github.com/OpenNebula/one-deploy) tool. It covers the general process for preparing an environment for demanding AI workloads by leveraging PCI passthrough for GPUs like the NVIDIA H100 and L40S. 
+In this guide you will find the details to deploy and configure an AI-ready OpenNebula cloud using the [OneDeploy](https://github.com/OpenNebula/one-deploy) tool. It covers the general process of preparing an environment for demanding AI workloads by leveraging PCI passthrough for GPUs such as the NVIDIA H100 and L40S.
 
 ## Prerequisites
 
@@ -18,7 +18,7 @@ Before you begin, ensure your environment meets the following prerequisites.
 
 ### Hardware Requirements
 
-The virtualization hosts (hypervisors) must support I/O MMU virtualization:
+The virtualization Hosts (hypervisors) must support I/O MMU virtualization:
 *   **Intel CPUs**: Must support **VT-d**.
 *   **AMD CPUs**: Must support **AMD-Vi**.
 
@@ -116,7 +116,7 @@ The OneDeploy tool is a collection of Ansible playbooks that streamline the inst
     (one-deploy) root@vgpu1:~/one-deploy#
     ```
 
-    You should run the AI Factory deployment in the following step in a terminal with this virtual environment activated. 
+    You should run the AI Factory deployment in the following step in a terminal with this virtual environment activated.
 
     For guidance on how to execute the playbooks in different cloud architectures, consult the [Playbook Usage Guide](https://github.com/OpenNebula/one-deploy/wiki/sys_use).
 
@@ -124,22 +124,81 @@ The OneDeploy tool is a collection of Ansible playbooks that streamline the inst
 
 Once the prerequisites including configurations and dependencies are met, proceed to deploy your AI Factory with OneDeploy.
 
+### Configure a Network Bridge for the VMs
+
+The following AI Factory deployment examples assume the configuration of a bridge for the VMs to attach to. You will normally find the network configuration of your server in `/etc/netplan/` named something like `50-cloud-init.yaml`. You may need to update this file.
+
+The following example configures a Linux bridge named `br0` on the OpenNebula Host. The physical interface `enp33s0f0np0` is enslaved to the bridge, and the Host IP address is assigned to `br0` rather than directly to the physical NIC. OpenNebula bridged Virtual Networks attach VM NICs to this Host bridge, allowing VMs to communicate through the underlying physical network.
+
+```yaml
+network:
+  version: 2
+  ethernets:
+    enp33s0f0np0:
+      dhcp4: false
+    enp33s0f1np1:
+      dhcp4: true
+      dhcp4-overrides:
+        use-routes: false
+    enp33s0f2np2:
+      dhcp4: true
+      dhcp4-overrides:
+        use-routes: false
+
+  bridges:
+    br0:
+      interfaces:
+        - enp33s0f0np0
+      addresses:
+        - 10.0.1.18/24
+      nameservers:
+        addresses:
+          - 10.0.1.1
+          - 1.1.1.1
+      routes:
+        - to: default
+          via: 10.0.1.1
+      parameters:
+        stp: false
+        forward-delay: 0
+```
+
+Update the following parameters with values corresponding to your setup:
+
+* `enp33s0f0np0`: Physical NIC connected to the network to be used by OpenNebula VMs.
+* `br0`: Linux bridge name. This must match the BRIDGE value used in the following OneDeploy inventories.
+* `10.0.1.18/24`: Static IP address of the OpenNebula Host.
+* `10.0.1.1`: Default gateway for that subnet.
+* `10.0.1.1` and `1.1.1.1`: Example DNS resolvers.
+* `enp33s0f1np1` / `enp33s0f2np2`: These are additional network interfaces of the Host used in this example that are not utilized by OpenNebula.
+
+After adjusting the Netplan configuration run the following command to update the network:
+
+```shell
+sudo netplan apply
+```
+
+{{< alert title="Warning!" type="warning" >}}
+When you update the Netplan configuration with `netplan apply`, improper configuration could break your network connectivity and render the server inaccessible through SSH. Revise the updated configuration carefully before applying it and ensure you have alternative access to the server (e.g. through IPMI or physical access to the server) in case of errors.
+{{< /alert >}}
+
+The necessity of a bridge depends upon your network topology. Consult the [OpenNebula Networking System Documentation]({{% relref "product/cluster_configuration/networking_system/" %}}) for details or ask your system administrator for advice.
+
 ### Configure the Inventory for PCI Passthrough
 
-Use a dedicated inventory file to define the general cloud architecture, where you specify PCI devices for passthrough.
+Use a dedicated inventory file to define the general cloud architecture, where you specify PCI devices for passthrough. The following example corresponds to a topology with the OpenNebula Front-end and GPU nodes on separate physical Hosts. If you wish to deploy the OpenNebula Front-end and GPU nodes on the same Host, see [Single Node Deployment]({{% relref "/solutions/ai_factory_blueprints/deployment/cd_on-premises/#single-node-deployment" %}}) below.
 
-Below is an example inventory file, which you can adapt for your environment. This example is based on the `inventory/pci_passthrough.yml` file found in the `one-deploy` repository. For more details on the `pci_passthrough` roles, refer to the [PCI Passthrough wiki page](https://github.com/OpenNebula/one-deploy/wiki/pci_passthrough). 
+Below is an example inventory file, which you can adapt for your environment. This example is based on the `inventory/pci_passthrough.yml` file found in the `one-deploy` repository. For more details on the PCI passthrough roles, refer to the [PCI Passthrough wiki page](https://github.com/OpenNebula/one-deploy/wiki/pci_passthrough).
 
-The inventory file shown below is a basic example, and you should adjust it to match your specific cloud architecture, including your frontend and node IP addresses, network configuration (`vn`), and datastore setup (`ds`). For more detailed information on configuring OneDeploy for different architectures like shared or Ceph-based storage, refer to the official [OneDeploy wiki](https://github.com/OpenNebula/one-deploy/wiki).
+The inventory file shown below is a basic example, and you should adjust it to match your specific cloud architecture, including your frontend and node IP addresses, network configuration (`vn`), and datastore setup (`ds`). For more detailed information on configuring OneDeploy for different architectures like shared or Ceph-based storage, refer to the official [OneDeploy Wiki](https://github.com/OpenNebula/one-deploy/wiki).
 
-You may also need to set up a network bridge, ensuring that the name coincides with the `BRIDGE` parameter in your inventory file (in the following example it is named `br0`). 
 
 ```yaml
 ---
 all:
   vars:
     ansible_user: root
-    one_version: '7.2'
+    one_version: '{{<version>}}'
     one_pass: opennebulapass
     ds:
       mode: ssh
@@ -166,24 +225,21 @@ node:
   hosts:
     h100-node:
       ansible_host: 192.168.122.3
-      pci_passthrough_enabled: true
       pci_devices:
         - address: "0000:09:00.0" # NVIDIA H100 GPU
     l40s-node:
       ansible_host: 192.168.122.4
-      pci_passthrough_enabled: true
       pci_devices:
         - address: "0000:0a:00.0" # NVIDIA L40S GPU
     standard-node:
       ansible_host: 192.168.122.5
-      pci_passthrough_enabled: false
 ```
 
 Key configuration parameters to setup:
 
-*   `pci_passthrough_enabled: true`: this boolean flag enables the PCI passthrough configuration for a specific node.
-*   `pci_devices`: this is a list of PCI devices to be configured for passthrough on that node.
-    *   `address`: the full PCI address of the device (e.g., `"0000:09:00.0"`). List this address by running the `lspci -D` command on the hypervisor. Note that you must provide the full address, as short addresses are not supported by this OneDeploy feature.
+* `ansible_host`: The IP address of each server used for either the Front-end or GPU nodes.
+* `pci_devices`: This is a list of PCI devices to be configured for passthrough on that node.
+  *  `address`: The full PCI address of the device (e.g., `"0000:09:00.0"`). Note that you must provide the full address, as short addresses are not supported by this OneDeploy feature.
 
 To find the address of the GPU on each node you can use the following command:
 
@@ -197,11 +253,63 @@ This command should output something similar to the following:
 c1:00.0 3D controller [0302]: NVIDIA Corporation AD102GL [L40S] [10de:26b9] (rev a1)
 ```
 
-The relevant address for the inventory file in this case is `"0000.c1:00.0"`. You may need to append four `0`s.
+The relevant address for the inventory file in this case is `"0000.c1:00.0"`. You may need to prepend `0000.`.
+
+### Single Host Deployment
+
+The above inventory example outlines a topology with 2 separate GPU nodes deployed on different physical Hosts to the OpenNebula Front-end. If you have a single bare-metal server and wish to deploy the OpenNebula Front-end and a KVM hypervisor node with GPU-passthrough on the same Host, the following inventory example can be used as reference:
+
+```yaml
+---
+all:
+  vars:
+    ansible_user: root
+    one_version: '{{<version>}}'
+    one_pass: opennebulapass
+    ds:
+      mode: ssh
+    vn:
+      admin_net:
+        managed: true
+        template:
+          VN_MAD: bridge
+          BRIDGE: br0
+          AR:
+            TYPE: IP4
+            IP: 10.0.1.100
+            SIZE: 48
+          NETWORK_ADDRESS: 10.0.1.0
+          NETWORK_MASK: 255.255.255.0
+          GATEWAY: 10.0.1.1
+          DNS: 1.1.1.1
+
+frontend:
+  hosts:
+    ai-server: { ansible_host: 10.0.1.18 }
+
+node:
+  hosts:
+    ai-server:
+      ansible_host: 10.0.1.18
+      pci_devices:
+        - address: "0000:c1:00.0" # NVIDIA L40S GPU
+        - address: "0000:01:00.0" # NVIDIA L40S GPU
+```
+
+This inventory outlines a topology with the OpenNebula Front-end and a KVM hypervisor node deployed on the same physical Host with PCI passthrough to 2 separate GPU devices. Adjust the inventory according to your topology.
+
+In order to successfully deploy the above inventory example with OneDeploy on a single Host, it is necessary to configure local root SSH access. As the root user (`sudo -i`), run the following commands prior to commencing the OneDeploy deployment:
+
+```shell
+ssh-keygen -t ed25519 -f /root/.ssh/id_ed25519 -N "" -q
+# If your root user already has an SSH key, omit the above command
+# and adjust the public key file location below accordingly
+cat /root/.ssh/id_ed25519.pub >> /root/.ssh/authorized_keys
+```
 
 ### Run the Deployment
 
-Once your inventory file is ready (e.g., saved as `inventory/ai_factory.yml`), run OneDeploy to provision your OpenNebula cloud (remember to activate the virtual environment):
+Once your inventory file is ready (e.g. saved as `inventory/ai_factory.yml`), run OneDeploy to provision your OpenNebula cloud (remember to activate the virtual environment):
 
 ```shell
 make I=inventory/ai_factory.yml
@@ -215,13 +323,17 @@ Simultaneously, on the OpenNebula Front-end, OneDeploy configures the monitoring
 
 After the deployment is complete, verify that the GPUs are correctly configured and available to OpenNebula by checking the Host information in Sunstone:
 
-1. Log in to your OpenNebula Sunstone GUI
+1. Log in to your OpenNebula Sunstone GUI (normally accessible at <FRONTEND_IP>:2616), with the password you set in the above inventory
 2. Navigate to **Infrastructure -> Hosts**
-3. Select one of the hypervisors you configured for passthrough (e.g., `h100-node`)
+3. Select one of the hypervisors you configured for passthrough (e.g. `h100-node` or `10.0.1.18`)
 4. Go to the **PCI** tab
-5. You will see your GPU listed as an available PCI device (you may need to wait 2-3 minutes to see it):
+5. You will see your GPU(s) listed as an available PCI device (you may need to wait 2-3 minutes for them to appear):
 
-{{< image path="/images/ai_factories/pci-sunstone.png" alt="Sunstone dashboard" align="center" width="90%" mb="20px" >}}
+{{< image
+  pathDark="/images/ai_factories/dark/pci_sunstone.png"
+  path="/images/ai_factories/light/pci_sunstone.png"
+  alt="Sunstone login" align="center" width="90%" mb="20px"
+>}}
 
 If the device is visible here, your AI-ready OpenNebula cloud is correctly configured. The H100 and/or L40S GPUs are now ready to be passed through to Virtual Machines for high-performance AI and ML tasks.
 
@@ -231,6 +343,6 @@ If the device is visible here, your AI-ready OpenNebula cloud is correctly confi
 
 After completing the above steps to launch your AI-ready OpenNebula cloud with OneDeploy, validate your deployment one of the one of the following options:
 
-* [Validation with LLM Inferencing]({{% relref "solutions/ai_factory_blueprints/direct_ai_execution/llm_inference_certification" %}})
-* [Validation with AI-ready Kubernetes]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/ai_ready_k8s" %}})
+* [Inferencing with vLLM]({{% relref "solutions/ai_factory_blueprints/direct_ai_execution/llm_inference_certification" %}})
+* [AI-ready Kubernetes]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/ai_ready_k8s" %}})
 

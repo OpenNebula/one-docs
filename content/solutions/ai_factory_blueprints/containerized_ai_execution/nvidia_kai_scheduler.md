@@ -30,6 +30,16 @@ Before starting this tutorial, you must complete the AI-factory deployment with 
 
 You must then complete the [AI-ready Kubernetes deployment guide]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/ai_ready_k8s" %}}). You also must undeploy any appliances, VMs or services you deployed in previous guides before continuing.
 
+{{< alert title="Important" type="info" >}}
+
+For the following commands to work, you must use the `kubeconfig_workload.yaml` Kubeconfig. Either add `--kubeconfig kubeconfig_workload.yaml` to the commands or export the `KUBECONFIG` environment variable:
+
+```shell
+export KUBECONFIG="$PWD/kubeconfig_workload.yaml"
+```
+
+{{< /alert >}}
+
 ### NVIDIA KAI Scheduler Installation
 
 To install the NVIDIA KAI Scheduler, you need to accomplish the following prerequisites:
@@ -181,22 +191,32 @@ To test the GPU sharing feature of KAI Scheduler, follow these steps:
               requests:
                 cpu: "6"
                 memory: 6G
+            startupProbe:
+              httpGet:
+                path: /health
+                port: 8000
+              periodSeconds: 10
+              failureThreshold: 60
+              timeoutSeconds: 5
             livenessProbe:
               httpGet:
                 path: /health
                 port: 8000
-              initialDelaySeconds: 60
               periodSeconds: 10
+              timeoutSeconds: 5
+              failureThreshold: 3
             readinessProbe:
               httpGet:
                 path: /health
                 port: 8000
-              initialDelaySeconds: 60
               periodSeconds: 5
+              timeoutSeconds: 5
+              failureThreshold: 3
     EOF
     ```
 
-3. Verify that the deployment is allocated with the specified resources
+3. Verify that the deployment is allocated with the specified resources:
+
     ```shell
     kubectl -n ai-workloads get pods -o custom-columns="NAME:.metadata.name,STATUS:.status.phase,NODE:.spec.nodeName,GPU-FRACTION:.metadata.annotations.gpu-fraction,GPU-GROUP:.metadata.labels.runai-gpu-group"
     ```
@@ -204,6 +224,8 @@ To test the GPU sharing feature of KAI Scheduler, follow these steps:
     NAME                            STATUS    NODE                       GPU-FRACTION   GPU-GROUP
     vllm-test-07-5979b99584-llf45   Running   k8s-gpu-md-0-wr9k6-gbtvr   0.7            407623a2-216d-4c06-b5b8-f8345bf28b5a
     ```
+
+    Wait until the STATUS column reaches the `Running` state before continuing, this may take several minutes. 
 
 4. Deploy a Kubernetes service to access the API
     ```yaml
@@ -285,7 +307,7 @@ To test the GPU sharing feature of KAI Scheduler, follow these steps:
 
 Optionally, you might deploy another workload with a small GPU fraction on that node.
 
-1. Create another workload with a GPU memory fraction of `0.2`
+1. Create another workload with a GPU memory fraction of `0.2`:
     ```yaml
     cat <<EOF | kubectl apply -f -
     apiVersion: apps/v1
@@ -325,22 +347,32 @@ Optionally, you might deploy another workload with a small GPU fraction on that 
                         requests:
                             cpu: "6"
                             memory: 6G
+                    startupProbe:
+                      httpGet:
+                        path: /health
+                        port: 8000
+                      periodSeconds: 10
+                      failureThreshold: 60
+                      timeoutSeconds: 5
                     livenessProbe:
-                        httpGet:
-                            path: /health
-                            port: 8000
-                        initialDelaySeconds: 60
-                        periodSeconds: 10
+                      httpGet:
+                        path: /health
+                        port: 8000
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 3
                     readinessProbe:
-                        httpGet:
-                            path: /health
-                            port: 8000
-                        initialDelaySeconds: 60
-                        periodSeconds: 5
+                      httpGet:
+                        path: /health
+                        port: 8000
+                      periodSeconds: 5
+                      timeoutSeconds: 5
+                      failureThreshold: 3
     EOF
     ```
 
-2. Check that the fraction is successfully assigned and the pod is running
+2. Check that the fraction is successfully assigned and the pod is running:
+
     ```shell
     kubectl -n ai-workloads get pods -o custom-columns="NAME:.metadata.name,STATUS:.status.phase,NODE:.spec.nodeName,GPU-FRACTION:.metadata.annotations.gpu-fraction,GPU-GROUP:.metadata.labels.runai-gpu-group"
     ```
@@ -350,7 +382,89 @@ Optionally, you might deploy another workload with a small GPU fraction on that 
     vllm-test-07-5979b99584-llf45   Running   k8s-gpu-md-0-wr9k6-gbtvr   0.7            407623a2-216d-4c06-b5b8-f8345bf28b5a
     ```
 
-With this validation, you have checked how you can efficiently share fractional GPU resources between workloads in an AI-Ready Kubernetes with KAI Scheduler.
+3. Now deploy a second service to access the API of the second workload:
+
+    ```yaml
+    cat <<EOF | kubectl apply -f -
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: vllm-test-02
+      namespace: ai-workloads
+    spec:
+      ports:
+      - name: http
+        port: 80
+        protocol: TCP
+        targetPort: 8000
+      selector:
+          app: vllm-test-02
+      sessionAffinity: None
+      type: ClusterIP
+    EOF
+    ```
+
+    And create a port-forward for this second service on a different port:
+
+    ```shell
+    kubectl -n ai-workloads port-forward svc/vllm-test-02 9001:80 &
+    ```
+
+4. Then, from a separate terminal, try a request to the API:
+
+    ```shell
+    curl http://localhost:9001/v1/completions \
+    -H "Content-Type: application/json" \
+    -d '{
+            "model": "Qwen/Qwen2.5-1.5B-Instruct",
+            "prompt": "San Francisco is a",
+            "max_tokens": 7,
+            "temperature": 0
+        }' | jq .
+    ```
+
+With this validation, you have checked how you can efficiently share fractional GPU resources between workloads in an AI-Ready Kubernetes with the KAI Scheduler.
+
+### Undeployment
+
+Unless you intend to further use the deployed AI models or the KAI scheduler, we recommend undeploying everything prior to commencing with other deployments on your K8s Cluster. 
+
+Undeploy the models:
+
+```shell
+kubectl -n ai-workloads delete deployment \
+  vllm-test-07 \
+  vllm-test-02
+```
+
+Undeploy the API services:
+
+```shell
+kubectl -n ai-workloads delete service \
+  vllm-test-07 \
+  vllm-test-02
+```
+
+Check the status:
+
+```shell
+kubectl -n ai-workloads get deployments,pods,services
+```
+
+Wait until the above command returns `No resources found in ai-workloads namespace.`.
+
+Then uninstall the KAI scheduler with Helm:
+
+```shell
+helm uninstall kai-scheduler -n kai-scheduler
+```
+
+And then delete the namespace:
+
+```shell
+kubectl delete namespace kai-scheduler --ignore-not-found
+kubectl delete namespace kai-resource-reservation --ignore-not-found
+```
 
 ## Next Steps
 

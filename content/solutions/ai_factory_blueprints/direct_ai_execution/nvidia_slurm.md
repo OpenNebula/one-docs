@@ -7,145 +7,350 @@ tags: ['AI']
 
 <a id="finetuning_on_slurm_worker"></a>
 
-In this tutorial, we will install and configure the OpenNebula **Slurm** appliance and run a fine-tuning example script. 
+This tutorial deploys the OpenNebula **OneSlurm** service and runs a fine-tuning job as an LDAP user. The Slurm cluster is created first. After the Controller and Worker VMs are running, the user stages the model, dataset, virtual environment, training script, and output in the shared `/scratch` NFS mount.
 
 We will complete the following high-level steps:
 
-* Install the Slurm appliances (controller and workers) from the OpenNebula marketplace.
-* Configure the Slurm worker template with an example fine-tuning job script.
-* Submit a fine-tuning job from the **Slurm controller** with a single command.
+* Deploy the `Service OneSlurm` appliance from the OpenNebula Marketplace.
+* Enable LDAP identity for Slurm users.
+* Mount shared NFS scratch storage on the Controller and Workers.
+* Create or use an LDAP user and prepare the user's scratch workspace.
+* Submit a GPU fine-tuning job from the Slurm Controller.
 
 ## Before Starting
 
-Before starting this tutorial, you must complete the AI-factory deployment with either on-premises resources or cloud resources. Please complete one of the following guides relevant to your available resources:
+Before starting this tutorial, complete the AI Factory deployment with either on-premises resources or cloud resources. Use the guide that matches your available resources:
 
 * [AI Factory Deployment with On-premises Hardware]({{% relref "/solutions/ai_factory_blueprints/deployment/cd_on-premises" %}})
 * [AI Factory Deployment on Scaleway Cloud]({{% relref "solutions/ai_factory_blueprints/deployment/cd_cloud"%}})
 
-You need a running **[OneGate](https://docs.opennebula.io/7.0/product/operation_references/opennebula_services_configuration/onegate/)** server (reachable by the Slurm Controller VM) so the controller can share the Munge key with workers. To check the status of OneGate, on your OpenNebula Front-end machine run (using `sudo` if necessary):
+You also need:
+
+* OneFlow enabled.
+* OneGate enabled and reachable from the Slurm Controller and Worker VMs.
+* A Virtual Network for the OneSlurm `Service` network.
+* A GPU attached to the Slurm Worker VM template.
+* An NFS export for shared scratch storage, for example `10.125.0.1:/srv/nfs/slurm/scratch`.
+* A worker runtime that includes Python build tooling. For the example below, the user creates a Python 3.13 virtual environment in `/scratch` with `uv`.
+
+Check OneGate on the OpenNebula Front-end:
 
 ```bash
 systemctl status opennebula-gate
 ```
 
-You must also have access to the Sunstone user interface. 
+The OneSlurm service benefits from an NFS for operational convenience, allowing data to be easily shared between the controller and workers. If you do not have an NFS server available, you can create one locally:
 
----
-
-## Step 1: Deploy the Slurm Controller
-
-1. **Import the Slurm Controller appliance** from the OpenNebula Marketplace on the Front-end. This downloads the VM template and disk image:
-
-   ```shell
-   onemarketapp export 'Service Slurm Controller' SlurmController --datastore default
-   ```
-
-2. **Adjust the Slurm Controller template** as needed (CPU, memory, disk size, network). Resource needs depend on cluster size (number of workers and jobs).
-
-3. **Instantiate the Slurm Controller**. When instantiating the controller, connect it to an appropriate Virtual Network with free leases:
-
-   ```shell
-   onetemplate instantiate SlurmController --nic admin_net
-   ```
-
-4. **Wait for the controller to be ready:** SSH into the new SlurmController VM. The terminal will show configuration progress. When finished, you should see: **"All set and ready to serve 8)"**.
+1. Install the NFS server:
 
     ```shell
-    onevm ssh <SLURM_CONTROLLER_VM_ID>
+    apt update
+    apt install -y nfs-kernel-server
     ```
 
-5. **Get the controller Munge key and IP address.** Press Ctrl-D to exit the SSH tunnel back to your Front-end command line. Run the following commands to acquire the MUNGE key and IP address of the Slurm controller:
+2. Then create `/scratch` and `/home` directories, register and activate them. Replace  `<NETWORK_IP>` with the appropriate IP and subnet for your network configuration (for example `10.0.1.0`):
 
-   Aquire the MUNGE key:
+    ```shell
+    mkdir -p /srv/nfs/slurm/scratch
+    mkdir -p /srv/nfs/slurm/home
 
-   ```shell
-   onevm show <SLURM_CONTROLLER_VM_ID> | grep MUNGE
-   ```
-   Record the IP of the Slurm controller:
+    cat >> /etc/exports <<'EOF'
+    /srv/nfs/slurm/scratch <NETWORK_IP>/24(rw,sync,no_subtree_check,no_root_squash)
+    /srv/nfs/slurm/home    <NETWORK_IP>/24(rw,sync,no_subtree_check,no_root_squash)
+    EOF
 
-   ```shell
-   onevm show <SLURM_CONTROLLER_VM_ID> | grep ETH0_IP=
-   ```
+    exportfs -ra
+    systemctl enable --now nfs-server
+    exportfs -v
+    ```
 
-   Save a note of the **Munge key** (base64) and the **Slurm Controller IP address**; you will need both when deploying workers. This key must be shared with all worker nodes for Slurm authentication.
+3. When prompted during the instantiation of the OneSlurm service, enter the appropriate IP for your Front-end server (or whatever server you choose for the NFS, e.g. `10.0.1.18`):
 
---- 
-## Step 2: Modify the Slurm Worker Template
+    ```default
+    ONEAPP_SLURM_NFS_SCRATCH = <FRONTEND_IP>:/srv/nfs/slurm/scratch
+    ONEAPP_SLURM_NFS_HOME    = <FRONTEND_IP>:/srv/nfs/slurm/home
+    ```
+{{< alert title="Note" type="primary" >}}
+If you do not have an NFS server and you do not wish to create one, you must adjust the following instructions to store the AI model data and scripts directly on the worker VM and execute the job accordingly. 
+{{< /alert >}} 
 
-1. Import the **Slurm Worker appliance** from the OpenNebula Marketplace.
+## Step 1: Import the OneSlurm Service
 
-   ```shell
-   onemarketapp export 'Service Slurm Worker' SlurmWorker --datastore default
-   ```
+Import `Service OneSlurm` from the OpenNebula Marketplace. This downloads the service definition, Controller and Worker VM templates, and disk images:
 
-2. Adjust the SlurmWorker template: 
+```shell
+onemarketapp export 'Service OneSlurm' 'Service OneSlurm' --datastore default
+```
 
-    * In the Sunstone interface go to **Templates -> VM Templates**
-    * Select the **SlurmWorker** template and click **Update**
-    * In the **General** parameters page set the following parameters:
-        * **Memory**: 16384 (MB)
-        * **Physical CPU**: 2
-    * Click **Next** to move onto the **Advanced options**
-    * In the **Storage** tab edit the **SlurmWorker** disk by clicking the pen icon:
-        * Click **Next** to move to **Advanced options**, set **Size on instantiate** to 30720
-    
-    {{< image path="/images/ai_factories/slurm-update-disk.png" alt="Slurm disk" align="center" width="90%" mt="20px" mb="40px" >}}
+The command imports two VM templates and one service template. In the examples below, replace the template IDs with the IDs imported in your cloud.
 
-    * In the **PCI Devices** tab select **Attach PCI device**. Choose the your device in the **Device name** dropdown:
+## Step 2: Review the Worker Template
 
-    {{< image path="/images/ai_factories/attach-pci-device.png" alt="Slurm PCI" align="center" width="90%" mt="20px" mb="40px" >}}
+Before instantiating the service, review the Worker VM template. Set CPU, memory, and GPU resources appropriately for your workload.
 
-    * In the **Context** tab, copy the [script found below](#start-script) into the **Start script** field. This script downloads a model from Hugging Face and installs associated resources then creates a script to run the fine-tuning job:
+For this tutorial, use at least:
 
-    {{< image path="/images/ai_factories/slurm-start-script.png" alt="Slurm start script" align="center" width="90%" mt="20px" mb="40px" >}}
+* **Memory**: 16384 MB
+* **Physical CPU**: 2
+* One NVIDIA GPU or GPU PCI profile
 
-    * Click **Next** to the **Custom Variables** page and then select **Finish**.
+In Sunstone:
 
-### Start Script: 
-```python
-set -e
-AI_DIR=/opt/ai_model
+* Go to **Templates -> VM Templates**
+* Select the imported **Service Slurm Worker** template and click **Update**
+* Adjust CPU and memory in **General**
+* Attach the GPU in **PCI Devices**
 
-# Create dir for model, venv, and demo script
-mkdir -p "$AI_DIR"
+{{< image
+  pathDark="/images/ai_factories/dark/attach_pci.png"
+  path="/images/ai_factories/light/attach_pci.png"
+  alt="Attach PCI" align="center" width="80%" mb="20px"
+>}}
+## Step 3: Instantiate the OneSlurm Service
 
-# System packages: NVIDIA driver + Python build deps and venv
-apt update && apt install -y nvidia-driver-570 python3-pip python3-venv python3-dev build-essential
-pip3 install --break-system-packages huggingface_hub
-python3 -c "from huggingface_hub import snapshot_download; snapshot_download(repo_id='Qwen/Qwen2.5-1.5B-Instruct', local_dir='$AI_DIR')"
-python3 -m venv "$AI_DIR/venv"
-"$AI_DIR/venv/bin/pip" install --upgrade pip
-"$AI_DIR/venv/bin/pip" install "numpy<2.4.0"
-"$AI_DIR/venv/bin/pip" install unsloth datasets trl transformers
+Instantiate the imported service template:
 
-# Write Unsloth demo fine-tuning script
-cat > "$AI_DIR/demo_finetune.py" << 'PYEOF'
+```shell
+oneflow-template instantiate 'Service OneSlurm'
+```
+
+When prompted:
+
+* Select the OpenNebula virtual network for `Service`
+* Enable local LDAP with `ONEAPP_LDAP_ENABLE=YES`, or provide `ONEAPP_LDAP_URL` and `ONEAPP_LDAP_DOMAIN` for an external LDAP service
+* Set `ONEAPP_LDAP_DOMAIN`, for example `slurm.local`
+* Set `ONEAPP_LDAP_ADMIN_USER`, for example `admin`
+* Set `ONEAPP_LDAP_ADMIN_PASSWORD`
+* Set `ONEAPP_SLURM_NFS_SCRATCH` to the NFS export used for `/scratch`, for example `10.125.0.1:/srv/nfs/slurm/scratch`
+* Optionally set `ONEAPP_SLURM_NFS_HOME` to an NFS export used for `/home`
+* Leave InfiniBand disabled unless your Workers have passthrough InfiniBand devices and the fabric is already configured
+
+OneFlow waits to deploy Workers until the Controller publishes `READY=YES` through OneGate. The Controller also publishes the Munge key and LDAP metadata, so you do not need to copy a Munge key or Controller IP address into the Worker user inputs.
+
+Wait until the service reaches `RUNNING`:
+
+```shell
+oneflow list
+```
+
+Then check the Controller and Worker VMs:
+
+```shell
+onevm list -f NAME~'service_<SERVICE_ID>' -l NAME,STAT
+```
+
+## Step 4: Verify Slurm, LDAP, and Scratch
+
+SSH into the Slurm Controller:
+
+```shell
+onevm ssh <SLURM_CONTROLLER_VM_ID>
+```
+
+Verify the Worker is registered with Slurm:
+
+```shell
+scontrol show nodes
+sinfo
+```
+
+Verify the GPU is visible to the Worker through Slurm:
+
+```shell
+srun -N1 -n1 --gres=gpu:1 nvidia-smi -L
+```
+
+Verify the NFS scratch mount:
+
+```shell
+findmnt /scratch
+```
+
+If you enabled local LDAP, the Controller runs OpenLDAP and the Controller and Workers use SSSD. If you use external LDAP, create or verify the user in that external directory instead of the local Controller LDAP server.
+
+## Step 5: Create an LDAP User
+
+Skip this step if you are using an external LDAP service and already have a POSIX user for Slurm jobs.
+
+On the Slurm Controller, create a local LDAP user. The example creates user `aiuser` with UID and GID `20000`. Choose values that do not collide with existing users or groups.
+
+```shell
+BASE_DN="dc=slurm,dc=local"
+USER_NAME="aiuser"
+USER_ID="20000"
+GROUP_ID="20000"
+USER_PASSWORD="ChangeMe-Replace"
+PASSWORD_HASH="$(slappasswd -s "${USER_PASSWORD}")"
+
+cat > /tmp/aiuser.ldif <<EOF
+dn: cn=aiusers,ou=Groups,${BASE_DN}
+objectClass: top
+objectClass: posixGroup
+cn: aiusers
+gidNumber: ${GROUP_ID}
+memberUid: ${USER_NAME}
+
+dn: uid=${USER_NAME},ou=People,${BASE_DN}
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: AI User
+sn: User
+uid: ${USER_NAME}
+uidNumber: ${USER_ID}
+gidNumber: ${GROUP_ID}
+homeDirectory: /home/${USER_NAME}
+loginShell: /bin/bash
+userPassword: ${PASSWORD_HASH}
+EOF
+
+ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/aiuser.ldif
+```
+
+Confirm that SSSD can resolve the user:
+
+```shell
+getent passwd aiuser
+getent group aiusers
+```
+
+If `/home` is backed by NFS, create the user's home directory on the mounted filesystem:
+
+```shell
+mkdir -p /home/aiuser
+chown aiuser:aiusers /home/aiuser
+chmod 700 /home/aiuser
+```
+
+Create the user's scratch workspace:
+
+```shell
+mkdir -p /scratch/aiuser
+chown aiuser:aiusers /scratch/aiuser
+chmod 700 /scratch/aiuser
+```
+
+Check that the user resolves on a Worker too:
+
+```shell
+srun -N1 -n1 getent passwd aiuser
+```
+
+## Step 6: Download the Model in Scratch
+
+Log in as the LDAP user on the Controller:
+
+```shell
+su - aiuser
+```
+
+Prepare the scratch directory and Python environment:
+
+```shell
+export AI_DIR="/scratch/${USER}/ai_model"
+export TMPDIR="/scratch/${USER}/tmp"
+export PIP_CACHE_DIR="/scratch/${USER}/pip-cache"
+export HF_HOME="/scratch/${USER}/huggingface"
+export HF_HUB_CACHE="${HF_HOME}/hub"
+export HF_DATASETS_CACHE="${HF_HOME}/datasets"
+
+mkdir -p "${AI_DIR}"/{model,output} "${TMPDIR}" "${PIP_CACHE_DIR}" "${HF_HOME}" "${HF_HUB_CACHE}" "${HF_DATASETS_CACHE}"
+
+curl -LsSf https://astral.sh/uv/install.sh | sh
+export PATH="${HOME}/.local/bin:${PATH}"
+
+uv venv "${AI_DIR}/venv" --python 3.13
+source "${AI_DIR}/venv/bin/activate"
+uv pip install torch transformers unsloth datasets huggingface_hub
+```
+
+Download the base model in `/scratch`:
+
+```shell
+hf download Qwen/Qwen2.5-0.5B-Instruct \
+  --local-dir "${AI_DIR}/model"
+```
+
+The `hf download` command stores the local model files under `${AI_DIR}/model`. 
+
+
+## Step 7: Create the Fine-tuning Script
+
+Still as the LDAP user, create the fine-tuning script in scratch:
+
+```shell
+cat > "${AI_DIR}/demo_finetune.py" <<'PYEOF'
 #!/usr/bin/env python3
 import os
-from datasets import Dataset
+
+import unsloth
 from unsloth import FastLanguageModel
-from trl import SFTTrainer
-from transformers import TrainingArguments
+from datasets import load_dataset
+from trl import SFTConfig, SFTTrainer
 
-MODEL_PATH = "/opt/ai_model"
-OUTPUT_DIR = os.path.join(MODEL_PATH, "output")
+AI_DIR = os.environ.get("AI_DIR", f"/scratch/{os.environ['USER']}/ai_model")
+MODEL_PATH = os.path.join(AI_DIR, "model")
+OUTPUT_DIR = os.path.join(AI_DIR, "output")
+DATASET_CACHE = os.environ.get("HF_DATASETS_CACHE", os.path.join(AI_DIR, "cache", "datasets"))
 
-alpaca = [
-    {"instruction": "What is 2+2?", "input": "", "output": "4."},
-    {"instruction": "Say hello in one word.", "input": "", "output": "Hello."},
-    {"instruction": "Complete: The sky is", "input": "", "output": " blue."},
-]
+dataset = load_dataset(
+    "yahma/alpaca-cleaned",
+    split="train[:64]",
+    cache_dir=DATASET_CACHE,
+)
 
-def fmt(e):
-    return {"text": "### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:\n{output}".format(**e)}
+def fmt(example):
+    return {
+        "text": (
+            "### Instruction:\n{instruction}\n\n"
+            "### Input:\n{input}\n\n"
+            "### Response:\n{output}"
+        ).format(**example)
+    }
 
-dataset = Dataset.from_list(alpaca)
 dataset = dataset.map(fmt, remove_columns=dataset.column_names)
 
-model, tokenizer = FastLanguageModel.from_pretrained(MODEL_PATH, max_seq_length=2048, dtype=None, load_in_4bit=True, local_files_only=True)
-model = FastLanguageModel.get_peft_model(model, r=8, target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"], lora_alpha=16, lora_dropout=0, bias="none", use_gradient_checkpointing="unsloth")
+model, tokenizer = FastLanguageModel.from_pretrained(
+    MODEL_PATH,
+    max_seq_length=2048,
+    dtype=None,
+    load_in_4bit=True,
+    local_files_only=True,
+)
 
-trainer = SFTTrainer(model=model, tokenizer=tokenizer, train_dataset=dataset, dataset_text_field="text", max_seq_length=2048, dataset_num_proc=1, packing=False, args=TrainingArguments(per_device_train_batch_size=2, gradient_accumulation_steps=2, max_steps=10, learning_rate=2e-4, bf16=True, output_dir=OUTPUT_DIR, report_to="none"))
+model = FastLanguageModel.get_peft_model(
+    model,
+    r=8,
+    target_modules=[
+        "q_proj", "k_proj", "v_proj", "o_proj",
+        "gate_proj", "up_proj", "down_proj",
+    ],
+    lora_alpha=16,
+    lora_dropout=0,
+    bias="none",
+    use_gradient_checkpointing="unsloth",
+)
+
+trainer = SFTTrainer(
+    model=model,
+    processing_class=tokenizer,
+    train_dataset=dataset,
+    args=SFTConfig(
+        output_dir=OUTPUT_DIR,
+        dataset_text_field="text",
+        max_length=2048,
+        dataset_num_proc=1,
+        packing=False,
+        per_device_train_batch_size=2,
+        gradient_accumulation_steps=2,
+        max_steps=10,
+        learning_rate=2e-4,
+        bf16=True,
+        report_to="none",
+    ),
+)
+
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 trainer.train()
 model.save_pretrained_merged(OUTPUT_DIR, tokenizer, save_method="merged_16bit")
@@ -153,123 +358,68 @@ tokenizer.save_pretrained(OUTPUT_DIR)
 print("Saved to", OUTPUT_DIR)
 PYEOF
 
-chmod +x "$AI_DIR/demo_finetune.py"
+chmod +x "${AI_DIR}/demo_finetune.py"
 ```
 
-<br>
+## Step 8: Run the Fine-tuning Job
 
----
-## Step 3: Deploy the Slurm Worker
-
-1. Instantiate the Slurm Worker via the OpenNebula Sunstone web interface:
-
-   * Go to **Templates -> VM Templates**
-   * Select the the **SlurmWorker** template
-   * Select instantiate:
-
-    {{< image path="/images/ai_factories/instantiate-slurm-worker.png" alt="Alpine VM VNC" align="center" width="90%" mb="20px" mt="20px" >}}
-
-   * Set the **number of instances** to 1
-   * Click **Next**. In the **User inputs** page, enter:
-     * **Slurm Controller IP address** (the VM you deployed in Step 1). Ensure workers can reach this IP
-     * **Slurm Controller Munge key** (base64) that you recorded earlier (everything inside the quotation marks)
-
-     {{< image path="/images/ai_factories/slurm-munge-key.png" alt="Slurm MUNGE" align="center" width="90%" mt="20px" mb="40px" >}}
-
-   * Click **Next** to **Advanced options**, select the **Network** tab and click **Attach NIC**: 
-      * Click next to the **Select a network** page
-      * Choose **admin_net** or an alternative available Virtual Network.
-
-<br>
-   
-2. After a few minutes, verify that the worker has joined the cluster. SSH into the Slurm Controller VM:
-
-    Find the Slurm Controller VM ID:
-
-    ```shell
-    onevm list
-    ```
-
-    Use `onevm ssh` to connect:
-
-    ```shell
-    onevm ssh <SLURM_CONTROLLER_VM_ID>
-    ```
-
-    On the **Slurm Controller** VM command line run:
-
-   ```shell
-   scontrol show nodes
-   ```
-   You should see output similar to the following:
-
-   ```
-   NodeName=slurm-one-worker-1 CoresPerSocket=1 
-   CPUAlloc=0 CPUEfctv=1 CPUTot=1 CPULoad=0.00
-   AvailableFeatures=one
-   ActiveFeatures=one
-   Gres=(null)
-   NodeAddr=10.0.1.101 NodeHostName=slurm-one-worker-1 
-   RealMemory=15988 AllocMem=0 FreeMem=N/A Sockets=1 Boards=1
-   State=IDLE+DYNAMIC_NORM+NOT_RESPONDING ThreadsPerCore=1 TmpDisk=0 Weight=1 Owner=N/A MCS_label=N/A
-   Partitions=all 
-   BootTime=None SlurmdStartTime=None
-   LastBusyTime=2026-03-02T12:09:33 ResumeAfterTime=None
-   CfgTRES=cpu=1,mem=15988M,billing=1
-   AllocTRES=
-   CapWatts=n/a
-   CurrentWatts=0 AveWatts=0
-   ExtSensorsJoules=n/a ExtSensorsWatts=0 ExtSensorsTemp=n/a
-   ``` 
----
-
-## Step 4: Run the Fine-tuning Job from the Slurm Controller
-
-On the Slurm Controller VM run the following command to launch the fine-tuning job:
+Create the batch script from the Slurm Controller as the LDAP user:
 
 ```shell
-srun --job-name=demo_finetune -N1 -n1 /opt/ai_model/venv/bin/python /opt/ai_model/demo_finetune.py
+cat > "${AI_DIR}/demo_finetune.sbatch" <<EOF
+#!/bin/bash
+#SBATCH --job-name=demo_finetune
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:1
+#SBATCH --chdir=${AI_DIR}
+#SBATCH --output=${AI_DIR}/demo_finetune.out
+#SBATCH --error=${AI_DIR}/demo_finetune.err
+
+set -euo pipefail
+
+export AI_DIR="${AI_DIR}"
+export TMPDIR="${TMPDIR}"
+export PIP_CACHE_DIR="${PIP_CACHE_DIR}"
+export HF_HOME="${HF_HOME}"
+export HF_HUB_CACHE="${HF_HUB_CACHE}"
+export HF_DATASETS_CACHE="${HF_DATASETS_CACHE}"
+
+"${AI_DIR}/venv/bin/python" "${AI_DIR}/demo_finetune.py"
+EOF
 ```
 
-If this command returns an error, you may need to wait longer for the startup script to finish. Try again after 5 minutes. To save output to a file, append `> demo_finetune.out 2>&1`. 
+Submit the job with `sbatch`. The shell returns immediately after Slurm accepts the job:
 
-On the command line, you should see something similar to the following output:
-
-```
-🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.
-🦥 Unsloth Zoo will now patch everything to make training faster!
-Map: 100%|██████████| 3/3 [00:00<00:00, 1822.82 examples/s]
-Unsloth 2026.2.1 patched 28 layers with 28 QKV layers, 28 O layers and 28 MLP layers.
-num_proc must be <= 3. Reducing num_proc to 3 for dataset of size 3.
-[datasets.arrow_dataset|WARNING]num_proc must be <= 3. Reducing num_proc to 3 for dataset of size 3.
-==((====))==  Unsloth 2026.2.1: Fast Qwen2 patching. Transformers: 4.57.6.
-   \\   /|    NVIDIA L40S. Num GPUs = 1. Max memory: 44.402 GB. Platform: Linux.
-O^O/ \_/ \    Torch: 2.10.0+cu128. CUDA: 8.9. CUDA Toolkit: 12.8. Triton: 3.6.0
-\        /    Bfloat16 = TRUE. FA [Xformers = 0.0.35. FA2 = False]
- "-____-"     Free license: http://github.com/unslothai/unsloth
-Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!
-Unsloth: Tokenizing ["text"] (num_proc=3): 100%|██████████| 3/3 [00:01<00:00,  2.22 examples/s]
-==((====))==  Unsloth - 2x faster free finetuning | Num GPUs used = 1
-   \\   /|    Num examples = 3 | Num Epochs = 10 | Total steps = 10
-O^O/ \_/ \    Batch size per device = 2 | Gradient accumulation steps = 2
-\        /    Data Parallel GPUs = 1 | Total batch size (2 x 2 x 1) = 4
- "-____-"     Trainable parameters = 9,232,384 of 1,552,946,688 (0.59% trained)
-100%|██████████| 10/10 [00:14<00:00,  1.43s/it]
-{'train_runtime': 14.3497, 'train_samples_per_second': 2.788, 'train_steps_per_second': 0.697, 'train_loss': 1.904597854614258, 'epoch': 10.0}
-Detected local model directory: /opt/ai_model
-Found HuggingFace hub cache directory: /root/.cache/huggingface/hub
-Unsloth: Preparing safetensor model files: 100%|██████████| 1/1 [00:01<00:00,  1.43s/it]
-Copied model.safetensors from local model directory
-Unsloth: Merging weights into 16bit: 100%|██████████| 1/1 [00:04<00:00,  4.50s/it]
-Unsloth: Merge process complete. Saved to `/opt/ai_model/output`
-Saved to /opt/ai_model/output
+```shell
+JOB_ID="$(sbatch --parsable "${AI_DIR}/demo_finetune.sbatch")"
 ```
 
----
+Check the job state:
+
+```shell
+squeue -j "${JOB_ID}"
+```
+
+Follow the output while the job runs:
+
+```shell
+tail -f "${AI_DIR}/demo_finetune.out"
+```
+
+When the job finishes, the merged model and tokenizer are saved under:
+
+```shell
+ls -la "${AI_DIR}/output"
+```
 
 ## Next Steps
 
-Before continuing with other AI Factory guides, you should undeploy the Slurm controller and worker VMs. Find their respective IDs with `onevm list` then run `onevm terminate <VM_ID>` to terminate each Slurm instance. 
+Before continuing with other AI Factory guides, undeploy the Slurm service if you no longer need it:
+
+```shell
+oneflow delete <SERVICE_ID>
+```
 
 We recommend continuing with the following AI Factory guides:
 

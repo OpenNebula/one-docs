@@ -22,17 +22,19 @@ Before starting this tutorial, you must complete the AI Factory deployment with 
 
 You must then complete the [AI-ready Kubernetes Deployment Guide]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/ai_ready_k8s" %}}). You also must undeploy any appliances, VMs or services you deployed in previous guides before continuing.
 
-### NVIDIA Dynamo Cloud Platform Installation
-
-As a prerequisite, you need a storage provider installed to supply PersistentVolumes to the platform. For testing purposes, use the [rancher local-path-provisioner](https://github.com/rancher/local-path-provisioner) that references to a local path from the pod host as storage, and creates a default storage class using it.
-
 {{< alert title="Important" type="info" >}}
+
 For the following commands to work, you must use the `kubeconfig_workload.yaml` Kubeconfig. Either add `--kubeconfig kubeconfig_workload.yaml` to the commands or export the `KUBECONFIG` environment variable:
 
 ```shell
 export KUBECONFIG="$PWD/kubeconfig_workload.yaml"
 ```
+
 {{< /alert >}}
+
+### NVIDIA Dynamo Cloud Platform Installation
+
+As a prerequisite, you need a storage provider installed to supply PersistentVolumes to the platform. For testing purposes, use the [rancher local-path-provisioner](https://github.com/rancher/local-path-provisioner) that references to a local path from the pod host as storage, and creates a default storage class using it.
 
 1. To install the provisioner, deploy the manifest from the GitHub repository:
 
@@ -104,7 +106,7 @@ helm install dynamo-crds https://helm.ngc.nvidia.com/nvidia/ai-dynamo/charts/dyn
   --wait --atomic
 ```
 
-2. Install the operator, using the latest version available in the catalog.:
+2. Install the operator, using the 0.7.0 version (using another version may cause problems while following this guide):
 
 ```shell
 helm install dynamo-platform https://helm.ngc.nvidia.com/nvidia/ai-dynamo/charts/dynamo-platform-0.7.0.tgz \
@@ -142,7 +144,7 @@ service/dynamo-platform-nats-headless   ClusterIP   None            <none>      
 ```
 
 {{< alert title="Tip" type="info" >}}
-If the `dynamo-platform-dynamo-operator-controller-manager` pod is stuck in the `ImagePullBackOff` state, see the [Known Issues](#known-issues) section for a solution.
+If the `dynamo-platform-dynamo-operator-controller-manager` pod is stuck in the `ImagePullBackOff` state, see the [Known Issues]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/nvidia_dynamo/#known-issues" %}}) section for a solution.
 {{< /alert >}}
 
 4. To use some LLM models in the platform, you need a HuggingFace token for authenticating against the API. Go to the [tokens page of the HuggingFace website](https://huggingface.co/settings/tokens) to create a new token if you don't already have one. Create a YAML file with your HF token (replace `<token>`):
@@ -167,7 +169,7 @@ kubectl apply -f hf-secret.yaml
 
 ## Deployment of Dynamo Inference Graphs
 
-NVIDIA Dynamo orchestrates the deployment of inference graphs [through the Dynamo CLI](https://docs.nvidia.com/dynamo/latest/getting-started/quickstart) or by deploying manifests following the specific [Dynamo CRDs](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/ai-dynamo/helm-charts/dynamo-crds?version=0.9.1) directly in the cluster, which are recognized and managed by the Dynamo Kubernetes Operator.
+NVIDIA Dynamo orchestrates the deployment of inference graphs [through the Dynamo CLI](https://docs.nvidia.com/dynamo/cli/getting-started/quickstart) or by deploying manifests following the specific [Dynamo CRDs](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/ai-dynamo/helm-charts/dynamo-crds?version=0.9.1) directly in the cluster, which are recognized and managed by the Dynamo Kubernetes Operator.
 
 The instructions of this guide do not expose the Dynamo API externally. You benefit from the Dynamo Kubernetes Operator by deploying the manifests of the inference graphs directly on the cluster.
 
@@ -180,7 +182,11 @@ Once you access the Kubernetes API, proceed to deploy the inference graphs you d
 
 The latest vllm-runtime image is located in [`nvcr.io/nvidia/ai-dynamo/vllm-runtime:0.4.1`](https://github.com/ai-dynamo/dynamo/tree/main/docs/backends/vllm), but you can build your own runtime image following the [instructions](https://github.com/ai-dynamo/dynamo/tree/main/docs/backends/vllm) in the Dynamo repository.
 
-An example of a disaggregated deployment graph is available in the [NVIDIA Dynamo GitHub Repository](https://github.com/ai-dynamo/dynamo/tree/v0.4.1/components/backends/vllm/deploy). For this guide, the example was adapted to work for a validated container runtime:
+An example of a disaggregated deployment graph (for a multi-GPU setup) is available in the [NVIDIA Dynamo GitHub Repository](https://github.com/ai-dynamo/dynamo/tree/v0.4.1/components/backends/vllm/deploy). For this guide, the example was adapted to work for a validated container runtime:
+
+{{< alert title="Important" type="primary" >}}
+This disaggregated example is intended for a topology with **2 GPUs** exposed through PCI passthrough, either within the same Host or on separate Hosts. Resource conflicts will prevent proper function with only a single GPU available. For a single GPU setup, we recommend that you find an aggregated example graph.
+{{< /alert >}} 
 
 ```yaml
 cat << EOF > disagg_custom.yaml
@@ -216,14 +222,12 @@ spec:
         requests:
           cpu: "1"
           memory: "2Gi"
-          ephemeral-storage: "1Gi"
         limits:
           cpu: "1"
           memory: "2Gi"
-          phemeral-storage: "2Gi"
       extraPodSpec:
         mainContainer:
-          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:0.4.1
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:0.7.0
           workingDir: /workspace/components/backends/vllm
           command:
             - /bin/sh
@@ -251,15 +255,13 @@ spec:
         failureThreshold: 60
       resources:
         requests:
-          cpu: "10"
-          memory: "20Gi"
+          cpu: "4"
+          memory: "8Gi"
           gpu: "1"
-          ephemeral-storage: "5Gi"
         limits:
-          cpu: "10"
-          memory: "20Gi"
+          cpu: "8"
+          memory: "16Gi"
           gpu: "1"
-          ephemeral-storage: "10Gi"
 
       envs:
         - name: DYN_SYSTEM_ENABLED
@@ -275,7 +277,7 @@ spec:
               port: 9090
             periodSeconds: 10
             failureThreshold: 60
-          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:0.4.1
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:0.7.0
           workingDir: /workspace/components/backends/vllm
           command:
             - /bin/sh
@@ -303,15 +305,13 @@ spec:
         failureThreshold: 60
       resources:
         requests:
-          cpu: "10"
-          memory: "20Gi"
+          cpu: "4"
+          memory: "8Gi"
           gpu: "1"
-          ephemeral-storage: "5Gi"
         limits:
-          cpu: "10"
-          memory: "20Gi"
+          cpu: "8"
+          memory: "16Gi"
           gpu: "1"
-          ephemeral-storage: "10Gi"
       envs:
         - name: DYN_SYSTEM_ENABLED
           value: "true"
@@ -328,7 +328,7 @@ spec:
               port: 9090
             periodSeconds: 10
             failureThreshold: 60
-          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:0.4.1
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:0.7.0
           workingDir: /workspace/components/backends/vllm
           command:
             - /bin/sh
@@ -344,7 +344,7 @@ Deploy the disaggregated deployment graph with kubectl:
 kubectl -n dynamo-cloud apply -f disagg_custom.yaml
 ```
 
-After some minutes (pulling the vllm runtime image takes its time), check that the pods are up and running:
+After some minutes (pulling the vLLM runtime image takes some time), check that the pods are up and running. If pods are in the `ContainerCreating` status, continue waiting until they convert to `Running`:
 
 ```shell
 kubectl -n dynamo-cloud get pods,svc
@@ -362,18 +362,18 @@ service/disagg-frontend                 ClusterIP   10.43.92.113    <none>      
 [...]
 ```
 
-## (Optional) Querying the API Locally
+## Querying the API Locally (Optional)
 
 In case you want to query the API client locally, forward the vllm frontend service through Kubernetes with this command:
 
 ```shell
-kubectl port-forward svc/<frontend_service> <local_port>:8000 &
+kubectl -n dynamo-cloud port-forward svc/<frontend_service> <local_port>:8000 &
 ```
 
-Example:
+For example:
 
 ```shell
-kubectl port-forward svc/vllm-v1-disagg-router-frontend 9000:8000 &
+kubectl -n dynamo-cloud port-forward svc/vllm-v1-disagg-router-frontend 9000:8000 &
 ```
 
  To test the loaded models, run requests to the frontend via curl:
@@ -396,7 +396,9 @@ curl localhost:9000/v1/models | jq .
 }
 ```
 
-And also submit inference requests:
+If the `data` attribute is empty, the model may still be loading, try again in a minute or so. 
+
+Once the model is loaded, try submitting an inference request:
 
 ```shell
 curl localhost:9000/v1/completions   -H "Content-Type: application/json"   -d '{
@@ -461,7 +463,7 @@ In the streamed output, you will receive multiple JSON responses with the respon
 
 ## Undeployment
 
-Before moving on to other AI Factory guides or deployments, you must undeploy NVIDIA Dynamo and the Disaggregated Deployment Graph. 
+Before moving on to other AI Factory guides or deployments, it is recommended to undeploy NVIDIA Dynamo and the Disaggregated Deployment Graph if you do not intend to further use NVIDIA Dynamo. 
 
 Run the following command to undeploy the graph:
 
@@ -469,19 +471,24 @@ Run the following command to undeploy the graph:
 kubectl delete dynamographdeployment vllm-v1-disagg-router -n dynamo-cloud
 ```
 
-Run the following command, until you receive the response `No resources found in dynamo-cloud namespace.`:
+Run the following command until you see the disagg-router resources disappear:
 
 ```shell
-kubectl get dynamographdeployment -n dynamo-cloud
+kubectl -n dynamo-cloud get pods,deploy,svc
 ```
 
-Next, to undeploy NVIDIA Dynamo, run the following command until all pods have terminated:
+Then uninstall NVIDIA Dynamo with Helm:
+
+```shell
+helm uninstall dynamo-crds -n dynamo-cloud
+helm uninstall dynamo-platform -n dynamo-cloud
+```
+
+Run the following command, until you receive the response `No resources found in dynamo-cloud namespace.`:
 
 ```shell
 kubectl get all -n dynamo-cloud
 ```
-
-Once NVIDIA Dynamo is successfully undeployed, you will receive the response: `No resources found in dynamo-cloud namespace.`
 
 Finally, delete the `dynamo-cloud` namespace:
 

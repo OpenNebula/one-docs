@@ -500,6 +500,8 @@ The procedure to install the NVIDIA GPU Operator is as follows:
     nvidia-operator-validator-z52q7                                   1/1     Running     0          8d
     ```
 
+    If you find tha the `nvidia-driver-daemonset-*****` pods are stuck in an Error/CrashLoopBackoff cycle, this may be caused by a problem with the availability of the drivers for the Linux kernel version of the worker VMs. Refer to the [Known Issues]({{% relref "/solutions/ai_factory_blueprints/containerized_ai_execution/ai_ready_k8s/#nvidia-driver-daemonset-pods-stuck-in-crashloopbackoff" %}}) section for a solution.
+
 5. Check if the Kubernetes nodes GPU autodiscovery operates as expected, by checking the workload nodes, for instance the `nvidia.com/*` labels and the allocatable gpu capacity:
 
     ```shell
@@ -600,7 +602,37 @@ Now that you have provisioned an AI-ready Kubernetes Cluster, you can move onto 
 * [Deployment of NVIDIA Dynamo]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/nvidia_dynamo" %}})
 * [Deployment of the NVIDIA KAI Scheduler]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/nvidia_kai_scheduler" %}})
 
-## Known Errors
+## Undeployment
+
+Once you have completed the AI Factory guides that you are interested in, we recommend to undeploy the CAPI Cluster to free up compute resources (unless you intend to make further K8s deployments). The following instructions show how to cleanly shut down the CAPI Cluster:
+
+Run the following command on your OpenNebula Front-end's command line:
+
+```shell
+kubectl --kubeconfig ./kubeconfig_management.yaml delete cluster k8s-gpu-test -n default
+```
+
+Watch the virtual router, the control plane and the worker VMs terminate with `onevm list`. Once the router, control plane and worker VMs are all successfully terminated, terminate the CAPI VM itself:
+
+```shell
+onevm terminate <CAPI_VM_ID>
+```
+
+## Known Issues
+
+### NVIDIA Driver Daemonset Pods Stuck in CrashLoopBackoff
+
+The `nvidia-driver-daemonset-*****` may get stuck in an Error/CrashLoopBackoff cycle. This may be a problem with the availability of the drivers for the Linux kernel version of the worker VMs. 
+
+Using `onevm list` identify the worker VM ID(s), they are normally the VMs with the longest names. Use `onevm ssh <VM_ID>` to access the command line on each worker VM, then run the following commands:
+
+```shell
+apt update
+apt full-upgrade -y
+reboot
+```
+
+Choose `Keep the local version currently installed` in the prompt asking `What do you want to do about modified configuration file sshd_config?`. After running these commands on the worker nodes and rebooting, within a few minutes the situation should resolve and all pods should reach the `Running` status. 
 
 ### Connection closed by UNKNOWN port 65535
 
@@ -653,4 +685,5 @@ ssh-keygen -f "/var/lib/one/.ssh/known_hosts" -R "172.20.0.9"
 ```
 
 After completing this procedure, the SSH jumphost command should work correctly.
+
 
