@@ -3,7 +3,7 @@
   "info": {
     "title": "OneForm API",
     "version": "v1",
-    "description": "This specification defines all RESTful operations for the OneForm system, including OneForm drivers, providers and provisions.\n"
+    "description": "REST API for OneForm drivers, providers and provisions. Endpoints returning documents use the OpenNebula DOCUMENT wrapper."
   },
   "servers": [
     {
@@ -12,10 +12,8 @@
       "variables": {
         "port": {
           "default": "13013",
-          "description": "Port where the OneForm API is listening",
-          "enum": [
-            "13013"
-          ]
+          "enum": ["13013"],
+          "description": "Port where the OneForm API is listening"
         }
       }
     }
@@ -23,7 +21,7 @@
   "tags": [
     {
       "name": "drivers",
-      "description": "Manage OneForm drivers"
+      "description": "Manage OneForm driver definitions"
     },
     {
       "name": "providers",
@@ -31,2865 +29,1159 @@
     },
     {
       "name": "provisions",
-      "description": "Create and manage deployed infrastructure resources"
+      "description": "Create and manage provisioned OpenNebula infrastructure"
     }
   ],
   "paths": {
     "/drivers": {
       "get": {
-        "tags": [
-          "drivers"
+        "tags": ["drivers"],
+        "summary": "List drivers",
+        "description": "Lists the OneForm driver definitions available to the authenticated user.",
+        "parameters": [
+          {
+            "name": "enabled",
+            "in": "query",
+            "description": "Return only enabled drivers",
+            "schema": { "type": "boolean" }
+          }
         ],
-        "summary": "List available drivers",
-        "description": "Returns a list of available OneForm drivers installed on the system.",
         "responses": {
           "200": {
-            "description": "Array of installed drivers on the system",
+            "description": "Available drivers",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Driver"
-                  }
-                },
-                "examples": [
-                  {
-                    "name": "AWS",
-                    "description": "Amazon Web Services",
-                    "source": "/usr/share/one/providers/aws",
-                    "state": "ENABLED",
-                    "version": "1.0.0",
-                    "fireedge": {
-                      "logo": "aws.png"
-                    },
-                    "connection": [
-                      {
-                        "name": "access_key",
-                        "description": "AWS Access Key",
-                        "type": "string"
-                      },
-                      {
-                        "name": "secret_key",
-                        "description": "AWS Secret Key",
-                        "type": "string"
-                      },
-                      {
-                        "name": "region",
-                        "description": "AWS Region",
-                        "type": "string",
-                        "default": "eu-central-1",
-                        "match": {
-                          "type": "list",
-                          "values": [
-                            "eu-central-1",
-                            "eu-west-1",
-                            "us-east-1"
-                          ]
-                        }
-                      }
-                    ],
-                    "user_inputs": [
-                      {
-                        "name": "cidr_block",
-                        "description": "CIDR block for the VPC",
-                        "type": "string",
-                        "default": "10.0.0.0/16"
-                      },
-                      {
-                        "name": "oneform_hosts",
-                        "description": "Number of instances to create",
-                        "type": "number",
-                        "default": 1,
-                        "match": {
-                          "type": "number",
-                          "values": {
-                            "min": 1,
-                            "max": 10
-                          }
-                        }
-                      },
-                      {
-                        "name": "instance_type",
-                        "description": "Instance type to use for the instance",
-                        "type": "string",
-                        "default": "c5.metal",
-                        "match": {
-                          "type": "list",
-                          "values": [
-                            "c5.metal",
-                            "m5.metal"
-                          ]
-                        }
-                      },
-                      {
-                        "name": "instance_os_name",
-                        "description": "Operating system to use for the instance",
-                        "type": "string",
-                        "default": "ubuntu_2204",
-                        "match": {
-                          "type": "list",
-                          "values": [
-                            "ubuntu_2204",
-                            "ubuntu_2404"
-                          ]
-                        }
-                      },
-                      {
-                        "name": "instance_disk_size",
-                        "description": "Root disk size to use for the instance",
-                        "type": "number",
-                        "default": 128,
-                        "match": {
-                          "type": "number",
-                          "values": {
-                            "min": 32,
-                            "max": 1024
-                          }
-                        }
-                      },
-                      {
-                        "name": "oneform_tags",
-                        "description": "value of the tags to assign to the instance",
-                        "type": "map(string)",
-                        "default": {}
-                      }
-                    ],
-                    "deployment_confs": [
-                      {
-                        "name": "AWS HCI Ceph Cluster",
-                        "description": "It deploys a HCI Ceph cluster on AWS",
-                        "inventory": "ceph_cluster",
-                        "user_inputs": [
-                          {
-                            "name": "oneform_public_ips",
-                            "description": "Number of public IPs to allocate",
-                            "type": "number",
-                            "default": 0,
-                            "match": {
-                              "type": "number",
-                              "values": {
-                                "min": 0,
-                                "max": 5
-                              }
-                            }
-                          }
-                        ],
-                        "one_objects": {
-                          "cluster": {},
-                          "hosts": [],
-                          "networks": [
-                            {
-                              "id": null,
-                              "name": "private_aws_network",
-                              "template": {
-                                "vn_mad": "vxlan",
-                                "vxlan_mode": "evpn",
-                                "automatic_vlan_id": "yes",
-                                "phydev": "enp125s0",
-                                "ip_link_conf": "nolearning=",
-                                "guest_mtu": 1450,
-                                "network_address": "172.17.2.0",
-                                "network_mask": "255.255.255.0",
-                                "gateway": "172.17.2.1",
-                                "dns": "1.1.1.1",
-                                "ar": {
-                                  "type": "ip4",
-                                  "ip": "172.17.2.100",
-                                  "size": 100
-                                }
-                              }
-                            },
-                            {
-                              "id": null,
-                              "name": "public_aws_network",
-                              "template": {
-                                "vn_mad": "elastic",
-                                "bridge": "br0",
-                                "netrole": "public",
-                                "vxlan_mode": "evpn",
-                                "vxlan_tep": "dev",
-                                "ip_link_conf": "nolearning="
-                              }
-                            }
-                          ],
-                          "datastores": [
-                            {
-                              "id": null,
-                              "name": "aws_system_ds",
-                              "template": {
-                                "type": "SYSTEM_DS",
-                                "tm_mad": "ceph",
-                                "disk_type": "RBD",
-                                "pool_name": "one",
-                                "ceph_host": "host1 host2:port2",
-                                "ceph_user": "libvirt",
-                                "ceph_secret": "",
-                                "bridge_list": "cephfrontend"
-                              }
-                            },
-                            {
-                              "id": null,
-                              "name": "aws_image_ds",
-                              "template": {
-                                "type": "IMAGE_DS",
-                                "ds_mad": "ceph",
-                                "tm_mad": "ceph",
-                                "disk_type": "RBD",
-                                "pool_name": "one",
-                                "ceph_host": "host1 host2:port2",
-                                "ceph_user": "libvirt",
-                                "ceph_secret": "",
-                                "bridge_list": "cephfrontend"
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "name": "AWS SSH Cluster",
-                        "description": "It deploys a SSH cluster on AWS",
-                        "inventory": "ssh_cluster",
-                        "user_inputs": [
-                          {
-                            "name": "oneform_public_ips",
-                            "description": "Number of public IPs to allocate",
-                            "type": "number",
-                            "default": 0,
-                            "match": {
-                              "type": "number",
-                              "values": {
-                                "min": 0,
-                                "max": 5
-                              }
-                            }
-                          }
-                        ],
-                        "one_objects": {
-                          "cluster": {},
-                          "hosts": [],
-                          "networks": [
-                            {
-                              "id": null,
-                              "name": "private_aws_network",
-                              "template": {
-                                "vn_mad": "vxlan",
-                                "vxlan_mode": "evpn",
-                                "automatic_vlan_id": "yes",
-                                "phydev": "enp125s0",
-                                "ip_link_conf": "nolearning=",
-                                "guest_mtu": 1450,
-                                "network_address": "172.17.2.0",
-                                "network_mask": "255.255.255.0",
-                                "gateway": "172.17.2.1",
-                                "dns": "1.1.1.1",
-                                "ar": {
-                                  "type": "ip4",
-                                  "ip": "172.17.2.100",
-                                  "size": 100
-                                }
-                              }
-                            },
-                            {
-                              "id": null,
-                              "name": "public_aws_network",
-                              "template": {
-                                "vn_mad": "elastic",
-                                "bridge": "br0",
-                                "netrole": "public",
-                                "vxlan_mode": "evpn",
-                                "vxlan_tep": "dev",
-                                "ip_link_conf": "nolearning="
-                              }
-                            }
-                          ],
-                          "datastores": [
-                            {
-                              "id": null,
-                              "name": "aws_system_ds",
-                              "template": {
-                                "type": "SYSTEM_DS",
-                                "tm_mad": "ssh",
-                                "safe_dirs": "/var/tmp /tmp"
-                              }
-                            },
-                            {
-                              "id": null,
-                              "name": "aws_image_ds",
-                              "template": {
-                                "type": "IMAGE_DS",
-                                "ds_mad": "fs",
-                                "tm_mad": "ssh",
-                                "safe_dirs": "/var/tmp /tmp"
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                ]
+                  "items": { "$ref": "#/components/schemas/Driver" }
+                }
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/drivers/{name}": {
       "get": {
-        "tags": [
-          "drivers"
-        ],
-        "summary": "Get driver details",
-        "description": "Returns metadata and configuration details for the specified driver.",
+        "tags": ["drivers"],
+        "summary": "Get a driver",
+        "description": "Returns the selected driver definition, including its available input fields.",
+        "parameters": [{ "$ref": "#/components/parameters/DriverName" }],
+        "responses": {
+          "200": {
+            "description": "Driver definition",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Driver" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/drivers/{name}/{deployment}/inputs": {
+      "get": {
+        "tags": ["drivers"],
+        "summary": "Get deployment input definitions",
+        "description": "Returns the inputs shared by the driver and the inputs specific to the selected deployment type.",
         "parameters": [
+          { "$ref": "#/components/parameters/DriverName" },
           {
-            "name": "name",
+            "name": "deployment",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Name of the driver"
+            "description": "Deployment type, identified by its inventory name",
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
           "200": {
-            "description": "Array of installed drivers on the system",
+            "description": "Driver and deployment input definitions",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Driver"
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/UserInput" }
                 }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/drivers/{name}/enable": {
-      "post": {
-        "tags": [
-          "drivers"
-        ],
-        "summary": "Enable a driver",
-        "description": "> POST Operations on the driver resource are restricted to members of the oneadmin group.\n\nEnables a OneForm driver installed on the system. All drivers are enabled by default on first boot.",
-        "parameters": [
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Name of the driver to enable"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Driver enabled"
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/drivers/{name}/disable": {
-      "post": {
-        "tags": [
-          "drivers"
-        ],
-        "summary": "Disable a driver",
-        "description": "> POST Operations on the driver resource are restricted to members of the oneadmin group.\n\nDisables a OneForm driver installed on the system. This prevents the creation of providers and provisions based on this driver.",
-        "parameters": [
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Name of the driver to disable"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Driver disabled"
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/drivers/sync": {
       "post": {
-        "tags": [
-          "drivers"
-        ],
-        "summary": "Sync and check all the drivers installed on the system",
-        "description": "> POST Operations on the driver resource are restricted to members of the oneadmin group.\n\nAttempts to validate the presence of driver folders, verify folder structure and template syntax, and register drivers by setting their state to ENABLED or ERROR if they are new. In case of an error, it records the driver state and logs the failure.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "success": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "failed": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        },
-                        "error": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "success": [
-                    "driver1",
-                    "driver2"
-                  ],
-                  "failed": [
-                    {
-                      "name": "driver3",
-                      "error": "reason"
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        },
+        "tags": ["drivers"],
+        "summary": "Synchronize drivers",
+        "description": "Refreshes the driver registry from the installed driver directories. Requires oneadmin privileges.",
         "responses": {
           "200": {
-            "description": "Drivers synced"
+            "description": "Driver synchronization result",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object", "additionalProperties": true }
+              }
+            }
           },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/drivers/{name}/enable": {
+      "post": {
+        "tags": ["drivers"],
+        "summary": "Enable a driver",
+        "description": "Makes the selected driver available for creating providers. Requires oneadmin privileges.",
+        "parameters": [{ "$ref": "#/components/parameters/DriverName" }],
+        "responses": {
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/drivers/{name}/disable": {
+      "post": {
+        "tags": ["drivers"],
+        "summary": "Disable a driver",
+        "description": "Prevents new providers from using the selected driver. Requires oneadmin privileges.",
+        "parameters": [{ "$ref": "#/components/parameters/DriverName" }],
+        "responses": {
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/providers": {
       "get": {
-        "tags": [
-          "providers"
+        "tags": ["providers"],
+        "summary": "List providers",
+        "description": "Lists provider documents visible to the authenticated user.",
+        "parameters": [
+          {
+            "name": "enabled",
+            "in": "query",
+            "description": "Return only providers whose driver is enabled",
+            "schema": { "type": "boolean" }
+          },
+          { "$ref": "#/components/parameters/IncludeSensitive" }
         ],
-        "summary": "Retrieve all Providers",
         "responses": {
           "200": {
-            "description": "Array of Providers",
+            "description": "Provider documents",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Provider"
-                  }
+                  "items": { "$ref": "#/components/schemas/ProviderDocument" }
                 }
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       },
       "post": {
-        "tags": [
-          "providers"
-        ],
-        "summary": "Creates a new Provider from a driver definition",
-        "description": "Creates a new Provider from the specified driver definition. The request body must be a JSON object containing any combination of:\n\n- `driver`: Name of the base driver to use.\n- `user_inputs_values`: a hash where keys are the names of the required user inputs defined in the driver, and values are the user-provided values.\n- Any other key-value pairs: these will either overwrite existing fields in the driver (e.g., `name`, `desc`) or extend the driver with new attributes.",
+        "tags": ["providers"],
+        "summary": "Create a provider",
+        "description": "Creates a provider from an enabled driver and its connection values.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "driver": {
-                    "type": "string",
-                    "required": true,
-                    "description": "Driver name to use as the base for the new provider"
-                  },
-                  "connection_values": {
-                    "type": "object",
-                    "required": true,
-                    "description": "Hash object with the values for the required Driver's connection inputs"
-                  }
-                },
-                "additionalProperties": {
-                  "type": [
-                    "string, ",
-                    "number, ",
-                    "boolean, ",
-                    "array, ",
-                    "object"
-                  ]
-                }
-              },
-              "example": {
-                "driver": "aws",
-                "name": "myprovider",
-                "desc": "some description",
-                "user_inputs_values": {
-                  "access_key": "AKIAEXAMPLE",
-                  "secret_key": "abc123secret",
-                  "project_id": "demo-project"
-                }
-              }
+              "schema": { "$ref": "#/components/schemas/CreateProviderRequest" }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Provider object created",
+            "description": "Created provider",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Provider"
-                }
+                "schema": { "$ref": "#/components/schemas/ProviderDocument" }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/providers/{id}": {
       "get": {
-        "tags": [
-          "providers"
-        ],
-        "summary": "Retrieve a specific Provider by ID",
+        "tags": ["providers"],
+        "summary": "Get a provider",
+        "description": "Returns the selected provider document.",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provider",
-            "schema": {
-              "type": "string"
-            }
-          }
+          { "$ref": "#/components/parameters/DocumentId" },
+          { "$ref": "#/components/parameters/IncludeSensitive" }
         ],
         "responses": {
           "200": {
-            "description": "Provider object details",
+            "description": "Provider document",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Provider"
-                }
+                "schema": { "$ref": "#/components/schemas/ProviderDocument" }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       },
       "patch": {
-        "tags": [
-          "providers"
-        ],
-        "summary": "Update a Provider with the given body",
+        "tags": ["providers"],
+        "summary": "Update a provider",
+        "description": "Updates provider metadata. Updating connection values is allowed only to the provider owner and oneadmin.",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the provider",
-            "schema": {
-              "type": "string"
-            }
-          }
+          { "$ref": "#/components/parameters/DocumentId" },
+          { "$ref": "#/components/parameters/IncludeSensitive" }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Provider"
-              }
+              "schema": { "$ref": "#/components/schemas/UpdateProviderRequest" }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Provider object updated",
+            "description": "Updated provider",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProviderDocument" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      },
+      "delete": {
+        "tags": ["providers"],
+        "summary": "Delete a provider",
+        "description": "Deletes the selected provider only when it is not used by any provision. The default on-premises provider cannot be deleted.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "responses": {
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/providers/{id}/inputs": {
+      "get": {
+        "tags": ["providers"],
+        "summary": "Get provider connection inputs",
+        "description": "Returns the connection input definitions required by the provider driver.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "responses": {
+          "200": {
+            "description": "Connection input definitions",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Provider"
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/UserInput" }
                 }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "providers"
-        ],
-        "summary": "Delete a Provider by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provider",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/204"
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/providers/{id}/path": {
       "get": {
-        "tags": [
-          "providers"
-        ],
-        "summary": "Retrieve the local path of the Provider",
-        "description": "Returns the system path where all files related to the specified Provider are stored.\n\nThis path includes:\n\n- Terraform configuration files\n- Ansible playbooks and inventory\n- Other configuration files and parameters used during provisioning.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the provider",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "tags": ["providers"],
+        "summary": "Get provider driver path",
+        "description": "Returns the driver directory path. Requires oneadmin privileges.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
         "responses": {
           "200": {
-            "description": "Path to the Provider directory",
+            "description": "Driver directory path",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "description": "System path of the Provider"
-                    }
-                  }
-                }
+                "schema": { "type": "string" }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/providers/{id}/chmod": {
       "post": {
-        "tags": [
-          "providers"
-        ],
-        "summary": "Change permissions of a Provider using an octet representation",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provider",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "octet": {
-                    "type": "string",
-                    "required": true,
-                    "description": "Octet permissions (e.g., '640')"
-                  }
-                }
-              }
-            }
-          }
-        },
+        "tags": ["providers"],
+        "summary": "Change provider permissions",
+        "description": "Changes the provider permission bits, subject to OpenNebula authorization.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "requestBody": { "$ref": "#/components/requestBodies/Chmod" },
         "responses": {
-          "200": {
-            "description": "Provider object updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Provider"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/providers/{id}/chown": {
       "post": {
-        "tags": [
-          "providers"
-        ],
-        "summary": "Changes the owner and optionally the group of a Provider",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provider",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "owner_id": {
-                    "type": "integer",
-                    "required": true,
-                    "description": "New owner ID"
-                  },
-                  "group_id": {
-                    "type": "integer",
-                    "description": "New group ID"
-                  }
-                }
-              }
-            }
-          }
-        },
+        "tags": ["providers"],
+        "summary": "Change provider owner and optionally group",
+        "description": "Transfers the provider to another owner and, optionally, group, subject to OpenNebula authorization.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "requestBody": { "$ref": "#/components/requestBodies/Chown" },
         "responses": {
-          "200": {
-            "description": "Provider object updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Provider"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/providers/{id}/chgrp": {
       "post": {
-        "tags": [
-          "providers"
-        ],
-        "summary": "Change the group of a Provider",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provider",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "group_id": {
-                    "type": "integer",
-                    "required": true,
-                    "description": "New group ID"
-                  }
-                }
-              }
-            }
-          }
-        },
+        "tags": ["providers"],
+        "summary": "Change provider group",
+        "description": "Changes the provider group, subject to OpenNebula authorization.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "requestBody": { "$ref": "#/components/requestBodies/Chgrp" },
         "responses": {
-          "200": {
-            "description": "Provider object updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Provider"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/provisions": {
       "get": {
-        "tags": [
-          "provisions"
-        ],
-        "summary": "Retrieve all provisions",
+        "tags": ["provisions"],
+        "summary": "List provisions",
+        "description": "Lists provision documents visible to the authenticated user.",
         "parameters": [
-          {
-            "name": "all",
-            "in": "query",
-            "required": false,
-            "description": "If true, include Provisions in DONE state. False by default",
-            "schema": {
-              "type": "boolean"
-            }
-          }
+          { "$ref": "#/components/parameters/IncludeProvider" },
+          { "$ref": "#/components/parameters/IncludeSensitive" }
         ],
         "responses": {
           "200": {
-            "description": "Array of Provisions",
+            "description": "Provision documents",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Provision"
-                  }
+                  "items": { "$ref": "#/components/schemas/ProvisionDocument" }
                 }
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      },
+      "post": {
+        "tags": ["provisions"],
+        "summary": "Create and start a provision",
+        "description": "Creates a provision and starts its deployment lifecycle asynchronously.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateProvisionRequest" }
+            }
           }
+        },
+        "responses": {
+          "201": {
+            "description": "Created provision",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProvisionDocument" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/provisions/{id}": {
       "get": {
-        "tags": [
-          "provisions"
-        ],
-        "summary": "Retrieve a specific Provision by ID",
+        "tags": ["provisions"],
+        "summary": "Get a provision",
+        "description": "Returns the selected provision document and optional associated provider.",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provision",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "decode",
-            "in": "query",
-            "required": false,
-            "description": "If true, decode and return the Terraform state. False by default",
-            "schema": {
-              "type": "boolean"
-            }
-          }
+          { "$ref": "#/components/parameters/DocumentId" },
+          { "$ref": "#/components/parameters/IncludeProvider" },
+          { "$ref": "#/components/parameters/IncludeSensitive" }
         ],
         "responses": {
           "200": {
-            "description": "Provision object details",
+            "description": "Provision document",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Provision"
-                }
+                "schema": { "$ref": "#/components/schemas/ProvisionDocument" }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       },
-      "post": {
-        "tags": [
-          "provisions"
+      "patch": {
+        "tags": ["provisions"],
+        "summary": "Update a provision",
+        "description": "Updates the mutable metadata of the selected provision.",
+        "parameters": [
+          { "$ref": "#/components/parameters/DocumentId" },
+          { "$ref": "#/components/parameters/IncludeSensitive" }
         ],
-        "summary": "Creates a new Provision from a driver definition",
-        "description": "Creates a new Provision object based on a driver definition and an existing Provider instance.\n\nThe request body must include:\n\n- `driver`: Name of the base driver to use.\n - `deployment_type`: Name of the deployment configuration to use.\n- `provider_id`: the ID of the Provider instance that will host and manage the Provision.\n- `user_inputs_values`: a key-value object containing the values required by the Driver's user inputs. Keys must match the input names defined in the driver body.\n\nIn addition to these fields, any other custom attributes can be included. These will overwrite or extend the values defined in the driver body.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "driver": {
-                    "type": "string",
-                    "required": true,
-                    "description": "Driver name to use as the base for the new provision"
-                  },
-                  "deployment_type": {
-                    "type": "string",
-                    "required": true,
-                    "description": "Deployment name type to create for the new provision"
-                  },
-                  "provider_id": {
-                    "type": "integer",
-                    "required": true,
-                    "description": "ID of the existing Provider object that will run the Provision"
-                  },
-                  "user_inputs_values": {
-                    "type": "object",
-                    "required": true,
-                    "description": "Hash object with the values for the required Driver's deployment user inputs"
-                  },
-                  "additionalProperties": {
-                    "type": [
-                      "string, ",
-                      "number, ",
-                      "boolean, ",
-                      "array, ",
-                      "object"
-                    ]
-                  }
-                },
-                "example": {
-                  "driver": "aws",
-                  "deployment_type": "ssh_cluster",
-                  "provider_id": 1,
-                  "name": "myprovision",
-                  "desc": "some description",
-                  "user_inputs_values": {
-                    "instance_type": "c5.metal",
-                    "instance_os_name": "ubuntu_2204",
-                    "oneform_hosts": 2,
-                    "oneform_public_ips": 1,
-                    "oneform_tags": {
-                      "environment": "dev",
-                      "owner": "admin@example.com"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": "Provision object created",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Provision"
-                  }
-                }
-              }
-            },
-            "400": {
-              "$ref": "#/components/responses/400"
-            },
-            "401": {
-              "$ref": "#/components/responses/401"
-            },
-            "403": {
-              "$ref": "#/components/responses/403"
-            },
-            "404": {
-              "$ref": "#/components/responses/404"
-            },
-            "500": {
-              "$ref": "#/components/responses/500"
+              "schema": { "$ref": "#/components/schemas/UpdateProvisionRequest" }
             }
           }
         },
-        "patch": {
-          "tags": [
-            "provisions"
-          ],
-          "summary": "Update a Provision with the given body",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "description": "ID of the Provision",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
+        "responses": {
+          "200": {
+            "description": "Updated provision",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Provision"
-                }
+                "schema": { "$ref": "#/components/schemas/ProvisionDocument" }
               }
             }
           },
-          "responses": {
-            "200": {
-              "description": "Provision object updated",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Provision"
-                  }
-                }
-              }
-            },
-            "400": {
-              "$ref": "#/components/responses/400"
-            },
-            "401": {
-              "$ref": "#/components/responses/401"
-            },
-            "403": {
-              "$ref": "#/components/responses/403"
-            },
-            "404": {
-              "$ref": "#/components/responses/404"
-            },
-            "500": {
-              "$ref": "#/components/responses/500"
-            }
-          }
-        },
-        "delete": {
-          "tags": [
-            "provisions"
-          ],
-          "summary": "Delete a Provision",
-          "description": "Deletes a Provision from the OneForm database.\nBy default, only Provisions in the `DONE` state can be deleted. This ensures that active or in-progress resources are not removed unintentionally. However, if the optional `force=true` query parameter is provided, the deletion will proceed regardless of the Provision's current state. Use this option with caution, as it may bypass safety checks and result in inconsistent infrastructure state.",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "description": "ID of the provision",
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "name": "force",
-              "in": "query",
-              "required": false,
-              "description": "Allow deletion regardless of state (default = false)",
-              "schema": {
-                "type": "boolean"
-              }
-            }
-          ],
-          "responses": {
-            "204": {
-              "$ref": "#/components/responses/204"
-            },
-            "400": {
-              "$ref": "#/components/responses/400"
-            },
-            "401": {
-              "$ref": "#/components/responses/401"
-            },
-            "403": {
-              "$ref": "#/components/responses/403"
-            },
-            "404": {
-              "$ref": "#/components/responses/404"
-            },
-            "500": {
-              "$ref": "#/components/responses/500"
-            }
-          }
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      },
+      "delete": {
+        "tags": ["provisions"],
+        "summary": "Delete a provision",
+        "description": "Starts deprovisioning for the selected provision. Use force to override lifecycle safeguards. Use from_db only as a last resort when deprovisioning cannot complete.",
+        "parameters": [
+          { "$ref": "#/components/parameters/DocumentId" },
+          { "$ref": "#/components/parameters/Force" },
+          { "$ref": "#/components/parameters/FromDb" }
+        ],
+        "responses": {
+          "202": { "$ref": "#/components/responses/Accepted" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
-    "/provisions/{id}/unmanged": {
+    "/provisions/{id}/inputs": {
       "get": {
-        "tags": [
-          "provisions"
-        ],
-        "summary": "Retrieve unmanaged resources related to a Provision",
-        "description": "Returns the list of unmanaged resources associated with a given Provision. Unmanaged resources are entities that were not deployed by OneForm, but are dependent on or linked to OneForm-managed infrastructure. For example, virtual machines, images, or leases created manually in OpenNebula but using storage, hosts, or networks managed by OneForm.\n\nThese resources are typically visible under the `child` field of each object in the full Provision body under `one_objects`, but this endpoint extracts and isolates them for easier tracking and auditing.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provision",
-            "schema": {
-              "type": "string"
+        "tags": ["provisions"],
+        "summary": "Get provision input definitions",
+        "description": "Returns the user input definitions used to configure the provision.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "responses": {
+          "200": {
+            "description": "Input definitions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/UserInput" }
+                }
+              }
             }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/provisions/{id}/tfstate": {
+      "get": {
+        "tags": ["provisions"],
+        "summary": "Get Terraform state",
+        "description": "Returns the Terraform state stored for the provision. Requires oneadmin privileges.",
+        "parameters": [
+          { "$ref": "#/components/parameters/DocumentId" },
+          {
+            "name": "decode",
+            "in": "query",
+            "description": "Decode the stored Terraform state before returning it",
+            "schema": { "type": "boolean" }
           }
         ],
         "responses": {
           "200": {
-            "description": "List of unmanaged resources grouped by resource type",
+            "description": "Stored Terraform state",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "datastores": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "object",
-                        "properties": {
-                          "image": {
-                            "type": "array",
-                            "items": {
-                              "type": "string"
-                            }
-                          }
-                        },
-                        "required": [
-                          "image"
-                        ]
-                      }
-                    },
-                    "hosts": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "object",
-                        "properties": {
-                          "vms": {
-                            "type": "array",
-                            "items": {
-                              "type": "string"
-                            }
-                          }
-                        },
-                        "required": [
-                          "vms"
-                        ]
-                      }
-                    },
-                    "networks": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "object",
-                        "properties": {
-                          "vms": {
-                            "type": "array",
-                            "items": {
-                              "type": "string"
-                            }
-                          }
-                        },
-                        "required": [
-                          "vms"
-                        ]
-                      }
-                    }
-                  },
-                  "example": {
-                    "datastores": {
-                      "107": {
-                        "image": [
-                          "4"
-                        ]
-                      }
-                    },
-                    "hosts": {
-                      "6": {
-                        "vms": [
-                          "1",
-                          "2"
-                        ]
-                      },
-                      "7": {
-                        "vms": [
-                          "3"
-                        ]
-                      }
-                    },
-                    "networks": {
-                      "10": {
-                        "vms": [
-                          "1",
-                          "2"
-                        ]
-                      }
-                    }
-                  }
-                }
+                "schema": { "type": "string" }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
-    "/provisions/{id}/undeploy": {
+    "/provisions/{id}/cluster": {
+      "get": {
+        "tags": ["provisions"],
+        "summary": "Get the provision cluster",
+        "description": "Returns the OpenNebula cluster created for the provision.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/OpenNebulaObject" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/provisions/{id}/hosts": {
+      "get": {
+        "tags": ["provisions"],
+        "summary": "Get provision hosts",
+        "description": "Returns the OpenNebula hosts associated with the provision.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/OpenNebulaObjectList" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      },
       "post": {
-        "tags": [
-          "provisions"
-        ],
-        "summary": "Undeploy a Provision",
-        "description": "Starts the undeployment (deprovisioning) process of a specific Provision.\n\nBy default, undeployment will fail if the Provision contains unmanaged resources; that is resources that were not deployed by OneForm but are linked to its managed infrastructure (e.g., manually created VMs or images).\n\nTo bypass this restriction and force undeployment despite the presence of unmanaged resources, include `force: true` in the request body.\n\nThis action triggers the teardown of all infrastructure associated with the Provision and removes its record from OpenNebula and the external provider.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provision",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "tags": ["provisions"],
+        "summary": "Add provision hosts",
+        "description": "Starts asynchronous scale-out. Provide exactly one of amount for cloud hosts or hosts for on-premises IP addresses or hostnames.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
         "requestBody": {
-          "required": false,
+          "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "force": {
-                    "type": "boolean",
-                    "description": "Force undeployment even if unmanaged resources are detected"
-                  }
-                },
-                "example": {
-                  "force": true
-                }
-              }
+              "schema": { "$ref": "#/components/schemas/AddHostsRequest" }
             }
           }
         },
         "responses": {
-          "204": {
-            "$ref": "#/components/responses/204"
+          "202": { "$ref": "#/components/responses/Accepted" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      },
+      "delete": {
+        "tags": ["provisions"],
+        "summary": "Delete provision hosts",
+        "description": "Starts asynchronous removal of the specified OpenNebula hosts from the provision.",
+        "parameters": [
+          { "$ref": "#/components/parameters/DocumentId" },
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "description": "Comma-separated OpenNebula host IDs without duplicates",
+            "schema": { "type": "string", "example": "101,102" }
+          }
+        ],
+        "responses": {
+          "202": { "$ref": "#/components/responses/Accepted" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/provisions/{id}/networks": {
+      "get": {
+        "tags": ["provisions"],
+        "summary": "Get provision networks",
+        "description": "Returns the OpenNebula virtual networks associated with the provision.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/OpenNebulaObjectList" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/provisions/{id}/datastores": {
+      "get": {
+        "tags": ["provisions"],
+        "summary": "Get provision datastores",
+        "description": "Returns the OpenNebula datastores associated with the provision.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/OpenNebulaObjectList" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/provisions/{id}/unmanaged": {
+      "get": {
+        "tags": ["provisions"],
+        "summary": "Get unmanaged provision resources",
+        "description": "Lists provision resources that OneForm cannot manage automatically.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "responses": {
+          "200": {
+            "description": "Resources that cannot be managed by OneForm",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "type": "object" } }
+              }
+            }
           },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "405": {
-            "description": "Undeployment not allowed due to unmanaged resources",
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/provisions/{id}/jobs": {
+      "get": {
+        "tags": ["provisions"],
+        "summary": "Get the active provision job",
+        "description": "Returns the active job context, or an empty array when none exists. Requires oneadmin privileges.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "responses": {
+          "200": {
+            "description": "Active job context",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Unmanaged resources found, use `force` option to delete them"
-                    },
-                    "context": {
-                      "type": "object",
-                      "description": "List of unmanaged resources preventing the undeployment"
-                    }
-                  },
-                  "example": {
-                    "message": "Unmanaged resources found, use `force` option to delete them",
-                    "context": {
-                      "hosts": {
-                        "6": {
-                          "vms": [
-                            "1",
-                            "2"
-                          ]
-                        }
-                      },
-                      "datastores": {
-                        "107": {
-                          "image": [
-                            "4"
-                          ]
-                        }
-                      }
-                    }
-                  }
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ProvisionJob" }
                 }
               }
             }
           },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/provisions/{id}/cancel": {
+      "post": {
+        "tags": ["provisions"],
+        "summary": "Request cancellation of the active operation",
+        "description": "Requests cancellation of the active operation. Only the user who started it and oneadmin may cancel it.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "responses": {
+          "202": {
+            "description": "Cancellation request accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status"],
+                  "properties": { "status": { "type": "string", "example": "requested" } }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/provisions/{id}/recover": {
       "post": {
-        "tags": [
-          "provisions"
-        ],
-        "summary": "Recover a Provision from a failure state",
-        "description": "Starts the recovery process for a specific Provision.\n\nThis endpoint allows restoring a Provision to a valid operational state (e.g., `RUNNING`) in case it has entered an error or inconsistent status. The `recover_state` field is required and indicates the target state to recover to.\n\nIf the Provision is currently in an error state, the optional `force: true` flag can be used to attempt recovery regardless of its current status.\n\nThis operation does not re-deploy the infrastructure, but rather updates the internal state tracking and may relink to existing resources depending on the provider's capabilities.",
+        "tags": ["provisions"],
+        "summary": "Recover a failed provision",
+        "description": "Restarts a recoverable failed lifecycle operation. Use force to override lifecycle safeguards.",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provision to recover",
-            "schema": {
-              "type": "string"
-            }
-          }
+          { "$ref": "#/components/parameters/DocumentId" },
+          { "$ref": "#/components/parameters/Force" }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "recover_state"
-                ],
-                "properties": {
-                  "recover_state": {
-                    "type": "string",
-                    "description": "Target state to recover the Provision to (e.g., 'APPLYING')"
-                  },
-                  "force": {
-                    "type": "boolean",
-                    "description": "Force recovery even if the Provision is in an error state"
-                  }
-                },
-                "example": {
-                  "recover_state": "RUNNING",
-                  "force": true
-                }
-              }
-            }
-          }
-        },
         "responses": {
-          "204": {
-            "$ref": "#/components/responses/204"
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "202": { "$ref": "#/components/responses/Accepted" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
-    "/provisions/{id}/retry": {
+    "/provisions/{id}/public-network/ips": {
       "post": {
-        "tags": [
-          "provisions"
-        ],
-        "summary": "Retry a failed Provision",
-        "description": "Automatically retries the last failed operation associated with a Provision in error state.\n\nThis endpoint is intended for recovering failed Provisions by re-executing the most recent operation (e.g., scaling, deployment, update).\n\n- If the Provision is eligible for retry, OneForm will reattempt the operation.\n- The `force` flag can be set to `true` to force retry even when the Provision is not in a formally retryable state.\n- The `opts` object allows passing custom parameters to the retried operation. For example, if the failure occurred during a scaling action, you can include the original scaling body in `opts` to retry with adjusted values.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provision to retry",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "tags": ["provisions"],
+        "summary": "Add public IP address ranges",
+        "description": "Starts asynchronous allocation of public address ranges in the provision public network.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
         "requestBody": {
           "required": false,
           "content": {
             "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "force": {
-                    "type": "boolean",
-                    "description": "Force retry even if the Provision is not in a retryable state"
-                  },
-                  "opts": {
-                    "type": "object",
-                    "description": "Optional parameters to pass to the retried operation",
-                    "additionalProperties": {
-                      "type": [
-                        "string",
-                        "number",
-                        "boolean",
-                        "array",
-                        "object"
-                      ]
-                    }
-                  }
-                }
-              },
-              "examples": {
-                "retryScaling": {
-                  "summary": "Retry a failed scaling operation with updated parameters",
-                  "value": {
-                    "force": false,
-                    "opts": {
-                      "direction": "up",
-                      "nodes": 2
-                    }
-                  }
-                },
-                "retryAppling": {
-                  "summary": "Retry a failed applying operation",
-                  "value": {}
-                }
-              }
+              "schema": { "$ref": "#/components/schemas/AddPublicIpsRequest" }
             }
           }
         },
         "responses": {
-          "204": {
-            "$ref": "#/components/responses/204"
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "202": { "$ref": "#/components/responses/Accepted" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
-    "/provisions/{id}/scale": {
-      "post": {
-        "tags": [
-          "provisions"
-        ],
-        "summary": "Scale a Provision",
-        "description": "Triggers the scaling process for a given Provision, either to add or remove infrastructure resources.\n- The `direction` field must be either `up` (to scale out) or `down` (to scale in).\n- The `nodes` field accepts two formats:\n    - An **integer**, representing the number of nodes to scale (used for external or dynamic providers).\n    - An **array of IP addresses**, used only when the Provision is based on the `onpremises` provider. In this case, you must explicitly provide the IPs of the physical nodes to be added or removed.\n\nAdditionally, the optional `opts` field allows specifying extra OpenNebula resources to deprovision during a scale down operation. This can include:\n- `datastores`: list of datastore IDs to remove from the Provision\n- `networks`: list of network IDs to remove\n> It is recommended to manage non-host OpenNebula resources (e.g., networks, datastores) directly via their corresponding object endpoints. The `opts` field should only be used for coordinated removal during deprovisioning when absolutely necessary.",
+    "/provisions/{id}/public-network/ips/{ar_id}": {
+      "delete": {
+        "tags": ["provisions"],
+        "summary": "Delete a public IP address range",
+        "description": "Starts asynchronous removal of the selected address range from the provision public network.",
         "parameters": [
+          { "$ref": "#/components/parameters/DocumentId" },
           {
-            "name": "id",
+            "name": "ar_id",
             "in": "path",
             "required": true,
-            "description": "ID of the Provision to scale",
-            "schema": {
-              "type": "string"
-            }
+            "description": "OpenNebula address range ID",
+            "schema": { "type": "integer", "minimum": 0 }
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "direction",
-                  "nodes"
-                ],
-                "properties": {
-                  "direction": {
-                    "type": "string",
-                    "enum": [
-                      "up",
-                      "down"
-                    ],
-                    "description": "Scaling direction: 'up' to add nodes, 'down' to remove"
-                  },
-                  "nodes": {
-                    "description": "Defines the nodes involved in the scaling operation. The format depends on the direction and provider:\n\n- For `up` with external providers: an integer indicating the number of nodes to add.\n- For `up` with the on-premises provider: an array of IP addresses of physical hosts.\n- For `down` operations (any provider): an array of OpenNebula host IDs to remove.",
-                    "oneOf": [
-                      {
-                        "type": "integer",
-                        "minimum": 1,
-                        "description": "Number of nodes to add (only used when direction is 'up' with non-onpremises providers)"
-                      },
-                      {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "ipv4"
-                        },
-                        "description": "IP addresses of physical nodes to add (used only when direction is 'up' and provider is onpremises)"
-                      },
-                      {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "description": "IDs of OpenNebula hosts to remove (used only when direction is 'down')"
-                      }
-                    ]
-                  },
-                  "opts": {
-                    "type": "object",
-                    "description": "Optional additional resources to deprovision (only valid when scaling down)",
-                    "properties": {
-                      "datastores": {
-                        "type": "array",
-                        "items": {
-                          "type": "integer"
-                        }
-                      },
-                      "networks": {
-                        "type": "array",
-                        "items": {
-                          "type": "integer"
-                        }
-                      }
-                    },
-                    "additionalProperties": true
-                  }
-                }
-              },
-              "examples": {
-                "scaleUp": {
-                  "summary": "Scale up by adding two nodes (external provider)",
-                  "value": {
-                    "direction": "up",
-                    "nodes": 2
-                  }
-                },
-                "scaleUpOnPremises": {
-                  "summary": "Scale up by adding two on-premises nodes using IPs",
-                  "value": {
-                    "direction": "up",
-                    "nodes": [
-                      "1.1.1.1",
-                      "2.2.2.2"
-                    ]
-                  }
-                },
-                "scaleDownWithOpts": {
-                  "summary": "Scale down with node list and extra resources",
-                  "value": {
-                    "direction": "down",
-                    "nodes": [
-                      3,
-                      4
-                    ],
-                    "opts": {
-                      "datastores": [
-                        107
-                      ],
-                      "networks": [
-                        10
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
         "responses": {
-          "204": {
-            "$ref": "#/components/responses/400"
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/provisions/{id}/add-ip": {
-      "post": {
-        "tags": [
-          "provisions"
-        ],
-        "summary": "Add public IPs to a Provision",
-        "description": "Adds one or more public IP addresses to the public network associated with a Provision.\n\nBy default, one IP address will be added unless a different `amount` is specified in the request body.\n\nThis operation updates the Provision's network allocation using the underlying OpenNebula elastic drivers.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provision",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "amount": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "default": 1,
-                    "description": "Number of public IPs to add (default is 1)"
-                  }
-                }
-              },
-              "examples": {
-                "addOneIP": {
-                  "summary": "Add one public IP",
-                  "value": {}
-                },
-                "addThreeIPs": {
-                  "summary": "Add three public IPs",
-                  "value": {
-                    "amount": 3
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/204"
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/provisions/{id}/remove-ip": {
-      "post": {
-        "tags": [
-          "provisions"
-        ],
-        "summary": "Remove a public IP from a Provision",
-        "description": "Removes a specific public IP address from the public network associated with the given Provision.\n\nThis operation targets the **Address Range ID (AR ID)** assigned to the IP you want to remove. The `ar_id` must be provided in the request body.\n\nOnce removed, the IP is released from the provisioned network in OpenNebula.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provision",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "ar_id"
-                ],
-                "properties": {
-                  "ar_id": {
-                    "type": "integer",
-                    "description": "Address Range (AR) ID of the public IP to remove"
-                  }
-                }
-              },
-              "examples": {
-                "removeIP": {
-                  "summary": "Remove a public IP by AR ID",
-                  "value": {
-                    "ar_id": 42
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/204"
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "202": { "$ref": "#/components/responses/Accepted" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/provisions/{id}/chmod": {
       "post": {
-        "tags": [
-          "provisions"
-        ],
-        "summary": "Change permissions of a Provision using an octet representation",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provision",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "octet": {
-                    "type": "string",
-                    "required": true,
-                    "description": "Octet permissions (e.g., '640')"
-                  }
-                }
-              }
-            }
-          }
-        },
+        "tags": ["provisions"],
+        "summary": "Change provision permissions",
+        "description": "Changes the provision permission bits, subject to OpenNebula authorization.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "requestBody": { "$ref": "#/components/requestBodies/Chmod" },
         "responses": {
-          "200": {
-            "description": "Provision object updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Provision"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/provisions/{id}/chown": {
       "post": {
-        "tags": [
-          "provisions"
-        ],
-        "summary": "Changes the owner and optionally the group of a Provision",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provision",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "owner_id": {
-                    "type": "integer",
-                    "required": true,
-                    "description": "New owner ID"
-                  },
-                  "group_id": {
-                    "type": "integer",
-                    "description": "New group ID"
-                  }
-                }
-              }
-            }
-          }
-        },
+        "tags": ["provisions"],
+        "summary": "Change provision owner and optionally group",
+        "description": "Transfers the provision to another owner and, optionally, group, subject to OpenNebula authorization.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "requestBody": { "$ref": "#/components/requestBodies/Chown" },
         "responses": {
-          "200": {
-            "description": "Provision object updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Provision"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/provisions/{id}/chgrp": {
       "post": {
-        "tags": [
-          "provisions"
-        ],
-        "summary": "Change the group of a Provision",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the Provision",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "group_id": {
-                    "type": "integer",
-                    "required": true,
-                    "description": "New group ID"
-                  }
-                }
-              }
-            }
-          }
-        },
+        "tags": ["provisions"],
+        "summary": "Change provision group",
+        "description": "Changes the provision group, subject to OpenNebula authorization.",
+        "parameters": [{ "$ref": "#/components/parameters/DocumentId" }],
+        "requestBody": { "$ref": "#/components/requestBodies/Chgrp" },
         "responses": {
-          "200": {
-            "description": "Provision object changed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Provision"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
     "/provisions/{id}/logs": {
       "get": {
-        "tags": [
-          "provisions"
-        ],
-        "summary": "Stream logs for a provision",
-        "description": "Streams logs of a specific provision in Server-Sent Events (SSE) format. Each log line is parsed and emitted with a log level (`event`) and message (`data`). Supported levels are: `info`, `debug`, `error`, `warn`.",
+        "tags": ["provisions"],
+        "summary": "Get provision logs",
+        "description": "Returns paginated lifecycle log entries for the provision.",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "ID of the provision"
-          },
-          {
-            "name": "all",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "default": false
-            },
-            "description": "If true, stream the full log file without pagination"
-          },
+          { "$ref": "#/components/parameters/DocumentId" },
           {
             "name": "page",
             "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 1,
-              "minimum": 1
-            },
-            "description": "Page number of log lines to return (ignored if all=true)"
+            "description": "Page number, starting at 1",
+            "schema": { "type": "integer", "minimum": 1, "default": 1 }
           },
           {
             "name": "per_page",
             "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "minimum": 1
-            },
-            "description": "Number of log lines per page (ignored if all=true)"
+            "description": "Entries per page",
+            "schema": { "type": "integer", "minimum": 1, "default": 100 }
+          },
+          {
+            "name": "all",
+            "in": "query",
+            "description": "Return the complete log history",
+            "schema": { "type": "boolean" }
           }
         ],
         "responses": {
           "200": {
-            "description": "Logs streamed successfully",
+            "description": "Log entries",
             "content": {
-              "text/event-stream": {
-                "schema": {
-                  "type": "string",
-                  "description": "Stream of log events in Server-Sent Events format"
-                },
-                "examples": {
-                  "sseLogs": {
-                    "summary": "Sample SSE stream with log events",
-                    "value": "event: info\ndata: [I] Provision started\n\nevent: warn\ndata: [W] Some warning message\n\nevent: error\ndata: [E] Provision failed due to timeout\n\nevent: debug\ndata: [D] Internal processing complete\n\n"
-                  }
-                }
+              "application/json": {
+                "schema": { "type": "array", "items": { "type": "object" } }
               }
             }
           },
-          "404": {
-            "description": "Provision not found"
-          },
-          "500": {
-            "description": "Internal server error while reading the log file"
-          }
+          "404": { "$ref": "#/components/responses/NotFound" }
         }
       }
     }
   },
   "components": {
-    "schemas": {
-      "OpenNebulaJSONDocument": {
-        "type": "object",
-        "description": "Generic representation of an OpenNebula JSON document, which includes metadata and body information.",
-        "properties": {
-          "DOCUMENT": {
-            "type": "object",
-            "properties": {
-              "ID": {
-                "type": "string",
-                "description": "ID of the resource in OpenNebula"
-              },
-              "UID": {
-                "type": "string",
-                "description": "User ID"
-              },
-              "GID": {
-                "type": "string",
-                "description": "Group ID"
-              },
-              "UNAME": {
-                "type": "string",
-                "description": "Username"
-              },
-              "GNAME": {
-                "type": "string",
-                "description": "Group name"
-              },
-              "NAME": {
-                "type": "string",
-                "description": "Name of the object"
-              },
-              "TYPE": {
-                "type": "string",
-                "description": "Type identifier of the object"
-              },
-              "PERMISSIONS": {
-                "type": "object",
-                "description": "Permission bits for the object (U: Use, M: Manage, A: Admin)",
-                "properties": {
-                  "OWNER_U": {
-                    "type": "string",
-                    "enum": [
-                      "0",
-                      "1"
-                    ]
-                  },
-                  "OWNER_M": {
-                    "type": "string",
-                    "enum": [
-                      "0",
-                      "1"
-                    ]
-                  },
-                  "OWNER_A": {
-                    "type": "string",
-                    "enum": [
-                      "0",
-                      "1"
-                    ]
-                  },
-                  "GROUP_U": {
-                    "type": "string",
-                    "enum": [
-                      "0",
-                      "1"
-                    ]
-                  },
-                  "GROUP_M": {
-                    "type": "string",
-                    "enum": [
-                      "0",
-                      "1"
-                    ]
-                  },
-                  "GROUP_A": {
-                    "type": "string",
-                    "enum": [
-                      "0",
-                      "1"
-                    ]
-                  },
-                  "OTHER_U": {
-                    "type": "string",
-                    "enum": [
-                      "0",
-                      "1"
-                    ]
-                  },
-                  "OTHER_M": {
-                    "type": "string",
-                    "enum": [
-                      "0",
-                      "1"
-                    ]
-                  },
-                  "OTHER_A": {
-                    "type": "string",
-                    "enum": [
-                      "0",
-                      "1"
-                    ]
-                  }
-                }
-              },
-              "TEMPLATE": {
-                "oneOf": [
-                  {
-                    "$ref": "#/components/schemas/Provider"
-                  },
-                  {
-                    "$ref": "#/components/schemas/Provision"
-                  }
-                ]
-              }
-            }
-          }
-        },
-        "required": [
-          "DOCUMENT"
-        ]
+    "parameters": {
+      "DocumentId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "OpenNebula document ID",
+        "schema": { "type": "integer", "minimum": 0 }
       },
-      "Driver": {
-        "type": "object",
-        "description": "Schema that defines a OneForm driver with its metadata, connection parameters, user inputs, and deployment configurations",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Name of the driver",
-            "example": "AWS"
-          },
-          "description": {
-            "type": "string",
-            "description": "Description of the driver.",
-            "example": "Amazon Web Services"
-          },
-          "source": {
-            "type": "string",
-            "description": "File system path where the driver provider is located",
-            "example": "/usr/share/one/providers/aws"
-          },
-          "state": {
-            "type": "string",
-            "description": "Indicates the state of the driver",
-            "enum": [
-              "UNKNOWN",
-              "ENABLED",
-              "DISABLED",
-              "ERROR"
-            ],
-            "example": "ENABLED"
-          },
-          "version": {
-            "type": "string",
-            "description": "Version of the driver definition",
-            "example": "1.0.0"
-          },
-          "fireedge": {
-            "type": "object",
-            "description": "Configuration for FireEdge UI",
-            "properties": {
-              "logo": {
-                "type": "string",
-                "description": "Filename of the logo associated with the driver",
-                "example": "aws.png"
-              }
-            }
-          },
-          "connection": {
-            "type": "array",
-            "description": "Driver connection parameters requested to the user during provider creation time",
-            "items": {
-              "$ref": "#/components/schemas/UserInput"
-            }
-          },
-          "user_inputs": {
-            "type": "array",
-            "description": "Global User Inputs requested to the user during provision instantation time",
-            "items": {
-              "$ref": "#/components/schemas/UserInput"
-            }
-          },
-          "deployment_confs": {
-            "type": "array",
-            "description": "Deployment configurations supported by the driver (e.g., Ceph Cluster, SSH Cluster)",
-            "items": {
+      "DriverName": {
+        "name": "name",
+        "in": "path",
+        "required": true,
+        "description": "Driver name",
+        "schema": { "type": "string" }
+      },
+      "IncludeProvider": {
+        "name": "include_provider",
+        "in": "query",
+        "description": "Embed the associated provider in the provision body",
+        "schema": { "type": "boolean" }
+      },
+      "IncludeSensitive": {
+        "name": "include_sensitive",
+        "in": "query",
+        "description": "Include sensitive fields; available only to the document owner and oneadmin",
+        "schema": { "type": "boolean" }
+      },
+      "Force": {
+        "name": "force",
+        "in": "query",
+        "description": "Force the requested lifecycle operation",
+        "schema": { "type": "boolean" }
+      },
+      "FromDb": {
+        "name": "from_db",
+        "in": "query",
+        "description": "Deletes only the OneForm provision document without deprovisioning. It does not delete OpenNebula objects or resources at the external provider. Use only as a last resort when uncontrolled errors prevent deprovisioning; manually remove every remaining resource.",
+        "schema": { "type": "boolean" }
+      }
+    },
+    "requestBodies": {
+      "Chmod": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
               "type": "object",
+              "required": ["octet"],
+              "properties": { "octet": { "type": "string", "example": "640" } }
+            }
+          }
+        }
+      },
+      "Chown": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["owner_id"],
               "properties": {
-                "name": {
-                  "type": "string",
-                  "description": "Name of the deployment configuration"
-                },
-                "description": {
-                  "type": "string",
-                  "description": "Description of the deployment configuration"
-                },
-                "inventory": {
-                  "type": "string",
-                  "description": "Inventory file used to provision this deployment"
-                },
-                "user_inputs": {
-                  "type": "array",
-                  "description": "User Inputs requested to the user during provision instantation time for a specific deployment configuration",
-                  "items": {
-                    "$ref": "#/components/schemas/UserInput"
-                  }
-                },
-                "one_objects": {
-                  "type": "object",
-                  "description": "OpenNebula objects associated with this deployment",
-                  "properties": {
-                    "cluster": {
-                      "type": "object",
-                      "description": "Cluster definition for the deployment",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "description": "OpenNebula ID of the cluster"
-                        },
-                        "name": {
-                          "type": "string",
-                          "description": "Name of the cluster in OpenNebula"
-                        },
-                        "template": {
-                          "type": "object",
-                          "description": "Key-value map representing the OpenNebula template for the cluster",
-                          "additionalProperties": true
-                        }
-                      }
-                    },
-                    "hosts": {
-                      "type": "array",
-                      "description": "List of hosts included in the deployment",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer",
-                            "description": "OpenNebula ID of the host"
-                          },
-                          "name": {
-                            "type": "string",
-                            "description": "Name of the host in OpenNebula"
-                          },
-                          "template": {
-                            "type": "object",
-                            "description": "Template attributes for the host",
-                            "additionalProperties": true
-                          }
-                        }
-                      }
-                    },
-                    "networks": {
-                      "type": "array",
-                      "description": "List of OpenNebula virtual networks",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer",
-                            "description": "OpenNebula ID of the network"
-                          },
-                          "name": {
-                            "type": "string",
-                            "description": "Name of the network in OpenNebula"
-                          },
-                          "template": {
-                            "type": "object",
-                            "description": "Template attributes for the network",
-                            "additionalProperties": true
-                          }
-                        }
-                      }
-                    },
-                    "datastores": {
-                      "type": "array",
-                      "description": "List of OpenNebula datastores",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer",
-                            "description": "OpenNebula ID of the datastore"
-                          },
-                          "name": {
-                            "type": "string",
-                            "description": "Name of the datastore in OpenNebula"
-                          },
-                          "template": {
-                            "type": "object",
-                            "description": "Template attributes for the datastore",
-                            "additionalProperties": true
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "required": [
-            "name",
-            "description",
-            "source",
-            "version",
-            "fireedge",
-            "connection",
-            "user_inputs",
-            "deployment_confs"
-          ]
-        }
-      },
-      "Provider": {
-        "type": "object",
-        "properties": {
-          "PROVIDER_BODY": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "Short identifier for the cloud provider"
-              },
-              "description": {
-                "type": "string",
-                "description": "Description of the provider."
-              },
-              "driver": {
-                "type": "string",
-                "description": "Driver name identifier (e.g., aws, scaleway)"
-              },
-              "version": {
-                "type": "string",
-                "description": "Version of the provider definition"
-              },
-              "fireedge": {
-                "type": "object",
-                "description": "FireEdge metadata"
-              },
-              "connection": {
-                "type": "object",
-                "description": "Hash with provider connection attributes"
-              },
-              "provision_ids": {
-                "type": "array",
-                "items": {
-                  "type": "integer"
-                },
-                "description": "List of provision IDs associated with this provider"
-              },
-              "registration_time": {
-                "type": "integer",
-                "format": "int64",
-                "description": "Unix timestamp of when the provider was instantiated"
+                "owner_id": { "type": "integer", "minimum": 0 },
+                "group_id": { "type": "integer", "minimum": 0 }
               }
             }
           }
         }
       },
-      "Provision": {
-        "type": "object",
-        "properties": {
-          "PROVISION_BODY": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "Short identifier for the provisioning workflow"
-              },
-              "description": {
-                "type": "string",
-                "description": "Detailed explanation of what the provision does"
-              },
-              "deployment_file": {
-                "type": "string",
-                "description": "Inventory file used to provision this deployment"
-              },
-              "fireedge": {
-                "type": "object",
-                "description": "FireEdge metadata"
-              },
-              "user_inputs": {
-                "type": "array",
-                "description": "User Inputs requested to the user during instantation time",
-                "items": {
-                  "$ref": "#/components/schemas/UserInput"
-                }
-              },
-              "user_inputs_values": {
-                "type": "object",
-                "description": "Actual values provided by the user for each input parameter, used during provisioning.",
-                "additionalProperties": true
-              },
-              "provider_id": {
-                "type": "integer",
-                "description": "ID of the associated provider"
-              },
-              "state": {
-                "type": "string",
-                "description": "Current state of the provisioning lifecycle"
-              },
-              "one_objects": {
-                "type": "object",
-                "description": "Detailed representation of OpenNebula objects created by the Provision. Includes cluster, hosts, networks, and datastores, each with their OpenNebula ID, name, and template definition.",
-                "properties": {
-                  "cluster": {
-                    "type": "object",
-                    "description": "OpenNebula cluster used or created for the provision",
-                    "properties": {
-                      "id": {
-                        "type": "integer",
-                        "description": "OpenNebula ID of the cluster"
-                      },
-                      "name": {
-                        "type": "string",
-                        "description": "Name of the cluster in OpenNebula"
-                      },
-                      "template": {
-                        "type": "object",
-                        "description": "Key-value map representing the OpenNebula template for the cluster",
-                        "additionalProperties": true
-                      }
-                    }
-                  },
-                  "hosts": {
-                    "type": "array",
-                    "description": "List of OpenNebula hosts",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "description": "OpenNebula ID of the host"
-                        },
-                        "name": {
-                          "type": "string",
-                          "description": "Name of the host in OpenNebula"
-                        },
-                        "template": {
-                          "type": "object",
-                          "description": "Template attributes for the host",
-                          "additionalProperties": true
-                        }
-                      }
-                    }
-                  },
-                  "networks": {
-                    "type": "array",
-                    "description": "List of OpenNebula virtual networks",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "description": "OpenNebula ID of the network"
-                        },
-                        "name": {
-                          "type": "string",
-                          "description": "Name of the network in OpenNebula"
-                        },
-                        "template": {
-                          "type": "object",
-                          "description": "Template attributes for the network",
-                          "additionalProperties": true
-                        }
-                      }
-                    }
-                  },
-                  "datastores": {
-                    "type": "array",
-                    "description": "List of OpenNebula datastores",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "description": "OpenNebula ID of the datastore"
-                        },
-                        "name": {
-                          "type": "string",
-                          "description": "Name of the datastore in OpenNebula"
-                        },
-                        "template": {
-                          "type": "object",
-                          "description": "Template attributes for the datastore",
-                          "additionalProperties": true
-                        }
-                      }
-                    }
-                  }
-                }
-              },
-              "registration_time": {
-                "type": "integer",
-                "format": "int64",
-                "description": "Unix timestamp of when the provision was instantiated"
-              },
-              "historic": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "action": {
-                      "type": "string",
-                      "description": "Description of the historic action"
-                    },
-                    "description": {
-                      "type": "string",
-                      "description": "Detailed explanation of the state change or event"
-                    },
-                    "time": {
-                      "type": "integer",
-                      "format": "int64",
-                      "description": "Unix timestamp of the historic event"
-                    }
-                  }
-                }
-              },
-              "tags": {
-                "type": "object",
-                "description": "Arbitrary key-value pairs assigned to the provision",
-                "additionalProperties": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      },
-      "UserInput": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Identifier of the input parameter"
-          },
-          "description": {
-            "type": "string",
-            "description": "Human-readable explanation of the input parameter"
-          },
-          "type": {
-            "type": "string",
-            "description": "Data type of the input",
-            "enum": [
-              "string",
-              "number",
-              "bool",
-              "list",
-              "map(*any)"
-            ]
-          },
-          "default": {
-            "description": "Default value for the input",
-            "type": "string",
-            "enum": [
-              "string",
-              "number",
-              "bool",
-              "list",
-              "map(*any)"
-            ]
-          },
-          "component": {
-            "type": "string",
-            "description": "Indicates whether the parameter is used by Terraform or Ansible"
-          },
-          "match": {
-            "type": "object",
-            "description": "Validation rules for the input parameter",
-            "properties": {
-              "type": {
-                "type": "string",
-                "description": "Type of match (e.g., list, number)",
-                "enum": [
-                  "string",
-                  "number",
-                  "list",
-                  "map"
-                ]
-              },
-              "values": {
-                "description": "Enumerated values or range constraints",
-                "oneOf": [
-                  {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  {
-                    "type": "object",
-                    "description": "For numeric ranges or grouped constraints"
-                  }
-                ]
-              }
+      "Chgrp": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["group_id"],
+              "properties": { "group_id": { "type": "integer", "minimum": 0 } }
             }
           }
         }
       }
     },
+    "schemas": {
+      "Driver": {
+        "type": "object",
+        "description": "Driver definition returned by the registry",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "system_path": { "type": "string" },
+          "state": { "type": "string", "enum": ["UNKNOWN", "ENABLED", "DISABLED", "ERROR"] },
+          "version": { "type": "string" },
+          "connection": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/UserInput" }
+          },
+          "user_inputs": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/UserInput" }
+          },
+          "deployment_confs": { "type": "array", "items": { "type": "object" } }
+        },
+        "additionalProperties": true
+      },
+      "UserInput": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "type": { "type": "string" },
+          "default": {},
+          "mandatory": { "type": "boolean" },
+          "match": { "type": "object", "additionalProperties": true }
+        },
+        "required": ["name", "type"]
+      },
+      "ProviderBody": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "driver": { "type": "string" },
+          "version": { "type": "string" },
+          "connection": { "type": "object", "additionalProperties": true },
+          "provision_ids": { "type": "array", "items": { "type": "integer" } },
+          "registration_time": { "type": "integer", "format": "int64" }
+        },
+        "additionalProperties": true
+      },
+      "ProviderDocument": {
+        "type": "object",
+        "required": ["DOCUMENT"],
+        "properties": {
+          "DOCUMENT": {
+            "type": "object",
+            "properties": {
+              "ID": { "type": "string" },
+              "NAME": { "type": "string" },
+              "TEMPLATE": {
+                "type": "object",
+                "properties": {
+                  "PROVIDER_BODY": { "$ref": "#/components/schemas/ProviderBody" }
+                }
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "ProvisionBody": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "driver": { "type": "string" },
+          "deployment_file": { "type": "string" },
+          "provider_id": { "type": "integer" },
+          "state": { "type": "string" },
+          "user_inputs_values": { "type": "object", "additionalProperties": true },
+          "one_objects": { "type": "object", "additionalProperties": true },
+          "tags": { "type": "object", "additionalProperties": { "type": "string" } },
+          "registration_time": { "type": "integer", "format": "int64" }
+        },
+        "additionalProperties": true
+      },
+      "ProvisionDocument": {
+        "type": "object",
+        "required": ["DOCUMENT"],
+        "properties": {
+          "DOCUMENT": {
+            "type": "object",
+            "properties": {
+              "ID": { "type": "string" },
+              "NAME": { "type": "string" },
+              "TEMPLATE": {
+                "type": "object",
+                "properties": {
+                  "PROVISION_BODY": { "$ref": "#/components/schemas/ProvisionBody" }
+                }
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "CreateProviderRequest": {
+        "type": "object",
+        "required": ["driver"],
+        "properties": {
+          "driver": { "type": "string" },
+          "connection_values": { "type": "object", "additionalProperties": true },
+          "name": { "type": "string" },
+          "description": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "UpdateProviderRequest": {
+        "type": "object",
+        "minProperties": 1,
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "connection": { "type": "object", "additionalProperties": true }
+        },
+        "additionalProperties": false
+      },
+      "CreateProvisionRequest": {
+        "type": "object",
+        "required": ["driver", "deployment_type", "provider_id", "user_inputs_values"],
+        "properties": {
+          "driver": { "type": "string" },
+          "deployment_type": { "type": "string" },
+          "provider_id": { "type": "integer", "minimum": 0 },
+          "user_inputs_values": { "type": "object", "additionalProperties": true },
+          "name": { "type": "string" },
+          "description": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "UpdateProvisionRequest": {
+        "type": "object",
+        "minProperties": 1,
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true }
+        },
+        "additionalProperties": false
+      },
+      "AddHostsRequest": {
+        "type": "object",
+        "properties": {
+          "amount": { "type": "integer", "minimum": 1 },
+          "hosts": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          }
+        },
+        "oneOf": [
+          {
+            "required": ["amount"]
+          },
+          {
+            "required": ["hosts"]
+          }
+        ],
+        "additionalProperties": false
+      },
+      "AddPublicIpsRequest": {
+        "type": "object",
+        "properties": {
+          "amount": { "type": "integer", "minimum": 1, "default": 1 }
+        },
+        "additionalProperties": false
+      },
+      "ProvisionJob": {
+        "type": "object",
+        "required": ["id", "attempt", "action", "args", "external_user", "created_at"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "attempt": { "type": "integer", "minimum": 1 },
+          "action": { "type": "string" },
+          "args": { "type": "object", "additionalProperties": true },
+          "external_user": { "type": "string" },
+          "created_at": { "type": "integer", "format": "int64" },
+          "status": { "type": "string", "nullable": true },
+          "command": { "type": "object", "nullable": true, "additionalProperties": true }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "err_code": {
+            "oneOf": [{ "type": "integer" }, { "type": "string" }]
+          },
+          "message": { "type": "string" },
+          "context": { "type": "object", "additionalProperties": true }
+        },
+        "additionalProperties": true
+      },
+      "OpenNebulaObject": {
+        "type": "object",
+        "description": "OpenNebula object serialized by its native API",
+        "additionalProperties": true
+      }
+    },
     "responses": {
-      "200": {
-        "description": "The request has succeeded"
+      "Accepted": { "description": "Request accepted for asynchronous processing" },
+      "NoContent": { "description": "Request completed without a response body" },
+      "OpenNebulaObject": {
+        "description": "OpenNebula object",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/OpenNebulaObject" }
+          }
+        }
       },
-      "201": {
-        "description": "Request was successful and a new resource has been created"
+      "OpenNebulaObjectList": {
+        "description": "OpenNebula objects",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/OpenNebulaObject" }
+            }
+          }
+        }
       },
-      "202": {
-        "description": "The request has been accepted for processing but the processing has not been completed"
+      "BadRequest": {
+        "description": "Invalid request",
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+        }
       },
-      "204": {
-        "description": "The request has been accepted for processing but no info in the response"
+      "Forbidden": {
+        "description": "Insufficient privileges",
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+        }
       },
-      "400": {
-        "description": "Malformed syntax"
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+        }
       },
-      "401": {
-        "description": "Bad authentication"
-      },
-      "403": {
-        "description": "Bad authorization"
-      },
-      "404": {
-        "description": "Resource not found"
-      },
-      "500": {
-        "description": "The server encountered an unexpected condition which prevented it from fulfilling the request."
-      },
-      "501": {
-        "description": "The functionality requested is not supported."
+      "InternalError": {
+        "description": "Unexpected server error",
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+        }
       }
     }
   }
