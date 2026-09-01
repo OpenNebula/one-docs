@@ -16,7 +16,9 @@ weight: "3"
 
 The role of a **Group Admin is to manage all the virtual resources of the Group**, including the creation of new users. It’s like a limited version of the cloud administrator view. You can read more about OpenNebula’s approach to Groups and VDC’s from the perspective of different user roles in [Cloud Access Models and Roles]({{% relref "../../../getting_started/understand_opennebula/opennebula_concepts/cloud_access_model_and_roles#understand" %}}).
 
-{{< image path="/images/sunstone/group_admin/light/dashboard.jpg" alt="Group Admin View" align="center" width="90%" mb="20px">}}
+{{< image pathDark="/images/sunstone/group_admin/dark/groupadmin_dashboard.png"
+          path="/images/sunstone/group_admin/light/groupadmin_dashboard.png" 
+          alt="Group Admin View" align="center" width="90%" mb="20px">}}
 
 {{< alert title="Important!" type="info" >}} 
 Group Admin is scoped to the administered group. For user management, this scope applies to users whose primary group is the administered group. Users that belong to a group only as a secondary group are not managed by the Group Admin of the primary group by default, since the user object is still owned by its primary group. Managing such users requires additional ACLs or actions from the cloud administrator.
@@ -27,7 +29,8 @@ Group Admin is scoped to the administered group. For user management, this scope
 The Group Admin **can create new user accounts** that will belong to the same Group.
 
 {{< image pathDark="/images/sunstone/group_admin/dark/create_user.png"
-          path="/images/sunstone/group_admin/light/create_user.png" alt="Group Admin View" align="center" width="90%" mb="20px">}}
+          path="/images/sunstone/group_admin/light/create_user.png" 
+          alt="Group Admin View" align="center" width="90%" mb="20px">}}
 
 They can also see the current resource usage of all the Group users.
 

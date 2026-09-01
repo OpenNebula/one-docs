@@ -127,7 +127,9 @@ This table shows some examples:
 
 Sunstone offers a convenient way to manage resources permissions. This can be done by selecting resources from a view (for example the templates view) and clicking the Info tab. The dialog lets the user conveniently set the resource’s permissions.
 
-![sunstone_managing_permissions](/images/sunstone_managing_perms.png)
+{{< image pathDark="/images/sunstone/common/dark/permissions_panel.png"
+        path="/images/sunstone/common/light/permissions_panel.png" 
+        alt="Sunstone permissions panel" align="center" width="90%" mb="20px">}}
 
 <a id="manage-locks"></a>
 
@@ -305,13 +307,17 @@ Sunstone offers a very intuitive and easy way of managing ACLs.
 
 Select ACLs in the left-side menu to access a view of the current ACLs defined in OpenNebula:
 
-![sunstone_acl_list](/images/sunstone_acl_list.png)
+{{< image pathDark="/images/sunstone/common/dark/sunstone_acl_list.png"
+        path="/images/sunstone/common/light/sunstone_acl_list.png" 
+        alt="Sunstone ACL list" align="center" width="90%" mb="20px">}}
 
 This view is designed to easily understand what the purpose of each ACL is. You can create new ACLs in two different ways.
 
-The first way is to use the **Create from string** functionality by clicking on the icon with a pencil:
+The first way is to use the **Create from string** functionality. Select **+ Create ACL** in the top right hand corner and select **From String** in the modal:
 
-![sunstone_acl_create_string_button](/images/sunstone_acl_create_string.png)
+{{< image pathDark="/images/sunstone/common/dark/acl_from_string.png"
+        path="/images/sunstone/common/light/acl_from_string.png" 
+        alt="Sunstone ACL list" align="center" width="70%" mb="20px">}}
 
 In the creation dialog you can type the string ACL rule in the same way as the CLI. After typing the rule, Sunstone will validate whether the string has the correct format and will show the user the meaning of the rule.
 
@@ -323,13 +329,17 @@ If we use the following example:
 
 Sunstone will validate the rule and show its meaning:
 
-![sunstone_acl_create_string_form](/images/sunstone_acl_create_string_form.png)
+{{< image pathDark="/images/sunstone/common/dark/create_acl_string_validation.png"
+        path="/images/sunstone/common/light/create_acl_string_validation.png" 
+        alt="Sunstone ACL string validation" align="center" width="90%" mb="20px">}}
 
 If the rule does not have a valid format, Sunstone will show an error:
 
-![sunstone_acl_create_string_form_novalid](/images/sunstone_acl_create_string_novalid.png)
+{{< image pathDark="/images/sunstone/common/dark/acl_rule_not_valid.png"
+        path="/images/sunstone/common/light/acl_rule_not_valid.png" 
+        alt="Sunstone ACL string validation" align="center" width="90%" mb="20px">}}
 
-The other way to create a rule it is to use the **Create form** functionality by clicking the icon with a plus symbol. In this case, the user will be guided through different steps to create the rule. For example, to create the rule:
+The alternative way to create a rule it is to use the **Create From Form** functionality. In this case, the user will be guided through different steps to create the rule. For example, to create the rule:
 
 ```default
 #3 IMAGE+TEMPLATE/@100 USE+MANAGE #0
@@ -337,33 +347,47 @@ The other way to create a rule it is to use the **Create form** functionality by
 
 The following steps are needed:
 
-- Click on the icon with plus symbol:
+- Click on **+ Create ACL** and choose **From Form** in the modal dialog:
 
-![sunstone_acl_create](/images/sunstone_acl_create.png)
+{{< image pathDark="/images/sunstone/common/dark/create_acl_form.png"
+        path="/images/sunstone/common/light/create_acl_form.png" 
+        alt="Sunstone create ACL from form" align="center" width="70%" mb="20px">}}
 
 - Select whom the rule will apply to. It could be an individual user, a group, or all users:
 
-![sunstone_acl_create_users](/images/sunstone_acl_create_user.png)
+{{< image pathDark="/images/sunstone/common/dark/create_acl_form_1.png"
+        path="/images/sunstone/common/light/create_acl_form_1.png" 
+        alt="Sunstone create ACL from form" align="center" width="90%" mb="20px">}}
 
 - Select resources affected by the rule:
 
-![sunstone_acl_create_resources](/images/sunstone_acl_create_resources.png)
+{{< image pathDark="/images/sunstone/common/dark/create_acl_form_2.png"
+        path="/images/sunstone/common/light/create_acl_form_2.png" 
+        alt="Sunstone create ACL from form" align="center" width="90%" mb="20px">}}
 
 - Select resource owners. These could be an individual user, a group of users, a cluster, or all users:
 
-![sunstone_acl_create_resourcesidentifier](/images/sunstone_acl_create_resourcesidentifier.png)
+{{< image pathDark="/images/sunstone/common/dark/create_acl_form_3.png"
+        path="/images/sunstone/common/light/create_acl_form_3.png" 
+        alt="Sunstone create ACL from form" align="center" width="90%" mb="20px">}}
 
 - Select the allowed operations that this rule will enable:
 
-![sunstone_acl_create_rights](/images/sunstone_acl_create_rights.png)
+{{< image pathDark="/images/sunstone/common/dark/create_acl_form_4.png"
+        path="/images/sunstone/common/light/create_acl_form_4.png" 
+        alt="Sunstone create ACL from form" align="center" width="90%" mb="20px">}}
 
 - Select the Zone where the rule will apply. Optional unless OpenNebula is configured in a federation:
 
-![sunstone_acl_create_zone](/images/sunstone_acl_create_zone.png)
+{{< image pathDark="/images/sunstone/common/dark/create_acl_form_5.png"
+        path="/images/sunstone/common/light/create_acl_form_5.png" 
+        alt="Sunstone create ACL from form" align="center" width="90%" mb="20px">}}
 
 - Finally, the summary step will show the user the rule in string format and its meaning:
 
-![sunstone_acl_create_summary](/images/sunstone_acl_create_summary.png)
+{{< image pathDark="/images/sunstone/common/dark/create_acl_form_6.png"
+        path="/images/sunstone/common/light/create_acl_form_6.png" 
+        alt="Sunstone create ACL from form" align="center" width="90%" mb="20px">}}
 
 In both ways, to create the rule the user will have to click on the Finish button.
 

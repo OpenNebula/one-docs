@@ -23,26 +23,51 @@ To log in, use the default username `oneadmin`, and the password specified in th
 The image below shows the **Alpine Linux 3.20** Virtual Machine included in the OpenNebula installation:
 
 <a id="one-marketplace"></a>
-![><][one-marketplace]
+
+{{< image
+    pathDark="/images/sunstone/misc/dark/alpine_320_marketplace.png"
+    path="/images/sunstone/misc/light/alpine_320_marketplace.png"
+    alt="Alpine 3.20 in marketplace" align="center" width="90%" mb="20px"
+  >}}
 
 {{< alert title="Warning" type="warning" >}}
 Make sure to choose the correct variant of the image, which fits the certified hardware's architecture. For example for ARM-based architectures the correct Alpine Linux 3.20 Virtual Machine template is **Alpine Linux 3.20 (aarch64)**.
 {{< /alert >}}
 
-To instantiate the VM, in the Sunstone UI's left-hand menu go to **Instances** --> **VMs**. Click the **Create** icon highlighted below, then select the Virtual Machine image. Follow the steps of the VM instantiation wizard. For this basic guide, all values can be left empty or at their defaults.
+To instantiate the VM, in the Sunstone UI's left-hand menu go to **Instances** --> **VMs**. Click the **Create** icon highlighted below, then select the Virtual Machine template. Follow the steps of the VM instantiation wizard. For this basic guide, all values can be left empty or at their defaults.
 
 <a id="one-new-vm"></a>
-![><][one-new-vm]
+{{< image
+    pathDark="/images/sunstone/misc/dark/create_vm.png"
+    path="/images/sunstone/misc/light/create_vm.png"
+    alt="Create VM" align="center" width="90%" mb="20px"
+  >}}
 
-Add a `PASSWORD` field and specify the desired root password for the VM, then click **Accept**, as shown below.
+In the **Instances -> VMs** view select the new VM in the list to open the details page **Configuration** tab. Select **Update configuration**.
 
 <a id="one-vm-config"></a>
-![image][one-vm-config]
+{{< image
+    pathDark="/images/sunstone/misc/dark/update_vm_config.png"
+    path="/images/sunstone/misc/light/update_vm_config.png"
+    alt="Create VM" align="center" width="90%" mb="20px"
+  >}}
 
-Log in to the VM via VNC (click the screen icon on the right). Log in as user `root` with the password that you specified in the previous step.
+In the **Context** tab of the modal dialog that opens, scroll down to the **Context Custom Variables** section and expand it. Find the `PASSWORD` field and select **Update** (the pencil icon), then specify the desired root password for the VM, then click **Accept**, as shown below, then press **Continue**.
+
+{{< image
+    pathDark="/images/sunstone/misc/dark/update_vm_password.png"
+    path="/images/sunstone/misc/light/update_vm_password.png"
+    alt="Update VM password" align="center" width="90%" mb="20px"
+  >}}
+
+Log in to the VM via VNC, go to the ellipsis drop-down menu and select **Console -> VNC**. Log in as user `root` with the password that you specified in the previous step.
 
 <a id="one-vnc-connect"></a>
-![image][one-vnc-connect]
+{{< image
+    pathDark="/images/sunstone/misc/dark/vm_vnc.png"
+    path="/images/sunstone/misc/light/vm_vnc.png"
+    alt="VNC" align="center" width="90%" mb="20px"
+  >}}
 
 After accessing the deployed VM's command line interface, verify that the terminal is responsive. For example, change to the home folder of user `root`:
 
@@ -55,7 +80,11 @@ root@vm:~# pwd
 Finally, as a cleanup step, terminate the VM by clicking the red “Trash can” icon, then verify that the VM transitions to state `DONE`, as shown below.
 
 <a id="one-terminate-vm"></a>
-![image][one-terminate-vm]
+{{< image
+    pathDark="/images/sunstone/misc/dark/shutdown_done.png"
+    path="/images/sunstone/misc/light/shutdown_done.png"
+    alt="Shutdown" align="center" width="90%" mb="20px"
+  >}}
 
 [one-marketplace]: /images/guides/common_101_ui/one-marketplace.png
 [one-new-vm]: /images/guides/common_101_ui/one-new-vm.png

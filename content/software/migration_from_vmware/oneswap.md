@@ -383,7 +383,20 @@ OneSwap normally detects if the VM boots in UEFI mode and sets up the OpenNebula
 - CPU architecture: `x86_64`
 - Machine type: `q35`
 - UEFI firmware: UEFI (for secure firmware the box must be checked)
-![Setting up UEFI boot after oneswap migration](/images/oneswap/modify_UEFI.png)
+  - In step 2 of the wizard **Advanced options** choose the **OS & CPU** tab:
+
+  {{< image
+    pathDark="/images/sunstone/misc/dark/os_cpu.png"
+    path="/images/sunstone/misc/light/os_cpu.png"
+    alt="Setting up UEFI boot after oneswap migration" align="center" width="90%" mb="20px"
+  >}}
+  - Scroll down to the **Boot** section and adjust the settings:
+
+  {{< image
+    pathDark="/images/sunstone/misc/dark/machine_settings.png"
+    path="/images/sunstone/misc/light/machine_settings.png"
+    alt="Setting up UEFI boot after oneswap migration" align="center" width="90%" mb="20px"
+  >}}
 
 ## `oneswap` usage
 

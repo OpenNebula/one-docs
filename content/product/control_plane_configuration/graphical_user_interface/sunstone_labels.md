@@ -17,30 +17,25 @@ Labels can be defined for most of the OpenNebula resources from the Admin view.
 
 Depending on the type of label used, _the label information will be stored under either the_ **user** _or_ **group** _template_.
 
-![labels_edit](/images/sunstone_labels_edit.png)
+{{< image pathDark="/images/sunstone/labels/dark/labels_dropdown.png"
+          path="/images/sunstone/labels/light/labels_dropdown.png" 
+          alt="Sunstone labels" align="center" width="90%" mb="20px">}}
 
 This feature enables the possibility to _group the different resources_ under a given label and filter them in the Admin and Cloud views. The user will be able to easily find the template to instantiate __or select a set of resources_ to apply a given action.
 
-![labels_filter](/images/sunstone_labels_filter.png)
-
 ## Label creation
 
-To create a label, select one or more resources, then press the **New label** button.
+To create a label, select one or more resources, then press the **+ Create New** button.
 
-![labels_create](/images/sunstone_labels_create.png)
+{{< image pathDark="/images/sunstone/labels/dark/create_new_label.png"
+          path="/images/sunstone/labels/light/create_new_label.png" 
+          alt="Sunstone create new label" align="center" width="90%" mb="20px">}}
 
-This will open the **Create Label** modal, which can be used to create user and group labels.
+This will open the **New Label** modal, which can be used to create user and group labels.
 
-![labels_create_modal](/images/sunstone_labels_create_modal.png)
-
-{{< alert title="Warning" type="warning" >}}
-Only group admins can apply and create group labels. However they will still be visible to all members of the group.{{< /alert >}}
-
-![labels_create](/images/sunstone_labels_create.png)
-
-This will open the **Create Label** modal, which can be used to create user and group labels.
-
-![labels_create_modal](/images/sunstone_labels_create_modal.png)
+{{< image pathDark="/images/sunstone/labels/dark/new_label_dialog.png"
+          path="/images/sunstone/labels/light/new_label_dialog.png" 
+          alt="Sunstone create new label" align="center" width="60%" mb="20px">}}
 
 {{< alert title="Warning" type="warning" >}}
 Only group admins can apply and create group labels. However they will still be visible to all members of the group.{{< /alert >}}

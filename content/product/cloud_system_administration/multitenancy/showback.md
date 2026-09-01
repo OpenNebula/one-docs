@@ -12,16 +12,23 @@ The Showback toolset reports resource usage cost and allows the integration with
 
 ## Set the VM Cost
 
-Each VM Template can optionally define a cost (see the [syntax here]({{% relref "product/operation_references/configuration_references/template#template-showback-section" %}})). The cost is defined as **cost per cpu per hour**, and **cost per memory MB per hour**. The cost units are abstract and their equivalent to monetary or other cost metrics have to be defined in each deployment.
+Each VM Template can optionally define a cost (see the [syntax here]({{% relref "product/operation_references/configuration_references/template#template-showback-section" %}})). The cost is defined as **cost per cpu per hour**, and **cost per memory MB per hour**. The cost units are abstract and their equivalent to monetary or other cost metrics have to be defined in each deployment. In Sunstone, go to **Templates -> VM Templates**, choose a template and select **Update**, the cost section can be found in the lower left part of the **General** view:
 
-{{< image path="/images/showback_template_wizard.png" alt="Sunstone showback template wizard" align="center" width="60%" mb="20px" >}}
+{{< image pathDark="/images/sunstone/common/dark/vm_template_cost.png"
+        path="/images/sunstone/common/light/vm_template_cost.png" 
+        alt="Sunstone accounting view" align="center" width="70%" mb="20px">}}
 
 There is a default cost that will be applied to VM Templates without a cost defined. It can be set in the [oned.conf file]({{% relref "product/operation_references/opennebula_services_configuration/oned#oned-conf-default-showback" %}}).
 
-Using this cost schema allows users to resize the Virtual Machine instances.
+Using this cost schema allows users to see the storage cost when resizing the Virtual Machine instances.
 
-{{< image path="/images/sunstone_showback_memory.png" alt="Sunstone showback memory" align="center" width="90%" mb="20px" >}}
-{{< image path="/images/sunstone_showback_disks.png" alt="Sunstone showback disks" align="center" width="90%" mb="20px" >}}
+{{< image pathDark="/images/sunstone/common/dark/vm_template_cost_field.png"
+        path="/images/sunstone/common/light/vm_template_cost_field.png" 
+        alt="Sunstone accounting view" align="center" width="70%" mb="20px">}}
+
+{{< image pathDark="/images/sunstone/common/dark/storage_cost_field.png"
+        path="/images/sunstone/common/light/storage_cost_field.png" 
+        alt="Sunstone accounting view" align="center" width="70%" mb="20px">}}
 
 {{< alert title="Warning" type="warning" >}}
 If your users can access the [Sunstone ‘user’ view]({{% relref "fireedge_sunstone_views#fireedge-suns-views" %}}), it’s important to set a default cost. These users can manage their own Templates, which won’t have a specific cost assigned.{{< /alert >}} 
@@ -35,9 +42,11 @@ Before the cost reports can be seen by the users, the administrator has to gener
 
 {{% tab header="Sunstone"%}}
 
-Log into Sunstone as an administrator user and go to the Settings section. Select a start date and a end date and press Calculate Showback button:
+Log into Sunstone as an administrator user and go to the Settings section. Select a start date and a end date and press **Calculate Showback** button:
 
-{{< image path="/images/sunstone_showback_calculate.png" alt="Sunstone showback calculate" align="center" width="90%" mb="20px" >}}
+{{< image pathDark="/images/sunstone/common/dark/showback_calculate.png"
+        path="/images/sunstone/common/light/showback_calculate.png" 
+        alt="Sunstone accounting view" align="center" width="90%" mb="20px">}}
 
 {{% /tab %}}
 
@@ -103,7 +112,9 @@ View, as an administrator or a regular user, your monthly Showback reports from 
 3. Click on a user or a group.
 4. Select the **Showback** tab.
 
-{{< image path="/images/sunstone_showback.png" alt="Sunstone showback" align="center" width="90%" mb="20px" >}}
+{{< image pathDark="/images/sunstone/common/dark/showback_user.png"
+        path="/images/sunstone/common/light/showback_user.png" 
+        alt="Sunstone accounting view" align="center" width="90%" mb="20px">}}
 {{% /tab %}}
 
 {{% tab header="CLI"%}}

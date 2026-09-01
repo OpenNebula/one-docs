@@ -14,10 +14,9 @@ weight: "2"
 
 This is a simplified view intended for cloud consumers that just require a portal where they can provision new VMs easily. To create new VMs and Services, they just have to select one of the available Templates prepared by the administrators.
 
-{{< image
-  path="images/sunstone/cloud_view/light/cloud_view_dashboard.jpg"
-  alt="Sunstone cloud dashboard" align="center" width="90%" mb="20px"
->}}
+{{< image pathDark="/images/sunstone/cloud_view/dark/cloudview_dashboard.png"
+          path="/images/sunstone/cloud_view/light/cloudview_dashboard.png" 
+          alt="Cloud View Dashboard" align="center" width="90%" mb="20px">}}
 
 ## Using the Cloud
 
@@ -29,10 +28,9 @@ For example, when template attributes are defined as mandatory, users can option
 
 Include `%i` in the name to insert the VM index (0..N-1) at a custom place when create more than one virtual machine.
 
-{{< image
-  path="images/sunstone/cloud_view/light/cloud_view_instantiate_vm_template.jpg"
-  alt="Sunstone cloud instantiate VM" align="center" width="90%" mb="20px"
->}}
+{{< image pathDark="/images/sunstone/cloud_view/dark/create_vm.png"
+          path="/images/sunstone/cloud_view/light/create_vm.png" 
+          alt="Cloud View create VM" align="center" width="90%" mb="20px">}}
 
 <a id="cloudview-ssh-keys"></a>
 
@@ -40,26 +38,23 @@ Include `%i` in the name to insert the VM index (0..N-1) at a custom place when 
 
 Any user can provide his own SSH public key to be included in the VMs created through this view. This requires the VM guest to be [contextualized]({{% relref "../../virtual_machines_operation/virtual_machines/vm_templates#context-overview" %}}), and the Template must have the SSH **contextualization enabled**.
 
-{{< image
-  path="/images/sunstone/cloud_view/dark/ssh_contextualization.jpg"
-  alt="Sunstone cloud SSH" align="center" width="90%" mb="20px"
->}}
+{{< image pathDark="/images/sunstone/cloud_view/dark/ssh_key.png"
+          path="/images/sunstone/cloud_view/light/ssh_key.png" 
+          alt="Cloud View SSH" align="center" width="90%" mb="20px">}}
 
 ### Manage VMs
 
-The status of the Virtual Machines can be monitored from the **VMs tab**.
+The status of the Virtual Machines can be monitored from the **Instances -> VMs** view.
 
-{{< image
-  path="/images/sunstone/cloud_view/light/cloud_view_vms_list.jpg"
-  alt="Sunstone cloud VMs" align="center" width="90%" mb="20px"
->}}
+{{< image pathDark="/images/sunstone/cloud_view/dark/vm_list.png"
+          path="/images/sunstone/cloud_view/light/vm_list.png" 
+          alt="Cloud View VM list" align="center" width="90%" mb="20px">}}
 
-Information about the capacity, operating system, ips, creation time, and monitoring graphs for a specific VM are available in the **detail view**.
+Information about the capacity, operating system, ips, creation time, and monitoring graphs for a specific VM are available in the **Detail view**, click on a VM in the list to open the details panel.
 
-{{< image
-  path="/images/sunstone/cloud_view/light/cloud_view_vms_detail.jpg"
-  alt="Sunstone cloud VMs" align="center" width="90%" mb="20px"
->}}
+{{< image pathDark="/images/sunstone/cloud_view/dark/vm_details.png"
+          path="/images/sunstone/cloud_view/light/vm_details.png" 
+          alt="Cloud View VM details" align="center" width="90%" mb="20px">}}
 
 Users can perform the following actions from this view:
 
@@ -84,24 +79,21 @@ To create a persistent copy, use the **Persistent** switch. Include `%i` in the 
 When creating more than one virtual machine marked as persistent, user must specify `%i` in the name in order to avoid conflicts in the creation of templates and images.
 {{< /alert >}} 
 
-{{< image
-  path="/images/sunstone/cloud_view/dark/instantiate_as_persistent.jpg"
-  alt="Sunstone cloud VMs" align="center" width="90%" mb="20px"
->}}
+{{< image pathDark="/images/sunstone/cloud_view/dark/persistent_template.png"
+          path="/images/sunstone/cloud_view/light/persistent_template.png" 
+          alt="Cloud View instantiate as persistent" align="center" width="90%" mb="20px">}}
 
 Alternatively, a VM that wasn’t created as persistent can be saved before it’s destroyed. To do so, the user has to `power off` the VM first and then use the `save` operation.
 
-{{< image
-  path="/images/sunstone/cloud_view/light/cloud_view_save_as_template.jpg"
-  alt="Sunstone cloud VMs" align="center" width="60%" mb="20px"
->}}
+{{< image pathDark="/images/sunstone/cloud_view/dark/save_as_template.png"
+          path="/images/sunstone/cloud_view/light/save_as_template.png" 
+          alt="Cloud View save as template" align="center" width="90%" mb="20px">}}
 
 It will then appear in the list of saved templates:
 
-{{< image
-  path="/images/sunstone/cloud_view/dark/saved_templates_list.jpg"
-  alt="Sunstone cloud VMs" align="center" width="90%" mb="20px"
->}}
+{{< image pathDark="/images/sunstone/cloud_view/dark/new_template.png"
+          path="/images/sunstone/cloud_view/light/new_template.png" 
+          alt="Cloud View new template" align="center" width="90%" mb="20px">}}
 
 Any of the these two actions will create a new Template. This Template can be used to **restore the state of a VM after deletion**. This template contains a copy of each one of the original disk images.
 
@@ -115,28 +107,26 @@ For more details about the limitations of saved VM, continue to the [Managing Vi
 
 ### Create Service
 
-In the same way as instantiating a VM, the cloud administrator must prepare a set of Service Templates. Before instantiating them, users can optionally **customize the Service cardinality**, **define the network interfaces**, and **provide values required by the template**.
+In the same way as instantiating a VM, the cloud administrator must prepare a set of Service Templates. Before instantiating them, users can optionally **customize the Service cardinality**, **define the network interfaces**, and **provide values required by the template**. In the **Instances -> Services** view select **+ Instantiate Service Template**:
 
-{{< image
-  path="/images/sunstone/cloud_view/dark/instantiate_service.jpg"
-  alt="Sunstone cloud VMs" align="center" width="90%" mb="20px"
->}}
+
+{{< image pathDark="/images/sunstone/cloud_view/dark/instantiate_service.png"
+          path="/images/sunstone/cloud_view/light/instantiate_service.png" 
+          alt="Cloud View instantiate service" align="center" width="90%" mb="20px">}}
 
 ### Manage Services
 
 The status of the Services can be monitored from the Services tab.
 
-{{< image
-  path="/images/sunstone/cloud_view/light/manage_services.jpg"
-  alt="Sunstone cloud VMs" align="center" width="90%" mb="20px"
->}}
+{{< image pathDark="/images/sunstone/cloud_view/dark/manage_services.png"
+          path="/images/sunstone/cloud_view/light/manage_services.png" 
+          alt="Cloud View manage services" align="center" width="90%" mb="20px">}}
 
-Information of the creation time, cardinality, and status for each Role are available in the **detail view**.
+Information of the creation time, cardinality, and status for each Role are available in the **details view**, opened by clicking on the service in the list.
 
-{{< image
-  path="/images/sunstone/cloud_view/light/service_detail.jpg"
-  alt="Sunstone cloud VMs" align="center" width="90%" mb="20px"
->}}
+{{< image pathDark="/images/sunstone/cloud_view/dark/service_details.png"
+          path="/images/sunstone/cloud_view/light/service_details.png" 
+          alt="Cloud View service details" align="center" width="90%" mb="20px">}}
 
 Users can perform the following actions from this view:
 
@@ -149,14 +139,12 @@ Users can perform the following actions from this view:
 
 From the user settings dialog, users can check their current **change account configuration** like their password, language, SSH key and view:
 
-{{< image
-  path="/images/sunstone/cloud_view/light/user_settings.jpg"
-  alt="Sunstone cloud VMs" align="center" width="90%" mb="20px"
->}}
+{{< image pathDark="/images/sunstone/cloud_view/dark/user_settings.png"
+          path="/images/sunstone/cloud_view/light/user_settings.png" 
+          alt="Cloud View user settings" align="center" width="90%" mb="20px">}}
 
 From the user dialog, users can check their current **quotas**, **accounting**, **showback** information:
 
-{{< image
-  path="/images/sunstone/cloud_view/dark/showback_panel.jpg"
-  alt="Sunstone cloud VMs" align="center" width="90%" mb="20px"
->}}
+{{< image pathDark="/images/sunstone/cloud_view/dark/calculate_showback.png"
+          path="/images/sunstone/cloud_view/light/calculate_showback.png" 
+          alt="Cloud View user settings" align="center" width="90%" mb="20px">}}

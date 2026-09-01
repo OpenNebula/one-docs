@@ -631,8 +631,8 @@ On the next screen select required Storage and Network options. In the “PCI De
 In the dropdown menu select available GPU device which will be attached to the VM. Then click “Accept” button and finalize VM configuration.
 
 {{< image
-  pathDark="/images/ISO/dark/instantiate_pci_device_select.png"
-  path="/images/ISO/light/instantiate_pci_device_select.png"
+  pathDark="/images/ISO/dark/select_pci.png"
+  path="/images/ISO/light/select_pci.png"
   alt="PCI device select" align="center" width="90%" mb="20px"
 >}}
 

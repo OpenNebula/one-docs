@@ -370,7 +370,9 @@ targetNamespace="http://opennebula.org/XMLSchema" xmlns="http://opennebula.org/X
 
 Sunstone also displays information about accounting. Information is accessible via the User details, clicking on the Accounting tab in admin, cloud and group admin views.
 
-![sunstone_accounting](/images/accounting_admin_view.png)
+{{< image pathDark="/images/sunstone/common/dark/accounting_admin_view.png"
+        path="/images/sunstone/common/light/accounting_admin_view.png" 
+        alt="Sunstone accounting view" align="center" width="90%" mb="20px">}}
 
 ## Tuning & Extending
 

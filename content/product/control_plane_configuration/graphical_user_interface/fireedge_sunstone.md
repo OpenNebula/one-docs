@@ -27,11 +27,13 @@ To configure Sunstone, there are several options to consider and they are descri
 
 ## Usage
 
-This completely fresh user experience is available by accessing `http://<OPENNEBULA-FRONTEND>:2616`. On the left menu, users can find the available tabs to manage resources, as described in the [Sections]({{% relref "../../operation_references/opennebula_services_configuration/fireedge#fireedge-setup" %}}) part of this guide.
+This completely fresh user experience is available by accessing `http://<OPENNEBULA-FRONTEND>:2616`. From the drop down menu in the top left, users can find the available tabs to manage resources, as described in the [Sections]({{% relref "../../operation_references/opennebula_services_configuration/fireedge#fireedge-setup" %}}) part of this guide.
 
 Sunstone users can change their current view from the top-right dropdown menu:
 
-![><](/images/fireedge_sunstone_change_view_dropdown.png)
+{{< image pathDark="/images/sunstone/common/dark/view_dropdown.png"
+          path="/images/sunstone/common/light/view_dropdown.png" 
+          alt="Sunstone view dropdown" align="center" width="60%" mb="20px">}}
 
 They can also configure several options from the [settings tab]({{% relref "#fireedge-sunstone-settings-tab" %}}).
 
@@ -109,7 +111,9 @@ From this section, users can define multiple configuration options for themselve
 {{< alert title="Note" type="info" >}}
 All the configurations set in this section will be in the user template.{{< /alert >}}
 
-![fireedge_sunstone_settings](/images/fireedge_sunstone_settings.png)
+{{< image pathDark="/images/sunstone/common/dark/sunstone-preferences.png"
+          path="/images/sunstone/common/light/sunstone-preferences.png" 
+          alt="Sunstone preferences" align="center" width="90%" mb="20px">}}
 
 <a id="fireedge-sunstone-views"></a>
 
@@ -132,7 +136,9 @@ Each view is in an individual directory, `admin`, `user`, `groupadmin`, and `clo
 
 This view provides complete control of the Virtual Machines, Templates, and Marketplace apps. Details can be configured in the `/etc/one/fireedge/sunstone/views/admin/` directory.
 
-![fireedge_sunstone_admin_view](/images/fireedge_sunstone_admin_view.png)
+{{< image pathDark="/images/sunstone/common/dark/admin_view.png"
+          path="/images/sunstone/common/light/admin_view.png" 
+          alt="Sunstone admin view" align="center" width="60%" mb="20px">}}
 
 <a id="fireedge-sunstone-user-view"></a>
 
@@ -140,19 +146,21 @@ This view provides complete control of the Virtual Machines, Templates, and Mark
 
 Based on the Admin View. It is an advanced user view intended for users with fewer privileges than an admin user, allowing them to manage Virtual Machines and Templates. Users will not be able to manage or retrieve the Hosts and clusters of the cloud. Details can be configured in the `/etc/one/fireedge/sunstone/views/user/` directory.
 
-![fireedge_sunstone_user_view](/images/fireedge_sunstone_user_view.png)
+{{< image pathDark="/images/sunstone/common/dark/user_view.png"
+          path="/images/sunstone/common/light/user_view.png" 
+          alt="Sunstone user view" align="center" width="60%" mb="20px">}}
 
 <a id="fireedge-sunstone-groupadmin-view"></a>
 
 ### Groupadmin View
 
-This view is like a limited version of the cloud administrator view to be used by the administrators of a group. Details can be configured in the `/etc/one/fireedge/sunstone/views/groupadmin/` directory. More details on [Group admin view]({{% relref "groupadmin_view#group-admin-view" %}})
+This view is like a limited version of the cloud administrator view to be used by the administrators of a group. Details can be configured in the `/etc/one/fireedge/sunstone/views/groupadmin/` directory. More details on [Group admin view]({{% relref "groupadmin_view#group-admin-view" %}}).
 
 <a id="fireedge-sunstone-cloud-view"></a>
 
 ### Cloud View
 
-This is a simplified view intended for cloud consumers that just require a portal where they can provision new VMs easily. Details can be configured in the `/etc/one/fireedge/sunstone/views/cloud/` directory. More details on [Cloud view]({{% relref "cloud_view#cloud-view" %}})
+This is a simplified view intended for cloud consumers that just require a portal where they can provision new VMs easily. Details can be configured in the `/etc/one/fireedge/sunstone/views/cloud/` directory. More details on [Cloud view]({{% relref "cloud_view#cloud-view" %}}).
 
 <a id="fireedge-sunstone-new-view"></a>
 
@@ -388,13 +396,16 @@ To set these VNC connection configurations we must:
 
 {{< alert title="Note" type="info" >}}
 In case the VNC client is blurry or has any kind of visual tearing, try switching to the **virtio** video device type instead. This can be done by selecting the VM and going to the `Configuration` tab.
-![fireedge_sunstone_update_vm_config](/images/sunstone_update_vm_config.png)
+{{< image pathDark="/images/sunstone/common/dark/update_vnc_config.png"
+          path="/images/sunstone/common/light/update_vnc_config.png" 
+          alt="Sunstone user view" align="center" width="90%" mb="20px">}}
 {{< /alert >}}
 
 {{< alert title="Note" type="info" >}}
 Due to hypervisor limitations it is not possible to share the clipboard with the VM. For this we recommend the use of RDP or SSH.{{< /alert >}}
 
-![fireedge_sunstone_vnc](/images/sunstone-vnc.png)
+{{< image path="/images/sunstone-vnc.png" 
+          alt="Sunstone VNC" align="center" width="90%" mb="20px">}}
 
 ### Actions in VNC console
 
@@ -418,7 +429,8 @@ Sunstone also admits direct connections using RDP. This kind of connection is bo
 4. Click on attach nic or update an existing one.
 5. Go to the “Advanced options” step and enable the RDP connection and all the desired configuration parameters for the connection.
 
-![fireedge_sunstone_rdp](/images/sunstone-rdp.png)
+{{< image path="/images/sunstone-rdp.png" 
+          alt="Sunstone RDP" align="center" width="90%" mb="20px">}}
 
 {{< alert title="Note" type="info" >}}
 To enable them on a running VM, you must follow steps 3 to 5 once you click the VM you want.{{< /alert >}}
@@ -454,7 +466,8 @@ Sunstone also allows direct connections using SSH. This kind of connection is bo
 4. Click on attach nic or update an existing one.
 5. Go to the “Advanced options” step and enable the SSH connection.
 
-![fireedge_sunstone_ssh](/images/sunstone-ssh.png)
+{{< image path="/images/sunstone-ssh.png" 
+          alt="Sunstone ssh" align="center" width="90%" mb="20px">}}
 
 {{< alert title="Note" type="info" >}}
 To enable them on a running VM, you must follow steps 3 to 5 once you click the VM you want.{{< /alert >}}
