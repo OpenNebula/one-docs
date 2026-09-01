@@ -138,6 +138,18 @@ onebex://<IMAGE_DS_ID>:<PORT_ID>
 
 `IMAGE_DS_ID` is the destination Image Datastore ID where the restored disk image will be created. `PORT_ID` is the restore transfer port allocated for the interactive restore session.
 
+If a restore fails, the restored Image remains in `LOCKED` state and should be removed manually:
+
+{{< alert title="Important" type="info" >}}
+Get the restore transfer port from the Image `PATH` attribute, which has the form `onebex://<IMAGE_DS_ID>:<PORT_ID>`, and terminate the writer process associated with that port:
+
+```shell
+PORT=<PORT_ID>
+pgrep -f "onebex_writer.rb .* ${PORT} " | xargs -r kill -TERM
+oneimage delete --force <IMAGE_ID>
+```
+{{< /alert >}}
+
 ## OneBEX API Reference
 
 The OneBEX API is consumed by backup integrations. The current API is:

@@ -204,6 +204,23 @@ For backups to work, the HOSTNAME attribute inside each OpenNebula Host must be 
 
 {{< /alert >}}
 
+## Restore Cleanup
+
+Successful restores and restores cancelled from Veeam complete the cleanup lifecycle automatically.
+
+However, if a restore fails, Veeam reports the error and the incomplete OpenNebula Image remains in `LOCKED` state. In that case, remove the incomplete Image manually from OpenNebula:
+
+{{< alert title="Important" type="info" >}}
+Get the restore transfer port from the Image `PATH` attribute, which has the form `onebex://<IMAGE_DS_ID>:<PORT_ID>`, and terminate the writer process associated with that port:
+
+```shell
+PORT=<PORT_ID>
+pgrep -f "onebex_writer.rb .* ${PORT} " | xargs -r kill -TERM
+oneimage delete --force <IMAGE_ID>
+```
+
+{{< /alert >}}
+
 ## Logging Information
 
 The oVirtAPI server writes logs in the following paths depending on the operating system:
@@ -214,5 +231,3 @@ The oVirtAPI server writes logs in the following paths depending on the operatin
 Additional logs for interactive backups are available on the hypervisors:
 
 * OneBEX logs: `/var/log/one/onebex.log`
-
-
