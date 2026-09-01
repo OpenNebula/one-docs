@@ -19,8 +19,8 @@ Include a high level description and a link to the documentation explaining the 
 * Assign deployed VMs to VM Groups in Sunstone [#4159](https://github.com/OpenNebula/one/issues/4159)
 * Virtual Machine Command Execution. An optional [Exec tab]({{% relref "product/virtual_machines_operation/virtual_machines/vm_instances.md#executing-a-command-from-sunstone" %}}) lets users run, monitor, retry, and cancel commands inside Virtual Machines and copy their output directly from Sunstone.
 * Edit permissions on update group form in Sunstone [#6394](https://github.com/OpenNebula/one/issues/6394)
-* New parameter `--keep-ha` for CLI command `onezone serversync`, which keeps local [RAFT configuration]({{% relref "frontend_ha.md#server-sync-ha" %}}).
-* Log HA hearbeat and replication messages at log level 5.
+* New parameter `--keep-ha` for CLI command `onezone serversync`, which keeps local [RAFT configuration]({{% relref "frontend_ha.md#server-sync-ha" %}})
+* Log HA heartbeat and replication messages at log level 5 [#7977](https://github.com/OpenNebula/one/issues/7977).
 * Option to configure network lease policy for internal Address Ranges. The policy can be set globally in [oned.conf]({{% relref "oned#virtual-networks" %}}).
 * Extend Network PCI physical functions (PF) card control with link state management and flags in switchdev mode.
 * Extend link state management for network Physical Functions when using Virtual Functions as PCI network interfaces.
@@ -57,6 +57,13 @@ The following issues have been solved in 7.4.1:
 * Fix false `POWEROFF` or `UNKNOWN` state after VM deploy [#7975](https://github.com/OpenNebula/one/issues/7975)
 * Fix `one.image.restore` reporting success if authorization fails [#7991](https://github.com/OpenNebula/one/issues/7991)
 * Fix `one.group.update`, `one.group.addadmin` and `one.group.deladmin` authorization levels [#7987](https://github.com/OpenNebula/one/issues/7987)
+* Fix user quota corruption when `onevm recover --recreate` fails because of group quota limits [#7989](https://github.com/OpenNebula/one/issues/7989).
+* Fix missing error details when MySQL database initialization fails [#2173](https://github.com/OpenNebula/one/issues/2173).
+* Fix `onedb change-body` removing the `CDATA` enclosure from updated values [#3998](https://github.com/OpenNebula/one/issues/3998).
+* Fix VLAN authorization being required when VLAN values remain unchanged [#7938](https://github.com/OpenNebula/one/issues/7938).
+* Fix `one.vmgroup.add` allowing a VM to join more than one VM Group [#8016](https://github.com/OpenNebula/one/issues/8016).
+* Fix VM configuration updates when the `CONTEXT` contains an unchanged `FILES_DS` value [#7732](https://github.com/OpenNebula/one/issues/7732).
+* Fix quotes being retained in context file names by the local transfer driver [#8017](https://github.com/OpenNebula/one/issues/8017).
 * Fix interactive LVM incremental backups with more than one dirty extent [#7962](https://github.com/OpenNebula/one/issues/7962).
 * Fix the Virtual machine template form by setting the name to read-only [#7951](https://github.com/OpenNebula/one/issues/7951).
 * Fix Backup Exporter service error reporting to cover additional error conditions [#8004](https://github.com/OpenNebula/one/issues/8004), [#7986](https://github.com/OpenNebula/one/issues/7986).
