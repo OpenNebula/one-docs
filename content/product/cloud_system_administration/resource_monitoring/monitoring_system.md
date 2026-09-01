@@ -120,12 +120,12 @@ The monitoring data collected by OpenNebula probes is processed by the monitorin
 
 Each physical Host in an OpenNebula deployment maintains its own dedicated monitoring databases. These databases are updated through the regular Host and VM monitoring cycles:
 
-- **Location**: `/var/tmp/one_db/host.db`
+- **Location**: `/var/lib/one-remotes-db/host.db`
 - **Purpose**: Stores historical monitoring metrics for the Host
 
 Additionally, for each VM running on a Host, a dedicated database tracks its specific metrics:
 
-- **Location**: `/var/tmp/one_db/<VM_ID>.db` (stored on the Host where the VM is running)
+- **Location**: `/var/lib/one-remotes-db/<VM_ID>.db` (stored on the Host where the VM is running)
 - **Purpose**: Stores historical monitoring metrics for the specific VM
 
 {{< alert title="Note" type="info" >}}

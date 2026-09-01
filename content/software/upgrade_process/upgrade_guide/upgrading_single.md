@@ -247,6 +247,12 @@ Note that the `<hypervisor>` tag should be replaced by the name of the correspon
 {{< alert title="Important" type="info" >}}
 For KVM hypervisor it’s also necessary to restart the libvirt service{{< /alert >}}
 
+{{< alert title="Important" type="warning" >}}
+Do not sync the drivers (`onehost sync`) before the `opennebula-node` packages are upgraded on the Host: the drivers are now copied to `/var/lib/one-remotes` and execute helper commands from `/usr/libexec/one` — both locations are created by the new node packages.{{< /alert >}}
+
+{{< alert title="Note" type="info" >}}
+The remote scripts directory is now fixed to `/var/lib/one-remotes` and the `SCRIPTS_REMOTE_DIR` option is gone from oned.conf; a custom value is ignored after the upgrade. The monitoring metrics database is migrated automatically from `/var/tmp/one_db` to `/var/lib/one-remotes-db` when Host monitoring starts. The legacy `/var/tmp/one` directory on the Hosts is left behind: remove it once all Virtual Machines using virtioFS filesystems have been powered off/on or migrated, so their domains reference the new location.{{< /alert >}}
+
 Then update the virtualization, storage, and networking drivers. As the `oneadmin` user, execute:
 
 ```bash

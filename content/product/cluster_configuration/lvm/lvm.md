@@ -39,7 +39,7 @@ The LVM Datastore does not need CLVM configured in your cluster. The drivers ref
 
 In case of rebooting the virtualization Host, the volumes need to be activated to have them available for the hypervisor again. There are two possibilities:
 * If the [node package]({{% relref "kvm_node_installation#kvm-node" %}}) is installed, they will be automatically activated by the `/etc/cron.d/opennebula-node` cron file.
-* Otherwise, manual activation will be required. For each volume device of the Virtual Machines running on the Host before the reboot, run `lvchange -K -ay $DEVICE`. You can also run on the Host the activation script `/var/tmp/one/tm/lvm/activate`, located in the remote scripts.
+* Otherwise, manual activation will be required. For each volume device of the Virtual Machines running on the Host before the reboot, run `lvchange -K -ay $DEVICE`. You can also run on the Host the activation script `/var/lib/one-remotes/tm/lvm/activate`, located in the remote scripts.
 
 Virtual Machine disks are symbolic links to the block devices. However, additional VM files like checkpoints or deployment files are stored under `/var/lib/one/datastores/<id>`. To prevent filling local disks, allocate plenty of space for these files.
 

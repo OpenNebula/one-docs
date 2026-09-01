@@ -257,7 +257,7 @@ The error message here (see `ERROR=[MESSAGE="Error monitoring host...`) shows an
 
 ```none
 Tue Jul 19 17:17:22 2011 [InM][I]: Monitoring host host01 (1)
-Tue Jul 19 17:17:22 2011 [InM][I]: Command execution fail: scp -r /var/lib/one/remotes/. host01:/var/tmp/one
+Tue Jul 19 17:17:22 2011 [InM][I]: Command execution fail: scp -r /var/lib/one/remotes/. host01:/var/lib/one-remotes
 Tue Jul 19 17:17:22 2011 [InM][I]: ssh: Could not resolve hostname host01: nodename nor servname provided, or not known
 Tue Jul 19 17:17:22 2011 [InM][I]: lost connection
 Tue Jul 19 17:17:22 2011 [InM][I]: ExitCode: 1

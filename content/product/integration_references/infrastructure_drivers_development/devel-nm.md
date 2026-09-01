@@ -72,7 +72,7 @@ Default driver actions support the execution of hooks after the main action is s
 For example, this is the directory tree of the bridge driver synced to a virtualization node with some custom scripts:
 
 ```default
-root@ubuntu1804-local-6ee11-2:/var/tmp/one/vnm/bridge# tree ./
+root@ubuntu1804-local-6ee11-2:/var/lib/one-remotes/vnm/bridge# tree ./
 ./
 ├── clean
 ├── clean.d

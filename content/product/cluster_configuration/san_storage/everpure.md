@@ -260,7 +260,7 @@ Both Full and Incremental backups are supported by Everpure FlashArray. For Full
 Incremental backups are created using the Volume Difference Feature of Everpure FlashArray. This returns a list of block offsets and lengths which have changed since a target snapshot. This list is then used to create a sparse QCOW2 format file which is uploaded to the backup datastore.
 
 {{< alert title="Note" type="success" >}}
-You can configure the block size ( Default and minimum 4096 B / 4 KB ) for incremental backups by modifying the file at `/var/tmp/one/etc/tm/san/backup.conf`
+You can configure the block size ( Default and minimum 4096 B / 4 KB ) for incremental backups by modifying the file at `/var/lib/one-remotes/etc/tm/san/backup.conf`
 {{< /alert >}}
 
 {{< alert title="Warning" type="warning" >}}
