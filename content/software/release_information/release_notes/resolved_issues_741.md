@@ -82,5 +82,7 @@ The following issues have been solved in 7.4.1:
 * Fix various graph related issues in Sunstone [#7571](https://github.com/OpenNebula/one/issues/7571).
 * Fix current host and datastore selection in the Sunstone migration dialog [#7995](https://github.com/OpenNebula/one/issues/7995).
 * Fix VM configuration update call in Sunstone [#7502](https://github.com/OpenNebula/one/issues/7502).
+* Fix FS freeze for live Ceph backups [#8011](https://github.com/OpenNebula/one/issues/8011).
+* Fix stale symlink after TM_MAD=shared persistent disk detach [#8000](https://github.com/OpenNebula/one/issues/8000).
 * Fix the Add NIC form to include the DNS field [#7916](https://github.com/OpenNebula/one/issues/7916).
 * Fix ovirtAPI issue with truncated disk UUIDs [#7965](https://github.com/OpenNebula/one/issues/7965).
