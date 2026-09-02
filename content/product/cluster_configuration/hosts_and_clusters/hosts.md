@@ -289,7 +289,7 @@ onehost sync -c myCluster
 
 ### PCI Devices
 
-The monitoring information for a Host includes details about all PCI devices detected on the node. This is particularly useful for [PCI passthrough]({{% relref "pci_passthrough" %}}) configurations, where specific devices need to be assigned to Virtual Machines. PCI devices are discovered by the Information Manager probe and can be filtered using the configuration in `/var/lib/one/remotes/etc/im/kvm-probes.d/pci.conf`.
+The monitoring information for a Host includes details about all PCI devices detected on the node. This is particularly useful for [PCI passthrough]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration#step-4-configure-pci-monitoring" %}}) configurations, where specific devices need to be assigned to Virtual Machines. PCI devices are discovered by the Information Manager probe and can be filtered using the configuration in `/var/lib/one/remotes/etc/im/kvm-probes.d/pci.conf`.
 
 Each PCI device reported by the monitor contains the following attributes:
 

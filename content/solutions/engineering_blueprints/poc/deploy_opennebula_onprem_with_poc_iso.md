@@ -525,7 +525,7 @@ To prepare the OpenNebula Host complete the following steps:
 ```default
 dmesg | grep -i iommu
 ```
-If IOMMU wasn’t enabled on the Host, follow the process specified in the official documentation to enable IOMMU - https://docs.opennebula.io/7.0/product/cluster_configuration/hosts_and_clusters/nvidia_gpu_passthrough/.
+If IOMMU wasn’t enabled on the Host, follow the process in the [PCI Passthrough Host Configuration guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration#step-1-enable-the-iommu" %}}).
 At the next step GPU has to be bound to the vfio driver. For this, perform the following steps:
 1.  Ensure `vfio-pci` module is loaded on boot:
 

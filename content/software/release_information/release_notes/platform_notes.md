@@ -77,7 +77,7 @@ More information: [one-apps wiki](https://github.com/OpenNebula/one-apps/wiki)
 | Open vSwitch        | Version included in the Linux distribution | [Open vSwitch]({{% relref "product/cluster_configuration/networking_system/openvswitch#openvswitch" %}}) |
 | iproute2            | Version included in the Linux distribution | [VXLAN]({{% relref "product/cluster_configuration/networking_system/vxlan#vxlan" %}})                    |
 | Spectrum-X          | N/A | [Spectrum-X documentation]({{% relref "product/cluster_configuration/networking_system/spectrumx" %}})                    |
-| InfiniBand          | N/A |  [PCI Passthrough]({{% relref "product/cluster_configuration/pci_passthrough_sriov/pci_passthrough/" %}}) |
+| InfiniBand          | N/A | [InfiniBand]({{% relref "product/cluster_configuration/networking_system/infiniband/" %}}) |
 
 ### Storage Infrastructure
 

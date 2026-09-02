@@ -37,7 +37,7 @@ To deploy the vLLM appliance for benchmarking, follow these steps:
     onemarketapp export 'service_Vllm' vllm --datastore default
     ```
 
-2. Configure the template for [GPU PCI passthrough](../../../product/cluster_configuration/hosts_and_clusters/nvidia_gpu_passthrough.md):
+2. Configure the template for [GPU PCI passthrough]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough/" %}}):
     ```shell
     onetemplate update vllm
     ```

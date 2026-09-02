@@ -59,7 +59,7 @@ To begin the installation and configuration, verify these prerequisites:
 
 * KVM Node Package: ensures that the `opennebula-kvm-node` EE package is installed on every KVM host that contains NVSwitch devices. This package contains the `opennebula-fabricmanager` service.
 
-* NVSwitch PCI passthrough Setup: the NVSwitch devices must be prepared for PCI passthrough using the vfio-pci driver. Configure these devices at OpenNebula deployment time using one-deploy; check [here]({{% relref "product/cluster_configuration/pci_passthrough_sriov/pci_passthrough#vfio-device-binding" %}}) for instructions. If this is not done during deployment, it is possible to manually configure the NVSwitches to use the virtio-pci driver by following the "Hypervisor Configuration" section from [NVIDIA GPU Passthrough]({{% relref "nvidia_gpu_passthrough" %}}).
+* NVSwitch PCI passthrough Setup: the NVSwitch devices must be prepared for PCI passthrough using the vfio-pci driver. Configure these devices at OpenNebula deployment time using one-deploy; check the [Host Configuration guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration#step-2-configure-vfio-device-binding" %}}) for instructions. If this is not done during deployment, it is possible to manually configure the NVSwitches to use the virtio-pci driver by following the "Hypervisor Configuration" section from [NVIDIA GPU Passthrough]({{% relref "nvidia_gpu_passthrough" %}}).
 
 Once you have validated the prerequisites, start OpenNebula FabricManager service: the `opennebula-fabricmanager` service on the host is disabled by default, as it is designed to be started and stopped on demand or managed by you as the OpenNebula administrator. 
 

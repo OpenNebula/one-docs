@@ -1,5 +1,6 @@
 ---
-title: "Host Configuration"
+title: "Host Configuration for PCI Passthrough and SR-IOV"
+linkTitle: "Host Configuration"
 date: "2026-06-30"
 description:
 categories:
@@ -23,31 +24,7 @@ Before configuring PCI passthrough, verify that the host satisfies the following
 
 ---
 
-## Step 1. Verify Virtualization Support
-
-Before enabling PCI passthrough, verify that the processor supports hardware virtualization.
-
-Display the processor capabilities:
-
-```shell
-lscpu
-```
-
-Look for the **Virtualization** field:
-
-```default
-Virtualization: VT-x
-```
-
-or
-
-```default
-Virtualization: AMD-V
-```
-
-On ARM systems, verify that virtualization extensions are available according to the platform documentation.
-
-## Step 2. Enable the IOMMU
+## Step 1. Enable the IOMMU
 
 PCI passthrough requires the Input-Output Memory Management Unit (IOMMU) to isolate DMA accesses performed by assigned devices.
 
@@ -114,13 +91,13 @@ or:
 arm-smmu-v3 ...
 ```
 
-## Step 3. Configure VFIO Device Binding
+## Step 2. Configure VFIO Device Binding
 
 PCI devices assigned to virtual machines must be managed by a VFIO driver instead of their native host driver. OpenNebula supports any mechanism that binds devices to VFIO. The recommended approach is to use the **driverctl** utility, which provides persistent per-device driver overrides using the Linux kernel `driver_override` interface.
 
 For Linux Containers, the PCI device driver shouldn’t be changed. Skip this section entirely if using passthrough in Linux Containers.
 
-{{< alert title="Note" type="primary" >}}This step is not needed for NVIDIA GPUs in MIG or vGPU mode. In these cases you can continue to [Step 4](#step-4-configure-huge-pages-optional).{{< /alert >}} 
+{{< alert title="Note" type="primary" >}}This step is not needed for NVIDIA GPUs in MIG or vGPU mode. In these cases you can continue to [Step 3](#step-3-configure-huge-pages-optional).{{< /alert >}}
 
 ### Install driverctl
 
@@ -187,7 +164,7 @@ Many PCI devices expose multiple functions. For example, GPUs often expose both 
 
 {{< alert title="Note" type="primary" >}}
 Once a device is bound to a VFIO driver, it is no longer available to the host operating system until the override is removed.
-{{< /alert >}} 
+{{< /alert >}}
 
 ### Verification
 
@@ -225,26 +202,30 @@ driverctl unset-override 0000:43:00.0
 
 {{< alert title="Note" type="primary" >}}
 Some hardware platforms require a platform-specific VFIO driver instead of `vfio-pci`. For example, NVIDIA Grace systems use the `nvgrace_gpu_vfio_pci` driver. These platform-specific procedures are described in the corresponding device guides.
-{{< /alert >}} 
+{{< /alert >}}
 
 ### VFIO Device Ownership
 
-For OpenNebula to manage the VFIO device files in `/dev/vfio/` must be owned by the root:kvm user and group. This is achieved by creating a `udev` rule.
+For OpenNebula to manage the VFIO device files in `/dev/vfio/`, the files must be owned by user `root` and group `kvm` (`root:kvm`). This is achieved by creating a `udev` rule.
 
 1. **Identify the IOMMU group for your GPU using its PCI address**:
 
     ```shell
-    find /sys/kernel/iommu_groups/ -type l | grep e1:00.0
+    find /sys/kernel/iommu_groups/ -type l | grep 43:00.0
 
-    /sys/kernel/iommu_groups/85/devices/0000:e1:00.0
+    /sys/kernel/iommu_groups/85/devices/0000:43:00.0
     ```
 
-    In this example, the IOMMU group is 85
+    In this example, the IOMMU group is 85. The IOMMU group is the minimum device-ownership unit used by VFIO. All devices in the same group must be configured for passthrough and assigned together to the same virtual machine. Modern server platforms usually provide suitable per-device or per-slot isolation, but verify the group membership before continuing:
+
+    ```shell
+    ls -1 /sys/kernel/iommu_groups/85/devices/
+    ```
 
 2. **Create a udev rule**: Create the file /etc/udev/rules.d/99-vfio.rules with the following content:
 
     ```default
-    SUBSYSTEM=="vfio", GROUP="kvm", MODE="0666"
+    SUBSYSTEM=="vfio", GROUP="kvm", MODE="0660"
     ```
 
 3. **Reload udev rules**:
@@ -258,10 +239,10 @@ For OpenNebula to manage the VFIO device files in `/dev/vfio/` must be owned by 
 
     ```shell
     ls -la /dev/vfio/
-    crw-rw-rw- 1 root kvm 509, 0 Oct 16 10:00 85
+    crw-rw---- 1 root kvm 509, 0 Oct 16 10:00 85
     ```
 
-## Step 4. Configure Huge Pages (Optional)
+## Step 3. Configure Huge Pages (Optional)
 
 Huge Pages reduce memory translation overhead and are recommended for memory-intensive workloads such as GPUs and high-performance networking.
 
@@ -296,7 +277,7 @@ Display the current Huge Page configuration:
 grep Huge /proc/meminfo
 ```
 
-## Step 5. Configure PCI Monitoring
+## Step 4. Configure PCI Monitoring
 
 OpenNebula discovers PCI devices through the host monitoring subsystem. PCI monitoring is disabled by default to avoid exposing unnecessary hardware resources.
 
@@ -369,7 +350,7 @@ The system-wide configuration can be overridden for individual clusters or hosts
 This allows different clusters to expose different classes of PCI devices while sharing the same frontend configuration.
 
 {{< alert title="Recommendation" type="primary" >}}
-Configure the narrowest possible filters to expose only devices intended for passthrough.{{< /alert >}} 
+Configure the narrowest possible filters to expose only devices intended for passthrough.{{< /alert >}}
 
 ### Synchronize the Monitoring Probes
 
@@ -382,12 +363,12 @@ onehost sync --force
 Then trigger a new monitoring cycle:
 
 ```shell
-onehost flush <host>
+onehost forceupdate <host>
 ```
 
 Alternatively, wait for the next scheduled monitoring cycle.
 
-## Step 6. Verify PCI Device Discovery
+## Step 5. Verify PCI Device Discovery
 
 After the monitoring cycle completes, verify that OpenNebula has discovered the expected PCI devices.
 Display the monitored devices:
@@ -434,8 +415,7 @@ Once these checks are complete, the host is ready to assign PCI devices to virtu
 
 After completing the host configuration:
 
+* Continue with the [Generic PCI Devices Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/generic_devices/" %}}) to assign storage controllers, USB controllers, audio devices, and other generic PCI devices.
 * Continue with the [Network Interfaces Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces/" %}}) to configure PCI passthrough or SR-IOV network devices.
 * Continue with the [NVIDIA GPUs Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough/" %}}) for NVIDIA GPU passthrough, mediated devices (vGPU), and platform-specific GPU configuration.
 * Continue with the [NVIDIA Fabric Manager Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/one_fabricmanager/" %}}) when deploying supported NVSwitch-based systems.
-
-

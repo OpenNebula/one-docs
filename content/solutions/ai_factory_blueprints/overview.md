@@ -39,11 +39,7 @@ The guides in this AI Factory Blueprints documentation have been developed and t
 
 Configuring, deploying and validating a high-performance AI infrastructure using OpenNebula involves these steps:
 
-<<<<<<< HEAD
-1. Familiarize yourself with **Architecture and Specifications**. We recommend consulting the [guide on GPU PCI-passthrough]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough" %}}) for details relating to your GPU hardware and IOMMU.
-=======
-1. Familiarize yourself with [**Architecture and Specifications**]({{% relref "/getting_started/understand_opennebula/cloud_architecture_and_design/cloud_architecture_design/" %}}). We recommend consulting the [guide on GPU PCI-passthrough]({{% relref "product/cluster_configuration/hosts_and_clusters/nvidia_gpu_passthrough" %}}) for details relating to your GPU hardware and IOMMU.
->>>>>>> cebd14e9 (F OpenNebula/one#7992: AI Factory documentation updates for 7.4 (#857))
+1. Familiarize yourself with [**Architecture and Specifications**]({{% relref "/getting_started/understand_opennebula/cloud_architecture_and_design/cloud_architecture_design/" %}}). We recommend consulting the [guide on GPU PCI-passthrough]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough" %}}) for details relating to your GPU hardware and IOMMU.
 <br>
 
 2. Deploy and configure your AI Factory with one of these alternatives:

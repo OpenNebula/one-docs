@@ -20,6 +20,7 @@ OpenNebula supports the following networking modes:
 * [802.1Q VLAN]({{% relref "vlan#hm-vlan" %}}): The VM NIC is added to a Linux bridge on the Host and the Virtual Network is configured to handle 802.1Q VLAN isolation.
 * [VXLAN]({{% relref "vxlan#vxlan" %}}): The VM NIC is added to a Linux bridge on the Host and the Virtual Network implements isolation using the VXLAN encapsulation.
 * [Open vSwitch]({{% relref "openvswitch#openvswitch" %}}): The VM NIC is added to a Open vSwitch bridge on the Host and the Virtual Network optionally handles 802.1Q VLAN isolation.
+* [Open vSwitch DPDK]({{% relref "openvswitch_dpdk#openvswitch-dpdk" %}}): The VM NIC uses vhost-user to connect to an Open vSwitch userspace datapath accelerated with DPDK.
 * [Open vSwitch on VXLAN]({{% relref "openvswitch#openvswitch-vxlan" %}}): The VM NIC is added to a Open vSwitch bridge on the Host and the Virtual Network is configured to provide both isolation with VXLAN encapsulation and optionally 802.1Q VLAN.
 
 The attribute `VN_MAD` of a Virtual Network determines which of the above networking modes is used.
