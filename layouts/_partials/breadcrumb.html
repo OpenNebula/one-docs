@@ -3,7 +3,7 @@
   {{ $isSingle = .IsHome -}}
 {{ end -}}
 
-{{ if .File -}}
+{{ if and .File (not .IsHome) -}}
   {{ $path := strings.TrimPrefix (add hugo.WorkingDir "/") $.File.Filename -}}
   {{ $gh_repo := $.Param "github_repo" -}}
   {{ $gh_branch := $.Param "github_branch" | default "main" -}}
@@ -50,4 +50,3 @@
     </li>
   {{- end -}}
 {{- end -}}
-

@@ -1,0 +1,57 @@
+{{- $background := resources.Get "images/banner/banner_background.png" -}}
+{{- $version := partial "version.html" . | strings.TrimSpace -}}
+{{- $isLatestStable := eq $version .Site.Params.latest_stable_version -}}
+{{- $whatsNewURL := "software/release_information/release_notes/whats_new/" | relURL -}}
+{{- $releaseNotesURL := "software/release_information/release_notes/" | relURL -}}
+{{- with .Site.GetPage "software/release_information/release_notes/whats_new" -}}
+  {{- $whatsNewURL = .RelPermalink -}}
+{{- end -}}
+{{- with .Site.GetPage "software/release_information/release_notes" -}}
+  {{- $releaseNotesURL = .RelPermalink -}}
+{{- end -}}
+
+<section
+  class="docs-home-banner"
+  aria-labelledby="docs-home-banner-title"
+  {{- with $background }} style="--docs-home-banner-image: url('{{ .RelPermalink }}')"{{ end }}
+>
+  <div class="docs-home-banner__glow" aria-hidden="true"></div>
+  <div class="docs-home-banner__grid" aria-hidden="true"></div>
+  <div class="docs-home-banner__visual" aria-hidden="true">
+    <div class="docs-home-banner__screenshot docs-home-banner__screenshot--back"></div>
+    <div class="docs-home-banner__screenshot docs-home-banner__screenshot--main"></div>
+    <div class="docs-home-banner__fade"></div>
+  </div>
+
+  <div class="docs-home-banner__content">
+    <div class="docs-home-banner__tag">
+      <span class="docs-home-banner__tag-dot" aria-hidden="true"></span>
+      <span>{{ if $isLatestStable }}New release · {{ end }}OpenNebula {{ $version }}</span>
+    </div>
+    <h1 id="docs-home-banner-title" class="docs-home-banner__title">
+      Welcome to OpenNebula Documentation
+    </h1>
+    {{ if $isLatestStable -}}
+      <p class="docs-home-banner__description">
+        What's new? Everything. Explore the latest features, updates, and release notes — all in one place.
+      </p>
+    {{- end }}
+    <div class="docs-home-banner__actions">
+      <a class="docs-home-banner__button" href="{{ if $isLatestStable }}{{ $whatsNewURL }}{{ else }}{{ $releaseNotesURL }}{{ end }}">
+        {{ if $isLatestStable -}}
+          See what's new in OpenNebula {{ $version }}
+        {{- else -}}
+          Read the OpenNebula {{ $version }} release notes
+        {{- end }}
+      </a>
+      {{ if $isLatestStable -}}
+        <a class="docs-home-banner__link" href="{{ $releaseNotesURL }}">
+          <span>Read the release notes</span>
+          <svg class="docs-home-banner__arrow" viewBox="0 0 20 12" aria-hidden="true" focusable="false">
+            <path d="M1 6h17M13 1l5 5-5 5"></path>
+          </svg>
+        </a>
+      {{- end }}
+    </div>
+  </div>
+</section>
