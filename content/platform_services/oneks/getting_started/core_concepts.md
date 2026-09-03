@@ -156,7 +156,7 @@ Dependency options are defined in the OneKS profile specs. For details on how to
 
 The Seed VM is a temporary OpenNebula VM used during control-plane bootstrap. It is managed internally and is not created or managed directly by users.
 
-During control-plane provisioning, OneKS creates the Seed VM from the OpenNebula VM template generated from the OneKS appliance that is imported automatically when the service starts. For more information about this appliance import process, see [Automatically Generated Resources]({{% relref "platform_services/oneks/getting_started/basic_configuration/#automatically-generated-resources" %}}).
+During control-plane provisioning, OneKS creates the Seed VM from the OpenNebula VM template generated from the OneKS appliance, which is imported automatically when the service starts by default. In air-gapped environments, automatic import can be disabled and OneKS can discover a manually imported image marked with `ONEKS_APPLIANCE_ID` and the VM template that uses it. For more information, see [Kubernetes Cluster Configuration]({{% relref "platform_services/oneks/management/configuration/#air-gapped-environments" %}}).
 
 OneKS injects the rendered control-plane and Cluster API specification into the VM context, attaches the Seed VM to the K8s Cluster public network, and monitors its bootstrap state.
 
