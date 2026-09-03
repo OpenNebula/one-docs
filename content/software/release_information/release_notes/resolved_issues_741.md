@@ -92,3 +92,4 @@ The following issues have been solved in 7.4.1:
 * Fix OVS access mode VLAN [#8028]https://github.com/OpenNebula/one/issues/8028.
 * Fix OVS update when unsetting MTU [#8033](https://github.com/OpenNebula/one/issues/8033).
 * Fix OneKS cluster deployment to use the configured datastore [#8012](https://github.com/OpenNebula/one/issues/8012).
+* Fix oVirt API tag handling, including user tags and VM tag assignments [#7966](https://github.com/OpenNebula/one/issues/7966).
