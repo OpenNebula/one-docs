@@ -39,7 +39,6 @@ dependencies:
       creation_timeout: 2000
       destroy_on_running: true
       appliance_id: c3ecb387-e726-49fe-975d-fa39c6d40d05
-      appliance_ds: 1
   - object: cluster_router
     options:
       creation_timeout: 500
@@ -264,7 +263,6 @@ dependencies:
       creation_timeout: 2000
       destroy_on_running: true
       appliance_id: c3ecb387-e726-49fe-975d-fa39c6d40d05
-      appliance_ds: 1
 ```
 
 Common dependency options include:
@@ -274,7 +272,7 @@ Common dependency options include:
 | `creation_timeout`     | Time allowed for the dependency to become ready. |
 | `destroy_on_running`   | Whether the dependency resource is removed when the group reaches `RUNNING`. |
 | `appliance_id`         | Marketplace appliance ID used by the Seed VM dependency. |
-| `appliance_ds`         | Image datastore where the appliance image is stored. |
+| `appliance_ds`         | Optional image datastore used for automatic appliance import. Overrides the default datastore (`default`, ID `1`). |
 
 For more information about the Seed VM appliance, see [Automatically Generated Resources]({{% relref "platform_services/oneks/getting_started/basic_configuration/#automatically-generated-resources" %}}).
 

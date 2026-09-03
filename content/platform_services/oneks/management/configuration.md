@@ -57,7 +57,40 @@ These options are used when OneKS runs Kubernetes commands from the Front-end Ho
 |----------------------|------------------------------------------|-------------|
 | `:kubectl_path`      | `/var/lib/rancher/rke2/bin/kubectl`      | Path to the `kubectl` binary used by OneKS. Change it if `kubectl` is installed in a different location. |
 | `:kubeconfig_path`   | `/etc/rancher/rke2/rke2.yaml`            | Kubeconfig file used by `kubectl` operations executed by the service. The file must be readable by the service user. |
-| `:k8s_timeout`       | `15`                                     | Timeout, in seconds, while waiting for Kubernetes command execution results. Increase it for slow API servers or busy management clusters. |
+| `:k8s_timeout`       | `15`                                     | Timeout, in seconds, while waiting for Kubernetes command execution results. Increase it for slow API servers or busy management Clusters. |
+
+## Appliance Configuration
+
+OneKS uses an appliance image and its VM Template to create Kubernetes Clusters. The appliance is available through the OpenNebula Marketplace and must be available in an image datastore accessible to the target OpenNebula
+Cluster.
+
+| Attribute                | Default | Description |
+|--------------------------|---------|-------------|
+| `:appliance_auto_import` | `true`  | If `true`, OneKS imports the appliance from the OpenNebula Marketplace when the service starts. Disable this option in air-gapped environments. |
+
+### Automatic Marketplace Import
+
+By default, OneKS imports the appliance specified by the control-plane family from the OpenNebula Marketplace into the default image datastore when the service starts.
+
+If the target OpenNebula Cluster cannot access that datastore, import the OneKS appliance from the Marketplace into an alternative image datastore accessible from the target Cluster. See [OpenNebula Marketplace Appliances]({{% relref "product/virtual_machines_operation/guest_operating_systems/creating_images/#add-content-marketplace" %}}) for more details.
+
+### Air-Gapped Environments
+
+If the Front-end Host cannot access the OpenNebula Marketplace, disable automatic appliance import in `/etc/one/oneks-server.conf`:
+
+```yaml
+:appliance_auto_import: false
+```
+
+Then manually download the appliance image and its VM Template from the [OpenNebula Public Marketplace](https://marketplace.opennebula.io/) and import them into your OpenNebula installation. To allow OneKS to discover the imported image automatically, add the following attribute to the image. The `ONEKS_APPLIANCE_ID` value must match the `appliance_id` configured in the `seed_vm` dependency of the control-plane family file located in `/var/lib/one/oneks/controlplanes/<family>/controlplane.conf`:
+
+```default
+ONEKS_APPLIANCE_ID="c3ecb387-e726-49fe-975d-fa39c6d40d05"
+```
+
+The VM Template must reference the marked appliance image as a disk. The image must be stored in an image datastore accessible from the target OpenNebula Cluster.
+
+If Kubernetes Clusters are deployed across multiple OpenNebula Clusters that do not share an image datastore, manually import and mark an appliance image, together with its VM Template, for each Cluster.
 
 ## Readiness Check Configuration
 
@@ -109,7 +142,7 @@ Service logs are written to the standard OneKS log files. These files are useful
 /var/log/one/oneks.error
 ```
 
-Each cluster also has its own lifecycle log file. These per-cluster logs are useful to follow provisioning and monitoring operations for a specific cluster:
+Each Cluster also has its own lifecycle log file. These per-cluster logs are useful to follow provisioning and monitoring operations for a specific Cluster:
 
 ```default
 /var/log/one/oneks/<cluster_id>.log
