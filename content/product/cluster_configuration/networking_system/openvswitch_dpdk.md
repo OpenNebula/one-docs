@@ -23,11 +23,11 @@ Although OpenNebula can create a missing OVS bridge with `datapath_type=netdev`,
 
 ## Requirements
 
-Before starting, verify only that:
+Before starting, verify that:
 
 * The Host is an OpenNebula KVM node.
 * The physical NIC is supported by a DPDK Poll Mode Driver (PMD).
-* Administrative and, when changing a management uplink, out-of-band access to the Host is available.
+* IPMI access is available when using management links as DPDK interfaces.
 
 This guide walks you through configuring the remaining requirements; they do not need to be prepared before starting:
 
@@ -90,6 +90,8 @@ Use one consistent topology throughout the configuration. The examples in this g
 | Test VM memory | 4096 MB on NUMA node 0 |
 | Huge Page size | 1 GB |
 | OVS bridge | `ovsbr0` |
+
+Proper resource allocation when planning a DPDK based deployment can be a challenging task. Besides what is mentioned in this guide, we also recommend checking the [OVS performance tuning recomendations](https://docs.openvswitch.org/en/stable/intro/install/dpdk/#performance-tuning) as well as [Red Hat NFV OVS-DPK deployment planning guide](https://docs.redhat.com/en/documentation/red_hat_openstack_platform/17.1/html/configuring_network_functions_virtualization/plan-ovs-dpdk-deploy_rhosp-nfv#ovsdpdk-memory-parms_dpdkparm-nfvsub) for additional tunings  and example configurations.
 
 ### Identify the NIC and its NUMA Node
 
@@ -302,6 +304,8 @@ For jumbo frames, use the same MTU on the physical DPDK interfaces, the OVS inte
 
 ## Step 6. Configure OpenNebula
 
+The network features available for OVS with DPDK are the same ones as regular OVS. However, the bridges with accelerated datapath are consumed differently than regular bridges. Therefore there is a nuance to consider in terms of Virtual Networks and VM Templates.
+
 ### Create the Virtual Network
 
 Use the `ovswitch` driver and set `BRIDGE_TYPE` to `openvswitch_dpdk`. Do not define `PHYDEV`; the physical DPDK port is already attached to the bridge outside OpenNebula.
@@ -311,15 +315,30 @@ NAME        = "dpdk-net"
 VN_MAD      = "ovswitch"
 BRIDGE      = "ovsbr0"
 BRIDGE_TYPE = "openvswitch_dpdk"
-VLAN_ID     = "1402"
-MTU         = "1500"
 ```
 
 Normal [Open vSwitch network configuration]({{% relref "openvswitch#ovswitch-net" %}}) rules apply, including the Open vSwitch Security Group limitations.
 
 ### Configure the VM
 
-The VM NIC must use the virtio model. [Vhost-user](https://docs.openvswitch.org/en/latest/topics/dpdk/vhost-user/) also requires shared guest memory; in OpenNebula, configure Huge Pages and set `MEMORY_ACCESS` to `shared`. Add the following resources to a normal VM Template:
+The VM NIC must use the virtio model. Libvirt will create [Vhost-user](https://docs.openvswitch.org/en/latest/topics/dpdk/vhost-user/) interfaces for each NIC backed by a virtual network with `BRIDGE_TYPE = "openvswitch_dpdk"`. These interfaces require hugepages and shared memory in the VM. In OpenNebula, configure Huge Pages and set `MEMORY_ACCESS` to `shared`. Add the following resources to a normal VM Template:
+
+```
+MEMORY = "4096" # must be a multiple of the HUGEPAGE_SIZE
+
+NIC = [
+  NETWORK = "dpdk-net",
+  MODEL   = "virtio"
+]
+
+TOPOLOGY = [
+  HUGEPAGE_SIZE = "1024",
+  MEMORY_ACCESS = "shared"
+]
+```
+
+For improved performance, you can use CPU pinning and/or NUMA node affinity, so the VM can use resources available in the node where the DPDK polling occurs.
+
 
 ```default
 CPU    = "2"
@@ -342,9 +361,11 @@ TOPOLOGY = [
 ]
 ```
 
+For each NIC, QEMU creates a server socket in `/var/run/one/vhost-socks/` and OpenNebula adds an OVS `dpdkvhostuserclient` interface that connects to it. The socket name matches the VM NIC target, normally `one-<vm-id>-<nic-id>`. Initially the VM is created in PAUSED state in libvirt. It will be set to RUNNING once the `dpdkvhostuserclient` ovs port connects to the socket. This connection process requires proper permissions as the OVS daemon needs to be able to connect and unlink the socket, whereas qemu needs to be able to create it. Depending on the Linux distribution used in the KVM node, the OVS daemon might be running as a dedicated user, and security management tools like AppArmor or SELINUX might block these connections.
+
 `NODE_AFFINITY="0"` matches the NIC, PMD and Huge Pages in the reference topology. Change it when the physical path is on another NUMA node. See [CPU and NUMA Pinning]({{% relref "product/cluster_configuration/hosts_and_clusters/numa#cpu-and-numa-pinning" %}}) for more complex topologies.
 
-For each NIC, QEMU creates a server socket in `/var/run/one/vhost-socks/` and OpenNebula adds an OVS `dpdkvhostuserclient` interface that connects to it. The socket name matches the VM NIC target, normally `one-<vm-id>-<nic-id>`.
+VM Migrations, both live and offline, require the target host to have a compatible topology. That is, the KVM host must be able to provide the necessary resources for the VM topology to be satisfied. There must be huge page availability, CPUs and NUMA nodes used by the VM. The simplest approach if to have identical hosts used for migrations.
 
 ## Step 7. Verify the Data Path
 
@@ -385,6 +406,8 @@ Interface "one-42-0"
 
 ## Troubleshooting
 
+Most of the issues arise from bad or missing configuration, either in the deployment or the usage through VMs. You can use the [one-deploy openvswitch ansible role](https://github.com/OpenNebula/one-deploy/tree/master/roles/openvswitch) for a cofiguration procedure reference if in doubt.
+
 ### DPDK Does Not Initialize
 
 Check:
@@ -399,13 +422,29 @@ Review the distribution-specific Open vSwitch service log for DPDK EAL errors af
 
 ### Unexpected PMD CPU Usage
 
-Polling PMDs with assigned Rx queues normally consume a complete logical CPU even when traffic is low. This is expected. Confirm the queue assignment with `ovs-appctl dpif-netdev/pmd-rxq-show` before adding PMDs.
+Polling PMDs with assigned Rx queues normally consume a complete logical CPU even when traffic is low. This is expected. In fact, it is a good way to validate the CPU mask was properly configured. For example, the following processes correlate to 4 PMD threads (2 per core) pinned to CPUs 0,1,64 and 65.
+
+```shell
+ps -eLo pid,tid,psr,pcpu,comm | grep -E "pmd"
+   6267    7164   1 99.7 pmd-c01/id:392
+   6267    7165   0 99.7 pmd-c00/id:393
+   6267    7247  65 99.5 pmd-c65/id:394
+   6267    7248  64 99.5 pmd-c64/id:395
+```
+
+Confirm the queue assignment with `ovs-appctl dpif-netdev/pmd-rxq-show` before adding PMDs.
 
 Recent OVS versions support `other_config:pmd-sleep-max` to reduce idle polling. Sleeping trades CPU consumption for wake-up latency and possible packet loss during bursts; validate it with the target workload before using it in production.
 
 ### Vhost-user Socket Permission Errors
 
-QEMU is the socket server and OVS is the client. Check directory traversal, socket permissions and the service identities:
+Permission issues manifest as blocked VM operations. QEMU is the socket server and OVS is the client.
+
+If the VM gets stuck on boot, it can happen that the DPDK VM NIC port created in OVS is trying to connect to the qemu socket and gets continuously denied. The VM will remain paused in libvirt until the connection is succesful.
+
+The VM might also fail to be powered off, restarted, live migrated or snapshotted. It can happen that the unlink operation from the socket fails to be performed.
+
+Check directory traversal, socket permissions and the service identities:
 
 ```shell
 namei -l /var/run/one/vhost-socks/
@@ -416,3 +455,9 @@ ps -eo user,group,comm,args | grep '[q]emu-system'
 On SELinux or AppArmor systems, inspect the audit or kernel log for a mandatory-access-control denial before changing policy. The required policy depends on the distribution packages and their service domains. Prefer an updated distribution policy or a reviewed local policy.
 
 Do not use `chcon` as a permanent fix because its label can be lost during filesystem relabeling. If a custom SELinux file context is required and has been validated for the distribution, make it persistent with `semanage fcontext` and apply it with `restorecon`. Apply equivalent profile changes when AppArmor is in use.
+
+### No TCP traffic in VMs
+
+A VM might have operational UDP and ICMP traffic, but specifically, TCP traffic fails. This issue arise when mixing configurations. That is, a VM was deployed as a regular OVS based VM on a DPDK bridge. In this case you have a mixed datapath, and while OVS allows it as a valid configuration, it is effectively misconfiguration as the traffic is getting both polling and kernel interruptions, the worst of both worlds.
+
+If for whatever reason, this configuration is intended, TCP checksum offloadin has to be disabled on the Guest OS NIC `ethtool --offload 'eth0' tx off rx off `.
