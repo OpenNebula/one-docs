@@ -144,6 +144,9 @@ search_url = "/search/"
 ### Version variables
 # The short X.Y version
 version = "7.5"
+# Controls the promotional copy shown in the homepage banner. Keep this value
+# current when a new stable OpenNebula release becomes the default docs version.
+latest_stable_version = "7.4"
 # The full version, including alpha/beta/rc tags
 release = "7.5.80"
 # Docs version is part of the URL & invoked by the alert shortcode
