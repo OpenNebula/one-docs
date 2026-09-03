@@ -22,6 +22,7 @@ Include a high level description and a link to the documentation explaining the 
 * New parameter `--keep-ha` for CLI command `onezone serversync`, which keeps local [RAFT configuration]({{% relref "frontend_ha.md#server-sync-ha" %}})
 * Log HA heartbeat and replication messages at log level 5 [#7977](https://github.com/OpenNebula/one/issues/7977).
 * Option to configure network lease policy for internal Address Ranges. The policy can be set globally in [oned.conf]({{% relref "oned#virtual-networks" %}}).
+* Add support for [OneKS deployments in air-gapped environments]({{% relref "platform_services/oneks/management/configuration/#air-gapped-environments" %}}) by allowing appliance auto-import to be disabled and manually imported appliances to be discovered [#7984](https://github.com/OpenNebula/one/issues/7984).
 * Extend Network PCI physical functions (PF) card control with link state management and flags in switchdev mode.
 * Extend link state management for network Physical Functions when using Virtual Functions as PCI network interfaces.
 
@@ -54,7 +55,6 @@ The following issues have been solved in 7.4.1:
 * Fix parsing of internal Address Range, it will fail to create the network [#7974](https://github.com/OpenNebula/one/issues/7974)
 * Fix backup retry after failure for Ceph storage [#7937](https://github.com/OpenNebula/one/issues/7937)
 * Fix `vip.sh` return code, make the script more robust [#7980](https://github.com/OpenNebula/one/issues/7980)
-* Fix OneKS deployments in air-gapped environments by allowing appliance auto-import to be disabled and manually imported appliances to be discovered [#7984](https://github.com/OpenNebula/one/issues/7984).
 * Fix false `POWEROFF` or `UNKNOWN` state after VM deploy [#7975](https://github.com/OpenNebula/one/issues/7975)
 * Fix `one.image.restore` reporting success if authorization fails [#7991](https://github.com/OpenNebula/one/issues/7991)
 * Fix `one.group.update`, `one.group.addadmin` and `one.group.deladmin` authorization levels [#7987](https://github.com/OpenNebula/one/issues/7987)
@@ -91,3 +91,4 @@ The following issues have been solved in 7.4.1:
 * Fix VM template instantiation when an SSH public key follows `$USER[SSH_PUBLIC_KEY]` on a new line [#7517](https://github.com/OpenNebula/one/issues/7517).
 * Fix OVS access mode VLAN [#8028]https://github.com/OpenNebula/one/issues/8028.
 * Fix OVS update when unsetting MTU [#8033](https://github.com/OpenNebula/one/issues/8033).
+* Fix OneKS cluster deployment to use the configured datastore [#8012](https://github.com/OpenNebula/one/issues/8012).
