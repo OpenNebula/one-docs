@@ -1,5 +1,22 @@
 {{- $id := .Get "id" -}}
 {{- $title := .Get "title" -}}
+{{- $thumbnailURL := printf "https://i.ytimg.com/vi/%s/hqdefault.jpg" $id -}}
+{{- $thumbnailWidth := "" -}}
+{{- $thumbnailHeight := "" -}}
+{{- with .Get "thumbnail" -}}
+  {{- $thumbnailPath := strings.TrimPrefix "/" . -}}
+  {{- if not (strings.Contains $thumbnailPath "/") -}}
+    {{- $thumbnailPath = printf "images/screencasts/%s" $thumbnailPath -}}
+  {{- end -}}
+  {{- with resources.Get $thumbnailPath -}}
+    {{- $thumbnail := .Process "resize 720x webp q82" -}}
+    {{- $thumbnailURL = $thumbnail.RelPermalink -}}
+    {{- $thumbnailWidth = $thumbnail.Width -}}
+    {{- $thumbnailHeight = $thumbnail.Height -}}
+  {{- else -}}
+    {{- errorf "screencast shortcode could not find assets/%s (%s)" $thumbnailPath $.Position -}}
+  {{- end -}}
+{{- end -}}
 <article class="screencast-card">
   <div class="screencast-card__video">
     <a
@@ -12,8 +29,10 @@
       aria-label="Play {{ $title }}">
       <img
         class="screencast-card__thumbnail"
-        src="https://i.ytimg.com/vi/{{ $id }}/hqdefault.jpg"
+        src="{{ $thumbnailURL }}"
         alt=""
+        {{- with $thumbnailWidth }} width="{{ . }}"{{ end }}
+        {{- with $thumbnailHeight }} height="{{ . }}"{{ end }}
         loading="lazy"
         decoding="async">
     </a>
