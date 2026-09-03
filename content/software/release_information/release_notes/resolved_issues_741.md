@@ -86,5 +86,6 @@ The following issues have been solved in 7.4.1:
 * Fix stale symlink after TM_MAD=shared persistent disk detach [#8000](https://github.com/OpenNebula/one/issues/8000).
 * Fix the Add NIC form to include the DNS field [#7916](https://github.com/OpenNebula/one/issues/7916).
 * Fix ovirtAPI issue with truncated disk UUIDs [#7965](https://github.com/OpenNebula/one/issues/7965).
+* Fix VM template instantiation when an SSH public key follows `$USER[SSH_PUBLIC_KEY]` on a new line [#7517](https://github.com/OpenNebula/one/issues/7517).
 * Fix OVS access mode VLAN [#8028]https://github.com/OpenNebula/one/issues/8028.
 * Fix OVS update when unsetting MTU [#8033](https://github.com/OpenNebula/one/issues/8033).
