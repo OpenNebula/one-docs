@@ -1,6 +1,6 @@
 ---
-title: OpenNebula NVIDIA Fabric Manager (AF)
-linkTitle: NVIDIA Fabric Manager (AF)
+title: OpenNebula NVIDIA Fabric Manager (AI)
+linkTitle: NVIDIA Fabric Manager (AI)
 weight: 10
 tags: ['AI','NVIDIA']
 ---

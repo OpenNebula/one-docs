@@ -20,7 +20,7 @@ This follows a well-established enterprise open source model adopted by companie
 The OpenNebula documentation uses the following suffixes to indicate the subscription under which a capability is commercially supported:
 
 * **EE** — Capability supported under the **Enterprise Subscription**
-* **AF** — Capability supported under the **AI Factory Subscription**
+* **AI** — Capability supported under the **AI Factory Subscription**
 
 These suffixes do not represent different software editions, source code bases, or licensing models. They simply identify the subscription that provides the corresponding maintenance, lifecycle, and support services.
 
@@ -45,7 +45,7 @@ Enterprise Subscription customers receive:
 
 The AI Factory Subscription follows the same software model and uses the same OpenNebula source code base.
 
-It includes all Enterprise Subscription benefits together with specialized maintenance and support for AI infrastructure capabilities identified throughout the documentation with the **AF** suffix.
+It includes all Enterprise Subscription benefits together with specialized maintenance and support for AI infrastructure capabilities identified throughout the documentation with the **AI** suffix.
 
 AI Factory Subscription customers receive:
 

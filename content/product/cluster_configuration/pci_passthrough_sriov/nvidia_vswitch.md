@@ -1,6 +1,6 @@
 ---
-title: "NVIDIA NVSwitch (AF)"
-linkTitle: "NVIDIA NVSwitch (AF) "
+title: "NVIDIA NVSwitch (AI)"
+linkTitle: "NVIDIA NVSwitch (AI) "
 date: "2026-07-09"
 description:
 categories:
