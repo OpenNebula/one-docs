@@ -3,6 +3,7 @@
 {{- $isLatestStable := eq $version .Site.Params.latest_stable_version -}}
 {{- $whatsNewURL := "software/release_information/release_notes/whats_new/" | relURL -}}
 {{- $releaseNotesURL := "software/release_information/release_notes/" | relURL -}}
+{{- $getStartedURL := "getting_started/install_opennebula/evaluation/" | relURL -}}
 {{- with .Site.GetPage "software/release_information/release_notes/whats_new" -}}
   {{- $whatsNewURL = .RelPermalink -}}
 {{- end -}}
@@ -35,18 +36,29 @@
       <p class="docs-home-banner__description">
         What's new? Everything. Explore the latest features, updates, and release notes — all in one place.
       </p>
+    {{- else -}}
+      <p class="docs-home-banner__description">
+        The Open Platform for Sovereign Cloud Infrastructure
+      </p>
     {{- end }}
     <div class="docs-home-banner__actions">
-      <a class="docs-home-banner__button" href="{{ if $isLatestStable }}{{ $whatsNewURL }}{{ else }}{{ $releaseNotesURL }}{{ end }}">
+      <a class="docs-home-banner__button" href="{{ if $isLatestStable }}{{ $whatsNewURL }}{{ else }}{{ $getStartedURL }}{{ end }}">
         {{ if $isLatestStable -}}
           See what's new in OpenNebula {{ $version }}
         {{- else -}}
-          Read the OpenNebula {{ $version }} release notes
+          Get Started with OpenNebula {{ $version }}
         {{- end }}
       </a>
       {{ if $isLatestStable -}}
+        <a class="docs-home-banner__link" href="{{ $getStartedURL }}">
+          <span>Try OpenNebula {{ $version }}</span>
+          <svg class="docs-home-banner__arrow" viewBox="0 0 20 12" aria-hidden="true" focusable="false">
+            <path d="M1 6h17M13 1l5 5-5 5"></path>
+          </svg>
+        </a>
+      {{- else -}}
         <a class="docs-home-banner__link" href="{{ $releaseNotesURL }}">
-          <span>Read the release notes</span>
+          <span>See the release notes</span>
           <svg class="docs-home-banner__arrow" viewBox="0 0 20 12" aria-hidden="true" focusable="false">
             <path d="M1 6h17M13 1l5 5-5 5"></path>
           </svg>

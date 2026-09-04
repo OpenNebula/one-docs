@@ -94,7 +94,7 @@ Make the `minione` script executable:
 chmod +x minione
 ```
 
-Now run the installation script, choosing one of the following options as appropriate:
+Now run the installation script, choosing one (or more) of the following options as appropriate:
 
   * **Front-end only**:
 
@@ -111,6 +111,14 @@ Now run the installation script, choosing one of the following options as approp
 
     ```bash
     ./minione --lxc
+    ```
+
+  * **Enterprise subscription customers**:
+
+    If you have an [Enterprise Subscription]({{% relref "software/release_information/release_notes/subscriptions/" %}}), use the `--enterprise` option to ensure you install the latest OpenNebula packages including the maintenance releases:
+
+    ```bash
+    ./minione --enterprise <token>
     ```
 
 
