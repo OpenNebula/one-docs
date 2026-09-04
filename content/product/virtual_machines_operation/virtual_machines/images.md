@@ -344,11 +344,13 @@ Existing Images can be cloned to a new one. This is useful to make a backup of a
 $ oneimage clone Ubuntu new_image
 ```
 
-You can optionally clone the Image to a different Datastore. The new Datastore **must use the same DS_MAD driver**.
+You can optionally clone the Image to a different Datastore:
 
 ```default
 $ oneimage clone Ubuntu new_image --datastore new_img_ds
 ```
+
+The source and destination Image Datastores can use different storage drivers. All Image Datastore drivers in the [storage portfolio]({{% relref "/product/cluster_configuration/storage_system/overview/#storage-portfolio" %}}), except VirtioFS, support cross-driver Image cloning.
 
 ### Sharing Images with other Users
 

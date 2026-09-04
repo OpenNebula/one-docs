@@ -98,9 +98,9 @@ The `import` action is an special action that involves two driver calls chained 
 
 The job of the export is to:
 
-* Calculate the `MD5`, `FORMAT`, `SIZE`.
-* Generate an `IMPORT_SOURCE` so the `<market_mad>/import` can do the image => market dump.
-* Specify `DISPOSE="YES"` and `DISPOSE_CMD`  if the `IMPORT_SOURCE` is a temporary file that must be removed after the dump performed by `<market_mad>/import`. `DISPOSE="NO"` if otherwise.
+* Return the required `FORMAT` and `SIZE` and, when available, the `MD5` or `SHA1` checksum.
+* Generate an `IMPORT_SOURCE` so the `<market_mad>/import` can copy the Image into the Marketplace.
+* Return an opaque `DISPOSE_DATA` value if the export creates temporary resources. The Datastore driver's `dispose_export` action receives this value after the Marketplace import finishes, whether it succeeds or fails.
 
 **ARGUMENTS**
 
@@ -113,12 +113,16 @@ It should return an XML document:
 ```default
 <IMPORT_INFO>
     <IMPORT_SOURCE>$IMPORT_SOURCE</IMPORT_SOURCE>
-    <MD5>$MD5_SUM</MD5>
-    <SIZE>$SIZE</SIZE>
     <FORMAT>$FORMAT</FORMAT>
-    <DISPOSE>NO</DISPOSE>
-</IMPORT_INFO>"
+    <SIZE>$SIZE</SIZE>
+    <MD5>$MD5_SUM</MD5>
+    <DISPOSE_DATA>$DRIVER_SPECIFIC_DATA</DISPOSE_DATA>
+</IMPORT_INFO>
 ```
+
+`MD5`, `SHA1`, and `DISPOSE_DATA` are optional. If `DISPOSE_DATA` is present, the same Datastore driver must implement an idempotent `dispose_export` action. See the [`IMPORT_INFO` structure and Datastore export operations]({{% relref "sd#sd-export" %}}) for details.
+
+The legacy `DISPOSE` and `DISPOSE_CMD` fields remain supported for existing Marketplace integrations. New Datastore drivers should use `DISPOSE_DATA` and `dispose_export` instead.
 
 `<market_mad>/import`:
 
