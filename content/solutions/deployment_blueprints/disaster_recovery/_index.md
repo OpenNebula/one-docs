@@ -2,8 +2,8 @@
 title: "Disaster Recovery: Deployment Blueprint"
 linkTitle: "Disaster Recovery"
 date: 2025-06-30
-description: "Guide for configuring Disaster Recovery based on ceph mirroring."
+description: "Guides for configuring Disaster Recovery with OpenNebula."
 categories: ["Disaster Recovery"]
-tags: [OneDR, 'OpenNebula DR', 'ceph mirroring']
-weight: 1
+tags: [OneDR, 'OpenNebula DR']
+weight: 2
 ---
