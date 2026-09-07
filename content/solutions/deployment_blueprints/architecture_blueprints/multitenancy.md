@@ -1,5 +1,5 @@
 ---
-title: "Multitenancy"
-linkTitle: "Multitenancy"
+title: "Multi-Tenancy"
+linkTitle: "Multi-Tenancy"
 weight: 2
 ---
