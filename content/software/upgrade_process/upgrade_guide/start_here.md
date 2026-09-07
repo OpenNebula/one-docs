@@ -34,6 +34,10 @@ ERROR: Configurations metadata are outdated.
 ```
 {{< /alert >}}
 
+{{< alert title="Note" type="info" >}}
+Maintenance releases (`X.Y.Z`) usually do not change the configuration files, so `onecfg upgrade` simply confirms that the configuration is up to date. **OpenNebula 7.4.1 is an exception**: it ships `onecfg` migrators from 7.4.0 to 7.4.1, and `onecfg upgrade` must be run to migrate the configuration to the new version. See [Step 7 of the upgrade guide]({{% relref "upgrading_single#step-7-update-configuration-files" %}}) for details.
+{{< /alert >}}
+
 <a id="upgrade-guides"></a>
 
 ## Upgrade OpenNebula

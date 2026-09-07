@@ -5,6 +5,12 @@ date: "2026-10-01"
 
 A complete list of solved issues for 7.4.1 are listed in the [project development portal](https://github.com/OpenNebula/one/milestone/94).
 
+## Upgrading to 7.4.1
+
+{{< alert title="Important" type="warning" >}}
+Unlike most maintenance releases, OpenNebula 7.4.1 includes changes to the stock configuration files and ships `onecfg` migrators from 7.4.0 to 7.4.1. After upgrading the packages you **must run `onecfg upgrade`** on the Front-end to migrate your configuration, as described in the [upgrade guide]({{% relref "software/upgrade_process/upgrade_guide/upgrading_single#step-7-update-configuration-files" %}}).
+{{< /alert >}}
+
 ## Backported Issues
 
 The following new features have been backported to 7.4.1:
