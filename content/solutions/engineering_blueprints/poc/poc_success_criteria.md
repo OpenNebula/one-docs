@@ -1,6 +1,6 @@
 ---
-title: "PoC Success Criteria"
-linkTitle: "PoC Success Criteria"
+title: "Success Criteria"
+linkTitle: "Success Criteria"
 description: "Recommended success criteria for an OpenNebula Proof of Concept."
-weight: 2
+weight: 3
 ---

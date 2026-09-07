@@ -1,6 +1,6 @@
 ---
-title: "DR with NetApp"
-linkTitle: "DR with NetApp"
+title: "NetApp"
+linkTitle: "NetApp"
 description: "Disaster Recovery guide for OpenNebula with NetApp."
 weight: 3
 ---

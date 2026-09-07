@@ -1,6 +1,6 @@
 ---
-title: "DR with Veeam"
-linkTitle: "DR with Veeam"
+title: "Veeam"
+linkTitle: "Veeam"
 description: "Disaster Recovery guide for OpenNebula with Veeam."
 weight: 4
 ---
