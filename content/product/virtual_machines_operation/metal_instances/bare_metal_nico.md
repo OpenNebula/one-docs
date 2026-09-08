@@ -9,10 +9,6 @@ tags: ['AI']
 
 <a id="bare_metal_nico"></a>
 
-{{< alert title="Work In Progress" type="primary" >}}
-The OpenNebula NVIDIA NICo integration is still under development. This guide currently serves as a proof of concept. Please contact the [OpenNebula sales and customer support team](https://opennebula.io/contact/) if you would like to arrange a demonstration.
-{{< /alert >}} 
-
 This guide describes how to integrate an existing OpenNebula cloud with the [NVIDIA Infra Controller (NICo)](https://docs.nvidia.com/infra-controller/documentation/home) to offer basic multi-tenant Bare Metal as a Service. OpenNebula represents each NICo allocation as a Host and uses the NICohttp://localhost:1313/7.4/ [Virtual Machine Manager (VMM)]({{% relref "product/integration_references/infrastructure_drivers_development/devel-vmm/" %}}) and [Information Manager (IM)]({{% relref "product/integration_references/infrastructure_drivers_development/devel-im/" %}}) drivers to create, monitor, and delete bare-metal instances through the [NICo REST API](https://docs.nvidia.com/infra-controller/rest-api-reference/getting-started).
 
 This integration is intended for environments where OpenNebula provides cloud management, user, group, quota, and template controls, while NICo provides the bare-metal capacity and lifecycle operations for each instance.
