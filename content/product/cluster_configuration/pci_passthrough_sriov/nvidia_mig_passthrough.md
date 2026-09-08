@@ -9,9 +9,7 @@ tags: ['AI','NVIDIA']
 weight: "6"
 ---
 
-## NVIDIA vGPU and MIG-backed vGPU
-
-### Overview
+## Overview
 
 NVIDIA vGPU enables multiple Virtual Machines to share the resources of a physical GPU by exposing one or more virtual GPU (vGPU) profiles that can be independently assigned to guest operating systems.
 
