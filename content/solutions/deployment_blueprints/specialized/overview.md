@@ -1,7 +1,7 @@
 ---
-title: "Disaster Recovery Architecture with Veeam"
-linkTitle: "Veeam"
-weight: 4
+title: "Specialized Enterprise Cloud Blueprints Overview"
+linkTitle: "Overview"
+weight: 1
 ---
 
 {{< alert title="Work In Progress" type="primary" >}}

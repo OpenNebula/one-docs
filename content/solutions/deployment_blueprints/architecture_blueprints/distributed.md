@@ -1,7 +1,7 @@
 ---
-title: "Disaster Recovery Architecture with Veeam"
-linkTitle: "Veeam"
-weight: 4
+title: "Designing Distributed Enterprise Cloud Infrastructures"
+linkTitle: "Distributed Cloud"
+weight: 3
 ---
 
 {{< alert title="Work In Progress" type="primary" >}}
