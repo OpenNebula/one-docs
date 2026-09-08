@@ -71,7 +71,7 @@ The PCI passthrough documentation is organized into the following guides:
 | [NVIDIA Grace Platforms]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_grace_platform/" %}}) | Configure NVIDIA GPUs for passthrough on Grace Hopper and Grace Blackwell platforms. |
 | [AMD GPU Passthrough]({{% relref "product/cluster_configuration/pci_passthrough_sriov/amd_gpu_passthrough/" %}}) | Configure AMD GPUs for passthrough. | 
 | [Axelera GPU Passthrough]({{% relref "product/cluster_configuration/pci_passthrough_sriov/axelera_gpu_passthrough/" %}}) | Configure Axelera GPUs for passthrough. | 
-| [NVIDIA Fabric Manager]({{% relref "product/cluster_configuration/pci_passthrough_sriov/one_fabricmanager/" %}}) | Configure NVIDIA Fabric Manager for supported GPU platforms. |
+| [NVIDIA Fabric Manager (AI)]({{% relref "product/cluster_configuration/pci_passthrough_sriov/one_fabricmanager/" %}}) | Configure NVIDIA Fabric Manager for supported GPU platforms. |
 
 ## Next Steps
 
