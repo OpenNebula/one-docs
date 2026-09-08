@@ -9,7 +9,6 @@ tags: ['AI','NVIDIA']
 weight: "7"
 ---
 
-
 {{< alert title="NVIDIA-Certified Hypervisor" color="primary" >}}
 OpenNebula is an [**NVIDIA-Certified Hypervisor**](https://docs.nvidia.com/certification-programs/certified-hypervisors/latest/nvidia-certified-hypervisors.html) for the Grace Blackwell platform. This certification validates that OpenNebula correctly exposes NVIDIA GPUs and associated PCIe resources to Virtual Machines while preserving the topology, high-performance data paths, and near bare-metal performance required for accelerated AI and compute workloads. For users deploying NVIDIA Grace Blackwell infrastructure, this ensures that OpenNebula has been tested against NVIDIA-defined requirements for running GPU-accelerated workloads in virtualized environments.{{< /alert >}}
 
