@@ -9,8 +9,6 @@ tags: ['AI','NVIDIA']
 weight: "9"
 ---
 
-{{< alert title="Work In Progress" type="primary" >}} GPU passthrough functionality for Axelera GPUs is currently under active development. If you would like to discuss a demonstration, please contact the [OpenNebula sales and customer support team](https://opennebula.io/contact/).{{< /alert >}}
-
 ## Overview
 
 This guide describes how to assign an Axelera Metis AI Processing Unit (AIPU) directly to an OpenNebula Virtual Machine using PCI passthrough. The device is exclusively owned by the guest while the Virtual Machine is running; the Axelera driver and Voyager SDK are therefore installed in the guest, not on the Host.
