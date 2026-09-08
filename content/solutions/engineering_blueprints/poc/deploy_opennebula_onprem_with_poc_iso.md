@@ -1,5 +1,5 @@
 ---
-title: "ISO-based Deployment"
+title: "Deploying an OpenNebula Proof of Concept Using the ISO Image"
 linkTitle: "ISO-based Deployment"
 description:
 weight: 4

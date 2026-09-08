@@ -5,9 +5,10 @@ weight: 1
 ---
 This subsection outlines specific, real-world deployment types, addressing the most common use cases in cloud computing. Each case includes architectural blueprints and deployment guidelines. Examples are:
 
-- AI Factories and GPU-based Clouds
+- Enterprise Cloud Architectures
 - Disaster Recovery Infrastructure
-- Telco Edge Infrastructure
+- AI Factories and GPU-based Clouds
+
 
 <br>
 

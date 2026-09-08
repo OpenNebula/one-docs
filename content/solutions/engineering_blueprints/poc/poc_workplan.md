@@ -1,6 +1,5 @@
 ---
-title: "Workplan"
+title: "Proof of Concept Workplan and Execution Guide"
 linkTitle: "Workplan"
-description: "Recommended workplan for an OpenNebula Proof of Concept."
 weight: 2
 ---

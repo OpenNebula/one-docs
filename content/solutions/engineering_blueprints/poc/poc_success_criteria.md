@@ -1,6 +1,5 @@
 ---
-title: "Success Criteria"
+title: "Proof of Concept Success Criteria and Acceptance Tests"
 linkTitle: "Success Criteria"
-description: "Recommended success criteria for an OpenNebula Proof of Concept."
 weight: 3
 ---
