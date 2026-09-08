@@ -1,7 +1,6 @@
 ---
-title: "Ceph"
+title: "Disaster Recovery Architecture with Ceph"
 linkTitle: "Ceph"
-description: "Complete guide for configuring Disaster Recovery with OpenNebula and Ceph RBD mirroring."
 weight: 2
 ---
 

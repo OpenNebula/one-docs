@@ -1,5 +1,5 @@
 ---
-title: "Disaster Recovery: Deployment Blueprint"
+title: "Disaster Recovery: Deployment Blueprints"
 linkTitle: "Disaster Recovery"
 date: 2025-06-30
 description: "Guides for configuring Disaster Recovery with OpenNebula."

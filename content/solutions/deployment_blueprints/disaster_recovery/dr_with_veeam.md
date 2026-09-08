@@ -1,6 +1,9 @@
 ---
-title: "Veeam"
+title: "Disaster Recovery Architecture with Veeam"
 linkTitle: "Veeam"
-description: "Disaster Recovery guide for OpenNebula with Veeam."
 weight: 4
 ---
+
+{{< alert title="Work In Progress" type="primary" >}}
+This document is a work in progress.
+{{< /alert >}} 
