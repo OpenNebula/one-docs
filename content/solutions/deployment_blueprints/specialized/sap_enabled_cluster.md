@@ -12,7 +12,7 @@ Although the initial setup may appear complex, the validated configuration can b
 
 Virtual Machines are instantiated based upon reusable VM Templates (similar to SAP flavors), while Host-level optimizations are managed as part of the hypervisor Cluster configuration. For the few libvirt options that are not exposed natively, OpenNebula allows controlled injection of custom libvirt XML through its RAW attribute.
 
-| Requirement | OpenNebula support | Configuration Location | Recommended implementation |
+| **Requirement** | **OpenNebula support** | **Configuration location** | **Recommended implementation** |
 | ----- | :---: | :---: | ----- |
 | VT-x/AMD-V and BIOS virtualization | Yes | Host HW  | Configure and validate during Host provisioning |
 | KVM/libvirt packages and modules | Yes | Host OS  | Installed through the OpenNebula KVM node packages or Host automation |
