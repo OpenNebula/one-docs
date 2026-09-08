@@ -1,8 +1,8 @@
 ---
-title: "Deploy OpenNebula On-prem with an ISO"
-linkTitle: "ISO Deployment"
+title: "Deploying an OpenNebula Proof of Concept Using the ISO Image"
+linkTitle: "ISO-based Deployment"
 description:
-weight: 3
+weight: 4
 ---
 
 ## Introduction

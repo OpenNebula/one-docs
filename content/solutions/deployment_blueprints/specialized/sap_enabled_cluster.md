@@ -1,5 +1,5 @@
 ---
-title: "SAP-enabled Cluster"
+title: "Designing an SAP-enabled Enterprise Cloud Cluster"
 linkTitle: "SAP-enabled Cluster"
 weight: 3
 ---

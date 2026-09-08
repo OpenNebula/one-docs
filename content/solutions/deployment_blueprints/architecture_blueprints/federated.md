@@ -1,6 +1,6 @@
 ---
-title: "Disaster Recovery Architecture with Veeam"
-linkTitle: "Veeam"
+title: "Designing Federated Enterprise Cloud Infrastructures"
+linkTitle: "Federated Cloud"
 weight: 4
 ---
 
