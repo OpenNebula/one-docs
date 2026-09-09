@@ -22,16 +22,11 @@ The installation commands below reproduce a validated environment using Ubuntu 2
 Before continuing, verify that:
 
 * The Metis AIPU is installed and visible on the Host.
-* [IOMMU]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/#step-2-enable-the-iommu" %}}) and [VFIO]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/#step-3-configure-vfio-device-binding" %}}) are configured on the Host.
-* The OpenNebula [PCI monitoring probe is configured]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/#step-5-configure-pci-monitoring" %}}).
-* The guest uses Ubuntu 22.04 or Ubuntu 24.04 and has Internet access.
-* The guest disk has at least 30 GB of capacity.
-* The VM CPU model is `host-passthrough`.
-* The VM **does not use** a Q35 machine type.
-
-{{< alert title="Important" type="warning" >}}
-The Voyager SDK operator build requires CPU features exposed by `host-passthrough`. With a generic CPU model, `make operators` can fail because NumPy requires the x86-64-v2 (`X86_V2`) instruction baseline. In the validated environment, the operator build also failed with a Q35 machine type. Leave the `OS/MACHINE` attribute unset so OpenNebula uses its default machine type.
-{{< /alert >}}
+* [IOMMU]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/#step-1-enable-the-iommu" %}}) and [VFIO]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/#step-2-configure-vfio-device-binding" %}}) are configured on the Host.
+* The OpenNebula [PCI monitoring probe is configured]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/#step-4-configure-pci-monitoring" %}}).
+* An Ubuntu 22.04 or Ubuntu 24.04 Image is available.
+* The Virtual Machine disk has at least 30 GB of capacity. The selected datastore must have enough capacity to provision this disk.
+* The network selected for the Virtual Machine provides Internet access.
 
 ## Configure the Host
 
@@ -155,7 +150,7 @@ PCI = [
 Repeat the `PCI` section to assign multiple Metis devices to the same Virtual Machine.
 
 {{< alert title="Important" type="warning" >}}
-Do not add a Q35 value to `OS/MACHINE`. Use the OpenNebula default machine type for this configuration.
+The Voyager SDK operator build requires CPU features exposed by `host-passthrough`. With a generic CPU model, `make operators` can fail because NumPy requires the x86-64-v2 (`X86_V2`) instruction baseline. In the validated environment, the operator build also failed with a Q35 machine type. Leave the `OS/MACHINE` attribute unset so OpenNebula uses its default machine type.
 {{< /alert >}}
 
 ## Configure the Guest
