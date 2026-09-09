@@ -5,6 +5,10 @@ description:
 weight: 4
 ---
 
+{{< alert title="Work In Progress" type="primary" >}}
+This document is a work in progress.
+{{< /alert >}} 
+
 ## Introduction
 
 OpenNebula provides an ISO image for rapid deployment of an OpenNebula Front-end or processing node. The ISO installs a pre-configured deployment of OpenNebula Enterprise Edition running on a minimal installation of AlmaLinux 9. The ISO image can be flashed to bootable, removable media (such as a USB disk) for local installation or mapped via IPMI Virtual Media for remote hardware management.
