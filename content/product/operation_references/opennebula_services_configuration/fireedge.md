@@ -98,6 +98,7 @@ After a configuration change the FireEdge server must be [restarted]({{% relref 
 | `use_extended_vmpool`  | `true`                                  | True to use the extended information fetch for vm pools      |
 | `currentTimeZone`      |                                         | Time Zone                                                    |
 | `rowStyle`             | `card`                                  | Changes the style of rows in tables. Values can be `card` or `list`. |
+| `dateFormat`           | `dd/MM/yyyy`                            | Date display format (Luxon tokens). The time is always HH:mm:ss. |
 
 Once the server is initialized, it creates the file `/var/lib/one/.one/fireedge_key`, used to encrypt communication with Guacd.
 

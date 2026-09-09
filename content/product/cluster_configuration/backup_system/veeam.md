@@ -156,6 +156,7 @@ The configuration file can be found at `/etc/one/ovirtapi-server.yml`. Change th
 In the same configuration file, configure the OneBEX port and the port range reserved for interactive restores:
 
 * `onebex_port`: Port where OneBEX listens on the hypervisors. It must match the port configured in `onebex-server.conf`.
+* `onebex_port_ssl`: Alternative port used for SSL. Optional, but recommended for secure Image Transfers. If used, it is mandatory to follow section 4.1 to enable this feature in the hosts. The recommended port is 13015. 
 * `port_min` and `port_max`: Range of available ports reserved for interactive restores.
 * `ports_path`: File where the oVirtAPI Server tracks ports used for interactive restores.
 
@@ -178,6 +179,74 @@ dnf install -y passenger mod_passenger mod_ssl
 If the ovirtapi module is going to be configured in High Availability mode, the ovirtapi package needs to be installed and configured in all frontends. Additionally, the `public_ip` must be the VIP address, which is also the one we will use when adding OpenNebula as a Virtualization Platform in Veeam. 
 
 {{< /alert >}}
+
+#### 4.1 Configuring SSL in the Hosts
+
+If using SSL, an NGINX proxy needs to be setup on all hosts. If an Image Transfer is attempted by Veeam against a non-configured host while the `onebex_port_ssl` variable is defined, the backup will fail.
+
+First, you will need to create a certificate for the host. This certificate needs to be signed by the CA authority used by the ovirtAPI server (defined as `cert_path` in the configuration file.). To make this task easier, a script is provided at `/usr/lib/one/ovirtapi-server/scripts/generate_certificate.sh`. You can run it with:
+
+```shell
+./generate_certs.sh -n <hostname> -c <ca-certificate> -k <ca-key> -C <destination-host-cert> -K <destination-host-key>
+```
+
+After generating the certificate, copy it to the respective host. We recommend storing it in `/etc/one`.
+
+Then, you will need to install nginx on the host.
+
+```shell
+apt install nginx # Ubuntu/Debian
+dnf install nginx # Rhel/Alma
+```
+
+Depending on the distribution, you will need to create the configuration file on a different location:
+
+```shell
+/etc/nginx/sites-enabled/one-ssl.conf   # Ubuntu/Debian
+/etc/nginx/conf.d/one-ssl.conf          # Rhel/Alma
+```
+
+The configuration file must look like the following. Change the `ssl_certificate` and `ssl_certificate_key` paths to the ones you generated for this host. If you used a different port than 13015 in the ovirtapi configuration for SSL, make sure to change it in this configuration too. 
+
+```conf
+server {
+    listen 13015 ssl;
+    listen [::]:13015 ssl;
+    server_name _;
+
+    # TLS Certificates
+    ssl_certificate /etc/one/ovirtapi-ssl.crt;
+    ssl_certificate_key /etc/one/ovirtapi-ssl.key;
+
+    # Secure TLS Defaults
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    # Crucial for large disk transfers
+    client_max_body_size 0;
+    proxy_request_buffering off;
+    proxy_buffering off;
+
+    # Extended timeouts for large images
+    proxy_read_timeout 3600s;
+    proxy_send_timeout 3600s;
+    client_body_timeout 3600s;
+
+    location / {
+        proxy_pass http://127.0.0.1:13014;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+    }
+}
+```
+
+Finally, start/restart nginx to load the configuration file. You will need to repeat this workflow for each host. 
 
 ### 5. Add OpenNebula to Veeam
 

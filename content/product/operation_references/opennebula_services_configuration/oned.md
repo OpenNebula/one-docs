@@ -227,6 +227,7 @@ For showback the CPU and memory cost are counted if the resource is reserved on 
 
 - `NETWORK_SIZE`: Here you can define the default size for the Virtual Networks.
 - `MAC_PREFIX`: Default MAC prefix to be used to create the auto-generated MAC addresses. (This can be overwritten by the Virtual Network template.)
+- `REUSE_ADDRESS`: Controls the default lease allocation policy for internal Address Ranges. If set to `NO`, OpenNebula allocates leases in round-robin order. If set to `YES`, OpenNebula reuses the first available lease. Defaults to `NO`.
 - `MAC_GLOBAL_SPACE`: Enables global MAC address space generation mode. When set to `YES`, generated MAC addresses are allocated from a global pool to prevent collisions across Virtual Networks. The default value is `NO`. This mode does not apply to IP networks and limits the generated global space to `2^20` Virtual Networks and up to `2^20` leases per Virtual Network.
 - `VLAN_IDS`: VLAN ID pool for the automatic `VLAN_ID` assignment. This pool is for 802.1Q networks (Open vSwitch and 802.1Q drivers). The driver will try first to allocate `VLAN_IDS[START] + VNET_ID`
   - `START`: First `VLAN_ID` to use.
@@ -243,8 +244,9 @@ Sample configuration:
 #*******************************************************************************
 
 NETWORK_SIZE = 254
-
 MAC_PREFIX   = "02:00"
+
+REUSE_ADDRESS = NO
 
 #  MAC_GLOBAL_SPACE: Enable the global MAC address space generation mode.
 #  MAC addresses are generated from a global pool preventing collisions across

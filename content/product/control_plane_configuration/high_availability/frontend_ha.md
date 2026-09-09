@@ -253,7 +253,7 @@ ENDPOINT="http://localhost:2633/RPC2"
 {{< alert title="Note" type="info" >}}
 It may be that the **TERM**/**INDEX**/**COMMIT** does not match (as above). This is not important right now; it will sync automatically when the database is changed.{{< /alert >}} 
 
-* **Follower**: Ensure the new node have the exact same configuration than the **Leader** node. In order to do this [onezone serversync]({{% relref "#server-sync-ha" %}}) can be used to fetch the configuration from the Leader node.
+* **Follower**: Ensure the new node has the exact same configuration as the **Leader** node. In order to do this [onezone serversync](#server-sync-ha) can be used to fetch the configuration from the Leader node.
 
 {{< alert title="Note" type="info" >}}
 If you are using FireEdge you need to restart this service in the **Follower** `systemctl restart opennebula-fireedge`.{{< /alert >}} 
@@ -360,7 +360,7 @@ The Raft algorithm can be tuned by several parameters in the configuration file 
 | `LIMIT_PURGE`          | Number of DB log records that will be deleted on each purge.                                                           |
 | `LOG_RETENTION`        | Number of DB log records kept, it determines the synchronization window across servers and extra storage space needed. |
 | `LOG_PURGE_TIMEOUT`    | How often applied records are purged according the log retention value. (in seconds).                                  |
-| `ELECTION_TIMEOUT_MS`  | Timeout to start an election process if no heartbeat or log is received from the *leader*.                             |
+| `ELECTION_TIMEOUT_MS`  | Timeout to start an election process if no heartbeat or log is received from the *leader*. Can be used to prioritize servers, server with lower value has higher chance to be selected as leader. |
 | `BROADCAST_TIMEOUT_MS` | How often heartbeats are sent to  *followers*.                                                                         |
 | `XMLRPC_TIMEOUT_MS`    | To timeout raft-related API calls. To set an infinite timeout set this value to 0.                                     |
 
@@ -371,7 +371,7 @@ Any change in these parameters can lead to unexpected behavior during the fail-o
 
 ## Synchronize Configuration Files Across Servers
 
-To synchronize files, you can use the command `onezone serversync`. This command is designed to help administrators to sync OpenNebula’s configurations across HA nodes and fix lagging nodes in HA environments. The command first checks for inconsistencies between local and remote configuration files inside the `/etc/one/` directory. If inconsistencies are found, the local version of a file will be replaced by the remote version, and only the affected service will be restarted. Whole configuration files will be replaced, with the sole exception of `/etc/one/oned.conf`. For this file, the local `FEDERATION` configuration will be maintained, but the rest of the content will be overwritten. Before replacing any file, a backup will be made inside `/etc/one/`.
+To synchronize files, you can use the command `onezone serversync`. This command is designed to help administrators to sync OpenNebula’s configurations across HA nodes and fix lagging nodes in HA environments. The command first checks for inconsistencies between local and remote configuration files inside the `/etc/one/` directory. If inconsistencies are found, the local version of a file will be replaced by the remote version, and only the affected service will be restarted. Whole configuration files will be replaced, with the sole exception of `/etc/one/oned.conf`. For this file, the local `FEDERATION` configuration and optionally the `RAFT` configuration will be maintained, but the rest of the content will be overwritten. Before replacing any file, a backup will be made inside `/etc/one/`.
 
 {{< alert title="Warning" type="warning" >}}
 Only use this option between HA nodes, never across federated nodes.{{< /alert >}} 
@@ -401,10 +401,10 @@ Any file inside the above folders that does not exist on the remote server (such
 The command has to be executed under a privileged user `root` (as it modifies the configuration files) and requires passwordless SSH access to the remote OpenNebula Front-end and to remote users `root` or `oneadmin`.{{< /alert >}} 
 
 ```default
-# onezone serversync <remote_opennebula_server> [--db]
+# onezone serversync <remote_opennebula_server> [--db] [--keep-ha]
 ```
 
-where `<remote_opennebula_server>` needs to be replaced by a hostname/IP of the OpenNebula server that will be used to fetch configuration files from. If `--db` option is used, the local database will be synced with the one located on remote server.
+where `<remote_opennebula_server>` needs to be replaced by a hostname/IP of the OpenNebula server that will be used to fetch configuration files from. If `--db` option is used, the local database will be synced with the one located on remote server. If `--keep-ha` is used, the server will keep its own RAFT configuration
 
 You also have to adjust the configuration file of each FireEdge `/etc/one/fireedge-server.conf`, to know which FireEdge corresponds to which zone.
 

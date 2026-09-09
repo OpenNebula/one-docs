@@ -43,6 +43,8 @@ The migrate pattern should be aware of NVRAM existence and properly use --keep-n
 
 ## Veeam Backups
 
+### Worker creation
+
 Worker creation and restores [will fail](https://github.com/OpenNebula/one/issues/7949) if the VM with ID 0 doesn't exist in the database.
 
 It can be fixed by changing the line ~145 in the `/usr/lib/one/ovirtapi-server/controllers/disk_controller.rb` file (located in the oVirtAPI backup server). Then restart the apache2/httpd service.
