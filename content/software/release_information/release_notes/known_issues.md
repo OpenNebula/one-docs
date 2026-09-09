@@ -54,3 +54,37 @@ if backup_mode == 'incremental' && vm_id > 0    # <-- Add this vm_id check
     vm_hash = vm.to_hash
     backup_ids = vm_hash.dig('VM', 'BACKUPS', 'BACKUP_IDS', 'ID')
 ```
+
+### Missing `interactive` Datastore Configuration
+
+The required `interactive` [datastore driver configuration](https://github.com/OpenNebula/one/issues/8074) in `/etc/one/oned.conf`. In this case, Veeam worker deployment can fail with:
+
+```default
+Datastore driver 'interactive' not available
+```
+
+Ensure that the `interactive` driver is included in the `DATASTORE_MAD` driver list under the `-d` option:
+
+```default
+DATASTORE_MAD = [
+    EXECUTABLE = "one_datastore",
+    ARGUMENTS  = "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp,purefa,virtiofs,interactive -s dummy,lvm,shared,ssh,local,ceph,fs_lvm,fs_lvm_ssh,qcow2,netapp,purefa"
+]
+```
+
+The corresponding `DS_MAD_CONF` entry must also be present:
+
+```default
+DS_MAD_CONF = [
+    NAME = "interactive",
+    REQUIRED_ATTRS = "",
+    PERSISTENT_ONLY = "NO",
+    DATASTORE_CAPACITY_CHECK = "NO"
+]
+```
+
+After modifying `/etc/one/oned.conf`, restart OpenNebula:
+
+```shell
+systemctl restart opennebula
+```
