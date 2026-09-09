@@ -1,5 +1,5 @@
 ---
-title: "Resolved Issues in 7.4.1 (EE)"
+title: "Resolved Issues in 7.4.1 (EE + CE)"
 date: "2026-09-09"
 ---
 
