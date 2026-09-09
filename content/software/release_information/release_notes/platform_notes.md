@@ -160,12 +160,6 @@ A single instance of OpenNebula (i.e., a single `oned` process) has been stress-
 
 However, there are several OpenNebula users managing significantly higher numbers of hypervisors (to the order of two thousand) with a single instance. This largely depends, as mentioned, on the storage, networking, and also monitoring configuration.
 
-## Front-end Platform Notes
-
-The following applies to all Front-ends:
-
-* Only **Ruby versions >= 2.0 are supported**.
-
 ## Nodes Platform Notes
 
 The following items apply to all distributions:
