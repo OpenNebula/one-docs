@@ -3,9 +3,10 @@ name: KI update notifier
 on:
   push:
     branches:
-      - one-7.0
+      - one-7.2
+      - one-7.4
     paths:
-      - 'content/software/release_information/release_notes_70/known_issues.md'
+      - 'content/software/release_information/release_notes/known_issues.md'
 
 jobs:
   notify_slack_on_file_update:
@@ -21,7 +22,7 @@ jobs:
         uses: tj-actions/changed-files@v46.0.5
         with:
           files: |
-            content/software/release_information/release_notes_70/known_issues.md
+            content/software/release_information/release_notes/known_issues.md
 
       - name: Prepare Slack message content
         id: slack_message_content
