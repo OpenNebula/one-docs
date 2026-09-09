@@ -32,29 +32,36 @@ This provides the performance benefits of PCI passthrough while preserving the o
 ## Physical Functions and Virtual Functions
 
 Modern network adapters commonly implement Single Root I/O Virtualization (SR-IOV), allowing a single Physical Function (PF) to expose multiple lightweight Virtual Functions (VFs):
-* **Physical Functions**: A Physical Function represents the complete PCI device. Assigning a PF gives a virtual machine exclusive access to the network adapter and all of its capabilities.
-* **Virtual Functions**: A Virtual Function is an independent PCI function created by the Physical Function. Each VF can be assigned independently to a virtual machine while sharing the underlying hardware resources.
+* **Physical Functions (PF)**: A Physical Function represents the complete PCI device. Assigning a PF gives a virtual machine exclusive access to the network adapter and all of its capabilities.
+* **Virtual Functions (VF)**: A Virtual Function is an independent PCI function created by the Physical Function. Each VF can be assigned independently to a virtual machine while sharing the underlying hardware resources.
 
 Virtual Functions are typically used for cloud and NFV deployments because they provide excellent performance while allowing multiple virtual machines to share the same physical adapter.
 
-### Legacy and Switchdev Modes
+### eswitch modes
 
-OpenNebula supports both SR-IOV operating modes.
+OpenNebula supports **Legacy** and **Switchdev** operating modes on the PF eswitch. In each mode, the PF is configured according to the following parameters
 
-* **Legacy Mode**: In Legacy mode, OpenNebula programs the Virtual Function directly. The following attributes are supported:
-    * MAC
-    * VLAN_ID
-    * TRUST
-    * SPOOFCHK
-<br>
+* `MAC`: Administrative MAC address assigned to the VF.
+* `MTU`: Maximum MTU cap for all the VFs. The PF kernel driver might allow the Guest to overcome this cap.
+* `TRUST`: Allows the VF within the Guest to operate in promiscuous mode.
+* `SPOOFCHK`: MAC spoofing filter for the administrative MAC. Separate from the virtual switching spoofing.
 
-    These attributes are applied directly by the network adapter.
+#### Legacy Mode
 
-* **Switchdev Mode**: In Switchdev mode, VF parameters are controlled by Host-side representor interfaces. These representor interfaces are attached to a virtual switch to establish port-level control.
+In Legacy mode, VLAN filtering can only be done with access vlans using the `VLAN_ID` parameter.
 
-    In this mode, only the MAC address is applied directly to the VF interface. All other control parameters are managed by the virtual switch driver associated with the Virtual Network.
+#### Switchdev mode
 
-    OpenNebula automatically configures the representor interface during deployment. Only Open vSwitch is supported for Switchdev mode.
+In Switchdev mode, VF parameters are controlled by Host-side representor interfaces. These representor interfaces are attached to a virtual switch to establish port-level control. Control parameters are managed by the virtual switch driver associated with the Virtual Network. OpenNebula automatically configures the representor interface during deployment. Only Open vSwitch is supported for Switchdev mode. The following parameters are supported
+
+* `VLAN_ID`
+* `VLAN_TAGGED_ID`
+* `CVLANS`
+* `QINQ_TYPE`
+
+
+Note that `TRUST` and `SPOOFCHK` might fail depending on the kernel driver controlling the PF, even if setting them to the state they are currently already at. If the attribute is unsupported (refer to the SmartNIC documentation) then it should be ommited from the Virtual Network configuration, otherwise the whole configuration fails.
+
 
 ## Host Configuration
 
