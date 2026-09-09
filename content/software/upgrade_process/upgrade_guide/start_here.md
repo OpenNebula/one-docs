@@ -23,12 +23,13 @@ OpenNebula 7.0 or newer is distributed with `onecfg` as part of the main server 
 {{< alert title="Important" type="info" >}}
 **For each OpenNebula upgrade (even between minor versions, e.g. 6.10.2 and 6.10.3), configuration files must be processed via `onecfg upgrade`**. If you skip the configuration upgrade step for an OpenNebula upgrade, the tool will lose the current version state and you'll have to handle the files upgrade manually and [reinitialize]({{% relref "../configuration_management_ee/usage" %}}) the configuration version management state.
 
-```default
-$ onecfg upgrade
+```shell
+onecfg upgrade
 FATAL : FAILED - Configuration can't be processed as it looks outdated!
 You must have missed to run 'onecfg update' after previous OpenNebula upgrade.
-
-$ onecfg status
+```
+```shell
+onecfg status
 ...
 ERROR: Configurations metadata are outdated.
 ```
@@ -36,6 +37,8 @@ ERROR: Configurations metadata are outdated.
 
 {{< alert title="Note about 7.4.1" type="info" >}}
 Maintenance releases (`X.Y.Z`) usually do not change the configuration files, so `onecfg upgrade` simply confirms that the configuration is up to date. **OpenNebula 7.4.1 is an exception**: it ships `onecfg` migrators from 7.4.0 to 7.4.1, and `onecfg upgrade` must be run to migrate the configuration to the new version. See [Step 7 of the upgrade guide]({{% relref "upgrading_single#step-7-update-configuration-files" %}}) for details.
+
+To enable some of the Sunstone backported features in 7.4.1, you also need to complete the [configuration update detailed in Resolved Issues 7.4.1]({{% relref "software/release_information/release_notes/resolved_issues_741.md#updating-sunstone-configuration-files" %}}).
 {{< /alert >}}
 
 <a id="upgrade-guides"></a>

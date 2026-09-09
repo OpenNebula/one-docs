@@ -8,7 +8,9 @@ Issues tracked for 7.4.1 are listed in the [project development portal](https://
 ## Upgrading to 7.4.1
 
 {{< alert title="Important" type="warning" >}}
-OpenNebula 7.4.1 includes changes to the stock configuration files and ships `onecfg` migrators from 7.4.0 to 7.4.1. After upgrading the packages, you **must run `onecfg upgrade`** on the Front-end to migrate your configuration, as described in the [upgrade guide]({{% relref "software/upgrade_process/upgrade_guide/upgrading_single#step-7-update-configuration-files" %}}).
+OpenNebula 7.4.1 includes changes to the stock configuration files and ships `onecfg` migrators from 7.4.0 to 7.4.1. After upgrading the packages, you **must run** `onecfg upgrade` on the Front-end command line to migrate your configuration, as described in the [upgrade guide]({{% relref "software/upgrade_process/upgrade_guide/upgrading_single#step-7-update-configuration-files" %}}).
+
+You may also need to update the Sunstone configuration files to expose the Sunstone features backported to 7.4.1, please see the [configuration instructions]({{% relref "software/release_information/release_notes/resolved_issues_741.md#updating-sunstone-configuration-files" %}}) at the end of this document.
 {{< /alert >}}
 
 ## Backported Features
@@ -37,7 +39,7 @@ Include a high-level description and a link to the documentation explaining the 
 
 The following issues have been resolved in 7.4.1:
 
-* Fix Veeam not being able to fetch VM with ID 0 [#7949](https://github.com/OpenNebula/one/issues/7949).
+* Fix Veeam VM creation and restoration failing when VM ID 0 does not exist. [#7949](https://github.com/OpenNebula/one/issues/7949).
 * Fix ARP table updates during HA leader election on RHEL-based distributions [#7935](https://github.com/OpenNebula/one/issues/7935).
 * Fix duplicate attributes in Cluster templates [#7941](https://github.com/OpenNebula/one/issues/7941).
 * Fix the use of PCI NIC devices for `onevm ssh` and `onevm port-forward` commands [#7925](https://github.com/OpenNebula/one/issues/7925).
@@ -63,7 +65,7 @@ The following issues have been resolved in 7.4.1:
 * Fix missing error details when MySQL database initialization fails [#2173](https://github.com/OpenNebula/one/issues/2173).
 * Fix `onedb change-body` removing the `CDATA` enclosure from updated values [#3998](https://github.com/OpenNebula/one/issues/3998).
 * Fix VLAN authorization being required when VLAN values remain unchanged [#7938](https://github.com/OpenNebula/one/issues/7938).
-* Fix `one.vmgroup.add` allowing a VM to join more than one VM Group [#8016](https://github.com/OpenNebula/one/issues/8016).
+* Fix `one.vm.vmgroupadd` allowing a VM to join more than one VM Group [#8016](https://github.com/OpenNebula/one/issues/8016).
 * Fix VM configuration updates when the `CONTEXT` contains an unchanged `FILES_DS` value [#7732](https://github.com/OpenNebula/one/issues/7732).
 * Fix quotes being retained in context file names by the local transfer driver [#8017](https://github.com/OpenNebula/one/issues/8017).
 * Make the VM Template name field read-only in Sunstone [#7951](https://github.com/OpenNebula/one/issues/7951).
@@ -101,17 +103,19 @@ The following issues have been resolved in 7.4.1:
 * Add warning about conflicting OVS VLAN configuration [#7658](https://github.com/OpenNebula/one/issues/7658).
 * Fix PCI device list including devices from all Hosts in attach dialog in Sunstone [#7950](https://github.com/OpenNebula/one/issues/7950).
 * Fix performance degradation from repeated column width calculations in Sunstone [#7946](https://github.com/OpenNebula/one/issues/7946).
-* Fix `FireEdgeToken` generation for FireEdge remote authentication [#7730](https://github.com/OpenNebula/one/issues/7730).
+* Fix `FireEdgetoken` generation for FireEdge remote authentication [#7730](https://github.com/OpenNebula/one/issues/7730).
+
+---
 
 ## Updating Sunstone Configuration Files
 
-After running `onecfg upgrade`, check the following settings to enable the new Sunstone functionality in the intended views. All paths below are relative to `/etc/one/fireedge/`.
+After running `onecfg upgrade`, check the following settings to enable the new Sunstone functionality in the intended views. All paths below are relative to `/etc/one/fireedge/` on the OpenNebula Front-end Host.
 
-Merge these settings into the existing YAML sections, preserving other settings and actions. Do not create duplicate `info-tabs` or `filters` keys. The `*` in a path represents the view directories to update.
+Merge these settings into the existing YAML sections, preserving other settings and actions. Do not create duplicate `info-tabs` or `filters` keys.
 
 ### VM Group Assignment and Command Execution
 
-In `sunstone/views/*/vm-tab.yaml`, enable the VM Group and Exec tabs under `info-tabs`:
+In `sunstone/views/*/vm-tab.yaml`, enable the VM Group and Exec tabs under `info-tabs`. This change should be completed in the `vm-tab.yaml` file found in each of the various view directories found in `sunstone/views`, replacing the wildcard (`*`) in the path accordingly:
 
 ```yaml
 info-tabs:
