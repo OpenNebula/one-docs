@@ -15,6 +15,9 @@ This page will contain the list of new features in OpenNebula 7.6.0.
 ## OpenNebula Core
 - Restricted-attribute configuration can now [protect a complete vector attribute]({{% relref "oned#oned-conf-restricted-attributes-configuration" %}}), such as `DISK`, `NIC`, or `PCI`, without listing each attribute within the vector separately.
 
+## Sunstone
+- Updated multi-step forms from a horizontal to a vertical stepper layout [#8038](https://github.com/OpenNebula/one/issues/8038).
+
 ## API and CLI
 - New parameter `--keep-ha` for CLI command `onezone serversync`, which keeps local [RAFT configuration]({{% relref "frontend_ha.md#server-sync-ha" %}}). Usefull for asymmetric HA deployments.
 
