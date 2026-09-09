@@ -601,3 +601,6 @@ OneBEX uses exporters to expose VM disk data to external backup systems.
 |----------|-----------------|-----------|-------------|
 | `nbd` | File-based `qcow2` disks | Network Block Device | Exposes the backup disk through NBD. OneBEX starts a read-only `qemu-nbd` process and serves the disk export through a Unix socket. |
 | `lvm` | Disks on LVM datastores | Direct block-device reads | Exposes the prepared LVM block device directly. Full backups return the full device extent. Incremental backups use `thin_delta` to return changed extents from LVM thin metadata. |
+
+{{< alert title="Note" type="info" >}}
+The `nbd` exporter reads disk data with the `nbdsh` tool from the `python3-libnbd` package. This package is installed automatically as a dependency of `opennebula-node-kvm` on all supported platforms except SLES 15, where it is not available in the SUSE repositories. To use the `nbd` exporter on SLES 15 hosts, install `python3-libnbd` manually, for example from the openSUSE Leap 15.6 repositories, together with the matching `libnbd0` package. {{< /alert >}}
