@@ -16,20 +16,4 @@ A complete list of [known issues for OpenNebula is maintained here](https://gith
 
 This page will be updated with relevant information about bugs affecting OpenNebula, as well as possible workarounds until a patch is officially published.
 
-## Frontend HA
 
-- [ARP tables are not updated automatically](https://github.com/OpenNebula/one/issues/7920) when a leader is elected in Red Hat Enterprise Linux OS variants.
-
-## Veeam Backups
-
-Worker creation and restores [will fail](https://github.com/OpenNebula/one/issues/7949) if the VM with ID 0 doesn't exist in the database.
-
-It can be fixed by changing the line ~145 in the `/usr/lib/one/ovirtapi-server/controllers/disk_controller.rb` file (located in the oVirtAPI backup server). Then restart the apache2/httpd service.
-
-```
-vm_id = disk_hash['IMAGE']['VM_ID'].to_i
-if backup_mode == 'incremental' && vm_id > 0    # <-- Add this vm_id check
-    vm = VmController.get_one_vms(client, :vm_id => vm_id)
-    vm_hash = vm.to_hash
-    backup_ids = vm_hash.dig('VM', 'BACKUPS', 'BACKUP_IDS', 'ID')
-```
