@@ -41,7 +41,7 @@ Before continuing, verify that:
 * [IOMMU]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/#step-1-enable-the-iommu" %}}) and [VFIO device ownership]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/#vfio-device-ownership" %}}) are configured on the Host.
 * The Host uses QEMU 8.2.2, or another QEMU version verified to expose the required PCIe atomic capabilities, and a Q35 machine type is available.
 * An Ubuntu 24.04 Image with Python 3.12 is available.
-* The Virtual Machine disk has at least 50 GB of capacity for ROCm and PyTorch, or 96 GB when testing vLLM with the 27B FP8 model used in this guide. The selected datastore must have enough capacity to provision this disk.
+* The Virtual Machine disk has at least 200 GB of capacity for ROCm, the Python environments, the 120B MXFP4 model, and operational headroom. The selected datastore must have enough capacity to provision this disk.
 * The network selected for the Virtual Machine provides Internet access.
 
 ## Configure the Host
@@ -454,13 +454,13 @@ The platform must be `RocmPlatform` and the expected AMD GPU name must be displa
 
 ### Serve a Model
 
-The following command downloads and serves the official Qwen3.8-27B FP8 model. The model requires approximately 29 GB of disk space. Use it only on AMD GPUs with native FP8 support and sufficient memory:
+The following command downloads and serves the official `openai/gpt-oss-120b` MXFP4 model. The model requires approximately 65 GB of disk space and at least 80 GB of GPU memory:
 
 ```shell
 sudo install -d -o "$USER" -g "$(id -gn)" /opt/huggingface
 
 HF_HOME=/opt/huggingface \
-/opt/vllm-rocm/bin/vllm serve Qwen/Qwen3.8-27B-FP8 \
+/opt/vllm-rocm/bin/vllm serve openai/gpt-oss-120b \
   --host 127.0.0.1 \
   --port 8000 \
   --dtype bfloat16 \
@@ -484,7 +484,7 @@ After the API server is ready, submit a request from another guest shell:
 curl -s http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{
-    "model": "Qwen/Qwen3.8-27B-FP8",
+    "model": "openai/gpt-oss-120b",
     "messages": [{
       "role": "user",
       "content": "Briefly explain the problem that OpenNebula solves."
@@ -494,29 +494,25 @@ curl -s http://127.0.0.1:8000/v1/chat/completions \
   }' | /opt/vllm-rocm/bin/python -m json.tool
 ```
 
-Abbreviated sample output:
+Abbreviated sample output, with the response text shortened:
 
 ```json
 {
-    "id": "chatcmpl-9c90b06953b77407",
-    "object": "chat.completion",
-    "created": 1788960674,
-    "model": "Qwen/Qwen3.8-27B-FP8",
+    "model": "openai/gpt-oss-120b",
     "choices": [
         {
             "index": 0,
             "message": {
                 "role": "assistant",
-                "content": "We need answer user: \"Briefly explain the problem that OpenNebula solves.\" Need concise. Need final. Explain OpenNebula is open-source cloud management platform; problem: managing heterogeneous virtualized/cloud infrastructures, resources, workloads, multi-tenancy, automation, avoiding manual provisioning, silos, underutilization. Brief.\n</think>\n\nOpenNebula solves the problem of managing complex, heterogeneous virtualized and cloud infrastructure. It provides a unified platform to automate provisioning, orchestrate resources, manage multi-tenancy, and improve utilization across private, public, or hybrid clouds."
+                "content": "**OpenNebula\u2019s core problem:**\u202fHow to turn a collection of physical servers, storage, and networking resources into a reliable, easy\u2011to\u2011manage, on\u2011demand cloud that can serve many users and workloads without requiring a full\u2011blown public\u2011cloud stack.\n\n..."
             },
-            "finish_reason": "stop"
+            "finish_reason": "length"
         }
     ],
-    "system_fingerprint": "vllm-0.28.1rc1.dev516+g9ea8f3ffc-460d843b",
     "usage": {
-        "prompt_tokens": 64,
-        "total_tokens": 188,
-        "completion_tokens": 124
+        "prompt_tokens": 78,
+        "total_tokens": 334,
+        "completion_tokens": 256
     }
 }
 ```
@@ -530,7 +526,7 @@ HF_HOME=/opt/huggingface \
 /opt/vllm-rocm/bin/vllm bench serve \
   --backend vllm \
   --base-url http://127.0.0.1:8000 \
-  --model Qwen/Qwen3.8-27B-FP8 \
+  --model openai/gpt-oss-120b \
   --dataset-name random \
   --num-prompts 32 \
   --random-input-len 512 \
@@ -548,30 +544,30 @@ Sample output:
 Successful requests:                     32
 Failed requests:                         0
 Maximum request concurrency:             8
-Benchmark duration (s):                  17.67
+Benchmark duration (s):                  10.35
 Total input tokens:                      16384
 Total generated tokens:                  4096
-Request throughput (req/s):              1.81
-Output token throughput (tok/s):         231.75
-Peak output token throughput (tok/s):    264.00
+Request throughput (req/s):              3.09
+Output token throughput (tok/s):         395.69
+Peak output token throughput (tok/s):    664.00
 Peak concurrent requests:                16.00
-Total token throughput (tok/s):          1158.76
+Total token throughput (tok/s):          1978.47
 ---------------Time to First Token----------------
-Mean TTFT (ms):                          438.50
-Median TTFT (ms):                        480.17
-P99 TTFT (ms):                           488.69
+Mean TTFT (ms):                          975.68
+Median TTFT (ms):                        499.99
+P99 TTFT (ms):                           2271.63
 -----Time per Output Token (excl. 1st token)------
-Mean TPOT (ms):                          31.33
-Median TPOT (ms):                        30.99
-P99 TPOT (ms):                           33.71
+Mean TPOT (ms):                          12.68
+Median TPOT (ms):                        12.37
+P99 TPOT (ms):                           15.93
 ---------------Inter-token Latency----------------
-Mean ITL (ms):                           31.33
-Median ITL (ms):                         30.99
-P99 ITL (ms):                            31.47
+Mean ITL (ms):                           12.68
+Median ITL (ms):                         12.40
+P99 ITL (ms):                            14.00
 ==================================================
 ```
 
-The validated single-GPU configuration completed all 32 requests without errors and produced approximately 232 output tokens per second. Results depend on the model, vLLM revision, VM configuration, and Host load.
+The validated single-GPU configuration completed all 32 requests without errors and produced approximately 396 output tokens per second. Results depend on the model, vLLM revision, VM configuration, and Host load.
 
 ## Troubleshooting
 
@@ -618,13 +614,3 @@ If these symptoms occur, power off the Virtual Machine and reboot the Host durin
 If PyTorch fails with a missing ROCm library such as `libMIOpen.so.1`, verify that `rocm-ml-libraries` is installed and `/opt/rocm/lib` is registered with the dynamic linker.
 
 The vLLM PyTorch wheel also requires MPI and profiling libraries from the guest operating system. Install the packages shown in the vLLM section if errors mention `libmpi_cxx.so.40`, `librocprofiler-sdk.so.1`, or `libhsa-amd-aqlprofile64.so.1`.
-
-### No Tuned FP8 Kernel Configuration Is Available
-
-When loading a recent FP8 model, vLLM can report:
-
-```default
-Using default W8A8 Block FP8 kernel config. Performance might be sub-optimal!
-```
-
-This warning is not a correctness failure. It means the vLLM wheel has no tuning file for the detected GPU and one or more matrix shapes in the model, so it uses a generic kernel configuration. Benchmark results can therefore be lower than the eventual performance of a tuned configuration.
