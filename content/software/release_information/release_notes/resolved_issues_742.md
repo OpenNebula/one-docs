@@ -1,15 +1,13 @@
-<!-- Update verision numbers X.Y.Z, date and milestone number -->
-
 ---
-title: "Resolved Issues in X.Y.Z (EE)"
-date: "20XX-YY-ZZ"
+title: "Resolved Issues in 7.4.2 (EE)"
+date: "2026-11-01"
 ---
 
-A complete list of solved issues for X.Y.Z are listed in the [project development portal](https://github.com/OpenNebula/one/milestone/XYZ).
+A complete list of solved issues for 7.4.2 are listed in the [project development portal](https://github.com/OpenNebula/one/milestone/95).
 
 ## Backported Features
 
-The following new features have been backported to X.Y.Z:
+The following new features have been backported to 7.4.2:
 
 <!-- item structure
 Include a high level description and a link to the documentation explaining the new feature. Example:
@@ -19,7 +17,7 @@ Include a high level description and a link to the documentation explaining the 
 
 ## Resolved Issues
 
-The following issues have been solved in X.Y.Z:
+The following issues have been solved in 7.4.2:
 
 <!-- item structure
 One line per issue starting with "Fix ...". Descrive the issue so the user understands the fix. Add link to GH. Example:
