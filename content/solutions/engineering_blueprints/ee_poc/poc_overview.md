@@ -1,12 +1,10 @@
 ---
 title: "Overview"
 linkTitle: "Overview"
-description: "Overview of the workplan for the OpenNebula Enterprise Edition Proof of Concept."
+description: ""
 weight: 1
 
 ---
-
-# Abstract
 
 The OpenNebula Proof of Concept (PoC) service allows potential customers to test the Enterprise Edition of OpenNebula software directly in their own environment. This provides a low-risk opportunity to assess its functionality, performance, and compatibility, ensuring it meets their specific needs and requirements before committing to a full deployment.
 
@@ -18,21 +16,13 @@ Finally, this document outlines our phased approach to the PoC service, which en
 
 The first step is to request a live demo. Contact us by [filling the form](https://opennebula.io/evaluate-opennebula/) or by email at: sales@opennebula.io
 
-# What is OpenNebula?
-
-**OpenNebula is a powerful, but easy-to-use, open source platform to build and manage enterprise clouds and virtualized DCs.** It combines existing virtualization technologies with advanced features for multi-tenancy, automatic provision, and elasticity. The development of OpenNebula follows a bottom-up approach driven by the real needs of sysadmins, DevOps, and users. 
-
-OpenNebula is an open product with an active community, and is commercially supported by OpenNebula Systems. Updated versions of OpenNebula are released regularly, and delivered as a single package with a smooth migration path. More information on the benefits of running an OpenNebula cloud can be checked on the Key Features page.
-
-There are two versions of the solution, namely **Community** Edition and **Enterprise** Edition.  This POC will leverage the **Enterprise Edition**, which is the commercially supported version with access to functionality such as Veeam and NetApp integration among others.
-
 By using the Proof of Concept service, prospects get the following benefits:
 
 - Stable Software Version – It leverages a more fixed and tested software version, since the PoC features OpenNebula Enterprise Edition (EE). This ensures higher stability that prospects might encounter with the Community Edition (CE).
 
 - Pre-Installed & Pre-Configured Environment – It eliminates the installation and configuration burden, allowing prospects to focus on testing features and evaluating performance rather than troubleshooting setup issues.
 
-# Is Running an OpenNebula PoC for Me?
+## Is Running an OpenNebula PoC for Me?
 
 Running an OpenNebula PoC in your own environment is an excellent way to explore how OpenNebula operates and evaluate its core functionalities. However, it is important to note that the PoC environment is not designed to precisely replicate your production environment.
 
@@ -55,11 +45,11 @@ The table below should help you decide the best medium to test and validate Open
 
 </center>
 <br>
-An OpenNebula PoC offers a unique opportunity to engage directly with the OpenNebula Services team, ensuring your cloud infrastructure deployment stays on track and progresses toward a successful outcome.<br><br>
+An OpenNebula PoC offers a unique opportunity to engage directly with the OpenNebula Services team, ensuring your cloud infrastructure deployment stays on track and progresses toward a successful outcome.<br>
+<br>
+In addition to introductory and wrap-up calls with the OpenNebula commercial and technical teams, the PoC includes an exclusive two-hour training session led by our experts. This session is designed to equip you and your team with the essential knowledge and skills needed to effectively deploy and test OpenNebula within your own environment.<br><br>
 
-In addition to introductory and wrap-up calls with the OpenNebula commercial and technical teams, the PoC includes an exclusive two-hour training session led by our experts. This session is designed to equip you and your team with the essential knowledge and skills needed to effectively deploy and test OpenNebula within your own environment.
-
-# Infrastructure Requirements and Deployment
+## Infrastructure Requirements and Deployment
 
 {{< alert title="Warning" type="warning" >}}
 The OpenNebula PoC service is designed to be deployed in an isolated environment, fully separated from production systems and without access to external networks or storage systems. Our PoC service includes an automated, low-friction setup process tailored for such isolated environments. It is important to note that OpenNebula cannot be held responsible for any downtime, damages, or other issues that may occur in connected production environments if the PoC is not deployed as intended.
@@ -98,10 +88,10 @@ Infrastructure requirements may vary depending on the final purpose of the infra
 - Access to an IPMI (or other out-of-band KVM system) for initial PoC cloud  bootstrapping using the OpenNebula ISO.
 
 - A USB stick or other removable media storage is required to upload the OpenNebula ISO, enabling a quick and straightforward deployment of the OpenNebula environment for the PoC program.  
+  
+  <br>
 
-<br><br>
-
-# Hands-on Skill and Knowledge Requirements
+## Hands-on Skill and Knowledge Requirements
 
 Personnel who execute and operate the OpenNebula PoC are expected to possess the following hands-on skills and knowledge:  
 
@@ -119,9 +109,9 @@ Personnel who execute and operate the OpenNebula PoC are expected to possess the
    
    - Linux services configuration and operation: passwordless SSH configuration
 
-<br><br>
+<br>
 
-# High-Level Reference Architecture
+## High-Level Reference Architecture
 
 An OpenNebula PoC cloud is automatically deployed on a single server, as shown by the diagram below.  <br><br>
 ![image tag](/images/ISO/00-onepoc_architecture.svg)
@@ -146,4 +136,3 @@ Accessing Front End VMs via the GUI for cloud management operations
 
 - Once the deployment process has completed, the OpenNebula PoC cloud is ready for testing. It includes pre-configured cloud datastores backed by an NFS server running on the host OS, sample internal virtual networks, and test image and VM templates.
   <br><br>
-  
