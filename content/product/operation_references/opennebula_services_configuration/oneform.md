@@ -1,5 +1,6 @@
 ---
 title: "OneForm Configuration"
+linktitle: "OneForm"
 date: "2025-06-03"
 description:
 categories:
@@ -43,12 +44,19 @@ After modifying the configuration file, restart the OneForm service for changes 
 |-------------------------|------------------------------------------------------------------------------------------------------|
 | **Server Configuration**                                                                                                       |
 | `:one_xmlrpc`           | URL endpoint for the OpenNebula XML-RPC API                                                          |
-| `:host`                 | IP address or hostname where the OneForm server will listen                                          |
-| `:port`                 | TCP port used by the OneForm server                                                                  |
+| `:server[:bind]`        | IP address where the OneForm server listens                                                          |
+| `:server[:port]`        | TCP port used by the OneForm server                                                                  |
+| `:server[:environment]`| Server environment: `production` or `development`                                                   |
+| `:server[:host_authorization][:permitted_hosts]` | Hosts accepted by the server host-authorization policy                              |
+| **Lifecycle Execution**                                                                                                        |
+| `:concurrency`          | Maximum number of lifecycle jobs that may run concurrently                                           |
+| `:command_timeout`      | Maximum execution time, in seconds, for a lifecycle command                                          |
+| `:cancel_grace`         | Seconds allowed for a command to stop after cancellation before it is terminated                     |
 | **Defaults**                                                                                                                   |
-| `:provisions_path`      | Directory where OneForm stores Ansible and Terraform generated files for each Provision              |
+| `:work_dir`             | Directory where OneForm stores generated Terraform and Ansible files for each Provision              |
 | **OneDeploy Configuration**                                                                                                    |
 | `:onedeploy_tags`       | Comma-separated list of OneDeploy tags to determine which stages to execute                          |
+| `:ee_token`             | Optional OpenNebula Enterprise Edition token used by OneDeploy                                        |
 | **Authentication**                                                                                                             |
 | `:auth`                 | OneForm authentication method (typically `opennebula`)                                               |
 | `:core_auth`            | Authentication driver for OpenNebula core: `cipher` or `x509`                                        |
@@ -57,16 +65,31 @@ After modifying the configuration file, restart the OneForm service for changes 
 | `:log[:level]`          | Logging level: `0` = ERROR, `1` = WARNING, `2` = INFO, `3` = DEBUG                                   |
 | `:log[:system]`         | Logging output: `file` for local log files, `syslog` for system log integration                      |
 
+The `:server` section is passed directly to the Sinatra OneForm server. Any Sinatra
+setting supported by the version shipped with OpenNebula can be defined under this
+key. For the available settings, see the [Sinatra configuration documentation](https://sinatrarb.com/configuration.html).
+For example, besides `:bind` and `:port`, advanced deployments can configure
+`:host_authorization` in the same section.
+
 Below is an example of a default OneForm configuration file:
 
 ```yaml
 :one_xmlrpc: http://localhost:2633/RPC2
 
-:host: 127.0.0.1
-:port: 13013
+:server:
+  :bind: 127.0.0.1
+  :port: 13013
+  :environment: production
+  :host_authorization:
+    :permitted_hosts: []
 
-:provisions_path: /var/tmp/one/oneform
-:onedeploy_tags: stage2,stage3
+:concurrency: 10
+:command_timeout: 3600
+:cancel_grace: 30
+
+:work_dir: /tmp/oneform/
+:onedeploy_tags: stage2,stage3,network
+# :ee_token: username:token
 
 :auth: opennebula
 :core_auth: cipher

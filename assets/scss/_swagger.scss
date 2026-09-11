@@ -381,7 +381,11 @@ $swagger-code-neutral-tokens: ("punctuation", "operator") !default;
     .tabitem,
     .tablinks,
     .highlight-code,
-    .microlight,
+    .microlight {
+      border-radius: var(--swagger-radius) !important;
+      overflow: auto !important;
+    }
+
     .renderedMarkdown pre > code {
       border-radius: var(--swagger-radius) !important;
       overflow: hidden !important;
