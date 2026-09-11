@@ -19,9 +19,10 @@ Include a high level description and a link to the documentation explaining the 
 
 The following issues have been solved in 7.4.2:
 
+- Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
+
 <!-- item structure
 One line per issue starting with "Fix ...". Descrive the issue so the user understands the fix. Add link to GH. Example:
 
 * Fix failure of `onegroup create` CLI command with empty `--resource` parameter [#7458](https://github.com/OpenNebula/one/issues/7458).
 -->
-
