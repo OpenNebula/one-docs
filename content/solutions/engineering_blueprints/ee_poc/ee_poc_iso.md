@@ -1,6 +1,6 @@
 ---
 title: "Deploy OpenNebula On-prem with an ISO"
-linkTitle: "ISO Deployment"
+linkTitle: "ISO-based Deployment"
 description:
 weight: 3
 
@@ -669,22 +669,15 @@ and on its "**Advanced**" tab ensure it's <u>not</u> in Read-only mode and choos
 
 {{< image path="/images/ISO/48-vm-winVNC.png" align="center" width="90%" mb="20px">}}
 
-
-
 19. Windows installer should boot and you can proceed with installation.
 
 {{< image path="/images/ISO/54-vm-wininstall.png" align="center" width="90%" mb="20px">}}
-
-
 
 Note: the generic Windows installation ISO has a very short timeout to confirm booting (Press any key to boot from this CD/DVD). If your VNC console shows boot error, keep the console window open and in another browser tab force VM reboot with "**Hard reboot**" option. Now you should manage to press any key and start Windows installation.
 
 {{< image path="/images/ISO/49-vm-winreboot.png" align="center" width="90%" mb="20px">}}
 
-
-
 Alternatively, you may use a sys-prepped Windows cloud image of your choice to save time. In such case you just need to create a VM template with one disk (no CD) - the Windows cloud image. 
-
 
 20. During the installation, browse ONE_WIN_Drivers cdrom device to find appropriate virtio-scsi drivers and install them.
 
@@ -693,8 +686,9 @@ Alternatively, you may use a sys-prepped Windows cloud image of your choice to s
 Go through the Windows installation steps. Virtual Machine will be rebooted a few times according to the installation procedure.
 
 Complete installation steps after reboot and install next packages from the ONE_WIN_Drivers cdrom:
-- one-context
-- virtio-win-guest-tools
-{{< image path="/images/ISO/57-vm-wincontext.png" align="center" width="90%" mb="20px">}}
 
+- one-context
+
+- virtio-win-guest-tools
+  {{< image path="/images/ISO/57-vm-wincontext.png" align="center" width="90%" mb="20px">}}
 21. Once the installation of Windows has been completed, and all packages are installed you can perform a sysprep procedure and power off the VM. Next steps include changing Windows_11 OS image type from persistent to non persistent. That way you can have an ephemeral Windows instance for spawning VDIs or clone the prepared VM to distribute among users. Windows use cases differ significantly, therefore PoC test run finishes at successful Windows machine run without further customization. 
