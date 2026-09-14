@@ -14,15 +14,14 @@ type: docs
 | `ONEAPP_OOD_SSL_CERT` | empty | PEM certificate chain for the `custom` mode. Paste the file, the form encodes it. |
 | `ONEAPP_OOD_SSL_KEY` | empty | PEM private key for the `custom` mode. The service template passes it to the portal VM only. |
 | `ONEAPP_LDAP_USERS` | `demo1:demo1pass:10001` | Initial users, as `user:password:uid` separated by spaces. |
-| `ONEAPP_PORTAL_IP` | `172.20.0.60` | Fixed address of the portal on the compute network. |
-| `ONEAPP_COMPUTE_NET` | `172.20.0.0/24` | The compute network in CIDR notation. |
-| `ONEAPP_POOL_RANGE` | `172.20.0.230-172.20.0.249` | Address range reserved for the workers, `first-last`, inside the compute network. |
+| `ONEAPP_WORKER_IDLE_SECONDS` | `600` | How long the oldest worker stays empty before the pool loses a VM. |
+| `ONEAPP_POOL_RANGE` | `172.20.0.50-172.20.0.249` | The address range the compute network assigns to VMs, `first-last`. |
 | `ONEAPP_NFS_SERVER` | empty | Address of an NFS server of your own for the home. Empty uses the storage role. |
 | `ONEAPP_NFS_EXPORT` | `/export/home` | Path of the home export, on the storage role or on that server. |
 
 ## Scaling the worker pool
 
-The pool grows and shrinks on its own. Every worker reports its open session count to OneGate, OneFlow adds a VM when the average passes one session per worker, and removes one after three minutes with every worker empty. To change the pool by hand:
+The pool grows and shrinks on its own. Every worker reports its open session count to OneGate, OneFlow adds a VM when the average passes one session per worker, and removes one when the oldest worker has been empty for `ONEAPP_WORKER_IDLE_SECONDS`, ten minutes by default. It shrinks one VM at a time, so a single long session keeps one worker, not six. OneFlow always removes the oldest VM of the role, so a long session on the oldest worker holds the pool at its size until it ends. To change the pool by hand:
 
 ```shell
 $ oneflow scale <service_id> worker <cardinality>

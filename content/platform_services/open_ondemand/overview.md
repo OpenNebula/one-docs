@@ -21,12 +21,12 @@ The portal reaches the worker VMs over SSH with the Open OnDemand `linux_host` a
 
 ## How the pool grows
 
-Every worker reports its open session count to OneGate. OneFlow adds a VM when the average passes one session per worker and removes one after three minutes with every worker empty. The portal sends each new session to the least loaded worker, so a VM added by the autoscaler receives work as soon as it is ready. A worker is serving about 40 seconds after instantiation.
+Every worker reports its open session count to OneGate. OneFlow adds a VM when the average passes one session per worker and removes one when the oldest worker has been empty for ten minutes, one VM at a time. The portal sends each new session to the least loaded worker and, among equals, to the youngest, so a VM added by the autoscaler receives work as soon as it is ready and the oldest one drains as its sessions end. A worker is serving about 40 seconds after instantiation.
 
 ## Requirements
 
 * OpenNebula 6.10 or later, with [OneFlow](https://docs.opennebula.io/7.4/product/operation_references/opennebula_services_configuration/oneflow/) and [OneGate](https://docs.opennebula.io/7.4/product/virtual_machines_operation/multi-vm_workflows/onegate_usage/) enabled, and OneGate reachable from the service networks.
-* Two Virtual Networks. A management network with internet access, where the portal publishes its web interface, and a compute network reserved for the service, where the three roles talk to each other. The portal treats every live address in the range reserved for the workers as a worker, so nothing else may live there.
+* Two Virtual Networks. A management network with internet access, where the portal publishes its web interface, and a compute network reserved for the service, where the three roles talk to each other. The portal treats every live address in the range that network assigns as a worker, apart from its own and the storage role's, so nothing else may live there.
 * Outbound access to the EESSI CernVM-FS servers from the storage role.
 
 If a firewall sits between the networks, these are the flows the service needs:
