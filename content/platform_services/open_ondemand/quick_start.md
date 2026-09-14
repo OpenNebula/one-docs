@@ -30,7 +30,7 @@ $ oneflow-template instantiate 'Open OnDemand Service'
 The template asks for the two Virtual Networks, management and compute, and for the inputs described in [Configuration]({{% relref "configuration" %}}). The defaults deploy one worker; raise the worker cardinality in the template to start with more.
 
 {{< alert title="Note" type="primary" >}}
-The three compute network inputs (`ONEAPP_PORTAL_IP`, `ONEAPP_COMPUTE_NET` and `ONEAPP_POOL_RANGE`) have to agree with the network you select as Compute, and the portal address has to be outside the pool range.
+`ONEAPP_POOL_RANGE` has to match the address range of the network you select as Compute. The roles find each other without fixed addresses: OneFlow hands the storage address to the portal and the workers, and the storage role asks OneGate which VM plays the portal and grants root on the home export to that address alone.
 {{< /alert >}}
 
 The roles start in order, storage first and the workers last, and each one declares itself ready only when it is actually serving. The whole service is running about four minutes after instantiation:
