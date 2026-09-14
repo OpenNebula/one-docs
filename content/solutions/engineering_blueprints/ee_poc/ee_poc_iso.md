@@ -382,17 +382,16 @@ Lastly, the OpenNebula forum is also a great database of knowledge from the Open
 In command line, execute `onefemenu` as the user root on OpenNebula frontend to access to the following menu
 
 ```
-┌──────────────────────OpenNebula node Setup─────────────────────────┐
+┌────────────────────OpenNebula frontend Setup───────────────────────┐
 │ Setup menu                                                         │
 │ ┌────────────────────────────────────────────────────────────────┐ │
-│ │           netconf     Configure network                        │ │
-│ │           enable_fw   Enable firewalld                         │ │
-│ │           disable_fw  Disable firewalld                        │ │
-│ │           add_host    Add OpenNebula Host                      │ │
-│ │           setup_frr   Setup FRR for BGP-EVPN                   │ │
-│ │           proxy       Configure proxy settings                 │ │
-│ │           tmate       Remote console support                   │ │
-│ │           quit        Exit to Shell                            │ │
+│ │          netconf             Configure network                 │ │
+│ │          enable_fw           Enable firewalld                  │ │
+│ │          disable_fw          Disable firewalld                 │ │
+│ │          add_host            Add OpenNebula Host               │ │
+│ │          proxy               Configure proxy settings          │ │
+│ │          show_oneadmin_pass  Show oneadmin password            │ │
+│ │          quit                Exit to Shell                     │ │
 │ └────────────────────────────────────────────────────────────────┘ │
 ├────────────────────────────────────────────────────────────────────┤
 │                   <  OK  >          <Cancel>                       │
@@ -403,10 +402,9 @@ The `onefemenu` options are:
 
 - **netconf**: configures the network with `nmtui`, sets up some internal variables and disables the firewall.
 - **enable_fw** / **disable_fw**: enable and disable the firewall.
-- **add_host**: adds OpenNebula node. It will ask for the ip/name of the host and the user that will be used to add it. After it runs it will ask for the password for this user.
+- **add_host**: adds OpenNebula node. It will ask for the ip/name of the host and the remote user with passwordless sudo permissions that will be used to add it. It will ask for the password for that user on the remote machine unless passwordless ssh access to the host was previously configured.
 - **proxy**: Configure the proxy. This will edit the skeleton file for setting up the proxy server and restart/reconfigure the necessary services. Please check Annex: Configuring a proxy server .
-- **tmate**: This option invokes tmate, a remote console program, that will connect to a remote OpenNebula server and will allow OpenNebula support engineers to help you solve the problems
-- **setup_frr**: Configures a skeleton for a BGP-EVN route reflector. By default it will allow the default network (the one with the default gateway) to listen to the BGP server. The configuration can be edited before the service FRR is restarted.
+- **show_oneadmin_pass**: shows OpenNebula administration password.
 
 ## A1.2 Host menu (onehostmenu)
 
@@ -454,7 +452,7 @@ If your administration interface (the one that you are using to access the PoC s
 │                                                                         │
 │ ╤ ETHERNET                                                    <Hide>    │
 │ │ Cloned MAC address ________________________________________           │
-│   │                MTU 9000______ bytes                                   │
+│ │                MTU 9000______ bytes                                   │
 │ └                                                                       │
 │ ═ 802.1X SECURITY                                             <Show>    │
 │                                                                         │
@@ -470,36 +468,36 @@ If your administration interface (the one that you are using to access the PoC s
 
 - On the IPv4 configuration section press “Show”. We recommend to set up the IP Manual. An example of the modified fields to set the interface (IP 172.20.0.4/24, default GW 172.20.0.1, DNS 8.8.8.8) would be the following
   
-  ```
-  ┌───────────────────────────┤ Edit Connection ├───────────────────────────┐
-  │         Profile name ens3____________________________________           │
-  │               Device ens3 (02:00:AC:14:00:04)________________           │
-  │                                                                         │
-  │ ═ ETHERNET                                                    <Show>    │
-  │ ═ 802.1X SECURITY                                             <Show>    │
-  │                                                                         │
-  │ ╤ IPv4 CONFIGURATION <Manual>                                 <Hide>    │
-  │ │          Addresses 172.20.0.4/24____________ <Remove>                 │
-  │ │                    <Add...>                                           │
-  │ │            Gateway 172.20.0.1_______________                          │
-  │ │        DNS servers 8.8.8.8__________________ <Remove>                 │
-  │ │                    <Add...>                                           │
-  │ │     Search domains <Add...>                                           │
-  │ │                                                                       │
-  │ │            Routing (No custom routes) <Edit...>                       │
-  │ │ [ ] Never use this network for default route                          │
-  │ │ [ ] Ignore automatically obtained routes                              │
-  │ │ [ ] Ignore automatically obtained DNS parameters                      │
-  │ │                                                                       │
-  │ │ [X] Require IPv4 addressing for this connection                       │
-  │ └                                                                       │
-  │ ═ IPv6 CONFIGURATION <Automatic>                              <Show>    │
-  │                                                                         │
-  │ [X] Automatically connect                                               │
-  │ [X] Available to all users                                              │
-  │                                                           <Cancel> <OK> │
-  └─────────────────────────────────────────────────────────────────────────┘
-  ```
+```
+┌───────────────────────────┤ Edit Connection ├───────────────────────────┐
+│         Profile name ens3____________________________________           │
+│               Device ens3 (02:00:AC:14:00:04)________________           │
+│                                                                         │
+│ ═ ETHERNET                                                    <Show>    │
+│ ═ 802.1X SECURITY                                             <Show>    │
+│                                                                         │
+│ ╤ IPv4 CONFIGURATION <Manual>                                 <Hide>    │
+│ │          Addresses 172.20.0.4/24____________ <Remove>                 │
+│ │                    <Add...>                                           │
+│ │            Gateway 172.20.0.1_______________                          │
+│ │        DNS servers 8.8.8.8__________________ <Remove>                 │
+│ │                    <Add...>                                           │
+│ │     Search domains <Add...>                                           │
+│ │                                                                       │
+│ │            Routing (No custom routes) <Edit...>                       │
+│ │ [ ] Never use this network for default route                          │
+│ │ [ ] Ignore automatically obtained routes                              │
+│ │ [ ] Ignore automatically obtained DNS parameters                      │
+│ │                                                                       │
+│ │ [X] Require IPv4 addressing for this connection                       │
+│ └                                                                       │
+│ ═ IPv6 CONFIGURATION <Automatic>                              <Show>    │
+│                                                                         │
+│ [X] Automatically connect                                               │
+│ [X] Available to all users                                              │
+│                                                           <Cancel> <OK> │
+└─────────────────────────────────────────────────────────────────────────┘
+```
   
   Once finished , please press OK and go back and quit nmtui.
 
@@ -555,26 +553,23 @@ After that, the “IPv4 CONFIGURATION” section is configured the same as a tag
 
 ## Annex A3. Configuring a proxy server
 
-If your network does not allow you to download files from the internet via proxy you will find problems downloading the appliances and the images from OpenNebula marketplace. To set up the proxy server on the frontend(s), please edit the file 
+If your network needs a proxy server to access to the internet there will be problems downloading the appliances and the images from OpenNebula marketplace. To set up the proxy server on the frontend, please, choose the option `Configure proxy settings` on the frontend menu. The following dialog will appear:
 
 ```
-/etc/systemd/system/opennebula.service.d/http_proxy.conf
+┌─────────────────────────Setup Proxy variables────────────────────────────┐
+│ ┌──────────────────────────────────────────────────────────────────────┐ │
+│ │HTTP proxy:                                                           │ │
+│ │HTTPS proxy:                                                          │ │
+│ │Exclude proxy for:                                                    │ │
+│ └──────────────────────────────────────────────────────────────────────┘ │
+│                                                                          │
+├──────────────────────────────────────────────────────────────────────────┤
+│                       <  OK  >            <Cancel>                       │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
-The file must have the following syntax (a skeleton with commented values is provided)
 
-```
-[Service]
-Environment="http_proxy=http://proxy.example.com:8080"
-Environment="https_proxy=http://proxy.example.com:8080"
-Environment="no_proxy=172.20.0.,192.168.1."
-```
-
-After the modification, the service must be restarted
-
-```
-sudo systemctl restart opennebula
-```
+After modifying them accordingly, OpenNebula daemon will be restarted and all of the access to internet will be done via proxy.
 
 # 
 
