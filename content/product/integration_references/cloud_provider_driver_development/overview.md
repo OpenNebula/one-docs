@@ -33,27 +33,29 @@ Each driver in OneForm is organized in their own consistent and self-contained d
 - **ansible/**: Includes Ansible playbooks and templates for configuring and integrating deployed resources.
 - **ipam/** *(optional)*: Manages IP address allocation and release.
 - **elastic/** *(optional)*: Automates public IP assignment directly from cloud providers.
-- **provider.yaml**: Stores metadata such as driver name, description, and version.
+- **driver.conf**: Stores metadata such as driver name, description, version, and
+  optional FireEdge presentation and operation settings.
 
 The name of the top-level directory, such as `aws` or `scaleway`, acts as the unique identifier for each cloud provider:
 
 ```default
-/usr/share/one/providers
+/usr/lib/one/oneform/drivers
 .
 ├── aws
 │   ├── ansible
 │   ├── terraform
 │   ├── elastic
 │   ├── ipam
-│   └── provider.yaml
+│   └── driver.conf
 └── onprem
     ├── ansible
     ├── terraform
-    └── provider.yaml
+    └── driver.conf
 
 ```
 
-By default, these Providers are located in `/usr/share/one/providers`, but you can customize this by modifying the `ONE_LOCATION` attribute in the OpenNebula installation script.
+Package-provided drivers are located in `/usr/lib/one/oneform/drivers`. External
+registries and locally added drivers are located in `/var/lib/one/oneform/drivers`.
 
 ## Core Components
 
@@ -67,7 +69,7 @@ Each driver must include a defined set of configuration files for both the Terra
 - **Terraform** required files:
   - `main.tf`: Contains the core Terraform logic and resource definitions. While this file can delegate tasks to multiple submodules to improve code organization and scalability, the driver must include a root `main.tf` file in the top-level Terraform directory.
   - `variables.tf`: Declares all the input variables used during provisioning. These variables are dynamically exposed to the OneForm server.
-  - `provider.tf`: Specifies the provider-specific configuration, including credentials such as access keys or API tokens. All pPovider-related variables declared here are also automatically detected and exposed by OneForm.
+  - `provider.tf`: Specifies the provider-specific configuration, including credentials such as access keys or API tokens. All provider-related variables declared here are automatically detected and exposed by OneForm.
   - `validators.tf`: Adds an extra and optional layer of input validation, integrated with the OneForm server. It allows for advanced validation rules (e.g., required fields, accepted formats), improving reliability during provisioning.
   - `outputs.tf`: Two outputs are mandatory for each provisioned node:
     - `instance_ip`: This output is used to establish SSH access to the provisioned Host. It enables Ansible to connect during the configuration phase and apply the necessary roles and playbooks for system setup and OpenNebula integration.
@@ -95,9 +97,13 @@ Additionally, with the **error recovering** step, the system captures the error 
 
 ## Data Model
 
-The driver metadata in OneForm is primarily defined through the `provider.yaml` file. This file includes the following basic information such as name, descripton or Fireedge related configuration along with a section containing optional metadata for web clients.
+The driver metadata in OneForm is defined through `driver.conf`. This file contains
+the driver name, description, version, and optional FireEdge settings such as its
+logo, color, supported operations, and layout.
 
-Apart from this static data, user inputs required for provisioning are not stored in the `provider.yaml` file. Instead, they are dynamically extracted from the driver’s Ansible and Terraform configurations. These inputs are grouped as follows:
+Apart from this static data, user inputs required for provisioning are not stored in
+`driver.conf`. Instead, they are dynamically extracted from the driver’s Ansible and
+Terraform configurations. These inputs are grouped as follows:
 
 - **Provider Credential Values**: Extracted from the `provider.tf` file, these include authentication details such as API keys, secrets, and region-specific parameters necessary for Terraform to access the cloud provider.
 - **Terraform Inputs**: General infrastructure parameters are pulled from the `variables.tf` file. These define things like instance types, availability zones, and network configuration, which are used to build the infrastructure plan.
