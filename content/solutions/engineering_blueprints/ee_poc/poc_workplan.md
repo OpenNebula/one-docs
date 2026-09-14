@@ -1,11 +1,13 @@
 ---
+
 title: "Workplan"
 linkTitle: "Workplan"
 description: "Workplan for the OpenNebula Enterprise Edition Proof of Concept."
 weight: 1
 
 ---
-{{< image path="/images/ISO/poc.drawio.png" align="center" width="90%" mb="20px">}}
+
+{{< image path="/images/ISO/poc_diagram.png" align="center" width="90%" mb="20px">}}
 
 The first step is to request a live demo. Contact us by [filling the form](https://opennebula.io/evaluate-opennebula/) or by email at: sales@opennebula.io
 
@@ -14,7 +16,6 @@ By using the Proof of Concept service, prospects get the following benefits:
 - Stable Software Version – It leverages a more fixed and tested software version, since the PoC features OpenNebula Enterprise Edition (EE). This ensures higher stability that prospects might encounter with the Community Edition (CE).
 
 - Pre-Installed & Pre-Configured Environment – It eliminates the installation and configuration burden, allowing prospects to focus on testing features and evaluating performance rather than troubleshooting setup issues.
-
 
 # PoC Phases
 
