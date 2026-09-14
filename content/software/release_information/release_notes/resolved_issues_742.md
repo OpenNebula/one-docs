@@ -24,4 +24,4 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 
 * Fix failure of `onegroup create` CLI command with empty `--resource` parameter [#7458](https://github.com/OpenNebula/one/issues/7458).
 -->
-
+* Fix Restic Datastore - the password filed is not masking the password [#7444](https://github.com/OpenNebula/one/issues/7444).
