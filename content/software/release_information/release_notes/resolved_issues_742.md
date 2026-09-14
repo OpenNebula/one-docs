@@ -25,3 +25,4 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 * Fix failure of `onegroup create` CLI command with empty `--resource` parameter [#7458](https://github.com/OpenNebula/one/issues/7458).
 -->
 
+* Fix usage of HTTP proxy credentials for marketplace monitoring [#8043](https://github.com/OpenNebula/one/issues/8043).
