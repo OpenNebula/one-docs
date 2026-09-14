@@ -4,6 +4,10 @@ linkTitle: "SAP-enabled Cluster"
 weight: 3
 ---
 
+{{< alert title="Work In Progress" type="primary" >}}
+This document is a work in progress.
+{{< /alert >}} 
+
 SAP applications are highly performance-sensitive, and achieving predictable results depends on selecting a supported guest operating system and configuring the underlying virtual infrastructure appropriately. OpenNebula provides the flexibility required to fine-tune compute, memory, storage, and networking resources for SAP workloads while keeping the resulting configuration manageable and repeatable.
 
 Although the initial setup may appear complex, the validated configuration can be captured in an OpenNebula VM template and reused consistently across deployments. This blueprint explains how to configure an OpenNebula virtualization environment to meet SAP requirements, optimize workload performance, and use infrastructure resources efficiently. These platform-awareness capabilities also apply to other workload types, as described in the [OpenNebula Enhanced Platform Awareness white paper](https://opennebula.io/white-papers/get-opennebula-enhanced-platform-awareness-white-paper/).

@@ -4,6 +4,10 @@ linkTitle: "Ceph"
 weight: 2
 ---
 
+{{< alert title="Work In Progress" type="primary" >}}
+This document is a work in progress.
+{{< /alert >}} 
+
 Disaster Recovery (DR) involves anticipating and designing an adequate response for any situation that prevents the correct functioning of a system in an organization. DR plays a key role in an organization's business and operations continuity, and is a critical aspect in the planning and maintenance of cloud infrastructure.
 
 A complete DR solution involves two main processes:
