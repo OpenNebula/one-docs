@@ -1,7 +1,7 @@
-# OpenNebula 7.2 Documentation
+# OpenNebula Documentation
 
 This is the official repository of OpenNebula's technical documentation. This documentation is live at:
-[http://docs.opennebula.io/7.2](http://docs.opennebula.io/7.2).
+[http://docs.opennebula.io/7.2](http://docs.opennebula.io).
 
 [OpenNebula](http://opennebula.io) is an open source platform delivering a simple but feature-rich and flexible solution to build and manage enterprise clouds for virtualized services, containerized applications and serverless computing.
 
