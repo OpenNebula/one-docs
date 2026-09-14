@@ -29,6 +29,20 @@ Every worker reports its open session count to OneGate. OneFlow adds a VM when t
 * Two Virtual Networks. A management network with internet access, where the portal publishes its web interface, and a compute network reserved for the service, where the three roles talk to each other. The portal treats every live address in the range reserved for the workers as a worker, so nothing else may live there.
 * Outbound access to the EESSI CernVM-FS servers from the storage role.
 
+If a firewall sits between the networks, these are the flows the service needs:
+
+| From | To | Port | What for |
+|---|---|---|---|
+| users | portal, management network | 443, and 80 with `letsencrypt` | the web interface |
+| portal | workers | 22 | starting and stopping sessions |
+| workers | portal | 389 | resolving users against the directory |
+| portal and workers | storage | 2049 | the shared home over NFSv4 |
+| portal and workers | storage | 3128 | the software catalogue through the site cache |
+| every role | OneGate endpoint | 5030 by default | reporting readiness and session counts |
+| storage | internet | 80 and 8000 | the EESSI CernVM-FS servers, plain HTTP |
+
+The compute network carries the directory lookups in the clear, so it has to stay reserved for the service.
+
 Marketplace defaults per VM are 2 vCPU and 4 GB of memory, 8 GB for the portal role. A worker runs every session that lands on it inside one VM, so size the worker role for the sessions you expect.
 
 ## Versions and licence
