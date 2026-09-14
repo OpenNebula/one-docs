@@ -25,3 +25,12 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 * Fix failure of `onegroup create` CLI command with empty `--resource` parameter [#7458](https://github.com/OpenNebula/one/issues/7458).
 -->
 
+* Veeam - Fix multi-network workers. [#8025](https://github.com/OpenNebula/one/issues/8025).
+* Veeam - Fix error fetching datacenters by ID. [#8049](https://github.com/OpenNebula/one/issues/8049).
+* Veeam - Fix internal error when no credentials are provided. [#8050](https://github.com/OpenNebula/one/issues/8050).
+* Veeam - Fix internal error when credentials are incorrect. [#8051](https://github.com/OpenNebula/one/issues/8051).
+* Veeam - Fix wrong capabilities for non-persistent disks. [#8052](https://github.com/OpenNebula/one/issues/8052).
+* Veeam - Fix disk attachment fetch endpoint. [#8053](https://github.com/OpenNebula/one/issues/8053).
+* Veeam - Fix wrong transfer URL. [#8054](https://github.com/OpenNebula/one/issues/8054).
+* Veeam - Fix bug in poweroff endpoint. [#8059](https://github.com/OpenNebula/one/issues/8059).
+* Veeam - Fix out-of-memory errors during uploads. [#8078](https://github.com/OpenNebula/one/issues/8078).
