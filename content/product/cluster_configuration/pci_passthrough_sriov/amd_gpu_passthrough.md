@@ -11,7 +11,7 @@ weight: "8"
 
 ## Overview
 
-This guide describes how to assign an AMD GPU directly to an OpenNebula Virtual Machine using PCI passthrough, install ROCm in the guest, and validate the configuration with PyTorch and vLLM. While the Virtual Machine is running, the assigned GPU is exclusively owned by the guest. The AMD GPU driver and ROCm user-space components are therefore installed in the guest, not on the Host.
+This guide describes how to assign an AMD GPU directly to an OpenNebula Virtual Machine using PCI passthrough, install [AMD ROCm](https://rocm.docs.amd.com/en/latest/) in the guest, and validate the configuration with PyTorch and vLLM. While the VM is running, the assigned GPU is exclusively owned by the guest VM. The AMD GPU driver and ROCm user-space components are therefore installed in the guest, not on the Host.
 
 The generic PCI passthrough configuration is described in the [Host Configuration Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/" %}}). Complete the IOMMU and VFIO device ownership configuration before proceeding with this guide. The AMD-specific VFIO binding and PCI monitoring values are configured below.
 
@@ -25,7 +25,7 @@ The commands below reproduce a validated environment with the following software
 | QEMU | 8.2.2 |
 | Guest | Ubuntu 24.04.4, kernel 6.8.0-139 |
 | AMD GPU Driver release | 30.30.4 |
-| AMDGPU kernel module | 6.16.13 (DKMS) |
+| AMD GPU kernel module | 6.16.13 (DKMS) |
 | ROCm | 7.2.4 |
 | PyTorch | 2.9.1 for ROCm 7.2.4 |
 | vLLM | 0.28.1rc1.dev516+g9ea8f3ffc.rocm723 |
@@ -101,7 +101,7 @@ Example output from the validated hardware:
 
 Record the identifiers reported for each device intended for passthrough. For the validated hardware, these are:
 
-| Field | Value |
+| **Field** | **Value** |
 |-------|-------|
 | Vendor | `1002` |
 | Device | `74a5` |
@@ -255,7 +255,8 @@ Both Q35 and `host-passthrough` are required. Q35 provides the PCIe topology use
 
 ## Configure the Guest
 
-After deploying the Virtual Machine, verify that the guest can see the assigned device:
+After deploying the Virtual Machine, verify that the guest VM can see the assigned device. Run the following command on the command line of the guest VM (using `onevm ssh`
+):
 
 ```shell
 lspci -nnk -d 1002:
