@@ -256,4 +256,14 @@ DIFFERENT_VNETS: YES
 
 ## Blocking VM Migrations
 
-It is possible to avoid the migrations for specific VMs, by setting `ONEDRS_BLOCKED` to `YES` in its user template.
+It is possible to avoid the migrations for specific VMs during workload optimization, by setting `ONEDRS_BLOCKED` to `YES` in its user template.
+
+To achieve this in Sunstone for all VMs instantiated from a particular template, go to **Templates > VM Templates** and select the template. Then click **Update** (the icon with a pen) and **Next** to go to the **advanced options (Step 2)**. Choose **Placement** and under **Host Requirements** select **Prevent OneDRS migrations**.
+
+{{< image path="/images/cloud_administration/scheduler/onedrs_blocked-vm_template.png"
+    alt="Prevent OneDRS migrations in a VM Template" align="center" width="90%" mb="20px" >}}
+
+To prevent migrations for a specific VM in Sunstone, go to **Instances > VMs** and select the VM. Choose **Configuration** and click **Update configuration**. Choose **Placement** and select **Prevent OneDRS migrations**.
+
+{{< image path="/images/cloud_administration/scheduler/onedrs_blocked-vm.png"
+    alt="Prevent OneDRS migrations for a VM" align="center" width="90%" mb="20px" >}}
