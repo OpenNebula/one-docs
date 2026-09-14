@@ -10,8 +10,10 @@ type: docs
 The portal serves Prometheus metrics for the whole service on port 9101, `http://<portal management address>:9101/metrics`. Per worker it exposes `ood_worker_active_sessions`, `ood_worker_idle`, `ood_worker_idle_seconds` and `ood_worker_healthy`, read from what the workers publish to OneGate, plus `ood_role_cardinality` per role and `ood_portal_puns`, the per user web servers running on the portal. The same values are in the user template of each worker VM:
 
 ```shell
-$ onevm show <worker id> | grep -E 'ACTIVE_SESSIONS|IDLE|HEALTHY'
+$ onevm show <worker id> | grep -E 'ACTIVE_SESSIONS|IDLE|HEALTHY|SESSION_USERS'
 ```
+
+`SESSION_USERS` lists who has a session on the worker and since when, as `user:epoch` entries, so the VM accounting of OpenNebula can be attributed to users.
 
 A worker checks its home mount, the software catalogue and sshd before every report and publishes `HEALTHY=0` when one of them is missing. The portal sends no new session to a worker in that state, and the log of the check is on the worker, `journalctl -t ood-publish-load`.
 
@@ -62,5 +64,5 @@ This terminates the three VMs and the non persistent disks. A persistent home di
 ## Limitations
 
 * Interactive sessions run on VMs without a scheduler. A worker holds every session that lands on it, and a session uses the whole VM, shared with the other sessions on the same VM. Batch jobs can go to a Slurm cluster instead, see Configuration.
-* There is no GPU support in this release.
+* GPU workers are prepared but untested, see Configuration.
 * The first load of a module on a fresh deployment downloads it through the site cache on the storage role.
