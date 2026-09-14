@@ -1,0 +1,36 @@
+---
+title: "Open OnDemand Overview"
+linkTitle: "Overview"
+weight: 1
+type: docs
+---
+
+The Open OnDemand appliance deploys a complete Open OnDemand portal on OpenNebula. A user signs in, presses a button and gets a JupyterLab notebook, RStudio, Octave, a C++ notebook or VS Code running on a compute VM, with the scientific software served from the [EESSI](https://www.eessi.io/) catalogue and a home directory that follows them from session to session.
+
+The service has three roles, all running from the same image. `ONEAPP_ROLE` decides at boot which one a VM plays, and the OneFlow template sets it per role.
+
+| Role | What it runs | Cardinality |
+|---|---|---|
+| `storage` | NFS server for the shared home, site cache for the software catalogue | 1 |
+| `portal` | Open OnDemand, its own LDAP directory and Dex authentication | 1 |
+| `worker` | User sessions, inside Apptainer containers | 1 to 6, elastic |
+
+## How a session runs
+
+The portal reaches the worker VMs over SSH with the Open OnDemand `linux_host` adapter, and each session runs inside an Apptainer container with the VM filesystem mounted inside. There is no batch scheduler. Scientific software comes from EESSI over CernVM-FS, cached by the storage role, so a notebook opened here loads the same modules a user would find at a EuroHPC centre and the image does not age with the software it serves.
+
+## How the pool grows
+
+Every worker reports its open session count to OneGate. OneFlow adds a VM when the average passes one session per worker and removes one after three minutes with every worker empty. The portal sends each new session to the least loaded worker, so a VM added by the autoscaler receives work as soon as it is ready. A worker is serving about 40 seconds after instantiation.
+
+## Requirements
+
+* OpenNebula 6.10 or later, with [OneFlow](https://docs.opennebula.io/7.4/product/operation_references/opennebula_services_configuration/oneflow/) and [OneGate](https://docs.opennebula.io/7.4/product/virtual_machines_operation/multi-vm_workflows/onegate_usage/) enabled, and OneGate reachable from the service networks.
+* Two Virtual Networks. A management network with internet access, where the portal publishes its web interface, and a compute network reserved for the service, where the three roles talk to each other. The portal treats every live address in the range reserved for the workers as a worker, so nothing else may live there.
+* Outbound access to the EESSI CernVM-FS servers from the storage role.
+
+Marketplace defaults per VM are 2 vCPU and 4 GB of memory, 8 GB for the portal role. A worker runs every session that lands on it inside one VM, so size the worker role for the sessions you expect.
+
+## Versions and licence
+
+Open OnDemand 4.2 on Ubuntu 24.04, EESSI 2025.06, Apptainer 1.5. Open OnDemand is MIT licensed and the appliance code is Apache 2.0. There is no fee for the appliance; it runs on your own OpenNebula.
