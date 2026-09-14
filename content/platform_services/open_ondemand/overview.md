@@ -15,6 +15,11 @@ The service has three roles, all running from the same image. `ONEAPP_ROLE` deci
 | `portal` | Open OnDemand, its own LDAP directory and Dex authentication | 1 |
 | `worker` | User sessions, inside Apptainer containers | 1 to 6, elastic |
 
+{{< image path="/images/open_ondemand/light/architecture.svg" pathDark="/images/open_ondemand/dark/architecture.svg"
+alt="The three roles of the service on the management and compute networks" align="center" width="90%" mb="20px" >}}
+
+Instantiating the service creates one VM per role plus the elastic workers, on two Virtual Networks you select. The image, the VM template and the service template come from the marketplace download and stay in your OpenNebula after the service is deleted.
+
 ## How a session runs
 
 The portal reaches the worker VMs over SSH with the Open OnDemand `linux_host` adapter, and each session runs inside an Apptainer container with the VM filesystem mounted inside. There is no batch scheduler. Scientific software comes from EESSI over CernVM-FS, cached by the storage role, so a notebook opened here loads the same modules a user would find at a EuroHPC centre and the image does not age with the software it serves.
@@ -39,6 +44,7 @@ If a firewall sits between the networks, these are the flows the service needs:
 | portal and workers | storage | 2049 | the shared home over NFSv4 |
 | portal and workers | storage | 3128 | the software catalogue through the site cache |
 | every role | OneGate endpoint | 5030 by default | reporting readiness and session counts |
+| Prometheus | portal, management network | 9101 | the service metrics, only if you scrape them |
 | storage | internet | 80 and 8000 | the EESSI CernVM-FS servers, plain HTTP |
 
 The compute network carries the directory lookups in the clear, so it has to stay reserved for the service.
