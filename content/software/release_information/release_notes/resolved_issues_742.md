@@ -36,18 +36,49 @@ Merge these settings into the existing YAML sections, preserving other settings 
 
 ### Update any item without having permissions to create it on yaml FireEdge views [#6416](https://github.com/OpenNebula/one/issues/6416)
 
-In `sunstone/tabs/40-networks-tab.yaml`, add the following content as part of `routes` attributes:
+In `sunstone/tabs/40-networks-tab.yaml`, as part of `routes` attributes after the entry:
+
+```yaml
+    - title: Create Virtual Network
+      path: /virtual-network/create
+      Component: CreateVirtualNetwork
+```
+
+Add the following content:
 
 ```yaml
     - title: Update Virtual Network Template
       path: /network-template/update
       Component: CreateVnTemplate
+```
+
+Also, after the entry:
+
+```yaml
+    - title: Create Security Group
+      path: /security-group/create
+      Component: CreateSecurityGroup
+```
+
+Add the following content
+
+```yaml
     - title: Update Security Group
       path: /security-group/update
       Component: CreateSecurityGroup
 ```
 
-In `sunstone/tabs/60-systems-tab.yaml`, add the following content as part of `routes` attributes:
+In `sunstone/tabs/60-systems-tab.yaml`, as part of `routes` attributes after the entry:
+
+```yaml
+    - title: Groups
+      path: /group
+      sidebar: true
+      icon: Group
+      Component: Groups
+```
+
+Add the following content:
 
 ```yaml
     - title: Update Group
