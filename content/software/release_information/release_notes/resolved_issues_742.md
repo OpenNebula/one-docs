@@ -25,3 +25,4 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 * Fix failure of `onegroup create` CLI command with empty `--resource` parameter [#7458](https://github.com/OpenNebula/one/issues/7458).
 -->
 
+* Fix missing theme colors in Sunstone quota panels and improve quota usage readability with per-metric values and progress bars [#6869](https://github.com/OpenNebula/one/issues/6869).
