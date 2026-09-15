@@ -15,19 +15,22 @@ This section covers the lifecycle of a running Open OnDemand Service, from keepi
 
 By default the shared home lives on the root disk of the storage VM and goes with the service when the service is deleted. Two options keep it.
 
-**A persistent disk on the storage role.** Create a persistent Datablock and attach it to the storage role of the service template as a second `DISK` in its `vm_template_contents`:
+**A persistent disk on the storage role.** Create a persistent Datablock and add it to the `template_contents` of the storage role in the service template, next to the disk of the appliance image, because a `DISK` entry there replaces the whole disk list of the VM template:
 
 ```shell
 oneimage create --name ood-home --type DATABLOCK --size 51200 --persistent --datastore default
 ```
 
-```default
-DISK = [ IMAGE_ID = "<id of ood-home>" ]
+```json
+"DISK": [
+  { "IMAGE_ID": "<id of the appliance image>" },
+  { "IMAGE_ID": "<id of ood-home>" }
+]
 ```
 
 The storage role formats a blank second disk at first boot, labels it `ood-home` and keeps the home directories on it. A disk that already carries the label is mounted as it is, so deleting the service and instantiating it again with the same disk brings every home directory back. A disk with any other filesystem is left alone and the role stops with an error.
 
-**An NFS server you already run.** Set `ONEAPP_NFS_SERVER` and `ONEAPP_NFS_EXPORT` at instantiation. The server has to export the path with `no_root_squash` for the compute address of the portal, which creates each home directory on first login, and can keep `root_squash` for the workers. The storage role still runs the software cache.
+**An NFS server you already run.** Set `ONEAPP_NFS_SERVER` and `ONEAPP_NFS_EXPORT` at instantiation. The server has to export the path with `no_root_squash` for the address the portal reaches it from (its compute address when the server is on the compute network, its management address otherwise), because the portal creates each home directory on first login, and can keep `root_squash` for the workers. The storage role still runs the software cache.
 
 ## Upgrading
 

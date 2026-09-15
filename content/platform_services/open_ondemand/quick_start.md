@@ -45,7 +45,7 @@ In **Networks**, click each entry on the left and select its Virtual Network in 
 {{< image path="/images/open_ondemand/light/sunstone_instantiate_networks.png"
 alt="Instantiate wizard, Networks step" align="center" width="90%" mb="20px" >}}
 
-In **Service Inputs**, the only required value is `ONEAPP_POOL_RANGE`, in the **others** tab. It is the address range the compute network assigns to VMs, as `first-last`, and it has to match the network you selected as `Compute`. Everything else keeps its default, a self-signed certificate and the user `demo1`. The inputs are described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/" %}}):
+In **Service Inputs**, the only value to change is `ONEAPP_POOL_RANGE`, shown as **Address range the compute network assigns to VMs, first-last** in the **others** tab. It comes prefilled with `172.20.0.50-172.20.0.249`, so replace it with the range of the network you selected as `Compute`, as `first-last`. Everything else keeps its default, a self-signed certificate and the user `demo1`. The inputs are described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/" %}}):
 
 {{< image path="/images/open_ondemand/light/sunstone_instantiate_inputs.png"
 alt="Instantiate wizard, Service Inputs step" align="center" width="90%" mb="20px" >}}
@@ -59,7 +59,7 @@ The roles start in order, `storage` first and `worker` last, and each one declar
 {{< image path="/images/open_ondemand/light/sunstone_service_running.png"
 alt="The Open OnDemand Service running in Sunstone" align="center" width="90%" mb="20px" >}}
 
-Open the service and select the **Roles** tab to see the three roles and their VMs:
+Open the service and select the **Roles** tab to see the three roles, and tick a role to list its VMs:
 
 {{< image path="/images/open_ondemand/light/sunstone_service_roles.png"
 alt="The three roles of the running service" align="center" width="90%" mb="20px" >}}
@@ -68,7 +68,7 @@ A role that stays in `DEPLOYING` has not declared itself ready, see [Monitoring 
 
 ## Open the Portal
 
-The portal publishes its address as `OOD_URL` in the user template of the portal VM. Open the portal VM from the **Roles** tab of the service and read it in the **Template** tab, next to `READY`:
+The portal publishes its address as `OOD_URL` in the user template of the portal VM. In the **Roles** tab of the service, tick the `portal` role and click its VM in the table, then read it in the **Template** tab, under **User Template**, next to `READY`:
 
 {{< image path="/images/open_ondemand/light/sunstone_portal_ood_url.png"
 alt="The user template of the portal VM in Sunstone, with OOD_URL and READY" align="center" width="90%" mb="20px" >}}
@@ -88,7 +88,7 @@ It is `https://` followed by the management address of the portal VM, or by `ONE
 {{< image path="/images/open_ondemand/light/portal_login.png"
 alt="Open OnDemand login" align="center" width="90%" mb="20px" >}}
 
-The home directory is created on first login. The dashboard lists the six interactive applications:
+The home directory is created on first login. The **Interactive Apps** menu lists the six interactive applications, and the dashboard pins five of them:
 
 {{< image path="/images/open_ondemand/light/portal_dashboard.png"
 alt="Open OnDemand dashboard" align="center" width="90%" mb="20px" >}}
