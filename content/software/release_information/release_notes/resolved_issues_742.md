@@ -28,6 +28,7 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 * Fix VM template instantiation to allow precise memory values to be entered directly when memory modification is configured as a range [#7426](https://github.com/OpenNebula/one/issues/7426).
 * Fix Restic Datastore - the password filed is not masking the password [#7444](https://github.com/OpenNebula/one/issues/7444).
 * Fix missing theme colors in Sunstone quota panels and improve quota usage readability with per-metric values and progress bars [#6869](https://github.com/OpenNebula/one/issues/6869).
+* Fix service template updates in Sunstone [#7193](https://github.com/OpenNebula/one/issues/7193).
 
 ---
 
