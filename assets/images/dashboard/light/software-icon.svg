@@ -3,32 +3,42 @@
   <defs>
     <style>
       .cls-1 {
-        fill: #4CC9F0;
+        fill: #007099;
       }
 
       .cls-2, .cls-3 {
-        fill: #222431;
+        fill: #fff;
       }
 
       .cls-4 {
-        fill: #40435C;
+        fill: url(#Degradado_sin_nombre_60);
+        opacity: .8;
       }
 
       .cls-5 {
-        fill: #4CC9F0;
+        fill: #383945;
       }
 
       .cls-3 {
-        stroke: #D8DCEB;
+        stroke: #383945;
         stroke-linecap: round;
         stroke-linejoin: round;
         stroke-width: 2px;
       }
     </style>
+    <linearGradient id="Degradado_sin_nombre_60" data-name="Degradado sin nombre 60" x1="0" y1="60.06" x2="500" y2="60.06" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#efefef" stop-opacity=".8"/>
+      <stop offset=".11" stop-color="#efefef" stop-opacity=".77"/>
+      <stop offset=".26" stop-color="#f0f0f0" stop-opacity=".7"/>
+      <stop offset=".44" stop-color="#f3f3f3" stop-opacity=".58"/>
+      <stop offset=".63" stop-color="#f6f6f6" stop-opacity=".41"/>
+      <stop offset=".83" stop-color="#fbfbfb" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
   </defs>
   <rect class="cls-4" y=".12" width="500" height="119.88"/>
   <g>
-    <path class="cls-2" d="M103.39,44.84v45.5c0,1.59-1.11,2.93-2.43,2.93H26.19c-1.32,0-2.43-1.34-2.43-2.93v-45.5h79.62Z"/>
+    <path class="cls-2" d="M105.45,42.77v47.57c0,2.74-2.02,4.99-4.49,4.99H26.19c-2.47,0-4.49-2.25-4.49-4.99v-47.57h83.74Z"/>
     <g>
       <path class="cls-1" d="M78.25,93.25h24.56c.14,0,.28-.06.38-.15h0c.12-.11.19-.26.19-.43h0v-22.82c-9.92,9.14-22.75,14.49-36.22,15.09,1.44,4.92,5.96,8.31,11.09,8.31Z"/>
       <path class="cls-1" d="M102.81,47.08h-.04c-5.32.33-9.72,4.25-10.66,9.49h0c-.05.27-.29.47-.57.47-.1,0-.2-.03-.29-.08h0s-.02-.01-.03-.02c-5.37-3.42-12.5-1.83-15.91,3.54-1.87,2.94-2.31,6.57-1.2,9.87h0c.02.06.03.12.03.18,0,.24-.14.45-.36.54h0c-5.4,2.26-8.25,8.22-6.61,13.84,19.76-1.3,35.48-17.38,36.23-37.29-.01-.31-.27-.56-.58-.55Z"/>

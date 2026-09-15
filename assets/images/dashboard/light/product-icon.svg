@@ -3,11 +3,12 @@
   <defs>
     <style>
       .cls-1 {
-        fill: #26262e;
+        fill: #007099;
       }
 
       .cls-2 {
-        fill: #40435C;
+        fill: url(#Degradado_sin_nombre_60);
+        opacity: .8;
       }
 
       .cls-3, .cls-4 {
@@ -15,24 +16,32 @@
       }
 
       .cls-5 {
-        fill: #4CC9F0;
+        fill: #fff;
       }
 
       .cls-5, .cls-4 {
-        stroke: #4CC9F0;;
+        stroke: #383945;
         stroke-miterlimit: 10;
         stroke-width: 2px;
       }
 
       .cls-6 {
-        fill: #4CC9F0;;
+        fill: #383945;
       }
 
       .cls-4 {
-        stroke: #4CC9F0;;
         stroke-dasharray: 3.66 3.66;
       }
     </style>
+    <linearGradient id="Degradado_sin_nombre_60" data-name="Degradado sin nombre 60" x1="0" y1="60.06" x2="500" y2="60.06" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#efefef" stop-opacity=".8"/>
+      <stop offset=".11" stop-color="#efefef" stop-opacity=".77"/>
+      <stop offset=".26" stop-color="#f0f0f0" stop-opacity=".7"/>
+      <stop offset=".44" stop-color="#f3f3f3" stop-opacity=".58"/>
+      <stop offset=".63" stop-color="#f6f6f6" stop-opacity=".41"/>
+      <stop offset=".83" stop-color="#fbfbfb" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
   </defs>
   <rect class="cls-2" y=".12" width="500" height="119.88"/>
   <rect class="cls-3" y="17.37" width="98.56" height="98.56"/>
