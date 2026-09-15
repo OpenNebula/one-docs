@@ -9,45 +9,43 @@ weight: "2"
 type: docs
 ---
 
-This section describes the architecture of the Open OnDemand Service: the three roles, the two Virtual Networks they use, how a session runs and how the pool of compute VMs grows and shrinks. Read it after the [Quick Start]({{% relref "platform_services/open_ondemand/quick_start/" %}}) and before changing the [Configuration]({{% relref "platform_services/open_ondemand/configuration/" %}}).
+This section describes the three roles of the Open OnDemand Service, the two Virtual Networks they use, how a session runs and how the pool of compute VMs grows and shrinks.
 
 ## Roles
 
-The service is one OneFlow service with three roles. All of them boot from the same appliance image, and `ONEAPP_ROLE`, set per role in the service template, decides what a VM does at boot:
-
 | Role | Cardinality | What it runs |
 |---|---|---|
-| `storage` | 1 | NFS server for the shared home directories, Squid cache for the EESSI software catalogue |
-| `portal` | 1 | Open OnDemand, its LDAP directory, Dex for authentication, the Prometheus metrics exporter |
+| `storage` | 1 | NFS server for the shared home directories, Squid cache for the EESSI catalogue |
+| `portal` | 1 | Open OnDemand, its LDAP directory, Dex, the Prometheus metrics exporter |
 | `worker` | 1 to 6, elastic | User sessions, one Apptainer container per session |
 
 {{< image path="/images/open_ondemand/light/architecture.svg" pathDark="/images/open_ondemand/dark/architecture.svg"
 alt="The three roles of the service on the management and compute networks" align="center" width="90%" mb="20px" >}}
 
-OneFlow starts the roles in order: `storage` first, `portal` when the storage role is ready, and `worker` when both are. Every role reports `READY` through OneGate only when it is actually serving, so the service reaches `RUNNING` when a user can sign in and open a session.
+OneFlow starts `storage` first, `portal` when the storage role is ready, and `worker` when both are. Each role reports `READY` through OneGate only when it is actually serving, so the service reaches `RUNNING` when a user can sign in and open a session.
 
 ## Networks
 
-Every VM of the service has two network interfaces, on the two Virtual Networks selected at instantiation:
+Every VM has two network interfaces:
 
-* **Management network**: Reaches OneGate and the Internet. The portal publishes its web interface on this network, and the storage role downloads the software catalogue through it.
-* **Compute network**: Reserved for the service. The three roles talk to each other on it: NFS, LDAP, SSH for the sessions and the software cache.
+* **Management network**: reaches OneGate and the Internet. The portal publishes its web interface here, and the storage role downloads the software catalogue through it.
+* **Compute network**: reserved for the service. NFS, LDAP, the session SSH connections and the software cache run on it.
 
-The roles find each other without fixed addresses. OneFlow passes the compute address of the storage role to the portal and the workers, and the storage role asks OneGate which VM plays the portal and grants root on the home export to that address alone. The compute network address range is given as `ONEAPP_POOL_RANGE`, and the portal treats every live address in that range as a worker, apart from its own and the storage role's, so nothing else may live on that network. Directory lookups travel on it in the clear, which is the other reason it stays reserved.
+The roles find each other without fixed addresses. OneFlow passes the compute address of the storage role to the portal and the workers, and the storage role asks OneGate which VM is the portal. `ONEAPP_POOL_RANGE` is the address range of the compute network: the portal treats every live address in it as a worker, apart from its own and the storage role's, so nothing else may live on that network.
 
 ## How a Session Runs
 
-1. The user signs in on the portal. Dex checks the credentials against the LDAP directory of the portal role, and Open OnDemand starts a per user web server, the PUN, as that Unix user.
-2. The user chooses an application and presses **Launch**. The portal reads its roster of workers, kept up to date from OneGate, and picks the least loaded healthy worker. Among equals it picks the youngest, so a VM added by the autoscaler receives work as soon as it is ready and the oldest one drains as its sessions end.
-3. The portal connects to that worker over SSH as the user, with a key it keeps in the user's home, and starts the session inside an Apptainer container. The container sees the VM filesystem, the shared home and the EESSI catalogue mounted from CernVM-FS.
-4. The application listens on a port of the worker, and the portal proxies the browser to it. The user works in JupyterLab, RStudio or VS Code as if it were local.
-5. When the user deletes the session, or its walltime runs out, the container stops and the worker reports one session fewer.
+1. The user signs in. Dex checks the credentials against the LDAP directory, or against an external OpenID Connect provider, and Open OnDemand starts a per user web server as that Unix user.
+2. The user launches an application. The portal picks the least loaded healthy worker from its OneGate roster and, among equals, the youngest, so a VM the autoscaler just added receives work.
+3. The portal connects to the worker over SSH as the user and starts the session inside an Apptainer container that sees the VM filesystem, the home directory and the EESSI catalogue.
+4. The application listens on a port of the worker and the portal proxies the browser to it. Desktops run under a TurboVNC server on the worker and reach the browser through noVNC on the portal.
+5. Deleting the session, or reaching its walltime, stops the container.
 
-There is no batch scheduler on the pool. A worker holds every session that lands on it, up to `ONEAPP_WORKER_MAX_SESSIONS`, and the sessions on one VM share its CPU and memory.
+There is no scheduler on the pool. A worker holds up to `ONEAPP_WORKER_MAX_SESSIONS` sessions, which share its CPU and memory.
 
 ## How the Pool Grows and Shrinks
 
-Every worker publishes its state to OneGate every ten seconds, as attributes of its own VM:
+Every worker publishes these attributes to OneGate every ten seconds:
 
 | Attribute | Meaning |
 |---|---|
@@ -57,20 +55,13 @@ Every worker publishes its state to OneGate every ten seconds, as attributes of 
 | `HEALTHY` | `1` when the home mount, the software catalogue and sshd are all in place |
 | `SESSION_USERS` | Who has a session on this worker and since when, as `user:epoch` |
 
-OneFlow evaluates the elasticity policies of the worker role on the average of those attributes across the role:
-
-* **Grow**: one VM is added when the average of `ACTIVE_SESSIONS` passes 1, or when every worker reports `AT_CAPACITY`.
-* **Shrink**: one VM is removed when the oldest worker has been empty for `ONEAPP_WORKER_IDLE_SECONDS`, ten minutes by default. OneFlow removes the oldest VM of the role, and the placement rule above keeps that VM empty once its last session ends.
-
-The pool changes one VM at a time and never goes below one worker or above the `max_vms` of the role, six in the marketplace template. A new worker is serving about 40 seconds after OneFlow creates it.
+OneFlow evaluates the elasticity policies on the average across the role. It adds one VM when the average of `ACTIVE_SESSIONS` passes 1 or when every worker is at capacity, and removes the oldest VM when it has been empty for `ONEAPP_WORKER_IDLE_SECONDS`, ten minutes by default. The pool changes one VM at a time between 1 and `max_vms`, six in the marketplace template. A new worker is serving about 40 seconds after OneFlow creates it.
 
 ## Ports
 
-If a firewall sits between the networks, these are the flows the service needs:
-
 | From | To | Port | Purpose |
 |---|---|---|---|
-| Users | portal, management network | 443, and 80 with `letsencrypt` | The web interface |
+| Users | portal, management network | 443, and 80 with `letsencrypt` | The web interface, desktops included |
 | portal | workers | 22 | Starting and stopping sessions |
 | workers | portal | 389 | Resolving users against the directory |
 | portal and workers | storage | 2049 | The shared home over NFSv4 |
@@ -81,7 +72,7 @@ If a firewall sits between the networks, these are the flows the service needs:
 
 ## Requirements
 
-* OpenNebula 6.10 or later, with [OneFlow]({{% relref "product/operation_references/opennebula_services_configuration/oneflow/" %}}) and [OneGate]({{% relref "product/operation_references/opennebula_services_configuration/onegate/" %}}) enabled, and the OneGate endpoint reachable from the service networks.
-* Two Virtual Networks as described above, the compute one reserved for the service.
-* Outbound HTTP access from the storage role to the EESSI CernVM-FS servers.
-* Capacity for three VMs plus the workers you expect. The marketplace template gives every VM 2 vCPU and 4 GB of memory, 8 GB for the portal. Size the worker role for the sessions it will hold, see [Configuration]({{% relref "platform_services/open_ondemand/configuration/#sizing-the-roles" %}}).
+* OpenNebula 6.10 or later with [OneFlow]({{% relref "product/operation_references/opennebula_services_configuration/oneflow/" %}}) and [OneGate]({{% relref "product/operation_references/opennebula_services_configuration/onegate/" %}}) enabled, and the OneGate endpoint reachable from the service networks.
+* The two Virtual Networks above, the compute one reserved for the service.
+* Outbound HTTP from the storage role to the EESSI CernVM-FS servers.
+* Capacity for three VMs plus the workers you expect. The marketplace template gives every VM 2 vCPU and 4 GB of memory, 8 GB for the portal.
