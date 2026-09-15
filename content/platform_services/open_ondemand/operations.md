@@ -9,7 +9,7 @@ weight: "5"
 type: docs
 ---
 
-This section covers the lifecycle of a running Open OnDemand Service: keeping the home directories across deployments, upgrading to a new version of the appliance and removing the service.
+This section covers the lifecycle of a running Open OnDemand Service, from keeping the home directories across deployments to upgrading to a new version of the appliance and removing the service.
 
 ## Keeping the Home Directories
 

@@ -9,7 +9,7 @@ weight: "3"
 type: docs
 ---
 
-This quick-start guide uses the Sunstone Web UI to deploy an Open OnDemand Service with one portal, one storage VM and one worker, and to open a JupyterLab notebook on it. Before beginning, check the [Requirements]({{% relref "platform_services/open_ondemand/architecture/#requirements" %}}): OneFlow and OneGate enabled, and two Virtual Networks, one with Internet access and one reserved for the service.
+This quick-start guide uses the Sunstone Web UI to deploy an Open OnDemand Service with one portal, one storage VM and one worker, and to open a JupyterLab notebook on it. Before beginning, check the [Requirements]({{% relref "platform_services/open_ondemand/architecture/#requirements" %}}). You need OneFlow and OneGate enabled, and two Virtual Networks, one with Internet access and one reserved for the service.
 
 Quick-start workflow:
 
@@ -45,7 +45,7 @@ In **Networks**, click each entry on the left and select its Virtual Network in 
 {{< image path="/images/open_ondemand/light/sunstone_instantiate_networks.png"
 alt="Instantiate wizard, Networks step" align="center" width="90%" mb="20px" >}}
 
-In **Service Inputs**, the only required value is `ONEAPP_POOL_RANGE` in the **others** tab: the address range the compute network assigns to VMs, as `first-last`. It has to match the network you selected as `Compute`. Everything else keeps its default, a self-signed certificate and the user `demo1`. The inputs are described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/" %}}):
+In **Service Inputs**, the only required value is `ONEAPP_POOL_RANGE`, in the **others** tab. It is the address range the compute network assigns to VMs, as `first-last`, and it has to match the network you selected as `Compute`. Everything else keeps its default, a self-signed certificate and the user `demo1`. The inputs are described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/" %}}):
 
 {{< image path="/images/open_ondemand/light/sunstone_instantiate_inputs.png"
 alt="Instantiate wizard, Service Inputs step" align="center" width="90%" mb="20px" >}}
@@ -68,7 +68,17 @@ A role that stays in `DEPLOYING` has not declared itself ready, see [Monitoring 
 
 ## Open the Portal
 
-The portal answers on `https://<management address of the portal VM>/`, the first address shown for the portal VM in the **Roles** tab, or on `https://<ONEAPP_OOD_SERVERNAME>/` if you gave it a host name. With the default self-signed certificate the browser asks you to accept it. Sign in with the initial user, `demo1` with password `demo1pass` unless you changed `ONEAPP_LDAP_USERS`:
+The portal publishes its address as `OOD_URL` in the attributes of the portal VM. Open the portal VM from the **Roles** tab of the service and read it in the **Info** tab, or from the Front-end command line:
+
+```shell
+onevm show <portal vm id> | grep OOD_URL
+```
+
+```default
+OOD_URL="https://192.168.100.162/"
+```
+
+It is `https://` followed by the management address of the portal VM, or by `ONEAPP_OOD_SERVERNAME` if you gave it a host name. With the default self-signed certificate the browser asks you to accept it. Sign in with the initial user, `demo1` with password `demo1pass` unless you changed `ONEAPP_LDAP_USERS`:
 
 {{< image path="/images/open_ondemand/light/portal_login.png"
 alt="Open OnDemand login" align="center" width="90%" mb="20px" >}}

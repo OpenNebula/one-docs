@@ -29,7 +29,7 @@ Every VM boots from the same image and `ONEAPP_ROLE`, set per role in the servic
 * **portal**: One VM. Runs Open OnDemand, its LDAP directory and Dex, the login service.
 * **worker**: One to six VMs, elastic. Runs the user sessions, each one in an Apptainer container started over SSH by the portal.
 
-The service also keeps a roster of healthy workers and sends each new session to the least loaded one, creates the initial users at first boot, and gets the portal a TLS certificate: self-signed by default, Let's Encrypt for a public name, or one of your own.
+The service also keeps a roster of healthy workers and sends each new session to the least loaded one, creates the initial users at first boot, and gets the portal a TLS certificate, self-signed by default, from Let's Encrypt for a public name, or one of your own.
 
 ## Related Components
 
