@@ -20,7 +20,7 @@ This section describes the three roles of the Open OnDemand Service, the two Vir
 | `worker` | 1 to 6, elastic | User sessions, one Apptainer container per session |
 
 {{< image path="/images/open_ondemand/light/architecture.svg" pathDark="/images/open_ondemand/dark/architecture.svg"
-alt="The three roles of the service on the management and compute networks" align="center" width="90%" mb="20px" >}}
+alt="The storage, portal and worker roles between the management and compute networks, with the flows between them" align="center" width="100%" mb="20px" >}}
 
 OneFlow starts `storage` first, `portal` when the storage role is ready, and `worker` when both are. Each role reports `READY` through OneGate only when it is actually serving, so the service reaches `RUNNING` when a user can sign in and open a session.
 
