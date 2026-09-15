@@ -68,14 +68,19 @@ A role that stays in `DEPLOYING` has not declared itself ready, see [Monitoring 
 
 ## Open the Portal
 
-The portal publishes its address as `OOD_URL` in the attributes of the portal VM. Open the portal VM from the **Roles** tab of the service and read it in the **Info** tab, or from the Front-end command line:
+The portal publishes its address as `OOD_URL` in the user template of the portal VM. Open the portal VM from the **Roles** tab of the service and read it in the **Template** tab, next to `READY`:
+
+{{< image path="/images/open_ondemand/light/sunstone_portal_ood_url.png"
+alt="The user template of the portal VM in Sunstone, with OOD_URL and READY" align="center" width="90%" mb="20px" >}}
+
+The same value is available from the Front-end command line:
 
 ```shell
 onevm show <portal vm id> | grep OOD_URL
 ```
 
 ```default
-OOD_URL="https://192.168.100.162/"
+OOD_URL="https://192.168.100.165/"
 ```
 
 It is `https://` followed by the management address of the portal VM, or by `ONEAPP_OOD_SERVERNAME` if you gave it a host name. With the default self-signed certificate the browser asks you to accept it. Sign in with the initial user, `demo1` with password `demo1pass` unless you changed `ONEAPP_LDAP_USERS`:
