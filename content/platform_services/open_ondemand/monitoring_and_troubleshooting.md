@@ -23,6 +23,7 @@ The portal serves Prometheus metrics on port 9101 of its management address, `ht
 | `ood_role_cardinality` | VMs in each role |
 | `ood_portal_puns` | Per user web servers running on the portal, one per signed in user |
 | `ood_service_state` | The OneFlow state of the service |
+{.w-100}
 
 The same values are in the user template of each worker VM, in Sunstone or with `onevm show <worker id>`, together with `SESSION_USERS`, who has a session on the worker and since when. A worker whose home mount, software catalogue or sshd fails publishes `HEALTHY=0`, and the portal sends it no new session until it recovers.
 
