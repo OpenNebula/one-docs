@@ -24,10 +24,10 @@ The commands below reproduce a validated environment with the following software
 | Host | Ubuntu 22.04.5, kernel 6.5.0-45 |
 | QEMU | 8.2.2 |
 | Guest | Ubuntu 24.04.4, kernel 6.8.0-139 |
-| AMD GPU Driver release | 30.30.4 |
-| AMD GPU kernel module | 6.16.13 (DKMS) |
-| ROCm | 7.2.4 |
-| PyTorch | 2.9.1 for ROCm 7.2.4 |
+| AMD GPU Driver release | [30.30.4](https://instinct.docs.amd.com/projects/amdgpu-docs/en/docs-30.30.4/index.html) |
+| amdgpu kernel module | 6.16.13 (DKMS) |
+| ROCm | [7.2.4](https://github.com/ROCm/legacy-rocm-build/releases#release-rocm-7.2.4) |
+| PyTorch | [2.9.1 for ROCm 7.2.4](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.2.4/install/3rd-party/pytorch-install.html) |
 | vLLM | 0.28.1rc1.dev516+g9ea8f3ffc.rocm723 |
 
 Refer to the [ROCm documentation](https://rocm.docs.amd.com/) and the [vLLM installation documentation](https://docs.vllm.ai/en/latest/getting_started/installation/gpu/) before using a different software combination.
