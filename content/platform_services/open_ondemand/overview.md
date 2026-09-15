@@ -9,57 +9,36 @@ weight: "1"
 type: docs
 ---
 
-The Open OnDemand Service deploys a complete [Open OnDemand](https://openondemand.org/) portal on OpenNebula. A user signs in from a browser, chooses an application and gets a JupyterLab notebook, RStudio, Octave, a C++ notebook or VS Code running on a compute VM, with scientific software served from the [EESSI](https://www.eessi.io/) catalogue and a home directory that follows them from session to session.
+The Open OnDemand Service deploys an [Open OnDemand](https://openondemand.org/) portal on OpenNebula. A user signs in from a browser and opens JupyterLab, RStudio, Octave, a C++ notebook, VS Code or an Xfce desktop on a compute VM, with scientific software from the [EESSI](https://www.eessi.io/) catalogue and a home directory that follows them from session to session.
 
-The service is designed for teams that want to offer interactive computing on their own OpenNebula cloud without running a batch scheduler first. Typical use cases include teaching and training environments, notebook access for research groups, and a self-service front end for a Slurm Cluster deployed with the [Elastic Slurm]({{% relref "platform_services/slurm/" %}}) service.
-
-The service is a OneFlow service built from a single appliance image. Three roles start from that image, and OneFlow adds and removes compute VMs from the pool as sessions open and close. Users interact with the portal only. OpenNebula, OneFlow and OneGate details are handled underneath.
+The service is a OneFlow service built from one appliance image. Three roles boot from it, and OneFlow adds and removes compute VMs as sessions open and close. It suits teaching environments, notebook access for research groups, and a browser front end for a Slurm Cluster deployed with the [Elastic Slurm]({{% relref "platform_services/slurm/" %}}) service.
 
 ## How Should I Read this Chapter
 
-If you have not used the service before, start with the [Quick Start]({{% relref "platform_services/open_ondemand/quick_start/" %}}), where you deploy the service from the Community Marketplace and open a notebook. Then read the [Service Architecture]({{% relref "platform_services/open_ondemand/architecture/" %}}) to understand the three roles, the two networks and how a session runs.
+Start with the [Quick Start]({{% relref "platform_services/open_ondemand/quick_start/" %}}) to deploy the service from the Community Marketplace and open a notebook. The [Service Architecture]({{% relref "platform_services/open_ondemand/architecture/" %}}) explains the roles, the networks and how a session runs. Then:
 
-After the introductory pages, the following references cover the day to day operation of the service:
-
-* [Configuration]({{% relref "platform_services/open_ondemand/configuration/" %}}): the service inputs, scaling, worker sizes, Slurm, external identity providers and users.
-* [Operations]({{% relref "platform_services/open_ondemand/operations/" %}}): scaling by hand, keeping the home directories, upgrading and removing the service.
-* [Monitoring and Troubleshooting]({{% relref "platform_services/open_ondemand/monitoring_and_troubleshooting/" %}}): metrics, worker health, logs and what to check when a session does not start.
-
-## Interfaces
-
-The service can be reached through the following interfaces:
-
-* **Sunstone Web UI**: Instantiate, inspect and scale the service from **Instances -> Services**.
-* **OneFlow CLI**: `oneflow` and `oneflow-template` for the same operations from the Front-end command line.
-* **The portal**: The Open OnDemand web interface where users open sessions, browse files and submit jobs. It answers on HTTPS on the management network.
-* **Prometheus metrics**: The portal serves the state of the whole service on `/metrics`, for an existing monitoring stack.
+* [Configuration]({{% relref "platform_services/open_ondemand/configuration/" %}}): inputs, scaling, worker sizes, Slurm, external identity providers, users.
+* [Operations]({{% relref "platform_services/open_ondemand/operations/" %}}): manual scaling, persistent home directories, upgrades, removal.
+* [Monitoring and Troubleshooting]({{% relref "platform_services/open_ondemand/monitoring_and_troubleshooting/" %}}): metrics, logs and what to check when something fails.
 
 ## What the Service Manages
 
-The service is one OneFlow service with three roles. Every role boots from the same image and `ONEAPP_ROLE` decides what a VM does:
+Every VM boots from the same image and `ONEAPP_ROLE`, set per role in the service template, decides what it does:
 
-* **storage**: One VM. Exports the shared home directory over NFS and runs the site cache that serves the EESSI software catalogue over CernVM-FS.
-* **portal**: One VM. Runs Open OnDemand, its own LDAP directory and Dex, the authentication service that Open OnDemand uses for the login page.
-* **worker**: One to six VMs, elastic. Runs the user sessions. Each session is an Apptainer container on a worker VM, started over SSH by the portal.
+* **storage**: One VM. Exports the shared home directory over NFS and caches the EESSI software catalogue.
+* **portal**: One VM. Runs Open OnDemand, its LDAP directory and Dex, the login service.
+* **worker**: One to six VMs, elastic. Runs the user sessions, each one in an Apptainer container started over SSH by the portal.
 
-The service also manages:
-
-* **Session placement**: The portal keeps a roster of healthy workers from OneGate and sends every new session to the least loaded one.
-* **Elasticity**: Workers report their open sessions to OneGate, and OneFlow adds a VM when the pool fills up and removes the oldest one when it has been empty for a while.
-* **Users**: The initial users are created in the portal's LDAP directory at first boot, and a home directory is created on first login.
-* **TLS**: A self-signed certificate by default, Let's Encrypt for a public host name, or a certificate of your own.
+The service also keeps a roster of healthy workers and sends each new session to the least loaded one, creates the initial users at first boot, and gets the portal a TLS certificate: self-signed by default, Let's Encrypt for a public name, or one of your own.
 
 ## Related Components
 
-The service should be understood together with the following components:
-
-* [**OneFlow**]({{% relref "product/operation_references/opennebula_services_configuration/oneflow/" %}}): Orchestrates the three roles, starts them in order and applies the elasticity policies of the worker role.
-* [**OneGate**]({{% relref "product/operation_references/opennebula_services_configuration/onegate/" %}}): The channel between the VMs and OpenNebula. Every role reports its readiness through it, the workers publish their session counts, and the storage and portal roles discover each other through it. OneGate must be reachable from the service networks.
-* [**Open OnDemand**](https://osc.github.io/ood-documentation/latest/): The portal software, developed by the Ohio Supercomputer Center. The service uses its `linux_host` adapter for the VM pool and its `slurm` adapter for an optional Slurm Cluster.
-* [**EESSI**](https://www.eessi.io/docs/): The European Environment for Scientific Software Installations, a shared software catalogue distributed over CernVM-FS. Sessions load their software from it, so the image does not age with the software it serves.
-* [**Apptainer**](https://apptainer.org/docs/user/latest/): The container runtime that isolates each session on a worker VM.
-* [**Elastic Slurm**]({{% relref "platform_services/slurm/" %}}): The OneSlurm service can be attached as a second cluster for batch jobs. It shares the users and the home directory with the portal.
+* [**OneFlow**]({{% relref "product/operation_references/opennebula_services_configuration/oneflow/" %}}): starts the roles in order and applies the elasticity policies of the worker role.
+* [**OneGate**]({{% relref "product/operation_references/opennebula_services_configuration/onegate/" %}}): the channel between the VMs and OpenNebula. Roles report readiness through it and workers publish their session counts. It must be reachable from the service networks.
+* [**Open OnDemand**](https://osc.github.io/ood-documentation/latest/): the portal software, by the Ohio Supercomputer Center. The service uses its `linux_host` adapter for the VM pool and its `slurm` adapter for an optional Slurm Cluster.
+* [**EESSI**](https://www.eessi.io/docs/): a shared scientific software catalogue distributed over CernVM-FS. The image ships the CernVM-FS client and a site cache; the software itself is fetched on demand.
+* [**Elastic Slurm**]({{% relref "platform_services/slurm/" %}}): the OneSlurm service can be attached as a second cluster for batch jobs, sharing the users and the home directory.
 
 ## Supported Versions
 
-The current appliance ships Open OnDemand 4.2 on Ubuntu 24.04 LTS, with EESSI 2025.06 and Apptainer 1.5. It runs on OpenNebula 6.10 and later, with OneFlow and OneGate enabled. Open OnDemand is MIT licensed and the appliance code is Apache 2.0.
+The appliance ships Open OnDemand 4.2 on Ubuntu 24.04 LTS, EESSI 2025.06, Apptainer 1.5, TurboVNC 3.3 and Xfce 4.18. It runs on OpenNebula 6.10 and later with OneFlow and OneGate enabled. Open OnDemand is MIT licensed and the appliance code is Apache 2.0.
