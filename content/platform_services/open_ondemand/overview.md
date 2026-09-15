@@ -1,56 +1,65 @@
 ---
-title: "Open OnDemand Overview"
+title: "Overview"
 linkTitle: "Overview"
-weight: 1
+date: "2026-09-15"
+description:
+categories:
+tags:
+weight: "1"
 type: docs
 ---
 
-The Open OnDemand appliance deploys a complete Open OnDemand portal on OpenNebula. A user signs in, presses a button and gets a JupyterLab notebook, RStudio, Octave, a C++ notebook or VS Code running on a compute VM, with the scientific software served from the [EESSI](https://www.eessi.io/) catalogue and a home directory that follows them from session to session.
+The Open OnDemand Service deploys a complete [Open OnDemand](https://openondemand.org/) portal on OpenNebula. A user signs in from a browser, chooses an application and gets a JupyterLab notebook, RStudio, Octave, a C++ notebook or VS Code running on a compute VM, with scientific software served from the [EESSI](https://www.eessi.io/) catalogue and a home directory that follows them from session to session.
 
-The service has three roles, all running from the same image. `ONEAPP_ROLE` decides at boot which one a VM plays, and the OneFlow template sets it per role.
+The service is designed for teams that want to offer interactive computing on their own OpenNebula cloud without running a batch scheduler first. Typical use cases include teaching and training environments, notebook access for research groups, and a self-service front end for a Slurm Cluster deployed with the [Elastic Slurm]({{% relref "platform_services/slurm/" %}}) service.
 
-| Role | What it runs | Cardinality |
-|---|---|---|
-| `storage` | NFS server for the shared home, site cache for the software catalogue | 1 |
-| `portal` | Open OnDemand, its own LDAP directory and Dex authentication | 1 |
-| `worker` | User sessions, inside Apptainer containers | 1 to 6, elastic |
+The service is a OneFlow service built from a single appliance image. Three roles start from that image, and OneFlow adds and removes compute VMs from the pool as sessions open and close. Users interact with the portal only. OpenNebula, OneFlow and OneGate details are handled underneath.
 
-{{< image path="/images/open_ondemand/light/architecture.svg" pathDark="/images/open_ondemand/dark/architecture.svg"
-alt="The three roles of the service on the management and compute networks" align="center" width="90%" mb="20px" >}}
+## How Should I Read this Chapter
 
-Instantiating the service creates one VM per role plus the elastic workers, on two Virtual Networks you select. The image, the VM template and the service template come from the marketplace download and stay in your OpenNebula after the service is deleted.
+If you have not used the service before, start with the [Quick Start]({{% relref "platform_services/open_ondemand/quick_start/" %}}), where you deploy the service from the Community Marketplace and open a notebook. Then read the [Service Architecture]({{% relref "platform_services/open_ondemand/architecture/" %}}) to understand the three roles, the two networks and how a session runs.
 
-## How a session runs
+After the introductory pages, the following references cover the day to day operation of the service:
 
-The portal reaches the worker VMs over SSH with the Open OnDemand `linux_host` adapter, and each session runs inside an Apptainer container with the VM filesystem mounted inside. There is no batch scheduler. Scientific software comes from EESSI over CernVM-FS, cached by the storage role, so a notebook opened here loads the same modules a user would find at a EuroHPC centre and the image does not age with the software it serves.
+* [Configuration]({{% relref "platform_services/open_ondemand/configuration/" %}}): the service inputs, scaling, worker sizes, Slurm, external identity providers and users.
+* [Operations]({{% relref "platform_services/open_ondemand/operations/" %}}): scaling by hand, keeping the home directories, upgrading and removing the service.
+* [Monitoring and Troubleshooting]({{% relref "platform_services/open_ondemand/monitoring_and_troubleshooting/" %}}): metrics, worker health, logs and what to check when a session does not start.
 
-## How the pool grows
+## Interfaces
 
-Every worker reports its open session count to OneGate. OneFlow adds a VM when the average passes one session per worker and removes one when the oldest worker has been empty for ten minutes, one VM at a time. The portal sends each new session to the least loaded worker and, among equals, to the youngest, so a VM added by the autoscaler receives work as soon as it is ready and the oldest one drains as its sessions end. A worker is serving about 40 seconds after instantiation.
+The service can be reached through the following interfaces:
 
-## Requirements
+* **Sunstone Web UI**: Instantiate, inspect and scale the service from **Instances -> Services**.
+* **OneFlow CLI**: `oneflow` and `oneflow-template` for the same operations from the Front-end command line.
+* **The portal**: The Open OnDemand web interface where users open sessions, browse files and submit jobs. It answers on HTTPS on the management network.
+* **Prometheus metrics**: The portal serves the state of the whole service on `/metrics`, for an existing monitoring stack.
 
-* OpenNebula 6.10 or later, with [OneFlow](https://docs.opennebula.io/7.4/product/operation_references/opennebula_services_configuration/oneflow/) and [OneGate](https://docs.opennebula.io/7.4/product/virtual_machines_operation/multi-vm_workflows/onegate_usage/) enabled, and OneGate reachable from the service networks.
-* Two Virtual Networks. A management network with internet access, where the portal publishes its web interface, and a compute network reserved for the service, where the three roles talk to each other. The portal treats every live address in the range that network assigns as a worker, apart from its own and the storage role's, so nothing else may live there.
-* Outbound access to the EESSI CernVM-FS servers from the storage role.
+## What the Service Manages
 
-If a firewall sits between the networks, these are the flows the service needs:
+The service is one OneFlow service with three roles. Every role boots from the same image and `ONEAPP_ROLE` decides what a VM does:
 
-| From | To | Port | What for |
-|---|---|---|---|
-| users | portal, management network | 443, and 80 with `letsencrypt` | the web interface |
-| portal | workers | 22 | starting and stopping sessions |
-| workers | portal | 389 | resolving users against the directory |
-| portal and workers | storage | 2049 | the shared home over NFSv4 |
-| portal and workers | storage | 3128 | the software catalogue through the site cache |
-| every role | OneGate endpoint | 5030 by default | reporting readiness and session counts |
-| Prometheus | portal, management network | 9101 | the service metrics, only if you scrape them |
-| storage | internet | 80 and 8000 | the EESSI CernVM-FS servers, plain HTTP |
+* **storage**: One VM. Exports the shared home directory over NFS and runs the site cache that serves the EESSI software catalogue over CernVM-FS.
+* **portal**: One VM. Runs Open OnDemand, its own LDAP directory and Dex, the authentication service that Open OnDemand uses for the login page.
+* **worker**: One to six VMs, elastic. Runs the user sessions. Each session is an Apptainer container on a worker VM, started over SSH by the portal.
 
-The compute network carries the directory lookups in the clear, so it has to stay reserved for the service.
+The service also manages:
 
-Marketplace defaults per VM are 2 vCPU and 4 GB of memory, 8 GB for the portal role. A worker runs every session that lands on it inside one VM, so size the worker role for the sessions you expect.
+* **Session placement**: The portal keeps a roster of healthy workers from OneGate and sends every new session to the least loaded one.
+* **Elasticity**: Workers report their open sessions to OneGate, and OneFlow adds a VM when the pool fills up and removes the oldest one when it has been empty for a while.
+* **Users**: The initial users are created in the portal's LDAP directory at first boot, and a home directory is created on first login.
+* **TLS**: A self-signed certificate by default, Let's Encrypt for a public host name, or a certificate of your own.
 
-## Versions and licence
+## Related Components
 
-Open OnDemand 4.2 on Ubuntu 24.04, EESSI 2025.06, Apptainer 1.5. Open OnDemand is MIT licensed and the appliance code is Apache 2.0. There is no fee for the appliance; it runs on your own OpenNebula.
+The service should be understood together with the following components:
+
+* [**OneFlow**]({{% relref "product/operation_references/opennebula_services_configuration/oneflow/" %}}): Orchestrates the three roles, starts them in order and applies the elasticity policies of the worker role.
+* [**OneGate**]({{% relref "product/operation_references/opennebula_services_configuration/onegate/" %}}): The channel between the VMs and OpenNebula. Every role reports its readiness through it, the workers publish their session counts, and the storage and portal roles discover each other through it. OneGate must be reachable from the service networks.
+* [**Open OnDemand**](https://osc.github.io/ood-documentation/latest/): The portal software, developed by the Ohio Supercomputer Center. The service uses its `linux_host` adapter for the VM pool and its `slurm` adapter for an optional Slurm Cluster.
+* [**EESSI**](https://www.eessi.io/docs/): The European Environment for Scientific Software Installations, a shared software catalogue distributed over CernVM-FS. Sessions load their software from it, so the image does not age with the software it serves.
+* [**Apptainer**](https://apptainer.org/docs/user/latest/): The container runtime that isolates each session on a worker VM.
+* [**Elastic Slurm**]({{% relref "platform_services/slurm/" %}}): The OneSlurm service can be attached as a second cluster for batch jobs. It shares the users and the home directory with the portal.
+
+## Supported Versions
+
+The current appliance ships Open OnDemand 4.2 on Ubuntu 24.04 LTS, with EESSI 2025.06 and Apptainer 1.5. It runs on OpenNebula 6.10 and later, with OneFlow and OneGate enabled. Open OnDemand is MIT licensed and the appliance code is Apache 2.0.
