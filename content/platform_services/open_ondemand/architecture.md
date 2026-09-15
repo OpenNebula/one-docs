@@ -32,7 +32,7 @@ Every VM has two network interfaces:
 * **Management network**: reaches OneGate and the Internet. The portal publishes its web interface here, and the storage role downloads the software catalogue through it.
 * **Compute network**: reserved for the service. NFS, LDAP, the session SSH connections and the software cache run on it.
 
-The roles find each other without fixed addresses. OneFlow passes the compute address of the storage role to the portal and the workers, and the storage role asks OneGate which VM is the portal. `ONEAPP_POOL_RANGE` is the address range of the compute network, and the portal treats every live address in it as a worker, apart from its own and the storage role's, so nothing else may live on that network.
+The roles find each other without fixed addresses. OneFlow passes the compute address of the storage role to the portal and the workers, and the storage role asks OneGate which VM is the portal. The portal asks OneGate which VMs the worker roles have, so a VM that is not part of the service never receives a session. `ONEAPP_POOL_RANGE` is the address range of the compute network that the portal accepts workers from, and it is only probed on a standalone portal without OneGate, so keep that network reserved for the service.
 
 ## How a Session Runs
 
