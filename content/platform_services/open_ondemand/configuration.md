@@ -28,6 +28,7 @@ All inputs are `ONEAPP_*` context variables. OneFlow places every one of them in
 | `ONEAPP_OIDC_ISSUER`, `ONEAPP_OIDC_CLIENT_ID`, `ONEAPP_OIDC_CLIENT_SECRET` | empty | An OpenID Connect provider for the login page. |
 | `ONEAPP_OIDC_NAME` | `Institutional login` | Name of that provider on the login page. |
 | `ONEAPP_NFS_SERVER`, `ONEAPP_NFS_EXPORT` | empty, `/export/home` | An NFS server of your own for the home directories, and the export path. Empty uses the storage role. |
+{.w-100}
 
 The mode and name of the certificate, the Slurm controller and the OpenID Connect inputs can also be set on a running portal with `onevm updateconf`; the portal reconfigures itself in under a minute.
 

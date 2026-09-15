@@ -18,6 +18,7 @@ This section describes the three roles of the Open OnDemand Service, the two Vir
 | `storage` | 1 | NFS server for the shared home directories, Squid cache for the EESSI catalogue |
 | `portal` | 1 | Open OnDemand, its LDAP directory, Dex, the Prometheus metrics exporter |
 | `worker` | 1 to 6, elastic | User sessions, one Apptainer container per session |
+{.w-100}
 
 {{< image path="/images/open_ondemand/light/architecture.svg" pathDark="/images/open_ondemand/dark/architecture.svg"
 alt="The storage, portal and worker roles between the management and compute networks, with the flows between them" align="center" width="100%" mb="20px" >}}
@@ -54,6 +55,7 @@ Every worker publishes these attributes to OneGate every ten seconds:
 | `OLDEST_IDLE` | `1` when the oldest worker of the role has been empty for `ONEAPP_WORKER_IDLE_SECONDS` |
 | `HEALTHY` | `1` when the home mount, the software catalogue and sshd are all in place |
 | `SESSION_USERS` | Who has a session on this worker and since when, as `user:epoch` |
+{.w-100}
 
 OneFlow evaluates the elasticity policies on the average across the role. It adds one VM when the average of `ACTIVE_SESSIONS` passes 1 or when every worker is at capacity, and removes the oldest VM when it has been empty for `ONEAPP_WORKER_IDLE_SECONDS`, ten minutes by default. The pool changes one VM at a time between 1 and `max_vms`, six in the marketplace template. A new worker is serving about 40 seconds after OneFlow creates it.
 
@@ -69,6 +71,7 @@ OneFlow evaluates the elasticity policies on the average across the role. It add
 | Every role | OneGate endpoint | 5030 by default | Readiness and session counts |
 | Prometheus | portal, management network | 9101 | Service metrics, only if scraped |
 | storage | Internet | 80 and 8000 | The EESSI CernVM-FS servers, plain HTTP |
+{.w-100}
 
 ## Requirements
 
