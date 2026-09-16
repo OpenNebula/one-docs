@@ -32,7 +32,7 @@ Every VM has two network interfaces:
 * **Management network**: reaches OneGate and the Internet. The portal publishes its web interface here, and the storage role downloads the software catalogue through it.
 * **Compute network**: reserved for the service. NFS, LDAP, the session SSH connections and the software cache run on it.
 
-The roles find each other without fixed addresses. OneFlow passes the compute address of the storage role to the portal and the workers, and the storage role asks OneGate which VM is the portal. The portal asks OneGate which VMs the worker roles have, so a VM that is not part of the service never receives a session. `ONEAPP_POOL_RANGE` is the address range of the compute network that the portal accepts workers from, and it is only probed on a standalone portal without OneGate, so keep that network reserved for the service.
+The roles find each other without fixed addresses. OneFlow passes the compute address of the storage role to the portal and the workers, and the storage role asks OneGate which VM is the portal. The portal asks OneGate which VMs the worker roles have, so a VM that is not part of the service never receives a session. The portal derives the worker address range from its own compute interface, the whole /24 around its address, and only probes it on a standalone portal without OneGate, so keep that network reserved for the service. A compute network larger than a /24 needs an explicit `ONEAPP_POOL_RANGE`, described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/#advanced-attributes" %}}).
 
 ## How a Session Runs
 
@@ -63,7 +63,7 @@ OneFlow evaluates the elasticity policies on the average across the role. It add
 
 | From | To | Port | Purpose |
 |---|---|---|---|
-| Users | portal, management network | 443, and 80 with `letsencrypt` | The web interface, desktops included |
+| Users | portal, management network | 443, and 80 with Let's Encrypt | The web interface, desktops included |
 | portal | workers | 22 | Starting and stopping sessions |
 | workers | portal | 389 | Resolving users against the directory |
 | portal and workers | storage | 2049 | The shared home over NFSv4 |
@@ -76,6 +76,6 @@ OneFlow evaluates the elasticity policies on the average across the role. It add
 ## Requirements
 
 * OpenNebula 6.10 or later with [OneFlow]({{% relref "product/operation_references/opennebula_services_configuration/oneflow/" %}}) and [OneGate]({{% relref "product/operation_references/opennebula_services_configuration/onegate/" %}}) enabled, and the OneGate endpoint reachable from the service networks.
-* The two Virtual Networks above, the compute one reserved for the service.
+* The two Virtual Networks above, the compute one reserved for the service and no larger than a /24 unless you set `ONEAPP_POOL_RANGE`.
 * Outbound HTTP from the storage role to the EESSI CernVM-FS servers.
 * Capacity for three VMs plus the workers you expect. The marketplace template gives every VM 2 vCPU and 4 GB of memory, 8 GB for the portal.
