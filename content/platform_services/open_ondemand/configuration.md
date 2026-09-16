@@ -21,7 +21,7 @@ All inputs are `ONEAPP_*` context variables. OneFlow places every one of them in
 | Portal | `ONEAPP_PORTAL_LETSENCRYPT_ENABLED` | `NO` | Request a Let's Encrypt certificate for the host name. The name has to resolve to the portal, and ports 80 and 443 have to be reachable from the Internet when the portal boots. On failure the portal keeps its self-signed certificate. |
 | Portal | `ONEAPP_PORTAL_CERTIFICATE_ENABLED` | `NO` | Use a certificate of your own instead of the self-signed one. |
 | Portal | `ONEAPP_PORTAL_CERTIFICATE_CHAIN`, `ONEAPP_PORTAL_CERTIFICATE_KEY` | empty | PEM certificate chain and private key, both required when the switch is on. |
-| Users and login | `ONEAPP_AUTH_LOCAL_USERS` | `demo1:demo1pass:10001` | Initial users, `user:password:uid` separated by spaces, created in the directory of the portal at first boot. |
+| Users and login | `ONEAPP_AUTH_LOCAL_USERS` | `demo1:demo1pass` | Initial users, `user:password` separated by spaces, created in the directory of the portal at first boot. A uid may follow, `user:password:uid`, to match accounts that exist elsewhere; the others get the next free number from 10001. |
 | Users and login | `ONEAPP_AUTH_OIDC_ENABLED` | `NO` | Sign in through an OpenID Connect provider as well, see [External Identity Provider](#external-identity-provider). |
 | Users and login | `ONEAPP_AUTH_OIDC_ISSUER`, `ONEAPP_AUTH_OIDC_CLIENT_ID`, `ONEAPP_AUTH_OIDC_CLIENT_SECRET` | empty | Issuer URL, client id and client secret registered at the provider. The issuer and the client id are required when the switch is on, and the secret may stay empty for a provider that allows public clients. |
 | Users and login | `ONEAPP_AUTH_OIDC_NAME` | `Institutional login` | Name of the provider on the login page. |
