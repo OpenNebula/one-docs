@@ -7,7 +7,7 @@ weight: 1
 
 ---
 
-## General characteristics
+## General Characteristics
 
 The OpenNebula Proof of Concept (PoC) service allows potential customers to test the Enterprise Edition of OpenNebula software directly in their own environment. This provides a low-risk opportunity to assess its functionality, performance, and compatibility, ensuring it meets their specific needs and requirements before committing to a full deployment.
 
@@ -17,13 +17,13 @@ In the following sections we present the hardware and architectural requirements
 
 Finally, this guide outlines our phased approach to the PoC service, which ensures ongoing bi-directional communication with OpenNebula Solution Architects and other engineering resources, providing expert guidance and support throughout the Proof of Concept process.
 
-By using the Proof of Concept service, prospects get the following benefits:
+By using the Proof of Concept service, customers get the following benefits:
 
-- **Stable Software Version** – It leverages a more fixed and tested software version, since the PoC features OpenNebula Enterprise Edition (EE). This ensures higher stability that prospects might encounter with the Community Edition (CE).
+- **Stable Software Version** – The PoC leverages a more rigorously tested software version with bug fixes and stability enhancements, since it features OpenNebula Enterprise Edition (EE). This ensures higher stability than customers might typically encounter with the Community Edition (CE).
 
-- **Pre-Installed & Pre-Configured Environment** – It eliminates the installation and configuration burden, allowing prospects to focus on testing features and evaluating performance rather than troubleshooting setup issues.
+- **Pre-Installed & Pre-Configured Environment** – It eliminates the installation and configuration burden, allowing customers to focus on testing features and evaluating performance rather than troubleshooting setup issues.
 
-## Is running an OpenNebula PoC for me?
+## Is running an OpenNebula PoC for Me?
 
 Running an OpenNebula PoC in your own environment is an excellent way to explore how OpenNebula operates and evaluate its core functionalities. However, it is important to note that the PoC environment is not designed to precisely replicate your production environment.
 
@@ -37,8 +37,8 @@ The table below should help you decide the best medium to test and validate Open
 | ----------------------------- | --------------- | -------------------- | --------------------------------------------------------------------------------- |
 | Price                         | FREE            | FREE                 | [Get in touch](https://opennebula.io/contact/)                                    |
 | Maximum # of Hosts            | Unlimited       | 3                    | Unlimited                                                                         |
-| Training                      | No              | Included             | via [Professional Service](https://opennebula.io/enterprise/#enterprise_services) |
-| OpenNebula Consultant Access  | No              | Up to 5 hours        | via [Professional Service](https://opennebula.io/enterprise/#enterprise_services) |
+| Training                      | No              | Included             | via [Professional Services](https://opennebula.io/enterprise/#enterprise_services) |
+| OpenNebula Consultant Access  | No              | Up to 5 hours        | via [Professional Services](https://opennebula.io/enterprise/#enterprise_services) |
 | OpenNebula Support            | Community Forum | Enterprise - Limited | Enterprise                                                                        |
 | Duration                      | Unlimited       | 4 weeks              | [Get in touch](https://opennebula.io/contact/)                                    |
 | OpenNebula Enterprise Edition | No              | Yes                  | Yes                                                                               |
