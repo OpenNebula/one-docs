@@ -7,7 +7,7 @@ weight: 1
 
 ---
 
-# General characteristics
+## General characteristics
 
 The OpenNebula Proof of Concept (PoC) service allows potential customers to test the Enterprise Edition of OpenNebula software directly in their own environment. This provides a low-risk opportunity to assess its functionality, performance, and compatibility, ensuring it meets their specific needs and requirements before committing to a full deployment.
 
@@ -23,7 +23,7 @@ By using the Proof of Concept service, prospects get the following benefits:
 
 - **Pre-Installed & Pre-Configured Environment** – It eliminates the installation and configuration burden, allowing prospects to focus on testing features and evaluating performance rather than troubleshooting setup issues.
 
-# PoC vs. Production Cloud Deployment
+## PoC vs. Production Cloud Deployment
 
 A Proof of Concept and a Production Cloud Deployment have different objectives, scope, and deliverables.
 
