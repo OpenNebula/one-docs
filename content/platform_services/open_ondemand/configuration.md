@@ -13,7 +13,7 @@ This section describes the inputs of the Open OnDemand Service and how to size t
 
 ## Service Inputs
 
-All inputs are `ONEAPP_*` context variables. OneFlow places every one of them in the context of every VM of the service, where root can read it, `ONEAPP_PORTAL_CERTIFICATE_KEY` and `ONEAPP_AUTH_OIDC_CLIENT_SECRET` included. Every input is optional, and the Sunstone wizard groups them in four tabs, **Portal**, **Users and login**, **Home directories** and **Slurm**. A feature with an `_ENABLED` switch shows its other inputs only while the switch is `YES`, and ignores them while it is `NO`.
+All inputs are `ONEAPP_*` context variables. OneFlow places every one of them in the context of every VM of the service, where root can read it, `ONEAPP_PORTAL_CERTIFICATE_KEY` and `ONEAPP_AUTH_OIDC_CLIENT_SECRET` included. Every input is optional, and the Sunstone wizard groups them in four tabs, **Portal**, **Users and login**, **Home directories** and **Slurm**. A feature with an `_ENABLED` switch shows its other inputs only while the switch is `YES`, and ignores them while it is `NO`. A switch turned on with a required field empty stops the role at boot, and the message names the field, see [A Role Does Not Reach RUNNING]({{% relref "platform_services/open_ondemand/monitoring_and_troubleshooting/#a-role-does-not-reach-running" %}}).
 
 | Tab | Input | Default | Description |
 |---|---|---|---|
