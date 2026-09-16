@@ -45,10 +45,10 @@ On the workers, `journalctl -t ood-publish-load` shows what the health check fou
 
 `oneflow show <service_id>` names the role. Open a console on its VM and read the last lines of `/var/log/ood-appliance-configure.log`. The usual causes:
 
-* **OneGate not reachable**: a role that cannot reach OneGate never declares itself ready. The appliance tries `ONEGATE_ENDPOINT` from the VM context first and then port 5030 on the VM's default gateway, and `/var/log/ood-appliance-configure.log` records which one answered. Check that one of the two is reachable from the management network.
-* **The storage role cannot reach the EESSI servers**: it needs outbound HTTP on ports 80 and 8000.
-* **The portal cannot mount the home**: the storage role grants it root on the export through OneGate within about 20 seconds of the portal VM existing. A portal still waiting after three minutes points at OneGate.
-* **The wrong address range**: `ONEAPP_POOL_RANGE` does not match the compute network.
+* **OneGate not reachable.** A role that cannot reach OneGate never declares itself ready. The appliance tries `ONEGATE_ENDPOINT` from the VM context first and then port 5030 on the VM's default gateway, and `/var/log/ood-appliance-configure.log` records which one answered. Check that one of the two is reachable from the management network.
+* **The storage role cannot reach the EESSI servers.** It needs outbound HTTP on ports 80 and 8000.
+* **The portal cannot mount the home.** The storage role grants it root on the export through OneGate within about 20 seconds of the portal VM existing. A portal still waiting after three minutes points at OneGate.
+* **The wrong address range.** The portal derives the worker range from its compute interface, the /24 around its address, so a compute network larger than that needs `ONEAPP_POOL_RANGE` set to a /24 slice of it, and a standalone portal needs it to match the network. A range wider than one /24 stops the portal with `ONEAPP_POOL_RANGE has to be inside a single /24` in `/var/log/ood-appliance-configure.log`.
 
 ## A Session Does Not Start
 
@@ -59,7 +59,7 @@ On the workers, `journalctl -t ood-publish-load` shows what the health check fou
 
 ## Users Cannot Sign In
 
-On the portal, `systemctl status slapd ondemand-dex` and `ldapsearch -x -H ldap://localhost -b dc=ood,dc=local uid=<user>`. A user who signs in but cannot open a session has no Unix account on the worker: `getent passwd <user>` on the worker has to answer, through `sssd` against the portal on port 389.
+On the portal, `systemctl status slapd ondemand-dex` and `ldapsearch -x -H ldap://localhost -b dc=ood,dc=local uid=<user>`. A user who signs in but cannot open a session has no Unix account on the worker, where `getent passwd <user>` has to answer through `sssd` against the portal on port 389.
 
 ## The Pool Does Not Scale
 

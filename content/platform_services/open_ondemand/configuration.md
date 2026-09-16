@@ -13,24 +13,37 @@ This section describes the inputs of the Open OnDemand Service and how to size t
 
 ## Service Inputs
 
-All inputs are `ONEAPP_*` context variables. OneFlow places every one of them in the context of every VM of the service, where root can read it, `ONEAPP_OOD_SSL_KEY` and `ONEAPP_OIDC_CLIENT_SECRET` included.
+All inputs are `ONEAPP_*` context variables. OneFlow places every one of them in the context of every VM of the service, where root can read it, `ONEAPP_PORTAL_CERTIFICATE_KEY` and `ONEAPP_AUTH_OIDC_CLIENT_SECRET` included. Every input is optional, and the Sunstone wizard groups them in four tabs, **Portal**, **Users and login**, **Home directories** and **Slurm**. A feature with an `_ENABLED` switch shows its other inputs only while the switch is `YES`, and ignores them while it is `NO`.
 
-| Input | Default | Description |
-|---|---|---|
-| `ONEAPP_POOL_RANGE` | `172.20.0.50-172.20.0.249` | **Required**. Address range the compute Virtual Network assigns to VMs, as `first-last`. |
-| `ONEAPP_OOD_SERVERNAME` | empty | Public host name of the portal, resolving to its management address. Empty makes the portal answer on that address. |
-| `ONEAPP_OOD_SSL_MODE` | `selfsigned` | `selfsigned`, `letsencrypt` (needs a public name and port 80 reachable) or `custom`. |
-| `ONEAPP_OOD_SSL_CERT`, `ONEAPP_OOD_SSL_KEY` | empty | PEM certificate chain and private key for the `custom` mode. |
-| `ONEAPP_LDAP_USERS` | `demo1:demo1pass:10001` | Initial users, `user:password:uid` separated by spaces. |
-| `ONEAPP_WORKER_IDLE_SECONDS` | `600` | How long the oldest worker stays empty before the pool loses a VM. |
-| `ONEAPP_WORKER_MAX_SESSIONS` | `4` | Sessions a worker takes. New sessions go elsewhere at that count, and a pool with every worker at it grows. |
-| `ONEAPP_SLURM_CONTROLLER` | empty | Compute address of a Slurm controller that shares the users and the home. |
-| `ONEAPP_OIDC_ISSUER`, `ONEAPP_OIDC_CLIENT_ID`, `ONEAPP_OIDC_CLIENT_SECRET` | empty | An OpenID Connect provider for the login page. |
-| `ONEAPP_OIDC_NAME` | `Institutional login` | Name of that provider on the login page. |
-| `ONEAPP_NFS_SERVER`, `ONEAPP_NFS_EXPORT` | empty, `/export/home` | An NFS server of your own for the home directories, and the export path. Empty uses the storage role. |
+| Tab | Input | Default | Description |
+|---|---|---|---|
+| Portal | `ONEAPP_PORTAL_HOST_NAME` | empty | Public host name of the portal, resolving to its management address. Empty makes the portal answer on that address. |
+| Portal | `ONEAPP_PORTAL_LETSENCRYPT_ENABLED` | `NO` | Request a Let's Encrypt certificate for the host name. The name has to resolve to the portal, and ports 80 and 443 have to be reachable from the Internet when the portal boots. On failure the portal keeps its self-signed certificate. |
+| Portal | `ONEAPP_PORTAL_CERTIFICATE_ENABLED` | `NO` | Use a certificate of your own instead of the self-signed one. |
+| Portal | `ONEAPP_PORTAL_CERTIFICATE_CHAIN`, `ONEAPP_PORTAL_CERTIFICATE_KEY` | empty | PEM certificate chain and private key, both required when the switch is on. |
+| Users and login | `ONEAPP_AUTH_LOCAL_USERS` | `demo1:demo1pass:10001` | Initial users, `user:password:uid` separated by spaces, created in the directory of the portal at first boot. |
+| Users and login | `ONEAPP_AUTH_OIDC_ENABLED` | `NO` | Sign in through an OpenID Connect provider as well, see [External Identity Provider](#external-identity-provider). |
+| Users and login | `ONEAPP_AUTH_OIDC_ISSUER`, `ONEAPP_AUTH_OIDC_CLIENT_ID`, `ONEAPP_AUTH_OIDC_CLIENT_SECRET` | empty | Issuer URL, client id and client secret registered at the provider. The issuer and the client id are required when the switch is on, and the secret may stay empty for a provider that allows public clients. |
+| Users and login | `ONEAPP_AUTH_OIDC_NAME` | `Institutional login` | Name of the provider on the login page. |
+| Home directories | `ONEAPP_HOME_NFS_ENABLED` | `NO` | Use an NFS server of your own for the home directories instead of the storage role, which then only keeps the software cache. |
+| Home directories | `ONEAPP_HOME_NFS_SERVER` | empty | Address of that NFS server, required when the switch is on. |
+| Home directories | `ONEAPP_HOME_NFS_EXPORT` | `/export/home` | Path of the home export. With the switch off, it is also the path the storage role exports. |
+| Slurm | `ONEAPP_SLURM_CONTROLLER_ENABLED` | `NO` | Submit batch jobs to a Slurm cluster that shares the users and the home, see [Batch Jobs with Slurm](#batch-jobs-with-slurm). |
+| Slurm | `ONEAPP_SLURM_CONTROLLER_HOST` | empty | Compute address of the Slurm controller, required when the switch is on. |
 {.w-100}
 
-The mode and name of the certificate, the Slurm controller and the OpenID Connect inputs can also be set on a running portal with `onevm updateconf`; the portal reconfigures itself in under a minute.
+The host name, the Slurm controller and the OpenID Connect inputs can also be set on a running portal with `onevm updateconf`, and the portal reconfigures itself in under a minute. The portal keeps the certificate it already has for its host name, so a certificate switch changed later takes effect only together with a new host name. To apply it under the same host name, remove `/etc/ood/ssl/<host name>.crt` and `.key` on the portal (named after the address when there is no host name), and the next reconfigure issues the certificate again.
+
+## Advanced Attributes
+
+Three attributes never appear in the wizard, so set them in the `template_contents` of a role in the service template, or in the `CONTEXT` of a standalone portal VM. A value set in a role reaches that role only, and the table names the role that reads each attribute:
+
+| Attribute | Default | Description |
+|---|---|---|
+| `ONEAPP_WORKER_IDLE_SECONDS` | `600` | Seconds the oldest worker stays empty before the pool loses a VM. The worker role reads it. |
+| `ONEAPP_WORKER_MAX_SESSIONS` | `4` | Sessions a worker takes. New sessions go elsewhere at that count, and a pool with every worker at it grows. The worker role and the portal role both read it, so set it in both. |
+| `ONEAPP_POOL_RANGE` | derived | Address range the portal accepts workers from, as `first-last`. Inside a service the portal derives it from its compute interface, the whole /24 around its address, so set it only for a compute network larger than a /24 or for a portal outside a OneFlow service. The range has to stay inside one /24, so on a larger compute network reserve a /24 slice of it for the workers and give that slice here. The portal role reads it. |
+{.w-100}
 
 ## Sizing the Roles
 
@@ -38,7 +51,7 @@ The marketplace template gives every VM 2 vCPU and 4 GB of memory, 8 GB for the 
 
 ## Scaling the Worker Pool
 
-The pool scales on its own, see [How the Pool Grows and Shrinks]({{% relref "platform_services/open_ondemand/architecture/#how-the-pool-grows-and-shrinks" %}}). `ONEAPP_WORKER_IDLE_SECONDS` sets how long the oldest worker stays empty before it is removed, and `ONEAPP_WORKER_MAX_SESSIONS` how many sessions a worker takes before the pool grows. Raise `max_vms` of the worker role in the service template for a pool larger than six. To set the size by hand while the service is `RUNNING` (OneFlow refuses the command during the cooldown that follows every scale operation, 120 seconds after growing and 300 seconds after the policy shrinks):
+The pool scales on its own, see [How the Pool Grows and Shrinks]({{% relref "platform_services/open_ondemand/architecture/#how-the-pool-grows-and-shrinks" %}}). `ONEAPP_WORKER_IDLE_SECONDS` sets how long the oldest worker stays empty before it is removed, and `ONEAPP_WORKER_MAX_SESSIONS` how many sessions a worker takes before the pool grows. Both are [Advanced Attributes](#advanced-attributes), the first in the worker role and the second in both the worker and the portal roles, because the workers publish `AT_CAPACITY` from it and the portal caps the dispatcher with it. Raise `max_vms` of the worker role in the service template for a pool larger than six. To set the size by hand while the service is `RUNNING` (OneFlow refuses the command during the cooldown that follows every scale operation, 120 seconds after growing and 300 seconds after the policy shrinks):
 
 ```shell
 oneflow scale <service_id> worker <cardinality>
@@ -59,7 +72,7 @@ The GPU role was prepared without a GPU to test on. Run `nvidia-smi` inside a se
 
 ## Batch Jobs with Slurm
 
-The VM pool has no scheduler. For a queue, a walltime and accounting, attach the [Elastic Slurm]({{% relref "platform_services/slurm/" %}}) service. The portal offers it as a second cluster in the Job Composer and Active Jobs, while the interactive applications keep running on the pool. The Slurm Cluster shares the users and the home directory with the portal.
+The VM pool has no scheduler, so for a queue, a walltime and accounting attach the [Elastic Slurm]({{% relref "platform_services/slurm/" %}}) service. The portal offers it as a second cluster in the Job Composer and Active Jobs, while the interactive applications keep running on the pool. The Slurm Cluster shares the users and the home directory with the portal.
 
 1. Note the compute addresses of the portal and storage VMs of the running service, the second address of each in `onevm list --list ID,NAME,IP`.
 2. Instantiate `OneSlurm` on the same compute network with its local LDAP disabled:
@@ -73,22 +86,22 @@ The VM pool has no scheduler. For a queue, a walltime and accounting, attach the
 
    From the command line, the instantiation file has to list every input of the template, the others at their defaults.
 
-3. Once OneSlurm is `RUNNING`, give the portal the compute address of the Slurm controller:
+3. Once OneSlurm is `RUNNING`, enable the Slurm integration on the portal with the compute address of the controller:
 
    ```shell
    onevm updateconf <portal vm id> --append <<EOT
-   CONTEXT = [ ONEAPP_SLURM_CONTROLLER = "<controller compute address>" ]
+   CONTEXT = [ ONEAPP_SLURM_CONTROLLER_ENABLED = "YES", ONEAPP_SLURM_CONTROLLER_HOST = "<controller compute address>" ]
    EOT
    ```
 
 {{< image path="/images/open_ondemand/light/job_composer_slurm.png"
 alt="A job submitted from the Job Composer and completed on the Slurm cluster" align="center" width="90%" mb="20px" >}}
 
-The portal installs no Slurm client: `sbatch`, `squeue`, `scancel`, `sinfo`, `sacct` and `scontrol` run on the controller over SSH as the user. Job history in `sacct` needs `slurmdbd` on the controller, which the default OneSlurm deployment does not run. The `appliances/one-ondemand/docs/slurmdbd-setup.sh` script of the [appliance repository](https://github.com/OpenNebula/marketplace-community) installs it with MariaDB, enables accounting in `slurm.conf` and registers the cluster.
+The portal installs no Slurm client, so `sbatch`, `squeue`, `scancel`, `sinfo`, `sacct` and `scontrol` run on the controller over SSH as the user. Job history in `sacct` needs `slurmdbd` on the controller, which the default OneSlurm deployment does not run. The `appliances/one-ondemand/docs/slurmdbd-setup.sh` script of the [appliance repository](https://github.com/OpenNebula/marketplace-community) installs it with MariaDB, enables accounting in `slurm.conf` and registers the cluster.
 
 ## External Identity Provider
 
-With `ONEAPP_OIDC_ISSUER`, `ONEAPP_OIDC_CLIENT_ID` and `ONEAPP_OIDC_CLIENT_SECRET` set, the login page offers the provider beside the local directory. Register `https://<ONEAPP_OOD_SERVERNAME>/dex/callback` as the redirect URI at the provider. The account name is the `preferred_username` claim, or the part of the email before the at sign when the provider sends no such claim, and a user who signs in this way needs an entry in the LDAP directory under that name, because the session runs as a Unix user with a home directory.
+When `ONEAPP_AUTH_OIDC_ENABLED` is `YES`, the login page offers the provider in `ONEAPP_AUTH_OIDC_ISSUER`, `ONEAPP_AUTH_OIDC_CLIENT_ID` and `ONEAPP_AUTH_OIDC_CLIENT_SECRET` beside the local directory, under the name in `ONEAPP_AUTH_OIDC_NAME`. Register `https://<ONEAPP_PORTAL_HOST_NAME>/dex/callback` as the redirect URI at the provider. The account name is the `preferred_username` claim, or the part of the email before the at sign when the provider sends no such claim, and a user who signs in this way needs an entry in the LDAP directory under that name, because the session runs as a Unix user with a home directory.
 
 ## Managing Users
 
