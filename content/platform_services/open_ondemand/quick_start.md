@@ -116,7 +116,7 @@ The **Users and login** tab decides who can sign in. For a first start keep the 
 
 | Option | What it does |
 |---|---|
-| **Local users**<br>`ONEAPP_AUTH_LOCAL_USERS` | The accounts the portal creates in its directory at first boot, as `user:password:uid` separated by spaces. Every user needs a different uid of 1000 or more. The default is `demo1:demo1pass:10001`. |
+| **Local users**<br>`ONEAPP_AUTH_LOCAL_USERS` | The accounts the portal creates in its directory at first boot, as `user:password` separated by spaces. The default is `demo1:demo1pass`. A uid may follow, `user:password:uid`, to match accounts that exist elsewhere. |
 | **OpenID Connect**<br>`ONEAPP_AUTH_OIDC_ENABLED` | Adds an institutional login next to the local one, MyAccessID or Keycloak for instance. The switch reveals the issuer URL, the client id, the client secret and the name shown on the login page. |
 {.w-100}
 
@@ -169,7 +169,33 @@ OOD_URL="https://192.168.100.165/"
 
 It is `https://` followed by the management address of the portal VM, or by `ONEAPP_PORTAL_HOST_NAME` if you gave it a host name. With the default self-signed certificate the browser asks you to accept it.
 
-The address belongs to the management network. When your desk cannot reach that network, put a public address in front of the portal VM, a floating address or a NAT rule on the router of the network to its management address, give that public address a DNS name, and set the name as the host name of the portal, at instantiation or later with `onevm updateconf`. The portal then builds its links on that name. A lab without a domain can use [sslip.io](https://sslip.io), a public DNS service that resolves a name such as `ood.51-159-138-137.sslip.io` to the address written in it. Sign in with the initial user, `demo1` with password `demo1pass` unless you changed `ONEAPP_AUTH_LOCAL_USERS`:
+The address belongs to the management network. When your desk reaches that network, open it as it is. When it does not, follow [Reach the Portal from Outside](#reach-the-portal-from-outside) below.
+
+### Reach the Portal from Outside
+
+Three things give the portal a public name, a public address that forwards to the portal VM, a DNS name for that address, and that name set as the host name of the portal. The example uses the public address `51.159.138.137` of a single-host cloud whose Front-end owns it, and the portal VM at `192.168.100.184` on the management network.
+
+1. **A DNS name.** Point a name of your domain at the public address, or use [sslip.io](https://sslip.io), a public DNS service that resolves any name with an address written in it, so `ood.51-159-138-137.sslip.io` resolves to `51.159.138.137` with nothing to register.
+
+2. **Port forwarding to the portal.** On a cloud provider, a floating address or a port forwarding rule of the provider to the management address of the portal VM does it. On a Linux host that owns the public address, two NAT rules forward ports 443 and 80 (80 only matters for Let's Encrypt), saved so they survive a reboot:
+
+   ```shell
+   iptables -t nat -A PREROUTING -i ens2 -p tcp --dport 443 -j DNAT --to-destination 192.168.100.184:443
+   iptables -t nat -A PREROUTING -i ens2 -p tcp --dport 80 -j DNAT --to-destination 192.168.100.184:80
+   iptables-save > /etc/iptables/rules.v4
+   ```
+
+   `ens2` is the interface that carries the public address. The VMs of the management network need a route back through that host, which a network with the host as gateway already has.
+
+3. **The name as host name of the portal.** At instantiation, in the **Portal** tab, or on a running portal, which reconfigures itself in under a minute and issues a self-signed certificate for the name:
+
+   ```shell
+   onevm updateconf <portal vm id> --append <<EOT
+   CONTEXT = [ ONEAPP_PORTAL_HOST_NAME = "ood.51-159-138-137.sslip.io" ]
+   EOT
+   ```
+
+`OOD_URL` on the portal VM changes to `https://ood.51-159-138-137.sslip.io/`. With the name resolving and ports 80 and 443 reachable from the Internet, the **Let's Encrypt** switch at instantiation gives a certificate the browser trusts, and **Your own certificate** takes one you already have. A portal VM replaced by OneFlow gets a new management address, so the forwarding rule has to follow it. Sign in with the initial user, `demo1` with password `demo1pass` unless you changed `ONEAPP_AUTH_LOCAL_USERS`:
 
 {{< image path="/images/open_ondemand/light/portal_login.png"
 alt="Open OnDemand login" align="center" width="90%" mb="20px" >}}
