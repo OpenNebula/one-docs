@@ -43,7 +43,10 @@ On the workers, `journalctl -t ood-publish-load` shows what the health check fou
 
 ## A Role Does Not Reach RUNNING
 
-`oneflow show <service_id>` names the role. Open a console on its VM and read the last lines of `/var/log/ood-appliance-configure.log`. The usual causes:
+`oneflow show <service_id>` names the role. When a check stops the role, the VM carries the reason as its `ERROR` attribute, so Sunstone shows it in a red banner on the VM and `onevm show <vm id> | grep ERROR` prints it. Fix the value and instantiate the service again, or read the last lines of `/var/log/ood-appliance-configure.log` on the VM when the attribute is missing. The usual causes:
+
+* **A switch turned on with its field empty.** `ONEAPP_HOME_NFS_ENABLED`, `ONEAPP_SLURM_CONTROLLER_ENABLED`, `ONEAPP_AUTH_OIDC_ENABLED` and `ONEAPP_PORTAL_CERTIFICATE_ENABLED` each require their fields, and the message names the missing one. The wizard cannot check this, because Sunstone validates a required field even while the switch hides it.
+* **A wrong entry in the initial users.** A duplicate user name or uid, a missing password, a uid under 1000 or a name with capitals stops the portal with a message that quotes the entry.
 
 * **OneGate not reachable.** A role that cannot reach OneGate never declares itself ready. The appliance tries `ONEGATE_ENDPOINT` from the VM context first and then port 5030 on the VM's default gateway, and `/var/log/ood-appliance-configure.log` records which one answered. Check that one of the two is reachable from the management network.
 * **The storage role cannot reach the EESSI servers.** It needs outbound HTTP on ports 80 and 8000.

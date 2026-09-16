@@ -13,7 +13,7 @@ This quick-start guide uses the Sunstone Web UI to deploy an Open OnDemand Servi
 
 Quick-start workflow:
 
-* **Create the compute network**: a Virtual Network reserved for the service, next to one with Internet access that you already have.
+* **Create the networks**: a management network with Internet access, which you probably have, and a compute network reserved for the service.
 * **Download the appliance**: import the image, the VM template and the service template from the Community Marketplace.
 * **Instantiate the service**: select the two Virtual Networks and keep the default inputs.
 * **Wait for the service**: the service reaches the `RUNNING` state in about four minutes.
@@ -21,29 +21,55 @@ Quick-start workflow:
 
 ## Before You Start
 
-Every VM of the service has two network interfaces, one on each of the two Virtual Networks the wizard asks for:
+The service needs two Virtual Networks, and the wizard asks for both:
 
-* **Management network.** It reaches the Internet and the OneGate endpoint. The portal publishes its web interface on it, and the storage role downloads the software catalogue through it. Any network your VMs already use for Internet access works.
-* **Compute network.** Only the VMs of the service live on it. NFS, the LDAP directory, the SSH connections that start sessions and the software cache run on it.
+* **Management network.** The network your VMs already use to reach the Internet. The portal publishes its web interface on it, and OneGate has to be reachable from it.
+* **Compute network.** A private network for the VMs of this service and nothing else. The shared home, the user directory, the software cache and the SSH connections that start sessions use it.
 
-The compute network is separate for two reasons. The directory lookups cross it in the clear, and the workers accept session connections only from addresses on it, so nothing outside the service may live there. The portal also derives the worker address range from its own address on that network, the whole /24 around it, so create the network as a /24 or smaller. On a larger network, reserve a /24 slice of it for the workers and give it as `ONEAPP_POOL_RANGE`, described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/#advanced-attributes" %}}).
+Keep the compute network private and small, a /24 or smaller. Its traffic is not encrypted, the workers accept sessions only from it, and the portal takes every address of that /24 as a possible worker. A larger network needs `ONEAPP_POOL_RANGE`, described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/#advanced-attributes" %}}).
 
-To create the compute network, go to **Networks -> Virtual Networks**, click **+ Create Virtual Network** and choose **From scratch**. In **General**, give it a name, `ood-compute` for instance, and select the Cluster of the Hosts that will run the service:
+Both networks are created from **Networks -> Virtual Networks** with **+ Create Virtual Network** and **From scratch**. Most installations already have a management network, so skip the first one if yours does. From the Front-end command line, `onevnet create` creates the same networks from a template file, see [Managing Virtual Networks]({{% relref "product/cluster_configuration/networking_system/manage_vnets/" %}}).
+
+### Create the Management Network
+
+1. **General.** Give it a name, `ood-management` for instance, and select the Cluster of the Hosts that will run the service. Click **Next**.
+
+{{< image path="/images/open_ondemand/light/sunstone_vnet_management_general.png"
+alt="Create Virtual Network wizard, General step of the management network" align="center" width="90%" mb="20px" >}}
+
+2. **Configuration.** Choose the network mode of your Hosts. On a single Host, **Bridged** with **Custom name for bridge** and the name of the bridge that reaches the Internet, `br0` for instance.
+
+{{< image path="/images/open_ondemand/light/sunstone_vnet_management_conf.png"
+alt="Create Virtual Network wizard, Configuration tab of the management network" align="center" width="90%" mb="20px" >}}
+
+3. **Addresses.** Click **+ Add Address Range**, set the first free address of the network and the number of addresses, `192.168.100.50` and `200` for instance, and click **Accept**.
+
+{{< image path="/images/open_ondemand/light/sunstone_vnet_management_addresses.png"
+alt="Create Virtual Network wizard, Addresses tab of the management network" align="center" width="90%" mb="20px" >}}
+
+4. **Context.** Set the network address, the network mask, the gateway and the DNS server, so the VMs reach the Internet, `192.168.100.0`, `255.255.255.0`, `192.168.100.1` and `1.1.1.1` for instance. Click **Finish**.
+
+{{< image path="/images/open_ondemand/light/sunstone_vnet_management_context.png"
+alt="Create Virtual Network wizard, Context tab of the management network" align="center" width="90%" mb="20px" >}}
+
+### Create the Compute Network
+
+1. **General.** Give it a name, `ood-compute` for instance, and select the same Cluster. Click **Next**.
 
 {{< image path="/images/open_ondemand/light/sunstone_vnet_general.png"
-alt="Create Virtual Network wizard, General step" align="center" width="90%" mb="20px" >}}
+alt="Create Virtual Network wizard, General step of the compute network" align="center" width="90%" mb="20px" >}}
 
-Click **Next** to reach **Advanced options**. In the **Configuration** tab, choose the network mode of your installation. Any mode where the VMs reach each other works, because nothing outside the service uses the network. On a single Host, **Bridged** with **Custom name for bridge** enabled and a bridge name of your choice, `br1` for instance, is enough, and across several Hosts use the mode and physical device of your other private networks, VXLAN for instance:
+2. **Configuration.** Any mode where the VMs of the Cluster reach each other works. On a single Host, **Bridged** with **Custom name for bridge** and a new bridge name, `br1` for instance. Across several Hosts, use the mode and physical device of your other private networks, VXLAN for instance.
 
 {{< image path="/images/open_ondemand/light/sunstone_vnet_conf.png"
-alt="Create Virtual Network wizard, Configuration tab" align="center" width="90%" mb="20px" >}}
+alt="Create Virtual Network wizard, Configuration tab of the compute network" align="center" width="90%" mb="20px" >}}
 
-Select the **Addresses** tab and click **+ Add Address Range**. Set the **First IPv4 address**, `172.22.0.50` for instance, and a **Size** that covers the portal, the storage role and the workers you expect and stays inside one /24. A size of 200 is plenty for the quick start. Click **Accept**, then **Finish**:
+3. **Addresses.** Click **+ Add Address Range**, set a first address and a size inside one /24, `172.22.0.50` and `200` for instance, and click **Accept**.
 
 {{< image path="/images/open_ondemand/light/sunstone_vnet_addresses.png"
-alt="Create Virtual Network wizard, Addresses tab" align="center" width="90%" mb="20px" >}}
+alt="Create Virtual Network wizard, Addresses tab of the compute network" align="center" width="90%" mb="20px" >}}
 
-From the Front-end command line, `onevnet create` creates the same network from a template file, see [Managing Virtual Networks]({{% relref "product/cluster_configuration/networking_system/manage_vnets/" %}}).
+4. **Context.** Leave it empty. This network has no gateway, because its traffic never leaves the Hosts. Click **Finish**.
 
 ## Download the Appliance
 
@@ -77,35 +103,35 @@ In **Service Inputs**, nothing needs to change for a first start. Every input is
 {{< image path="/images/open_ondemand/light/sunstone_instantiate_inputs.png"
 alt="Instantiate wizard, Service Inputs step, Portal tab" align="center" width="90%" mb="20px" >}}
 
-The **Portal** tab holds the public name and the TLS certificate of the web portal:
+The **Portal** tab holds the public name and the TLS certificate of the web portal. For a first start leave the name empty and both switches off:
 
-| Option | What it does | For a first start |
-|---|---|---|
-| **Host name**, `ONEAPP_PORTAL_HOST_NAME` | The public name users open the portal at. Empty makes the portal answer on its management address. | Leave it empty. A name can be set on the running portal later, see [Configuration]({{% relref "platform_services/open_ondemand/configuration/#service-inputs" %}}). |
-| **Let's Encrypt**, `ONEAPP_PORTAL_LETSENCRYPT_ENABLED` | Requests a certificate for the host name when the portal boots. The name has to resolve to the portal, and ports 80 and 443 have to be reachable from the Internet. | Off. The portal starts with a self-signed certificate. |
-| **Your own certificate**, `ONEAPP_PORTAL_CERTIFICATE_ENABLED` | Replaces the self-signed certificate with a PEM chain and a PEM key that you paste in the two boxes the switch reveals. | Off. |
+| Option | What it does |
+|---|---|
+| **Host name**<br>`ONEAPP_PORTAL_HOST_NAME` | The public name users open the portal at. Empty makes the portal answer on its management address. A name can be set on the running portal later, see [Configuration]({{% relref "platform_services/open_ondemand/configuration/#service-inputs" %}}). |
+| **Let's Encrypt**<br>`ONEAPP_PORTAL_LETSENCRYPT_ENABLED` | Requests a certificate for the host name when the portal boots. The name has to resolve to the portal, and ports 80 and 443 have to be reachable from the Internet. Off, the portal starts with a self-signed certificate. |
+| **Your own certificate**<br>`ONEAPP_PORTAL_CERTIFICATE_ENABLED` | Replaces the self-signed certificate with a PEM chain and a PEM key that you paste in the two boxes the switch reveals. |
 {.w-100}
 
-The **Users and login** tab decides who can sign in:
+The **Users and login** tab decides who can sign in. For a first start keep the default user and the switch off:
 
-| Option | What it does | For a first start |
-|---|---|---|
-| **Local users**, `ONEAPP_AUTH_LOCAL_USERS` | The accounts the portal creates in its directory at first boot, as `user:password:uid` separated by spaces. | Keep `demo1:demo1pass:10001`, or list your own users. |
-| **OpenID Connect**, `ONEAPP_AUTH_OIDC_ENABLED` | Adds an institutional login next to the local one, MyAccessID or Keycloak for instance. The switch reveals the issuer URL, the client id, the client secret and the name shown on the login page. | Off. |
+| Option | What it does |
+|---|---|
+| **Local users**<br>`ONEAPP_AUTH_LOCAL_USERS` | The accounts the portal creates in its directory at first boot, as `user:password:uid` separated by spaces. Every user needs a different uid of 1000 or more. The default is `demo1:demo1pass:10001`. |
+| **OpenID Connect**<br>`ONEAPP_AUTH_OIDC_ENABLED` | Adds an institutional login next to the local one, MyAccessID or Keycloak for instance. The switch reveals the issuer URL, the client id, the client secret and the name shown on the login page. |
 {.w-100}
 
-The **Home directories** tab decides where the files of the users live:
+The **Home directories** tab decides where the files of the users live. For a first start leave the switch off:
 
-| Option | What it does | For a first start |
-|---|---|---|
-| **NFS server of your own**, `ONEAPP_HOME_NFS_ENABLED` | Mounts the home directories from an NFS server you already run instead of the storage role, which then only keeps the software cache. The switch reveals the address of the server and the export path. | Off. |
+| Option | What it does |
+|---|---|
+| **NFS server of your own**<br>`ONEAPP_HOME_NFS_ENABLED` | Mounts the home directories from an NFS server you already run instead of the storage role, which then only keeps the software cache. The switch reveals the address of the server and the export path. |
 {.w-100}
 
-The **Slurm** tab attaches a Slurm cluster for batch jobs:
+The **Slurm** tab attaches a Slurm cluster for batch jobs. For a first start leave the switch off; a cluster is attached to a running service, see [Batch Jobs with Slurm]({{% relref "platform_services/open_ondemand/configuration/#batch-jobs-with-slurm" %}}):
 
-| Option | What it does | For a first start |
-|---|---|---|
-| **Controller**, `ONEAPP_SLURM_CONTROLLER_ENABLED` | Submits batch jobs to a Slurm cluster that shares the users and the home, a OneSlurm service on the same compute network. The switch reveals the address of the controller. | Off. The cluster is attached to a running service, see [Batch Jobs with Slurm]({{% relref "platform_services/open_ondemand/configuration/#batch-jobs-with-slurm" %}}). |
+| Option | What it does |
+|---|---|
+| **Controller**<br>`ONEAPP_SLURM_CONTROLLER_ENABLED` | Submits batch jobs to a Slurm cluster that shares the users and the home, a OneSlurm service on the same compute network. The switch reveals the address of the controller. |
 {.w-100}
 
 In **Charter**, leave the list empty and click **Finish**. From the Front-end command line, `oneflow-template instantiate 'Open OnDemand Service'` asks for the same values interactively.
@@ -141,7 +167,9 @@ onevm show <portal vm id> | grep OOD_URL
 OOD_URL="https://192.168.100.165/"
 ```
 
-It is `https://` followed by the management address of the portal VM, or by `ONEAPP_PORTAL_HOST_NAME` if you gave it a host name. With the default self-signed certificate the browser asks you to accept it. Sign in with the initial user, `demo1` with password `demo1pass` unless you changed `ONEAPP_AUTH_LOCAL_USERS`:
+It is `https://` followed by the management address of the portal VM, or by `ONEAPP_PORTAL_HOST_NAME` if you gave it a host name. With the default self-signed certificate the browser asks you to accept it.
+
+The address belongs to the management network. When your desk cannot reach that network, put a public address in front of the portal VM, a floating address or a NAT rule on the router of the network to its management address, give that public address a DNS name, and set the name as the host name of the portal, at instantiation or later with `onevm updateconf`. The portal then builds its links on that name. A lab without a domain can use [sslip.io](https://sslip.io), a public DNS service that resolves a name such as `ood.51-159-138-137.sslip.io` to the address written in it. Sign in with the initial user, `demo1` with password `demo1pass` unless you changed `ONEAPP_AUTH_LOCAL_USERS`:
 
 {{< image path="/images/open_ondemand/light/portal_login.png"
 alt="Open OnDemand login" align="center" width="90%" mb="20px" >}}
