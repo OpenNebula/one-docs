@@ -17,16 +17,16 @@ Quick-start workflow:
 * **Download the appliance**: import the image, the VM template and the service template from the Community Marketplace.
 * **Instantiate the service**: select the two Virtual Networks and keep the default inputs.
 * **Wait for the service**: the service reaches the `RUNNING` state in about four minutes.
-* **Open the portal and launch a notebook**: sign in with the initial user and open JupyterLab on the worker VM.
+* **Open the portal and launch a notebook**: sign in with the initial user and open JupyterLab as a Slurm job on the worker VM.
 
 ## Before You Start
 
 The service needs two Virtual Networks, and the wizard asks for both:
 
 * **Management network.** The network your VMs already use to reach the Internet. The portal publishes its web interface on it, and OneGate has to be reachable from it.
-* **Compute network.** A private network for the VMs of this service and nothing else. The shared home, the user directory, the software cache and the SSH connections that start sessions use it.
+* **Compute network.** A private network for the VMs of this service and nothing else. The shared home, the user directory, the software cache and the Slurm traffic between the portal and the workers use it.
 
-Keep the compute network private and small, a /24 or smaller. Its traffic is not encrypted, the workers accept sessions only from it, and the portal takes every address of that /24 as a possible worker. A larger network needs `ONEAPP_POOL_RANGE`, described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/#advanced-attributes" %}}).
+Keep the compute network private and small, a /24 or smaller. Its traffic is not encrypted, the workers join the Slurm cluster through it, and the portal takes every address of that /24 as a possible worker. A larger network needs `ONEAPP_POOL_RANGE`, described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/#advanced-attributes" %}}).
 
 Both networks are created from **Networks -> Virtual Networks** with **+ Create Virtual Network** and **From scratch**. Most installations already have a management network, so skip the first one if yours does. From the Front-end command line, `onevnet create` creates the same networks from a template file, see [Managing Virtual Networks]({{% relref "product/cluster_configuration/networking_system/manage_vnets/" %}}).
 
@@ -79,7 +79,7 @@ Register the [Community Marketplace](https://github.com/OpenNebula/marketplace-c
 onemarketapp export 'Open OnDemand Service' 'Open OnDemand Service' --datastore default
 ```
 
-The image is about 1.5 GB, so wait until `oneimage list` shows it in the `rdy` state.
+The image is about 1.6 GB, so wait until `oneimage list` shows it in the `rdy` state.
 
 ## Instantiate the Service
 
@@ -98,7 +98,7 @@ In **Networks**, click each entry on the left and select its Virtual Network in 
 {{< image path="/images/open_ondemand/light/sunstone_instantiate_networks.png"
 alt="Instantiate wizard, Networks step" align="center" width="90%" mb="20px" >}}
 
-In **Service Inputs**, nothing needs to change for a first start. Every input is optional, and the defaults give a portal with a self-signed certificate on its management address and one local user, `demo1` with password `demo1pass`. The home directories stay on the storage role and no Slurm cluster is attached. The inputs sit in four tabs, one per topic, each section carries a help icon with its explanation, and every optional feature is a switch that reveals its fields only when it is on. The **Portal** tab looks like this:
+In **Service Inputs**, nothing needs to change for a first start. Every input is optional, and the defaults give a portal with a self-signed certificate on its management address and one local user, `demo1` with password `demo1pass`. The home directories stay on the storage role, and the Slurm cluster of the service needs no input. The inputs sit in three tabs, one per topic, each section carries a help icon with its explanation, and every optional feature is a switch that reveals its fields only when it is on. The **Portal** tab looks like this:
 
 {{< image path="/images/open_ondemand/light/sunstone_instantiate_inputs.png"
 alt="Instantiate wizard, Service Inputs step, Portal tab" align="center" width="90%" mb="20px" >}}
@@ -125,13 +125,6 @@ The **Home directories** tab decides where the files of the users live. For a fi
 | Option | What it does |
 |---|---|
 | **NFS server of your own**<br>`ONEAPP_HOME_NFS_ENABLED` | Mounts the home directories from an NFS server you already run instead of the storage role, which then only keeps the software cache. The switch reveals the address of the server and the export path. |
-{.w-100}
-
-The **Slurm** tab attaches a Slurm cluster for batch jobs. For a first start leave the switch off; a cluster is attached to a running service, see [Batch Jobs with Slurm]({{% relref "platform_services/open_ondemand/configuration/#batch-jobs-with-slurm" %}}):
-
-| Option | What it does |
-|---|---|
-| **Controller**<br>`ONEAPP_SLURM_CONTROLLER_ENABLED` | Submits batch jobs to a Slurm cluster that shares the users and the home, a OneSlurm service on the same compute network. The switch reveals the address of the controller. |
 {.w-100}
 
 In **Charter**, leave the list empty and click **Finish**. From the Front-end command line, `oneflow-template instantiate 'Open OnDemand Service'` asks for the same values interactively.
@@ -207,12 +200,12 @@ alt="Open OnDemand dashboard" align="center" width="90%" mb="20px" >}}
 
 ## Launch a Notebook
 
-From **Interactive Apps -> Jupyter Notebook**, choose the session length and click **Launch**:
+From **Interactive Apps -> Jupyter Notebook**, keep one core, 2 GB of memory and one hour, or raise them up to what the largest worker has, and click **Launch**. A **GPUs** field appears only when a worker has a GPU, and a **Worker size** field only when the service has several worker roles, see [Worker Sizes]({{% relref "platform_services/open_ondemand/configuration/#worker-sizes" %}}):
 
 {{< image path="/images/open_ondemand/light/jupyter_form.png"
 alt="Jupyter launch form" align="center" width="90%" mb="20px" >}}
 
-The session card under **My Interactive Sessions** shows the worker VM it landed on. The first session on a fresh deployment takes longer to start while the site cache fetches the Python module. When the card turns `Running`, click **Open the Jupyter notebook**:
+The session is a job of the Slurm cluster of the service, and its card under **My Interactive Sessions** shows the cluster, the job id and the worker it runs on, `Runs on: Slurm, job 1 on ood-worker-128` for instance. A session that finds no free cores shows `Queued` on its card until a session ends or OneFlow adds a worker, under three minutes on the testbed. The first session on a fresh deployment takes longer to start while the site cache fetches the Python module. When the card turns `Running`, click **Open the Jupyter notebook**:
 
 {{< image path="/images/open_ondemand/light/session_card.png"
 alt="Session card" align="center" width="90%" mb="20px" >}}
@@ -222,7 +215,7 @@ JupyterLab opens through the portal proxy, with the Python and Octave kernels fr
 {{< image path="/images/open_ondemand/light/jupyterlab.png"
 alt="JupyterLab running on a compute VM" align="center" width="90%" mb="20px" >}}
 
-Files saved in the notebook go to the user's home directory on the storage role and appear in **Files -> Home Directory** and in every later session. Deleting the session from **My Interactive Sessions** ends it on the worker.
+Files saved in the notebook go to the user's home directory on the storage role and appear in **Files -> Home Directory** and in every later session. Deleting the session from **My Interactive Sessions** cancels its job on the worker.
 
 ## Next Steps
 
