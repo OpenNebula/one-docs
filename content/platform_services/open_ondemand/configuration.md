@@ -50,7 +50,7 @@ These attributes never appear in the wizard. Set them in the `template_contents`
 
 ## Sizing the Roles
 
-The marketplace template gives every VM 2 vCPU and 4 GB of memory, and 8 GB for the portal. Every session is a Slurm job that reserves the cores and the memory its form requests. A worker takes sessions until its cores or its memory are reserved, so size the worker role for the sessions one VM should hold. The portal runs the Slurm controller, its accounting daemon and MariaDB beside Open OnDemand. On an idle service, 710 MB of memory is in use. Edit the service template before instantiating it and set `CPU`, `VCPU` and `MEMORY` in the `template_contents` of the role.
+The marketplace template gives every VM 2 vCPU and 4 GB of memory, and 8 GB for the portal. Every session is a Slurm job that reserves the cores and the memory its form requests. A worker takes sessions until its cores or its memory are reserved, so size the worker role for the sessions one VM should hold. OneFlow always adds workers of the size set in the worker role, never a bigger one, and the forms offer at most what the largest worker has. To offer bigger sessions, raise the memory or the CPU of the worker role, or add a second worker role of another size, see [Worker Sizes](#worker-sizes). The portal runs the Slurm controller, its accounting daemon and MariaDB beside Open OnDemand. On an idle service, 710 MB of memory is in use. Edit the service template before instantiating it and set `CPU`, `VCPU` and `MEMORY` in the `template_contents` of the role.
 
 ## Scaling the Worker Pool
 
@@ -88,9 +88,22 @@ The job runs on a worker with the cores and the memory it requested. A job witho
 {{< image path="/images/open_ondemand/light/job_composer_slurm.png"
 alt="A job submitted from the Job Composer and completed on the Slurm cluster" align="center" width="90%" mb="20px" >}}
 
+### MPI Jobs on Several Workers
+
+A batch job can use several workers at once with MPI. The EESSI catalogue provides OpenMPI, and the image ships the PMIx library that `srun` uses to start the processes. A job script loads the module and starts the program with `srun --mpi=pmix` or with `mpirun`:
+
+```
+#!/bin/bash -l
+#SBATCH -N 2 --ntasks-per-node=1 -c 1 --mem=512M -t 10
+module load OpenMPI/5.0.8-GCC-14.3.0
+srun --mpi=pmix ./hello
+```
+
+On the testbed, a two node program compiled with `mpicc` from EESSI ran on both workers with `srun --mpi=pmix` and with `mpirun`. The interactive applications use one worker each.
+
 ### An External Slurm Cluster
 
-You can attach a second Slurm cluster of the site for batch jobs, such as the [Elastic Slurm]({{% relref "platform_services/slurm/" %}}) service. It has to share the users and the home directories with the portal. The portal offers it in the Job Composer and Active Jobs under the name in `ONEAPP_SLURM_TITLE`. The interactive applications keep running on the cluster of the service. `ONEAPP_SLURM_CONTROLLER_ENABLED` and `ONEAPP_SLURM_CONTROLLER_HOST` are [Advanced Attributes](#advanced-attributes) of the portal role. A running portal accepts them with `onevm updateconf`.
+The service runs its own Slurm cluster and needs no other one. If your site already runs a second Slurm cluster, such as the [Elastic Slurm]({{% relref "platform_services/slurm/" %}}) service, you can attach it for batch jobs. It has to share the users and the home directories with the portal. The portal offers it in the Job Composer and Active Jobs under the name in `ONEAPP_SLURM_TITLE`. The interactive applications keep running on the cluster of the service. `ONEAPP_SLURM_CONTROLLER_ENABLED` and `ONEAPP_SLURM_CONTROLLER_HOST` are [Advanced Attributes](#advanced-attributes) of the portal role. A running portal accepts them with `onevm updateconf`.
 
 1. Note the compute addresses of the portal and storage VMs of the running service, the second address of each in `onevm list --list ID,NAME,IP`.
 2. Instantiate `OneSlurm` on the same compute network with its local LDAP disabled:
