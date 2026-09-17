@@ -58,7 +58,7 @@ On the workers, `journalctl -t ood-slurm-elastic` shows what the elastic loop pu
 * **The portal cannot mount the home.** The storage role grants it root on the export through OneGate within about 20 seconds of the portal VM existing. A portal still waiting after three minutes points at OneGate.
 * **The portal cannot mount the Slurm state.** The storage role exports `/export/slurm` to the portal address in the same way, and a portal still waiting after three minutes stops with `could not mount` and the export in the message.
 * **A worker never receives the munge key.** The portal publishes it as `SLURM_MUNGE_KEY` through OneGate, and a worker that has waited 180 seconds for it stops with `the portal has not published SLURM_MUNGE_KEY after 180s`, so check the portal first.
-* **The wrong address range.** The portal derives the worker range from its compute interface, the /24 around its address, so a compute network larger than that needs `ONEAPP_POOL_RANGE` set to a /24 slice of it, and a standalone portal needs it to match the network. The range also bounds the number of Slurm nodes. A range wider than one /24 stops the portal with `ONEAPP_POOL_RANGE has to be inside a single /24` in `/var/log/ood-appliance-configure.log`.
+* **The wrong address range.** The portal derives the worker range from its compute interface, the /24 around its address, so a compute network larger than that needs `ONEAPP_POOL_RANGE` set to a /24 slice of it, and a standalone portal needs it to match the network. The range also bounds the number of Slurm nodes, and a range that does not read as `first-last` stops the portal with `ONEAPP_POOL_RANGE must be "first-last"` in `/var/log/ood-appliance-configure.log`.
 
 ## A Session Does Not Start
 
