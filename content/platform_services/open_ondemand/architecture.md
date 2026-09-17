@@ -72,25 +72,10 @@ OneFlow reads the figures of every worker and applies the rules of the worker ro
 
 The pool changes one VM at a time between 1 and `max_vms`, six in the marketplace template.
 
-## Ports
-
-This table matters only when a firewall sits between the networks, or between the VMs and the OneGate endpoint. On a compute network reserved for the service nothing needs to be opened.
-
-| From | To | Port | Purpose |
-|---|---|---|---|
-| Users | portal, management network | 443, and 80 with Let's Encrypt | The web interface, desktops included |
-| workers | portal | 6817, 389 | The Slurm controller (registration, configuration, queue) and the LDAP directory |
-| portal | workers | 6818, the port of each session | `slurmd` (starting and cancelling jobs) and the proxy from the browser to the application |
-| portal and workers | storage | 2049, 3128 | The shared home over NFSv4 (and the controller state for the portal) and the software cache |
-| Every role | OneGate endpoint | 5030 by default | Readiness, the munge key and the queue figures |
-| Prometheus | portal, management network | 9101 | Service metrics, only if scraped |
-| storage | Internet | 80 and 8000 | The EESSI CernVM-FS servers, plain HTTP |
-{.w-100}
-
 ## Requirements
 
 * OpenNebula 6.10 or later with [OneFlow]({{% relref "product/operation_references/opennebula_services_configuration/oneflow/" %}}) and [OneGate]({{% relref "product/operation_references/opennebula_services_configuration/onegate/" %}}) enabled, and the OneGate endpoint reachable from the service networks.
-* The two Virtual Networks above. The compute network is reserved for the service and no larger than a /24, unless you set `ONEAPP_POOL_RANGE`. Ports 6817 on the portal and 6818 on the workers must be open on the compute network, along with the session ports the portal proxies.
+* The two Virtual Networks above. The compute network is reserved for the service and no larger than a /24, unless you set `ONEAPP_POOL_RANGE`. If a firewall sits between the networks, the roles need NFS (2049) and the software cache (3128) on the storage VM, LDAP (389) and the Slurm controller (6817) on the portal, `slurmd` (6818) and the session ports on the workers, and OneGate (5030 by default) from every VM.
 * Outbound HTTP from the storage role to the EESSI CernVM-FS servers.
 * Capacity for three VMs plus the workers you expect. The marketplace template gives every VM 2 vCPU and 4 GB of memory, and 8 GB to the portal, which runs the Slurm controller and MariaDB beside Open OnDemand and used 710 MB of its 7941 MB with everything up on the testbed. The VM template passes the CPU of the host through to the VMs (`CPU_MODEL` set to `host-passthrough`), so EESSI loads the software built for that CPU family. Every worker of a role has the same size, and a session cannot request more than one worker has.
 * For a faster scale up, set `:autoscaler_interval: 30` in `/etc/one/oneflow-server.conf` on the Front-end and restart `opennebula-flow`. OneFlow then reads the figures of the workers every 30 seconds instead of 90. This is a setting of the Front-end, made once for every service that runs on it, and the appliance cannot set it.
