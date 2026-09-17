@@ -31,13 +31,18 @@ Every VM boots from the same image. `ONEAPP_ROLE`, set for each role in the serv
 
 The service also creates the initial users at first boot and keeps an accounting record of every session. It gives the portal a TLS certificate, which is self-signed by default. For a public name the certificate comes from Let's Encrypt, or you can use one of your own.
 
-## Slurm in Plain Words
+## Slurm Components
 
-Slurm is the program that decides where each job runs. A job is a request, for example 2 cores and 4 GB of memory for 3 hours, plus the command to run. The controller (`slurmctld`) on the portal keeps a list of the nodes, the free cores and memory on each one, and a queue of jobs. When a job fits on a node, the controller sends it to the `slurmd` program on that node. `slurmd` starts the job as the user and limits it to the cores and memory requested, with Linux cgroups. When nothing fits, the job waits in the queue. Every session in the portal is such a job, and so is every batch job from the Job Composer. The accounting daemon (`slurmdbd`) writes every job to a MariaDB database, so `sacct` shows who ran what, where and for how long.
+The service uses Slurm 23.11 as its job scheduler. A job is a request for cores, memory and time, together with the command to run. Every interactive session and every batch job from the Job Composer is a Slurm job. These are the components and where they run.
 
-Munge is the service that lets the portal and the workers trust each other. Every message between the Slurm programs carries a token signed with a secret key that all the VMs of the service share. A VM without the key cannot join the cluster or submit jobs. The portal creates the key at first boot and gives it to each worker through OneGate.
-
-MPI (Message Passing Interface) is the library that programs use to run on several nodes at the same time and exchange data. The EESSI catalogue provides OpenMPI. A batch job requests several workers with `sbatch -N 2` and starts its processes with `srun --mpi=pmix` or `mpirun`. The VMs see the CPU of the host, so EESSI loads the software built for that CPU family and the MPI library starts. Interactive sessions use one worker each.
+| Component | Runs on | Function |
+|---|---|---|
+| `slurmctld`, the controller | portal | Keeps the list of nodes with their free cores and memory, keeps the job queue, and assigns each job to a node that has the requested resources. A job that fits on no node waits in the queue. |
+| `slurmd`, the node daemon | every worker | Registers the worker as a node at boot, starts the jobs the controller assigns, as the requesting user, and limits each job to its cores and memory with cgroup v2. |
+| `slurmdbd` and MariaDB, the accounting | portal | Record every job with its user, its node and its start and end times. `sacct` reads the record. |
+| munge, the authentication | every role | Signs every message between the Slurm daemons and commands with a key shared by all the VMs of the service. A VM without the key cannot join the cluster or submit jobs. The portal generates the key at first boot and publishes it to the workers through OneGate. |
+| OpenMPI and PMIx, multi-node jobs | workers, from EESSI | Let a batch job run processes on several workers at once. The job requests the nodes with `sbatch -N <n>` and starts the processes with `srun --mpi=pmix` or `mpirun`. Interactive sessions use one worker each. |
+{.w-100}
 
 ## Related Components
 
