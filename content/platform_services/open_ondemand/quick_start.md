@@ -205,7 +205,7 @@ From **Interactive Apps -> Jupyter Notebook**, keep one core, 2 GB of memory and
 {{< image path="/images/open_ondemand/light/jupyter_form.png"
 alt="Jupyter launch form" align="center" width="90%" mb="20px" >}}
 
-The session is a job of the Slurm cluster of the service. Its card under **My Interactive Sessions** shows the cluster, the job id and the worker it runs on. An example is `Runs on: Slurm, job 1 on ood-worker-128`. A session that finds no free cores shows `Queued` on its card. It waits until a session ends or OneFlow adds a worker, under three minutes on the testbed. The first session on a fresh deployment takes longer to start, while the site cache fetches the Python module. When the card turns `Running`, click **Open the Jupyter notebook**.
+The session is a job of the Slurm cluster of the service. Its card under **My Interactive Sessions** shows the cluster, the job id and the worker it runs on. An example is `Runs on: Slurm, job 1 on ood-worker-128`. A session that finds no free cores shows `Queued` on its card. It waits until a session ends or OneFlow adds a worker, about two minutes on the testbed with the Front-end setting the [Requirements]({{% relref "platform_services/open_ondemand/architecture/#requirements" %}}) recommend. The first session on a fresh deployment takes longer to start, while the site cache fetches the Python module. When the card turns `Running`, click **Open the Jupyter notebook**.
 
 {{< image path="/images/open_ondemand/light/session_card.png"
 alt="Session card" align="center" width="90%" mb="20px" >}}
