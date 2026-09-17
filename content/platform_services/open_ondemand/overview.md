@@ -11,7 +11,7 @@ type: docs
 
 The Open OnDemand Service deploys an [Open OnDemand](https://openondemand.org/) portal on OpenNebula. A user signs in from a browser and opens JupyterLab, RStudio, Octave, a C++ notebook, VS Code or an Xfce desktop on a compute VM. Scientific software comes from the [EESSI](https://www.eessi.io/) catalogue, and the home directory is the same in every session.
 
-The service is a OneFlow service built from one appliance image. Three roles boot from it, and every session is a job of the service's own Slurm cluster. OneFlow adds a compute VM when a job waits for one, and removes the oldest worker once it has been idle. The service suits teaching environments, notebook access for research groups, and a browser front end for a Slurm Cluster deployed with the [Elastic Slurm]({{% relref "platform_services/slurm/" %}}) service.
+The service is a OneFlow service built from one appliance image. Three roles boot from it, and every session is a job of the service's own Slurm cluster. OneFlow adds a compute VM when a job waits for one, and removes the oldest worker once it has been idle. The service brings its own Slurm cluster and needs no other cluster. It suits teaching environments and notebook access for research groups.
 
 ## How Should I Read this Chapter
 
@@ -31,6 +31,14 @@ Every VM boots from the same image. `ONEAPP_ROLE`, set for each role in the serv
 
 The service also creates the initial users at first boot and keeps an accounting record of every session. It gives the portal a TLS certificate, which is self-signed by default. For a public name the certificate comes from Let's Encrypt, or you can use one of your own.
 
+## Slurm in Plain Words
+
+Slurm is the program that decides where each job runs. A job is a request, for example 2 cores and 4 GB of memory for 3 hours, plus the command to run. The controller (`slurmctld`) on the portal keeps a list of the nodes, the free cores and memory on each one, and a queue of jobs. When a job fits on a node, the controller sends it to the `slurmd` program on that node. `slurmd` starts the job as the user and limits it to the cores and memory requested, with Linux cgroups. When nothing fits, the job waits in the queue. Every session in the portal is such a job, and so is every batch job from the Job Composer. The accounting daemon (`slurmdbd`) writes every job to a MariaDB database, so `sacct` shows who ran what, where and for how long.
+
+Munge is the service that lets the portal and the workers trust each other. Every message between the Slurm programs carries a token signed with a secret key that all the VMs of the service share. A VM without the key cannot join the cluster or submit jobs. The portal creates the key at first boot and gives it to each worker through OneGate.
+
+MPI (Message Passing Interface) is the library that programs use to run on several nodes at the same time and exchange data. The EESSI catalogue provides OpenMPI. A batch job requests several workers with `sbatch -N 2` and starts its processes with `srun --mpi=pmix` or `mpirun`. The VMs see the CPU of the host, so EESSI loads the software built for that CPU family and the MPI library starts. Interactive sessions use one worker each.
+
 ## Related Components
 
 * [**OneFlow**]({{% relref "product/operation_references/opennebula_services_configuration/oneflow/" %}}) starts the roles in order and applies the elasticity policies of the worker role.
@@ -38,7 +46,7 @@ The service also creates the initial users at first boot and keeps an accounting
 * [**Open OnDemand**](https://osc.github.io/ood-documentation/latest/) is the portal software, from the Ohio Supercomputer Center. The service uses its `slurm` adapter for its own cluster and for an optional second Slurm Cluster.
 * [**Slurm**](https://slurm.schedmd.com/) is the workload manager, version 23.11 from Ubuntu 24.04. The portal runs the controller and the accounting daemon. Every worker joins as a dynamic node. Every session is a job, and cgroup v2 limits it to its cores and memory.
 * [**EESSI**](https://www.eessi.io/docs/) is a shared scientific software catalogue distributed over CernVM-FS. The image ships the CernVM-FS client and a site cache. The software itself is fetched on demand.
-* [**Elastic Slurm**]({{% relref "platform_services/slurm/" %}}), the OneSlurm service, can be attached as a second cluster for batch jobs, with the same users and home directory.
+* [**Elastic Slurm**]({{% relref "platform_services/slurm/" %}}), the OneSlurm service, is optional. The Open OnDemand Service does not use it. A site that already runs one can attach it as a second cluster for batch jobs, with the same users and home directory, as described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/#an-external-slurm-cluster" %}}).
 
 ## Supported Versions
 
