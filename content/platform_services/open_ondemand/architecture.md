@@ -32,7 +32,11 @@ Every VM has two network interfaces:
 * **Management network**: reaches OneGate and the Internet. The portal publishes its web interface here, and the storage role downloads the software catalogue through it.
 * **Compute network**: reserved for the service. NFS, LDAP, the Slurm traffic between the controller and the nodes, the proxied sessions and the software cache run on it.
 
-The roles find each other without fixed addresses. OneFlow passes the compute address of the storage role to the portal and the workers, and the compute address of the portal to the workers, and the storage role asks OneGate which VM is the portal. A worker registers itself with the controller at boot, which learns the address of the node from the registration, and a reconciler on the portal deletes every node that no VM of the service claims, so a VM that is not part of the service never keeps a node in the cluster. The portal derives the worker address range from its own compute interface, the whole /24 around its address, which bounds how many nodes the cluster accepts and tells a session which of its addresses to publish, so keep that network reserved for the service. A compute network larger than a /24 needs an explicit `ONEAPP_POOL_RANGE`, described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/#advanced-attributes" %}}).
+No address is fixed in advance. OneFlow hands each role the compute address of the roles it depends on, and the storage role asks OneGate which VM is the portal.
+
+A worker joins the Slurm cluster on its own at boot, and a reconciler on the portal removes the node of any VM that has left the service.
+
+The portal takes the whole /24 around its compute address as the worker range, so keep that network reserved for the service. A larger network needs `ONEAPP_POOL_RANGE`, described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/#advanced-attributes" %}}).
 
 ## How a Session Runs
 
@@ -42,7 +46,7 @@ The roles find each other without fixed addresses. OneFlow passes the compute ad
 4. The application listens on a port of the worker and publishes the compute address of the worker, and the portal proxies the browser to it. Desktops run under a TurboVNC server on the worker and reach the browser through noVNC on the portal.
 5. Deleting the session cancels the job and reaching the session hours ends it, and either way Slurm stops every process of the job, so nothing of the session stays on the worker.
 
-A job is never requeued on another worker, because the browser connection points at the worker that started it. Every job goes through the accounting database, so **Active Jobs** lists the sessions and the **Job Composer** submits batch jobs of your own to the same cluster.
+A job is never requeued on another worker, because the browser connection points at the worker that started it. Every job is recorded in the accounting database, **Active Jobs** lists the sessions and the **Job Composer** submits batch jobs of your own to the same cluster.
 
 ## How the Pool Grows and Shrinks
 
