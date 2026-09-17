@@ -35,7 +35,7 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 
 ## Updating Sunstone Configuration Files
 
-After upgradte to 7.4.2, check the following settings to enable the new Sunstone functionality in the intended views. All paths below are relative to `/etc/one/fireedge/` on the OpenNebula Front-end Host.
+After upgrading to 7.4.2, check the following settings to enable the new Sunstone functionality in the intended views. All paths below are relative to `/etc/one/fireedge/` on the OpenNebula Front-end Host.
 
 Merge these settings into the existing YAML sections, preserving other settings and actions. Do not create duplicate `info-tabs` or `filters` keys.
 
@@ -89,4 +89,21 @@ Add the following content:
     - title: Update Group
       path: /group/update
       Component: CreateGroup
+```
+
+### Expose virtual router NIC attach/detach actions [#7708](https://github.com/OpenNebula/one/issues/7708)
+
+In `sunstone/views/*/vrouter-tab.yaml`, as part of `nics` attributes after the entry:
+
+```yaml
+   nics:
+    enabled: true
+```
+
+Add the following content:
+
+```yaml
+    actions:
+      nic-attach: true
+      nic-detach: true
 ```
