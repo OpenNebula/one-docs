@@ -39,11 +39,11 @@ The current interactive backup implementation supports the following configurati
 | Component | Support |
 |-----------|---------|
 | Hypervisor | KVM |
-| VM disk storage | File-based `qcow2` disks and disks on LVM datastores |
+| VM disk storage | File-based `qcow2` disks, disks on LVM datastores, and Ceph RBD disks |
 | Backup types | Full and incremental |
 | Incremental mode | CBT only (`INCREMENT_MODE="CBT"`) |
 | VM state | Running and powered off VMs |
-| OneBEX exporter | NBD, LVM |
+| OneBEX exporter | NBD, LVM, RBD |
 
 {{< alert title="Important" type="info" >}}
 Interactive incremental backups do not support the `SNAPSHOT` increment mode. OpenNebula rejects this combination when the backup configuration is updated.
@@ -249,7 +249,8 @@ The OneBEX API is consumed by backup integrations. The current API is:
 {
   "EXPORTERS": [
     "nbd",
-    "lvm"
+    "lvm",
+    "rbd"
   ]
 }
 ```
@@ -601,3 +602,4 @@ OneBEX uses exporters to expose VM disk data to external backup systems.
 |----------|-----------------|-----------|-------------|
 | `nbd` | File-based `qcow2` disks | Network Block Device | Exposes the backup disk through NBD. OneBEX starts a read-only `qemu-nbd` process and serves the disk export through a Unix socket. |
 | `lvm` | Disks on LVM datastores | Direct block-device reads | Exposes the prepared LVM block device directly. Full backups return the full device extent. Incremental backups use `thin_delta` to return changed extents from LVM thin metadata. |
+| `rbd` | Ceph RBD disks | Direct RBD reads | Exposes the prepared Ceph RBD snapshot directly. Full backups return the full image extent, while incremental backups return the changed extents between RBD snapshots. |
