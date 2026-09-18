@@ -34,9 +34,7 @@ With the native Everpure driver, OpenNebula users gain the performance consisten
 | **Host management** | Yes | Hosts are automatically created and mapped to as needed. |
 | **Multi-path I/O** | Yes | Fully orchestrated; automatic detection, resize, and removal of maps. |
 | **Data encryption (at-rest)** | Yes | Supported transparently by the array (always-on AES-XTS); not managed by OpenNebula. |
-| **SnapMirror replication** | No (planned) | Not yet supported; may be added in future roadmap. |
 | **QoS policy groups** | No | Not currently exposed through the datastore driver. |
-| **SVM DR / MetroCluster** | No | Supported by FlashArray, but not orchestrated by OpenNebula. |
 
 
 ## Limitations and Unsupported Features
@@ -59,16 +57,16 @@ It does not expose replication, asynchronous protection groups, or VMware-exclus
 
 ## Everpure FlashArray Setup
 
-OpenNebula runs the set of datastore and transfer manager driver to register an existing Everpure FlashArray SAN. This set utilizes the Everpure FlashArray API to create volumes which are treated as a Virtual Machine disk utilizing the iSCSI interface.  Both the Image and System datastores must use the same Everpure array and identical datastore configurations.  This is because volumes are either clones or renamed depending on the image persistence type. Persistent images are renamed to the System datastore, while non-persistent images are cloned using FlexClone.
+OpenNebula runs the set of datastore and transfer manager driver to register an existing Everpure FlashArray SAN. This set utilizes the Everpure FlashArray API to create volumes which are treated as a Virtual Machine disk utilizing the iSCSI interface.  Both the Image and System datastores must use the same Everpure array and identical datastore configurations.  This is because volumes are either clones or renamed depending on the image persistence type. Persistent images are renamed to the System datastore, while non-persistent images are cloned using Everpure's zero-copy cloning.
 
 The [Everpure Linux documentation](https://support.purestorage.com/bundle/m_linux/page/Solutions/Linux/topics/concept/c_installing_and_configuring.html) and this [Everpure iSCSI Setup with FlashArray Blog Post](https://blog.purestorage.com/purely-technical/iscsi-setup-with-flasharray/) may be useful during this setup.
 
 1. **Verify iSCSI Service Connections**
-    - In the FlashArray System Manager: **Settings -> Network -> Connectors**
+    - In the Everpure Dashboard: **Settings -> Network -> Connectors**
     - Ensure the iSCSI connectors are enabled and note their IP addresses.
 
 2. **Create an API User**
-    - In the FlashArray System Manager: **Settings -> Access -> Users and Policies**
+    - In the Everpure Dashboard: **Settings -> Access -> Users and Policies**
     - Create a new user with the Storage Admin role, this should provide enough permissions for OpenNebula.
     - Create an API token for this user and note the API key. Leave the expiration date blank to create an indefinite API key.
 
