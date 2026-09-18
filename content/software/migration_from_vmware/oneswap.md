@@ -219,6 +219,8 @@ The script builds the nbdkit version matching the installed distro package and c
 
 VDDK mode is also required for VMware vSAN-backed VMDKs. vSAN disks are object-backed and are not available through the classic vCenter datastore `*-flat.vmdk` download path used by the non-VDDK and hybrid transfer modes.
 
+VDDK can also be used with `--delta` for the initial/base disk transfer on non-vSAN VMware datastores.
+
 To convert VMs stored on a vSAN datastore, configure VDDK in `/etc/one/oneswap.yaml`:
 
 ```yaml
@@ -439,6 +441,7 @@ There are four methods to transfer the images from vCenter/ESXi to the conversio
 - **VDDK Library** (`--vddk /path/to/lib`)
   - Use the VMware Virtual Disk Development Kit library, usually the fastest transfer method.
   - Requires the nbdkit VDDK plugin, see [VDDK Transfer Support](#vddk-transfer-support).
+  - Can be combined with `--delta` for the initial/base disk transfer on non-vSAN VMware datastores.
 - **ESXi Direct SSH transfer** (`--esxi`, `--esxi-user`, `--esxi-pass`)
   - Copy the disk via SSH from the ESXi host, which may be useful if the vCenter download is slow. Incompatible with VDDK.
   - The vCenter credentials are still required to gather the VM information.
@@ -479,6 +482,9 @@ oneswap convert vm-1234 $VOPTS --clone
 
 # Convert a running VM with low downtime (delta mode, requires passwordless SSH to the ESXi host)
 oneswap convert vm-1234 $VOPTS --delta
+
+# Convert a running VM with low downtime using VDDK for the initial/base disk transfer
+oneswap convert vm-1234 $VOPTS --delta --vddk /path/to/vddk-lib
 
 # Convert using OpenNebula Custom Conversion (no virt-v2v)
 oneswap convert vm-1234 $VOPTS --custom
