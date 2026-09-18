@@ -358,7 +358,9 @@ The schedule actions are in control of OpenNebula core. You can tune the number 
 
 ### Cancel Backup
 
-You can cancel an ongoing backup operation by using the `onevm backup-cancel`. The command will try to gracefully terminate backup operation. If the command succeeds the VM will return to running (or poweroff) state. Note that not all stages of the backup operation can be canceled and some files may be left on the VM folder in the system datastore. These files will be cleaned up during a subsequent backup.
+To cancel an ongoing backup operation from Sunstone, open the Virtual Machine **Backup** tab and click **Cancel backup**. The action is only available while a backup is in progress.
+
+You can also cancel an ongoing backup operation with the `onevm backup-cancel <vm_id>` CLI command. OpenNebula will try to gracefully terminate the backup operation. If the command succeeds, the VM will return to the running (or poweroff) state. Note that not all stages of the backup operation can be canceled and some files may be left in the VM folder in the system datastore. These files will be cleaned up during a subsequent backup.
 
 If the backup operation is not running but the VM stays in the backup state, use command `onevm recover` to return the VM back to running state.
 

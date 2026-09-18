@@ -214,6 +214,7 @@ The attributes described here indicate which buttons are visible to operate over
 | Attribute            | Description                                                                                                   |
 | -------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `backup`             | Users will be able to create a Virtual Machine backup.                                                        |
+| `backup-cancel`      | Users will be able to cancel an ongoing Virtual Machine backup.                                               |
 | `change_cluster`     | Users will be able to change the resource cluster.                                                            |
 | `chgrp`              | Users will be able to change the resource group.                                                              |
 | `chown`              | Users will be able to change the resource owner.                                                              |
