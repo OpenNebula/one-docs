@@ -9,15 +9,15 @@ weight: 1
 
 ## General Characteristics
 
-The OpenNebula Proof of Concept (PoC) service allows potential customers to test the Enterprise Edition of OpenNebula software directly in their own environment. This provides a low-risk opportunity to assess its functionality, performance, and compatibility, ensuring it meets their specific needs and requirements before committing to a full deployment.
+The OpenNebula Proof of Concept (PoC) service allows potential customers to test the Enterprise Edition of OpenNebula software directly in their own environment. This provides a low-risk opportunity to assess its functionality, performance, and compatibility, ensuring it meets their specific needs and requirements before committing to a full deployment.  
 
-By allowing organizations to experience the platform’s capabilities first-hand, the PoC service empowers potential customers to make informed decisions and fully understand the value and benefits of an Enterprise Edition subscription.
+By allowing organizations to experience the platform’s capabilities first-hand, the PoC service empowers potential customers to make informed decisions and fully understand the value and benefits of an Enterprise Edition subscription.  
 
-In the following sections we present the hardware and architectural requirements necessary to begin working with OpenNebula. Additionally, consider the skills and expertise required from the internal resources responsible for managing the Proof of Concept (PoC) within the potential customer’s environment.
+In the following sections we present the hardware and architectural requirements necessary to begin working with OpenNebula. Additionally, consider the skills and expertise required from the internal resources responsible for managing the Proof of Concept (PoC) within the potential customer’s environment.  
 
-Finally, this guide outlines our phased approach to the PoC service, which ensures ongoing bi-directional communication with OpenNebula Solution Architects and other engineering resources, providing expert guidance and support throughout the Proof of Concept process.
+Finally, this guide outlines our phased approach to the PoC service, which ensures ongoing bi-directional communication with OpenNebula Solution Architects and other engineering resources, providing expert guidance and support throughout the Proof of Concept process.  
 
-By using the Proof of Concept service, customers get the following benefits:
+By using the Proof of Concept service, customers get the following benefits:  
 
 - **Stable Software Version** – The PoC leverages a more rigorously tested software version with bug fixes and stability enhancements, since it features OpenNebula Enterprise Edition (EE). This ensures higher stability than customers might typically encounter with the Community Edition (CE).
 
@@ -29,7 +29,7 @@ Running an OpenNebula PoC in your own environment is an excellent way to explore
 
 The PoC described above provides an opportunity to familiarize yourself with the core functionality of OpenNebula software. However, if you require a setup tailored to your specific environment—such as integrating a software-defined SAN solution, running multiple hypervisors, or implementing custom network configurations—please contact the OpenNebula team to discuss customized solutions designed to meet your unique testing needs.
 
-The table below should help you decide the best medium to test and validate OpenNebula in your own environment. For more details on any of these options, reach out to your account manager or [get in touch](https://opennebula.io/contact/).
+The table below should help you decide the best medium to test and validate OpenNebula in your own environment. For more details on any of these options you can [get in touch](https://opennebula.io/contact/) with us.
 
 <center>
 

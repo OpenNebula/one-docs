@@ -8,11 +8,9 @@ weight: 1
 
 ## Infrastructure Requirements and Deployment
 
-
-
 The PoC program utilizes two methods for installing the PoC OpenNebula cloud. The recommended method is for the OpenNebula team to install in your environment using SSH/VPN.  The second option is using a custom-tailored ISO designed to simplify the deployment of a functional OpenNebula environment, enabling users to easily test-drive the platform’s core functionalities. Once the PoC cloud deployment is complete, users will be able to build and manage Virtual Machines and validate a variety of common cloud use cases.
 
-Infrastructure requirements may vary depending on the final purpose of the infrastructure. As a minimum, customers should provide the following to deploy the OpenNebula cloud platform using the PoC ISO:
+Infrastructure requirements may vary depending on the final purpose of the infrastructure. As a minimum, customers should provide the following to deploy the OpenNebula cloud platform:
 
 - A single bare-metal server which meets the minimum requirements described in Table 1 below. We recommend using 3 physical servers for a proper evaluation.  
 
@@ -58,46 +56,25 @@ Personnel who execute and operate the OpenNebula PoC are expected to possess the
    - **Virtualization management**: KVM, QEMU, libvirt/virsh
    - **Linux services configuration and operation**: Passwordless SSH configuration
 
-## High-Level Reference Architecture
+## 
 
-An OpenNebula PoC cloud is automatically deployed on a single server, as shown by the diagram below.
-
-{{< image path="/images/ISO/00-onepoc_architecture.svg" align="center" width="90%" mb="20px">}}
-
-As shown above, the design for a single-node OpenNebula PoC has the following features:
-
-- The OpenNebula PoC cloud is deployed on a single bare-metal server, which meets the minimum system requirements listed in Table 1. Henceforth, this server will be referred to as the “OpenNebula server.” This can be later on extended to a second server which acts exclusively as a hypervisor Host.
-
-- The OpenNebula server should have the following networking connections:
-  
-  - Connection to an IPMI (or other out-of-band KVM system) for initial server setup and embedded hardware configuration.
-  - Connection to the Management Network. This connection should be configured on one of the server NIC ports. The Management Network will be used for:
-    - Accessing the hypervisor Host OS for low-level management and troubleshooting.
-    - Accessing Front-end VMs via the GUI for cloud management operations.
-      <br><br>
-
-- The Host OS will be automatically installed and configured from the ISO image. It is based on the AlmaLinux 9 distribution and has all required packages for an isolated cloud deployment.
-
-- The Front-end VM Hosts all OpenNebula cloud components, including the GUI, cloud lifecycle management services, CLI tools, etc. Once the cloud is deployed, it should be possible to access the GUI using the IP for the OpenNebula Server on port 2616.
-
-- Once the deployment process has completed, the OpenNebula PoC cloud is ready for testing. It includes pre-configured cloud datastores backed by an NFS server running on the Host OS, sample internal Virtual Networks, test images, and VM templates.
-  <br><br>
-
-## PoC Phases
+## Proof of Concept Phases
 
 {{< image path="/images/ISO/poc_diagram.png" align="center" width="90%" mb="20px">}}
 
 ### Request a Demo
 
-The first step is to request a live demo. Contact us by [filling the demonstration request form](https://opennebula.io/evaluate-opennebula/#request-demo) or by email at: sales@opennebula.io.
+The first step is to request a live demo. Contact us by [filling the demonstration request form](https://opennebula.io/evaluate-opennebula/#request-demo) or by email at sales@opennebula.io.
 
 ### Introduction and Information Gathering Call
 
-During this introductory call you communicate with OpenNebula's solution architects to discuss the details of your use case and then establish timescales and criteria required to successfully complete the PoC and transition to an OpenNebula Enterprise Edition annual subscription. Once we complete the initial arrangements, you will be provided with a personalized, one-time link to download the ISO file prepared specifically for your deployment.
+During this introductory call you communicate with OpenNebula's solution architects to discuss the details of your use case and then establish timescales and criteria required to successfully complete the PoC and transition to an OpenNebula Enterprise Edition annual subscription. 
+
+Once we complete the initial arrangements, you will be contacted by an engineer to start the deployment if Option 1 is possible, or provided with a personalized, one-time link to download the ISO file prepared specifically for your deployment to perform Option 2.
 
 ### Introductory Call
 
-On the PoC kick-off date the installation will proceed with the SSH and VPN credentials shared by the potential customer. If the ISO installation method is preferred, a one-hour call will be scheduled to discuss additional details on the ISO installation process. You will be provided access to a User Guide and you will complete the ISO installation during the call with the support of OpenNebula Engineers.
+On the PoC kick-off date the installation will proceed with the SSH and VPN credentials shared by the potential customer. If the ISO installation method is preferred, a one-hour call will be scheduled to discuss additional details on the ISO installation process. You will be able to complete the ISO installation during the call with the support of OpenNebula Engineers, following the [ISO-based deployment guide]({{% relref "solutions/engineering_blueprints/ee_poc/ee_poc_iso/#Introduction" %}}).
 
 ### Tutorial
 
