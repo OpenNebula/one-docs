@@ -83,6 +83,7 @@ More information: [one-apps wiki](https://github.com/OpenNebula/one-apps/wiki)
 
 | **Component** | **Version**  | **More information**                                                                                             |
 |-----------|--------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| NFS       | v4.2                                       | [NFS/NAS Datastore]({{% relref "product/cluster_configuration/storage_system/nas_ds#nas-ds" %}})     |
 | iSCSI     | Version included in the Linux distribution | [LVM Drivers]({{% relref "product/cluster_configuration/lvm" %}})                                   |
 | LVM2      | Version included in the Linux distribution | [LVM Drivers]({{% relref "product/cluster_configuration/lvm" %}})                                   |
 | Ceph      | Reef v18.2.x<br/>Squid   v19.2.x           | [The Ceph Datastore]({{% relref "product/cluster_configuration/storage_system/ceph_ds#ceph-ds" %}}) |
