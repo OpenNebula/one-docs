@@ -29,12 +29,19 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 * Fix Restic Datastore - the password filed is not masking the password [#7444](https://github.com/OpenNebula/one/issues/7444).
 * Fix missing theme colors in Sunstone quota panels and improve quota usage readability with per-metric values and progress bars [#6869](https://github.com/OpenNebula/one/issues/6869).
 * Fix unable to flush offline host in Sunstone [#7407](https://github.com/OpenNebula/one/issues/7407).
+- Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
+* Fix missing VRouter NIC attach/detach action [#7708](https://github.com/OpenNebula/one/issues/7708).
+* Fix VNC console reliability for LXC virtual machines by increasing Guacamole tunnel timeouts and preventing premature disconnections due to svncterm inactivity [#8095](https://github.com/OpenNebula/one/issues/8095).
+* Fix SPICE support in Sunstone [#7667](https://github.com/OpenNebula/one/issues/7667).
+* Fix service template updates in Sunstone [#7193](https://github.com/OpenNebula/one/issues/7193).
+* Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
+* Fix Zendesk support ticket comments by preventing replies to closed tickets and displaying errors when comment delivery fails [#7280](https://github.com/OpenNebula/one/issues/7280).
 
 ---
 
 ## Updating Sunstone Configuration Files
 
-After upgradte to 7.4.2, check the following settings to enable the new Sunstone functionality in the intended views. All paths below are relative to `/etc/one/fireedge/` on the OpenNebula Front-end Host.
+After upgrading to 7.4.2, check the following settings to enable the new Sunstone functionality in the intended views. All paths below are relative to `/etc/one/fireedge/` on the OpenNebula Front-end Host.
 
 Merge these settings into the existing YAML sections, preserving other settings and actions. Do not create duplicate `info-tabs` or `filters` keys.
 
@@ -88,4 +95,39 @@ Add the following content:
     - title: Update Group
       path: /group/update
       Component: CreateGroup
+```
+
+### Expose virtual router NIC attach/detach actions [#7708](https://github.com/OpenNebula/one/issues/7708)
+
+In `sunstone/views/*/vrouter-tab.yaml`, as part of `nics` attributes after the entry:
+
+```yaml
+   nics:
+    enabled: true
+```
+
+Add the following content:
+
+```yaml
+    actions:
+      nic-attach: true
+      nic-detach: true
+```
+
+### Add the SPICE console [#7667](https://github.com/OpenNebula/one/issues/7667).
+
+Add the file `sunstone/tabs/81-spice-tab.yaml`
+
+```yaml
+    - title: SPICE
+      path: /spice/:id
+      sidebar: false
+      Component: Spice
+```
+
+In `sunstone/views/admin/vm-tab.yaml`, `sunstone/views/cloud/vm-tab.yaml`, `sunstone/views/groupadmin/vm-tab.yaml`, `sunstone/views/admin/user-tab.yaml`, in the `actions` section add the following content:
+
+
+```yaml
+    - spice: true
 ```
