@@ -36,7 +36,7 @@ No address is fixed in advance. OneFlow gives each role the compute address of t
 
 A worker joins the Slurm cluster on its own at boot. A reconciler on the portal removes the node of any VM that has left the service.
 
-The portal uses the whole /24 around its compute address as the worker range, so keep that network reserved for the service. A larger network needs `ONEAPP_POOL_RANGE`, described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/#advanced-attributes" %}}).
+The portal uses the whole /24 around its compute address as the worker range, so keep that network reserved for the service. A larger network needs `ONEAPP_POOL_RANGE`, described in [Configuration]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/#advanced-attributes" %}}).
 
 ## How a Session Runs
 

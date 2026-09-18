@@ -9,7 +9,7 @@ weight: "3"
 type: docs
 ---
 
-This guide deploys an Open OnDemand Service from the Sunstone Web UI, with one portal, one storage VM and one worker. Then it opens a JupyterLab notebook on the service. Check the [Requirements]({{% relref "platform_services/open_ondemand/architecture/#requirements" %}}) first. You need OneFlow and OneGate enabled, and two Virtual Networks, one with Internet access and one reserved for the service.
+This guide deploys an Open OnDemand Service from the Sunstone Web UI, with one portal, one storage VM and one worker. Then it opens a JupyterLab notebook on the service. Check the [Requirements]({{% relref "solutions/integration_blueprints/open_ondemand/architecture/#requirements" %}}) first. You need OneFlow and OneGate enabled, and two Virtual Networks, one with Internet access and one reserved for the service.
 
 Quick-start workflow:
 
@@ -26,7 +26,7 @@ The service needs two Virtual Networks, and the wizard requests both:
 * **Management network.** The network your VMs already use to reach the Internet. The portal publishes its web interface on it, and OneGate must be reachable from it.
 * **Compute network.** A private network for the VMs of this service and nothing else. It carries the shared home, the user directory, the software cache and the Slurm traffic between the portal and the workers.
 
-Keep the compute network private and small, a /24 or smaller. Its traffic is not encrypted. The workers join the Slurm cluster through it, and the portal treats every address of that /24 as a possible worker. A larger network needs `ONEAPP_POOL_RANGE`, described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/#advanced-attributes" %}}).
+Keep the compute network private and small, a /24 or smaller. Its traffic is not encrypted. The workers join the Slurm cluster through it, and the portal treats every address of that /24 as a possible worker. A larger network needs `ONEAPP_POOL_RANGE`, described in [Configuration]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/#advanced-attributes" %}}).
 
 Create both networks from **Networks -> Virtual Networks** with **+ Create Virtual Network** and **From scratch**. Most installations already have a management network, so skip the first one if yours does. From the Front-end command line, `onevnet create` creates the same networks from a template file. See [Managing Virtual Networks]({{% relref "product/cluster_configuration/networking_system/manage_vnets/" %}}).
 
@@ -107,7 +107,7 @@ The **Portal** tab holds the public name and the TLS certificate of the web port
 
 | Option | What it does |
 |---|---|
-| **Host name**<br>`ONEAPP_PORTAL_HOST_NAME` | The public name at which users open the portal. If empty, the portal answers on its management address. You can set a name on the running portal later, see [Configuration]({{% relref "platform_services/open_ondemand/configuration/#service-inputs" %}}). |
+| **Host name**<br>`ONEAPP_PORTAL_HOST_NAME` | The public name at which users open the portal. If empty, the portal answers on its management address. You can set a name on the running portal later, see [Configuration]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/#service-inputs" %}}). |
 | **Let's Encrypt**<br>`ONEAPP_PORTAL_LETSENCRYPT_ENABLED` | Requests a certificate for the host name when the portal boots. The name must resolve to the portal, and ports 80 and 443 must be reachable from the Internet. When off, the portal starts with a self-signed certificate. |
 | **Your own certificate**<br>`ONEAPP_PORTAL_CERTIFICATE_ENABLED` | Replaces the self-signed certificate with a PEM chain and a PEM key. You paste them in the two boxes the switch reveals. |
 {.w-100}
@@ -141,7 +141,7 @@ Open the service and select the **Roles** tab to see the three roles. Tick a rol
 {{< image path="/images/open_ondemand/light/sunstone_service_roles.png"
 alt="The three roles of the running service" align="center" width="90%" mb="20px" >}}
 
-A role that stays in `DEPLOYING` has not declared itself ready, see [Monitoring and Troubleshooting]({{% relref "platform_services/open_ondemand/monitoring_and_troubleshooting/#a-role-does-not-reach-running" %}}).
+A role that stays in `DEPLOYING` has not declared itself ready, see [Monitoring and Troubleshooting]({{% relref "solutions/integration_blueprints/open_ondemand/monitoring_and_troubleshooting/#a-role-does-not-reach-running" %}}).
 
 ## Open the Portal
 
@@ -200,12 +200,12 @@ alt="Open OnDemand dashboard" align="center" width="90%" mb="20px" >}}
 
 ## Launch a Notebook
 
-From **Interactive Apps -> Jupyter Notebook**, keep one core, 2 GB of memory and one hour, or raise them. The limits are what the largest worker has. Click **Launch**. A **GPUs** field appears only when a worker has a GPU. A **Worker size** field appears only when the service has several worker roles, see [Worker Sizes]({{% relref "platform_services/open_ondemand/configuration/#worker-sizes" %}}).
+From **Interactive Apps -> Jupyter Notebook**, keep one core, 2 GB of memory and one hour, or raise them. The limits are what the largest worker has. Click **Launch**. A **GPUs** field appears only when a worker has a GPU. A **Worker size** field appears only when the service has several worker roles, see [Worker Sizes]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/#worker-sizes" %}}).
 
 {{< image path="/images/open_ondemand/light/jupyter_form.png"
 alt="Jupyter launch form" align="center" width="90%" mb="20px" >}}
 
-The session is a job of the Slurm cluster of the service. Its card under **My Interactive Sessions** shows the cluster, the job id and the worker it runs on. An example is `Runs on: Slurm, job 1 on ood-worker-128`. A session that finds no free cores shows `Queued` on its card. It waits until a session ends or OneFlow adds a worker, about two minutes on the testbed with the Front-end setting the [Requirements]({{% relref "platform_services/open_ondemand/architecture/#requirements" %}}) recommend. The first session on a fresh deployment takes longer to start, while the site cache fetches the Python module. When the card turns `Running`, click **Open the Jupyter notebook**.
+The session is a job of the Slurm cluster of the service. Its card under **My Interactive Sessions** shows the cluster, the job id and the worker it runs on. An example is `Runs on: Slurm, job 1 on ood-worker-128`. A session that finds no free cores shows `Queued` on its card. It waits until a session ends or OneFlow adds a worker, about two minutes on the testbed with the Front-end setting the [Requirements]({{% relref "solutions/integration_blueprints/open_ondemand/architecture/#requirements" %}}) recommend. The first session on a fresh deployment takes longer to start, while the site cache fetches the Python module. When the card turns `Running`, click **Open the Jupyter notebook**.
 
 {{< image path="/images/open_ondemand/light/session_card.png"
 alt="Session card" align="center" width="90%" mb="20px" >}}
@@ -219,6 +219,6 @@ Files saved in the notebook go to the user's home directory on the storage role.
 
 ## Next Steps
 
-* [Service Architecture]({{% relref "platform_services/open_ondemand/architecture/" %}}) describes what was deployed and how a session runs.
-* [Configuration]({{% relref "platform_services/open_ondemand/configuration/" %}}) covers the host name and certificate, users, worker sizes, Slurm and external identity providers.
-* [Operations]({{% relref "platform_services/open_ondemand/operations/" %}}) covers keeping the home directories across deployments, upgrading and removing the service.
+* [Service Architecture]({{% relref "solutions/integration_blueprints/open_ondemand/architecture/" %}}) describes what was deployed and how a session runs.
+* [Configuration]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/" %}}) covers the host name and certificate, users, worker sizes, Slurm and external identity providers.
+* [Operations]({{% relref "solutions/integration_blueprints/open_ondemand/operations/" %}}) covers keeping the home directories across deployments, upgrading and removing the service.

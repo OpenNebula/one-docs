@@ -15,11 +15,21 @@ The service is a OneFlow service built from one appliance image. Three roles boo
 
 ## How Should I Read this Chapter
 
-Start with the [Quick Start]({{% relref "platform_services/open_ondemand/quick_start/" %}}) to deploy the service from the Community Marketplace and open a notebook. The [Service Architecture]({{% relref "platform_services/open_ondemand/architecture/" %}}) explains the roles, the networks and how a session runs. Then:
+Start with the [Quick Start]({{% relref "solutions/integration_blueprints/open_ondemand/quick_start/" %}}) to deploy the service from the Community Marketplace and open a notebook. The [Service Architecture]({{% relref "solutions/integration_blueprints/open_ondemand/architecture/" %}}) explains the roles, the networks and how a session runs. Then:
 
-* [Configuration]({{% relref "platform_services/open_ondemand/configuration/" %}}) covers inputs, scaling, worker sizes, Slurm, external identity providers and users.
-* [Operations]({{% relref "platform_services/open_ondemand/operations/" %}}) covers manual scaling, persistent home directories, upgrades and removal.
-* [Monitoring and Troubleshooting]({{% relref "platform_services/open_ondemand/monitoring_and_troubleshooting/" %}}) covers metrics, logs, and what to check when something fails.
+* [Configuration]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/" %}}) covers inputs, scaling, worker sizes, Slurm, external identity providers and users.
+* [Operations]({{% relref "solutions/integration_blueprints/open_ondemand/operations/" %}}) covers manual scaling, persistent home directories, upgrades and removal.
+* [Monitoring and Troubleshooting]({{% relref "solutions/integration_blueprints/open_ondemand/monitoring_and_troubleshooting/" %}}) covers metrics, logs, and what to check when something fails.
+
+## Usage Model in a Multi-Tenant Cloud
+
+The service fits a cloud where several groups share one OpenNebula and each group works inside its own Virtual Data Center (VDC). Three actors take part, and only two of them need an OpenNebula account.
+
+* **Infrastructure Admin.** Runs the OpenNebula cloud. Downloads the Open OnDemand Service from the Community Marketplace, so the image, the VM template and the service template are available to the groups, and prepares what belongs to the site: the two Virtual Networks, the quotas of each VDC, the `autoscaler_interval` setting of the Front-end and, if the site has GPUs, the PCI passthrough configuration of the hosts.
+* **Tenant Operator.** Belongs to a group with a VDC. Instantiates the service from Sunstone inside that VDC, chooses the networks and the inputs, and creates the accounts of the end users in Open OnDemand, with `ONEAPP_AUTH_LOCAL_USERS` or through an OpenID Connect provider of the group. Watches the service, scales the worker role by hand when needed, and removes the service when the group no longer needs it. The VMs of the service count against the quotas of the VDC.
+* **OnDemand End User.** A researcher of the group. Signs in to the portal from a browser with the account the Tenant Operator created, opens JupyterLab, RStudio, VS Code or a desktop, and submits batch jobs. Does not need an OpenNebula account and never sees Sunstone. Every session runs as a Slurm job under that user, with the cores and the memory it requested.
+
+Each service is one tenant. Two groups that need separate portals instantiate the service twice, each in its own VDC, with its own users, home directories and Slurm cluster.
 
 ## What the Service Manages
 
@@ -51,7 +61,7 @@ The service uses Slurm 23.11 as its job scheduler. A job is a request for cores,
 * [**Open OnDemand**](https://osc.github.io/ood-documentation/latest/) is the portal software, from the Ohio Supercomputer Center. The service uses its `slurm` adapter for its own cluster and for an optional second Slurm Cluster.
 * [**Slurm**](https://slurm.schedmd.com/) is the workload manager, version 23.11 from Ubuntu 24.04. The portal runs the controller and the accounting daemon. Every worker joins as a dynamic node. Every session is a job, and cgroup v2 limits it to its cores and memory.
 * [**EESSI**](https://www.eessi.io/docs/) is a shared scientific software catalogue distributed over CernVM-FS. The image ships the CernVM-FS client and a site cache. The software itself is fetched on demand.
-* [**Elastic Slurm**]({{% relref "platform_services/slurm/" %}}), the OneSlurm service, is optional. The Open OnDemand Service does not use it. A site that already runs one can attach it as a second cluster for batch jobs, with the same users and home directory, as described in [Configuration]({{% relref "platform_services/open_ondemand/configuration/#an-external-slurm-cluster" %}}).
+* [**Elastic Slurm**]({{% relref "platform_services/slurm/" %}}), the OneSlurm service, is optional. The Open OnDemand Service does not use it. A site that already runs one can attach it as a second cluster for batch jobs, with the same users and home directory, as described in [Configuration]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/#an-external-slurm-cluster" %}}).
 
 ## Supported Versions
 
