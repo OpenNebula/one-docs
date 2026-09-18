@@ -98,7 +98,7 @@ In **Networks**, click each entry on the left and select its Virtual Network in 
 {{< image path="/images/open_ondemand/light/sunstone_instantiate_networks.png"
 alt="Instantiate wizard, Networks step" align="center" width="90%" mb="20px" >}}
 
-In **Service Inputs**, nothing needs to change for a first start. Every input is optional. The defaults give a portal with a self-signed certificate on its management address, and one local user, `demo1` with password `demo1pass`. The home directories stay on the storage role, and the Slurm cluster of the service needs no input. The inputs sit in three tabs, one per topic. Each section has a help icon with its explanation. Every optional feature is a switch that shows its fields only when it is on. The **Portal** tab looks like this.
+In **Service Inputs**, nothing needs to change for a first start. Every input is optional. The defaults give a portal with a self-signed certificate on its management address, and one local user, `demo1` with password `demo1pass`. The home directories and the software cache stay on the storage role, and the Slurm cluster of the service needs no input. The inputs sit in four tabs, one per topic. Each section has a help icon with its explanation. Every optional feature is a switch that shows its fields only when it is on. The **Portal** tab looks like this.
 
 {{< image path="/images/open_ondemand/light/sunstone_instantiate_inputs.png"
 alt="Instantiate wizard, Service Inputs step, Portal tab" align="center" width="90%" mb="20px" >}}
