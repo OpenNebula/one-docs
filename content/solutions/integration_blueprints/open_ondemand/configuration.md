@@ -27,7 +27,7 @@ All inputs are `ONEAPP_*` context variables. OneFlow places every input in the c
 | Users and login | `ONEAPP_AUTH_OIDC_NAME` | `Institutional login` | Name of the provider on the login page. |
 | Home directories | `ONEAPP_HOME_NFS_ENABLED` | `NO` | Use an NFS server of your own for the home directories instead of the storage role, which then keeps only the software cache. |
 | Home directories | `ONEAPP_HOME_NFS_SERVER` | empty | Address of that NFS server. Required when the switch is on. |
-| Home directories | `ONEAPP_HOME_NFS_EXPORT` | `/export/home` | Path of the home export. With the switch off, the storage role exports the same path. |
+| Home directories | `ONEAPP_HOME_NFS_EXPORT` | `/export/home` | Path of the home export on that server. Ignored while the switch is off, the storage role then exports `/export/home`. |
 | Software catalogue | `ONEAPP_SOFTWARE_PROXY_ENABLED` | `NO` | Use a CernVM-FS proxy of your own instead of the cache on the storage role. The portal and the workers then fetch the EESSI catalogue through that proxy, and the storage role runs no cache. |
 | Software catalogue | `ONEAPP_SOFTWARE_PROXY_URL` | empty | URL of that proxy, for example `http://proxy.example.org:3128`. Required when the switch is on, and reachable from the compute network. |
 {.w-100}
