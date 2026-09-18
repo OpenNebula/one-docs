@@ -16,7 +16,7 @@ Previous guides in this section detail how to [deploy OpenNebula on-premises]({{
 
 ## Installed Resources
 
-After following the instructions described in [Deploy OpenNebula On-premises with miniONE]({{% relref "deploy_opennebula_onprem_with_minione" %}}) or in [the PoC ISO installation guide]({{% relref "deploy_opennebula_onprem_with_poc_iso" %}}), the following resources are already created and configured:
+After following the instructions described in [Deploy OpenNebula On-premises with miniONE]({{% relref "deploy_opennebula_onprem_with_minione" %}}) or in [the PoC ISO installation guide]({{% relref "poc_overview" %}}), the following resources are already created and configured:
 
 - A KVM Host on the local machine
 - A virtualization Cluster to which the Host belongs
