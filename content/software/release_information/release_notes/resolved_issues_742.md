@@ -28,6 +28,7 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 * Fix VM template instantiation to allow precise memory values to be entered directly when memory modification is configured as a range [#7426](https://github.com/OpenNebula/one/issues/7426).
 * Fix Restic Datastore - the password filed is not masking the password [#7444](https://github.com/OpenNebula/one/issues/7444).
 * Fix missing theme colors in Sunstone quota panels and improve quota usage readability with per-metric values and progress bars [#6869](https://github.com/OpenNebula/one/issues/6869).
+* Fix SPICE support in Sunstone [#7667](https://github.com/OpenNebula/one/issues/7667).
 * Fix service template updates in Sunstone [#7193](https://github.com/OpenNebula/one/issues/7193).
 * Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
 * Fix Zendesk support ticket comments by preventing replies to closed tickets and displaying errors when comment delivery fails [#7280](https://github.com/OpenNebula/one/issues/7280).
@@ -90,4 +91,21 @@ Add the following content:
     - title: Update Group
       path: /group/update
       Component: CreateGroup
+```
+
+### Add the SPICE console [#7667](https://github.com/OpenNebula/one/issues/7667).
+
+Add the file `sunstone/tabs/81-spice-tab.yaml`
+
+```yaml
+    - title: SPICE
+      path: /spice/:id
+      sidebar: false
+      Component: Spice
+```
+In `sunstone/views/admin/vm-tab.yaml`, `sunstone/views/cloud/vm-tab.yaml`, `sunstone/views/groupadmin/vm-tab.yaml`, `sunstone/views/admin/user-tab.yaml`, in the `actions` section add the following content:
+
+
+```yaml
+    - spice: true
 ```
