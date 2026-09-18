@@ -24,5 +24,70 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 
 * Fix failure of `onegroup create` CLI command with empty `--resource` parameter [#7458](https://github.com/OpenNebula/one/issues/7458).
 -->
-
+* Fix update any item without having permissions to create it on yaml FireEdge views [#6416](https://github.com/OpenNebula/one/issues/6416).
+* Fix VM template instantiation to allow precise memory values to be entered directly when memory modification is configured as a range [#7426](https://github.com/OpenNebula/one/issues/7426).
+* Fix Restic Datastore - the password filed is not masking the password [#7444](https://github.com/OpenNebula/one/issues/7444).
+* Fix missing theme colors in Sunstone quota panels and improve quota usage readability with per-metric values and progress bars [#6869](https://github.com/OpenNebula/one/issues/6869).
+* Fix service template updates in Sunstone [#7193](https://github.com/OpenNebula/one/issues/7193).
+* Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
 * Fix Zendesk support ticket comments by preventing replies to closed tickets and displaying errors when comment delivery fails [#7280](https://github.com/OpenNebula/one/issues/7280).
+
+---
+
+## Updating Sunstone Configuration Files
+
+After upgradte to 7.4.2, check the following settings to enable the new Sunstone functionality in the intended views. All paths below are relative to `/etc/one/fireedge/` on the OpenNebula Front-end Host.
+
+Merge these settings into the existing YAML sections, preserving other settings and actions. Do not create duplicate `info-tabs` or `filters` keys.
+
+### Update any item without having permissions to create it on yaml FireEdge views [#6416](https://github.com/OpenNebula/one/issues/6416)
+
+In `sunstone/tabs/40-networks-tab.yaml`, as part of `routes` attributes after the entry:
+
+```yaml
+    - title: Create Virtual Network
+      path: /virtual-network/create
+      Component: CreateVirtualNetwork
+```
+
+Add the following content:
+
+```yaml
+    - title: Update Virtual Network Template
+      path: /network-template/update
+      Component: CreateVnTemplate
+```
+
+Also, after the entry:
+
+```yaml
+    - title: Create Security Group
+      path: /security-group/create
+      Component: CreateSecurityGroup
+```
+
+Add the following content
+
+```yaml
+    - title: Update Security Group
+      path: /security-group/update
+      Component: CreateSecurityGroup
+```
+
+In `sunstone/tabs/60-systems-tab.yaml`, as part of `routes` attributes after the entry:
+
+```yaml
+    - title: Groups
+      path: /group
+      sidebar: true
+      icon: Group
+      Component: Groups
+```
+
+Add the following content:
+
+```yaml
+    - title: Update Group
+      path: /group/update
+      Component: CreateGroup
+```

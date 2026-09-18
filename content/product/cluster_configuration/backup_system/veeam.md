@@ -56,10 +56,12 @@ If you encounter other issues or bugs, check the [Known Issues page]({{% relref 
 To ensure a compatible integration between OpenNebula and Veeam Backup, the following components and network configuration are required:
 
 - **Veeam Workers**: Deployed from the Veeam server to process backups and restores.
+- **oVirtAPI Server**: Exposes the oVirt-compatible API on TCP ports **80 (HTTP)** and **443 (HTTPS)**. These ports are required for the Veeam integration; using other ports breaks the integration. The server can run on the OpenNebula Front-end or in a separate environment, such as a VM, if these ports are unavailable on the Front-end. A separate deployment may degrade performance.
 - **OpenNebula Backup Exporter (OneBEX)**: Runs on demand on the OpenNebula hypervisors and exposes VM backup data to Veeam. See [Interactive Backup Integrations]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}) for implementation details.
 - **Veeam (interactive) Backup Datastore**: An OpenNebula `BACKUP_DS` using `DS_MAD="interactive"` and `VEEAM_DS="YES"`. This datastore coordinates Veeam backup operations and tracks backup metadata. The backup itself is stored in the Veeam repository.
 - **Management Network**: Provides connectivity between all of the following components:
      - OpenNebula Front-end
+     - oVirtAPI Server, if deployed separately
      - OpenNebula OneBEX endpoint on each hypervisor
      - All OpenNebula Hosts running VMs to be backed up
      - Veeam Server
@@ -145,11 +147,17 @@ For more information about the `interactive` driver internals, see [Interactive 
 
 ### 4. Install and Configure the oVirtAPI Module
 
-To install the oVirtAPI module, configure the OpenNebula repository on the Backup Server by following the [OpenNebula Enterprise Edition Repository Setup Guide]({{% relref "software/installation_process/frontend_installation/opennebula_repository_configuration_ee.md" %}}). Then install the `opennebula-ovirtapi` package with the relevant package manager for your OS.
+{{< alert title="Required ports" type="warning" >}}
+Before installing `opennebula-ovirtapi`, ensure that TCP ports **80 and 443** are available for Apache on the server where oVirtAPI will run. The package installation automatically enables and restarts Apache. If another service, such as NGINX serving the OpenNebula web UI, already occupies these ports, the Apache restart fails, leaving the package half-configured and the API unavailable.
+
+oVirtAPI must use ports **80 and 443**; changing its ports breaks the Veeam integration. If these ports are unavailable on the Front-end, install oVirtAPI in a separate environment, such as a VM, where both ports are available. This deployment may degrade performance.
+{{< /alert >}}
+
+To install the oVirtAPI module, configure the OpenNebula repository on the server selected to run oVirtAPI by following the [OpenNebula Enterprise Edition Repository Setup Guide]({{% relref "software/installation_process/frontend_installation/opennebula_repository_configuration_ee.md" %}}). Then install the `opennebula-ovirtapi` package with the relevant package manager for your OS.
 
 The configuration file can be found at `/etc/one/ovirtapi-server.yml`. Change the following variables before starting the service:
 
-* `public_ip`: IP address that Veeam will use to communicate with the frontend node. 
+* `public_ip`: (Required) IP address that Veeam will use to reach the oVirtAPI server. Set this to the address of the Front-end or the separate server running oVirtAPI, as appropriate. The oVirtAPI service cannot start until this value is configured.
 * `endpoint_port`: Port used by the OpenNebula RPC endpoint (defaults to 2633).
 * `backup_freeze`: (Optional) Controls which filesystem freeze mode OpenNebula requests when performing backups initiated via the oVirtAPI/Veeam integration. Valid values are `NONE`, `AGENT`, and `SUSPEND`. For details on each mode see the Backup Modes section in the backup guide: [Backup Modes]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations/#backup-modes" %}}).
 
