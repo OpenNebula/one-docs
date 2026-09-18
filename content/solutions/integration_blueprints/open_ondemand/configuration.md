@@ -13,7 +13,7 @@ This section describes the inputs of the Open OnDemand Service. It also covers r
 
 ## Service Inputs
 
-All inputs are `ONEAPP_*` context variables. OneFlow places every input in the context of every VM of the service, where root can read it. This includes `ONEAPP_PORTAL_CERTIFICATE_KEY` and `ONEAPP_AUTH_OIDC_CLIENT_SECRET`. Every input is optional, and the Sunstone wizard groups them in three tabs, **Portal**, **Users and login** and **Home directories**. A feature with an `_ENABLED` switch shows its other inputs only while the switch is `YES`, and ignores them while it is `NO`. If a switch is `YES` and a required field is empty, the role stops at boot, and the message names the field, see [A Role Does Not Reach RUNNING]({{% relref "solutions/integration_blueprints/open_ondemand/monitoring_and_troubleshooting/#a-role-does-not-reach-running" %}}).
+All inputs are `ONEAPP_*` context variables. OneFlow places every input in the context of every VM of the service, where root can read it. This includes `ONEAPP_PORTAL_CERTIFICATE_KEY` and `ONEAPP_AUTH_OIDC_CLIENT_SECRET`. Every input is optional, and the Sunstone wizard groups them in four tabs, **Portal**, **Users and login**, **Home directories** and **Software catalogue**. A feature with an `_ENABLED` switch shows its other inputs only while the switch is `YES`, and ignores them while it is `NO`. If a switch is `YES` and a required field is empty, the role stops at boot, and the message names the field, see [A Role Does Not Reach RUNNING]({{% relref "solutions/integration_blueprints/open_ondemand/monitoring_and_troubleshooting/#a-role-does-not-reach-running" %}}).
 
 | Tab | Input | Default | Description |
 |---|---|---|---|
@@ -28,6 +28,8 @@ All inputs are `ONEAPP_*` context variables. OneFlow places every input in the c
 | Home directories | `ONEAPP_HOME_NFS_ENABLED` | `NO` | Use an NFS server of your own for the home directories instead of the storage role, which then keeps only the software cache. |
 | Home directories | `ONEAPP_HOME_NFS_SERVER` | empty | Address of that NFS server. Required when the switch is on. |
 | Home directories | `ONEAPP_HOME_NFS_EXPORT` | `/export/home` | Path of the home export. With the switch off, the storage role exports the same path. |
+| Software catalogue | `ONEAPP_SOFTWARE_PROXY_ENABLED` | `NO` | Use a CernVM-FS proxy of your own instead of the cache on the storage role. The portal and the workers then fetch the EESSI catalogue through that proxy, and the storage role runs no cache. |
+| Software catalogue | `ONEAPP_SOFTWARE_PROXY_URL` | empty | URL of that proxy, for example `http://proxy.example.org:3128`. Required when the switch is on, and reachable from the compute network. |
 {.w-100}
 
 You can also set the host name, the OpenID Connect inputs and the external Slurm attributes on a running portal with `onevm updateconf`. The portal reconfigures itself in under a minute. The portal keeps the certificate it already has for its host name. A certificate switch changed later therefore takes effect only together with a new host name. To apply it under the same host name, remove `/etc/ood/ssl/<host name>.crt` and `.key` on the portal. Without a host name, the files are named after the address. The next reconfigure issues the certificate again.

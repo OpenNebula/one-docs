@@ -127,6 +127,13 @@ The **Home directories** tab decides where the files of the users live. For a fi
 | **NFS server of your own**<br>`ONEAPP_HOME_NFS_ENABLED` | Mounts the home directories from an NFS server you already run, instead of the storage role. The storage role then only keeps the software cache. The switch reveals the address of the server and the export path. |
 {.w-100}
 
+The **Software catalogue** tab decides where the EESSI files come from. For a first start, leave the switch off:
+
+| Option | What it does |
+|---|---|
+| **CernVM-FS proxy of your own**<br>`ONEAPP_SOFTWARE_PROXY_ENABLED` | Points the portal and the workers at a CernVM-FS proxy the site already runs, instead of the cache on the storage role. The switch reveals the URL of the proxy. |
+{.w-100}
+
 In **Charter**, leave the list empty and click **Finish**. From the Front-end command line, `oneflow-template instantiate 'Open OnDemand Service'` requests the same values interactively.
 
 ## Wait for the Service
