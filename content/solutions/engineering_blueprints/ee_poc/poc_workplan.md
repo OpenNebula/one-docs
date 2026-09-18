@@ -1,5 +1,4 @@
 ---
-
 title: "Workplan"
 linkTitle: "Workplan"
 description: "Workplan for the OpenNebula Enterprise Edition Proof of Concept."
@@ -9,9 +8,7 @@ weight: 1
 
 ## Infrastructure Requirements and Deployment
 
-{{< alert title="Warning" type="warning" >}}
-The OpenNebula PoC service is designed to be deployed in an isolated environment, fully separated from production systems and without access to external networks or storage systems. Our PoC service includes an automated, low-friction setup process tailored for such isolated environments. It is important to note that OpenNebula cannot be held responsible for any downtime, damages, or other issues that may occur in connected production environments if the PoC is not deployed as intended.
-{{< /alert >}}
+
 
 The PoC program utilizes two methods for installing the PoC OpenNebula cloud. The recommended method is for the OpenNebula team to install in your environment using SSH/VPN.  The second option is using a custom-tailored ISO designed to simplify the deployment of a functional OpenNebula environment, enabling users to easily test-drive the platform’s core functionalities. Once the PoC cloud deployment is complete, users will be able to build and manage Virtual Machines and validate a variety of common cloud use cases.
 
@@ -21,12 +18,12 @@ Infrastructure requirements may vary depending on the final purpose of the infra
 
 <center>
 
-| **Resource**  | **Recommended minimum**                                            |
-| --------- |:---------------------------------------------------------------------- |
-| Memory    | 64GB+                                                                  |
-| CPU       | Intel or AMD CPU with 16+ cores and SSE2 support                       |
-| Disk size | 512GB SSD                                                              |
-| Network   | 1 (or more) dedicated NIC(s), with inbound 22 and 2616 ports available |
+| **Resource** | **Recommended minimum**                                                |
+| ------------ |:---------------------------------------------------------------------- |
+| Memory       | 64GB+                                                                  |
+| CPU          | Intel or AMD CPU with 16+ cores and SSE2 support                       |
+| Disk size    | 512GB SSD                                                              |
+| Network      | 1 (or more) dedicated NIC(s), with inbound 22 and 2616 ports available |
 
 <sup>Table 1. Front-end hardware recommendations.</sup>
 
@@ -72,25 +69,26 @@ As shown above, the design for a single-node OpenNebula PoC has the following fe
 - The OpenNebula PoC cloud is deployed on a single bare-metal server, which meets the minimum system requirements listed in Table 1. Henceforth, this server will be referred to as the “OpenNebula server.” This can be later on extended to a second server which acts exclusively as a hypervisor Host.
 
 - The OpenNebula server should have the following networking connections:
+  
   - Connection to an IPMI (or other out-of-band KVM system) for initial server setup and embedded hardware configuration.
   - Connection to the Management Network. This connection should be configured on one of the server NIC ports. The Management Network will be used for:
     - Accessing the hypervisor Host OS for low-level management and troubleshooting.
     - Accessing Front-end VMs via the GUI for cloud management operations.
-<br><br>
+      <br><br>
 
 - The Host OS will be automatically installed and configured from the ISO image. It is based on the AlmaLinux 9 distribution and has all required packages for an isolated cloud deployment.
 
 - The Front-end VM Hosts all OpenNebula cloud components, including the GUI, cloud lifecycle management services, CLI tools, etc. Once the cloud is deployed, it should be possible to access the GUI using the IP for the OpenNebula Server on port 2616.
 
 - Once the deployment process has completed, the OpenNebula PoC cloud is ready for testing. It includes pre-configured cloud datastores backed by an NFS server running on the Host OS, sample internal Virtual Networks, test images, and VM templates.
-<br><br>
-  
-  
+  <br><br>
+
 ## PoC Phases
 
 {{< image path="/images/ISO/poc_diagram.png" align="center" width="90%" mb="20px">}}
 
 ### Request a Demo
+
 The first step is to request a live demo. Contact us by [filling the demonstration request form](https://opennebula.io/evaluate-opennebula/#request-demo) or by email at: sales@opennebula.io.
 
 ### Introduction and Information Gathering Call
