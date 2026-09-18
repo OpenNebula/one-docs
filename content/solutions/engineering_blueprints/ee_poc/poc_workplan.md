@@ -56,8 +56,6 @@ Personnel who execute and operate the OpenNebula PoC are expected to possess the
    - **Virtualization management**: KVM, QEMU, libvirt/virsh
    - **Linux services configuration and operation**: Passwordless SSH configuration
 
-## 
-
 ## Proof of Concept Phases
 
 {{< image path="/images/ISO/poc_diagram.png" align="center" width="90%" mb="20px">}}
