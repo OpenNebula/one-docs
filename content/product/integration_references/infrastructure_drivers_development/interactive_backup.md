@@ -39,11 +39,11 @@ The current interactive backup implementation supports the following configurati
 | Component | Support |
 |-----------|---------|
 | Hypervisor | KVM |
-| VM disk storage | File-based `qcow2` disks and disks on LVM datastores |
+| VM disk storage | File-based `qcow2` disks, disks on LVM datastores, and Ceph RBD disks |
 | Backup types | Full and incremental |
 | Incremental mode | CBT only (`INCREMENT_MODE="CBT"`) |
 | VM state | Running and powered off VMs |
-| OneBEX exporter | NBD, LVM |
+| OneBEX exporter | NBD, LVM, RBD |
 
 {{< alert title="Important" type="info" >}}
 Interactive incremental backups do not support the `SNAPSHOT` increment mode. OpenNebula rejects this combination when the backup configuration is updated.
@@ -161,7 +161,7 @@ The OneBEX API is consumed by backup integrations. The current API is:
 | `/` | `GET` | Returns basic server information and the available API routes. | `200` |
 | `/status` | `GET` | Returns the current export status for a VM. Requires `VM_ID`. | `200`, `400` |
 | `/exporters` | `GET` | Lists the exporter backends available in OneBEX. | `200` |
-| `/export` | `POST` | Starts one or more disk exports for a VM. Requires `VM_ID` and `DS_ID`. `DISKS` is optional. | `200`, `400`, `404`, `500` |
+| `/export` | `POST` | Starts one or more disk exports for a VM. Requires `VM_ID`, `DS_ID`, and `BACKUP_DIR`. `DISKS` is optional. | `200`, `400`, `404`, `500` |
 | `/transfers/:TRANSFER_ID/info` | `GET` | Returns size and format information for a transfer. | `200`, `404`, `500` |
 | `/images/:TRANSFER_ID` | `OPTIONS` | Returns supported image transfer features and concurrency limits. | `200` |
 | `/images/:TRANSFER_ID/extents` | `GET` | Returns block extent information for a transfer. | `200`, `404`, `500` |
@@ -249,12 +249,28 @@ The OneBEX API is consumed by backup integrations. The current API is:
 {
   "EXPORTERS": [
     "nbd",
-    "lvm"
+    "lvm",
+    "rbd"
   ]
 }
 ```
 
 #### `POST /export`
+
+Request:
+
+```json
+{
+  "VM_ID": 123,
+  "DS_ID": 100,
+  "BACKUP_DIR": "/var/lib/one/datastores/100/123/backup",
+  "DISKS": [
+    0
+  ]
+}
+```
+
+`BACKUP_DIR` is the VM backup directory that contains `interactive_exports.json`. When `DISKS` is omitted, OneBEX starts exports for all disks listed in `interactive_exports.json`.
 
 **`200 OK`**
 
@@ -278,7 +294,7 @@ The OneBEX API is consumed by backup integrations. The current API is:
 
 ```json
 {
-  "error": "Missing VM_ID or DS_ID"
+  "error": "Missing VM_ID, DS_ID or BACKUP_DIR"
 }
 ```
 
@@ -601,6 +617,7 @@ OneBEX uses exporters to expose VM disk data to external backup systems.
 |----------|-----------------|-----------|-------------|
 | `nbd` | File-based `qcow2` disks | Network Block Device | Exposes the backup disk through NBD. OneBEX starts a read-only `qemu-nbd` process and serves the disk export through a Unix socket. |
 | `lvm` | Disks on LVM datastores | Direct block-device reads | Exposes the prepared LVM block device directly. Full backups return the full device extent. Incremental backups use `thin_delta` to return changed extents from LVM thin metadata. |
+| `rbd` | Ceph RBD disks | Direct RBD reads | Exposes the prepared Ceph RBD snapshot directly. Full backups return the full image extent, while incremental backups return the changed extents between RBD snapshots. |
 
 {{< alert title="Note" type="info" >}}
 The `nbd` exporter reads disk data with the `nbdsh` tool from the `python3-libnbd` package. This package is installed automatically as a dependency of `opennebula-node-kvm` on all supported platforms except SLES 15, where it is not available in the SUSE repositories. To use the `nbd` exporter on SLES 15 hosts, install `python3-libnbd` manually, for example from the openSUSE Leap 15.6 repositories, together with the matching `libnbd0` package. {{< /alert >}}

@@ -33,7 +33,7 @@ Simply mount the **Image** Datastore directory in the Front-end in `/var/lib/one
 The Front-end only needs to mount the Image Datastores and **not** the System Datastores.{{< /alert >}}
 
 {{< alert title="Note" type="info" >}}
-**NFS volumes mount tips**. The following options are recommended to mount NFS shares:`soft, intr, rsize=32768, wsize=32768`. With the documented configuration of libvirt/kvm, the image files can be accessed as the `oneadmin` user. If the files must be read by `root`, the option `no_root_squash` must be added.{{< /alert >}}
+**NFS volumes mount tips**. NFS version 4.2 is the supported and tested protocol version. The following options are recommended to mount NFS shares: `soft, intr, rsize=32768, wsize=32768`. With the documented configuration of libvirt/kvm, the image files can be accessed as the `oneadmin` user. If the files must be read by `root`, the option `no_root_squash` must be added.{{< /alert >}}
 
 ## Manual Host Setup
 
