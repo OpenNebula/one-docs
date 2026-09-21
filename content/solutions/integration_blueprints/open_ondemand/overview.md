@@ -35,7 +35,7 @@ The unit of isolation between groups is the Open OnDemand Service instance, not 
 
 Every VM boots from the same image. `ONEAPP_ROLE`, set for each role in the service template, decides what the VM does:
 
-* **storage**. One VM. It exports the shared home directory and the state of the Slurm controller over NFS, and caches the EESSI software catalogue.
+* **storage**. One VM. It exports the shared home directory, the state of the Slurm controller and the shared software directory over NFS, and caches the EESSI software catalogue.
 * **portal**. One VM. It runs Open OnDemand, the LDAP directory, the Dex login service, and the Slurm controller with its accounting database.
 * **worker**. One to six VMs, scaled by OneFlow. Each one joins the cluster as a Slurm node and runs the user sessions as jobs. Each job gets only the cores and the memory it requested.
 

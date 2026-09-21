@@ -15,7 +15,7 @@ The Open OnDemand Service has three roles and uses two Virtual Networks. Each us
 
 | Role | Cardinality | What it runs |
 |---|---|---|
-| `storage` | 1 | NFS server for the shared home directories and for the state of the Slurm controller. Squid cache for the EESSI catalogue, unless the service uses a proxy of the site |
+| `storage` | 1 | NFS server for the shared home directories, the state of the Slurm controller and the shared software directory. Squid cache for the EESSI catalogue, unless the service uses a proxy of the site |
 | `portal` | 1 | Open OnDemand, its LDAP directory, Dex, the Slurm controller `slurmctld`, the accounting daemon `slurmdbd` with MariaDB, the Prometheus metrics exporter |
 | `worker` | 1 to 6, elastic | `slurmd`, joined to the cluster as a dynamic node, and the user sessions as Slurm jobs |
 {.w-100}

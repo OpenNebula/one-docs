@@ -129,6 +129,27 @@ The service runs its own Slurm cluster and needs no other one. If your site alre
 
 For that cluster, `sbatch`, `squeue`, `scancel`, `sinfo`, `sacct` and `scontrol` run on its controller over SSH as the user. The controller therefore has to answer on port 22 from the compute address of the portal. Job history in `sacct` needs `slurmdbd` on that controller, which the default OneSlurm deployment does not run. The `appliances/one-ondemand/docs/slurmdbd-setup.sh` script of the [appliance repository](https://github.com/OpenNebula/marketplace-community) installs `slurmdbd` with MariaDB, enables accounting in `slurm.conf` and registers the cluster.
 
+## Adding Software for Every User
+
+The scientific software comes from the [EESSI](https://www.eessi.io/docs/) catalogue, built with [EasyBuild](https://easybuild.io/) and delivered over CernVM-FS. EasyBuild itself is a module of the catalogue, so a user can build in their home a package that EESSI lacks. The service also has a shared software directory, so that the operator builds a package once and every user sees it.
+
+The storage role exports the directory, and the portal and the workers mount it at `/opt/eessi`. That is the path where the EESSI catalogue looks for the additions of a site, and the EESSI init adds the modules found there to `MODULEPATH` in every session and every job. Nothing else needs configuration. Only the `eessi` user writes there, from the portal.
+
+To build a package, give `ood-site-install` an EasyBuild recipe on the portal, as root. The image ships a recipe for GNU Hello as an example:
+
+```shell
+ood-site-install /opt/one-ondemand/config/easybuild/hello-2.12.1-GCCcore-14.3.0.eb
+```
+
+The command loads EasyBuild from EESSI as the `eessi` user, builds the recipe and its missing dependencies from source, and installs the result in the shared directory under the CPU family of the VM. A build takes minutes. When it ends, the package is in `module avail` for every user, in every session and on every worker, next to the EESSI modules:
+
+```shell
+module load hello
+hello
+```
+
+`ood-site-install --search <name>` lists the recipes that EasyBuild ships, more than a thousand. A recipe of your own is a text file like the example, with the name, the version, the source URL, the toolchain and the dependencies of the package. Use a toolchain that EESSI provides, for example `GCCcore/14.3.0` or `foss/2025a`, so the build reuses the compiler and the libraries of the catalogue. The shared directory belongs to the service and is deleted with it, so keep the recipes and build them again on a new service.
+
 ## External Identity Provider
 
 When `ONEAPP_AUTH_OIDC_ENABLED` is `YES`, the login page offers the provider in `ONEAPP_AUTH_OIDC_ISSUER`, `ONEAPP_AUTH_OIDC_CLIENT_ID` and `ONEAPP_AUTH_OIDC_CLIENT_SECRET` beside the local directory. It appears under the name in `ONEAPP_AUTH_OIDC_NAME`. Register `https://<ONEAPP_PORTAL_HOST_NAME>/dex/callback` as the redirect URI at the provider. The account name is the `preferred_username` claim. When the provider sends no such claim, it is the part of the email before the at sign. The session runs as a Unix user with a home directory. A user who signs in this way therefore needs an entry in the LDAP directory under that name.
