@@ -30,11 +30,11 @@ The following table summarizes the supported backup modes for each storage syste
 |--------------|------|-------------|
 | File (qcow2) | Yes  | Yes         |
 | File (raw)   | No†  | No†         |
-| Ceph         | No†  | No†         |
+| Ceph (RBD)   | Yes  | Yes         |
 | LVM          | Yes  | Yes         |
 | NetApp       | No†  | No†         |
 
-<sup>†</sup> These backup modes were supported in previous OpenNebula versions, such as 7.0 and 7.2. In OpenNebula version 7.4, they are not supported by the current OneBEX-based integration, but are planned to be supported in a future maintenance releases.
+<sup>†</sup> File (raw) and NetApp backup modes were supported in previous OpenNebula versions, such as 7.0 and 7.2. In OpenNebula version 7.4, they are not supported by the current OneBEX-based integration, but are planned to be supported in future maintenance releases.
 
 ### Volatile Disk Backups
 
