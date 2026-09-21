@@ -11,7 +11,7 @@ weight: "8"
 
 ## Overview
 
-This guide describes how to assign an AMD GPU directly to an OpenNebula Virtual Machine using PCI passthrough, install [AMD ROCm](https://rocm.docs.amd.com/en/latest/) in the guest, and validate the configuration with PyTorch and vLLM. While the VM is running, the assigned GPU is exclusively owned by the guest VM. The AMD GPU driver and ROCm user-space components are therefore installed in the guest, not on the Host.
+This guide describes how to assign an AMD GPU directly to an OpenNebula Virtual Machine using PCI passthrough, install [AMD ROCm](https://rocm.docs.amd.com/en/latest/) in the guest, and validate the configuration with PyTorch. While the VM is running, the assigned GPU is exclusively owned by the guest VM. The AMD GPU driver and ROCm user-space components are therefore installed in the guest, not on the Host.
 
 The generic PCI passthrough configuration is described in the [Host Configuration Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/" %}}). Complete the IOMMU and VFIO device ownership configuration before proceeding with this guide. The AMD-specific VFIO binding and PCI monitoring values are configured below.
 
@@ -28,9 +28,8 @@ The commands below reproduce a validated environment with the following software
 | amdgpu kernel module | 6.16.13 (DKMS) |
 | ROCm | [7.2.4](https://github.com/ROCm/legacy-rocm-build/releases#release-rocm-7.2.4) |
 | PyTorch | [2.9.1 for ROCm 7.2.4](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.2.4/install/3rd-party/pytorch-install.html) |
-| vLLM | 0.28.1rc1.dev516+g9ea8f3ffc.rocm723 |
 
-Refer to the [ROCm documentation](https://rocm.docs.amd.com/) and the [vLLM installation documentation](https://docs.vllm.ai/en/latest/getting_started/installation/gpu/) before using a different software combination.
+Refer to the [ROCm documentation](https://rocm.docs.amd.com/) before using a different software combination.
 
 ## Requirements
 
@@ -360,9 +359,9 @@ Verify the GPU with ROCm and AMD SMI:
 
 `rocminfo` must report an agent for every assigned GPU, with the architecture and marketing name expected for the hardware. In the validated environment, it reported `gfx942` and `AMD Instinct MI325X`.
 
-## Validate PyTorch (Optional)
+## Validate with PyTorch (Optional)
 
-This section provides an optional functional test of ROCm and the assigned GPU. Skip it if you intend to use only vLLM, which installs its own PyTorch build in a separate environment.
+This section provides a functional test of ROCm and the assigned GPU.
 
 Install Python virtual environment support and create an isolated environment:
 
@@ -405,170 +404,6 @@ PY
 ```
 
 The test must report the expected number of assigned AMD GPUs, a finite result, and memory allocated on the GPU. The validated configuration assigned one GPU.
-
-## Install and Validate vLLM
-
-The vLLM ROCm wheel includes a different, binary-compatible PyTorch build. Install it in a separate environment. If you completed the optional PyTorch validation above, do not modify `/opt/pytorch-rocm`.
-
-The `rocm723` suffix in the validated vLLM version identifies the ROCm version used to build the wheel. Although it differs from the ROCm 7.2.4 runtime installed above, this exact combination was validated in the environment described by this guide.
-
-Install the required system libraries:
-
-```shell
-sudo apt-get install -y libopenmpi3t64 rocprofiler-sdk hsa-amd-aqlprofile
-sudo ldconfig
-```
-
-Create the environment and install the vLLM build validated by this guide:
-
-```shell
-sudo python3.12 -m venv /opt/vllm-rocm
-sudo chown -R "$USER":"$(id -gn)" /opt/vllm-rocm
-/opt/vllm-rocm/bin/python -m pip install --upgrade uv
-
-/opt/vllm-rocm/bin/uv pip install \
-  --python /opt/vllm-rocm/bin/python \
-  --pre 'vllm==0.28.1rc1.dev516+g9ea8f3ffc.rocm723' \
-  --extra-index-url https://wheels.vllm.ai/rocm/9ea8f3ffc354901b740f0b31988900897b7221d7/rocm723 \
-  --index-strategy unsafe-best-match
-```
-
-Check the installed packages and GPU platform:
-
-```shell
-/opt/vllm-rocm/bin/uv pip check --python /opt/vllm-rocm/bin/python
-
-/opt/vllm-rocm/bin/python - <<'PY'
-import torch
-import vllm
-
-print("vLLM:", vllm.__version__)
-print("PyTorch:", torch.__version__)
-print("ROCm:", torch.version.hip)
-print("GPU available:", torch.cuda.is_available())
-print("GPU:", torch.cuda.get_device_name(0))
-print("Platform:", type(vllm.platforms.current_platform).__name__)
-PY
-```
-
-The platform must be `RocmPlatform` and the expected AMD GPU name must be displayed. The validated output reported `AMD Instinct MI325X`.
-
-### Serve a Model
-
-The following command downloads and serves the official `openai/gpt-oss-120b` MXFP4 model. The model requires approximately 65 GB of disk space and at least 80 GB of GPU memory:
-
-```shell
-sudo install -d -o "$USER" -g "$(id -gn)" /opt/huggingface
-
-HF_HOME=/opt/huggingface \
-/opt/vllm-rocm/bin/vllm serve openai/gpt-oss-120b \
-  --host 127.0.0.1 \
-  --port 8000 \
-  --dtype bfloat16 \
-  --max-model-len 8192 \
-  --gpu-memory-utilization 0.80 \
-  --max-num-seqs 64 \
-  --language-model-only
-```
-
-Setting `HF_HOME` before a command affects only that command. To use the same model cache in future interactive sessions, add the following line to the user's shell startup file, such as `~/.profile`:
-
-```shell
-export HF_HOME=/opt/huggingface
-```
-
-The server command runs in the foreground and stops when its process or terminal session ends.
-
-After the API server is ready, submit a request from another guest shell:
-
-```shell
-curl -s http://127.0.0.1:8000/v1/chat/completions \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "model": "openai/gpt-oss-120b",
-    "messages": [{
-      "role": "user",
-      "content": "Briefly explain the problem that OpenNebula solves."
-    }],
-    "temperature": 0,
-    "max_tokens": 256
-  }' | /opt/vllm-rocm/bin/python -m json.tool
-```
-
-Abbreviated sample output, with the response text shortened:
-
-```json
-{
-    "model": "openai/gpt-oss-120b",
-    "choices": [
-        {
-            "index": 0,
-            "message": {
-                "role": "assistant",
-                "content": "**OpenNebula\u2019s core problem:**\u202fHow to turn a collection of physical servers, storage, and networking resources into a reliable, easy\u2011to\u2011manage, on\u2011demand cloud that can serve many users and workloads without requiring a full\u2011blown public\u2011cloud stack.\n\n..."
-            },
-            "finish_reason": "length"
-        }
-    ],
-    "usage": {
-        "prompt_tokens": 78,
-        "total_tokens": 334,
-        "completion_tokens": 256
-    }
-}
-```
-
-### Run a Small Serving Benchmark
-
-With the server still running, submit a reproducible synthetic workload:
-
-```shell
-HF_HOME=/opt/huggingface \
-/opt/vllm-rocm/bin/vllm bench serve \
-  --backend vllm \
-  --base-url http://127.0.0.1:8000 \
-  --model openai/gpt-oss-120b \
-  --dataset-name random \
-  --num-prompts 32 \
-  --random-input-len 512 \
-  --random-output-len 128 \
-  --ignore-eos \
-  --request-rate inf \
-  --max-concurrency 8 \
-  --seed 42
-```
-
-Sample output:
-
-```
-============ Serving Benchmark Result ============
-Successful requests:                     32
-Failed requests:                         0
-Maximum request concurrency:             8
-Benchmark duration (s):                  10.35
-Total input tokens:                      16384
-Total generated tokens:                  4096
-Request throughput (req/s):              3.09
-Output token throughput (tok/s):         395.69
-Peak output token throughput (tok/s):    664.00
-Peak concurrent requests:                16.00
-Total token throughput (tok/s):          1978.47
----------------Time to First Token----------------
-Mean TTFT (ms):                          975.68
-Median TTFT (ms):                        499.99
-P99 TTFT (ms):                           2271.63
------Time per Output Token (excl. 1st token)------
-Mean TPOT (ms):                          12.68
-Median TPOT (ms):                        12.37
-P99 TPOT (ms):                           15.93
----------------Inter-token Latency----------------
-Mean ITL (ms):                           12.68
-Median ITL (ms):                         12.40
-P99 ITL (ms):                            14.00
-==================================================
-```
-
-The validated single-GPU configuration completed all 32 requests without errors and produced approximately 396 output tokens per second. Results depend on the model, vLLM revision, VM configuration, and Host load.
 
 ## Troubleshooting
 
@@ -613,5 +448,3 @@ If these symptoms occur, power off the Virtual Machine and reboot the Host durin
 ### A ROCm Shared Library Is Missing
 
 If PyTorch fails with a missing ROCm library such as `libMIOpen.so.1`, verify that `rocm-ml-libraries` is installed and `/opt/rocm/lib` is registered with the dynamic linker.
-
-The vLLM PyTorch wheel also requires MPI and profiling libraries from the guest operating system. Install the packages shown in the vLLM section if errors mention `libmpi_cxx.so.40`, `librocprofiler-sdk.so.1`, or `libhsa-amd-aqlprofile64.so.1`.
