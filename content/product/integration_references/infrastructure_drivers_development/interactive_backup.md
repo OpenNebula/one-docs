@@ -161,7 +161,7 @@ The OneBEX API is consumed by backup integrations. The current API is:
 | `/` | `GET` | Returns basic server information and the available API routes. | `200` |
 | `/status` | `GET` | Returns the current export status for a VM. Requires `VM_ID`. | `200`, `400` |
 | `/exporters` | `GET` | Lists the exporter backends available in OneBEX. | `200` |
-| `/export` | `POST` | Starts one or more disk exports for a VM. Requires `VM_ID` and `DS_ID`. `DISKS` is optional. | `200`, `400`, `404`, `500` |
+| `/export` | `POST` | Starts one or more disk exports for a VM. Requires `VM_ID`, `DS_ID`, and `BACKUP_DIR`. `DISKS` is optional. | `200`, `400`, `404`, `500` |
 | `/transfers/:TRANSFER_ID/info` | `GET` | Returns size and format information for a transfer. | `200`, `404`, `500` |
 | `/images/:TRANSFER_ID` | `OPTIONS` | Returns supported image transfer features and concurrency limits. | `200` |
 | `/images/:TRANSFER_ID/extents` | `GET` | Returns block extent information for a transfer. | `200`, `404`, `500` |
@@ -256,6 +256,21 @@ The OneBEX API is consumed by backup integrations. The current API is:
 
 #### `POST /export`
 
+Request:
+
+```json
+{
+  "VM_ID": 123,
+  "DS_ID": 100,
+  "BACKUP_DIR": "/var/lib/one/datastores/100/123/backup",
+  "DISKS": [
+    0
+  ]
+}
+```
+
+`BACKUP_DIR` is the VM backup directory that contains `interactive_exports.json`. When `DISKS` is omitted, OneBEX starts exports for all disks listed in `interactive_exports.json`.
+
 **`200 OK`**
 
 ```json
@@ -278,7 +293,7 @@ The OneBEX API is consumed by backup integrations. The current API is:
 
 ```json
 {
-  "error": "Missing VM_ID or DS_ID"
+  "error": "Missing VM_ID, DS_ID or BACKUP_DIR"
 }
 ```
 
