@@ -273,6 +273,16 @@ When creating a VM Template you can choose to deploy the disks using the default
 
 When using Sunstone, the deployment mode needs to be set in the Storage tab.
 
+## Backup Format and Retention
+
+For backup configuration and operations, see [VM Backup Operations]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations" %}}).
+
+Ceph full backups use qcow2 files. Incremental chains created or reset on **OpenNebula 7.0.1 or later** also use qcow2, with increments generated from RBD snapshot differences. Both are registered with `FORMAT=raw`, despite storing qcow2 files.
+
+With Restic and Rsync, `KEEP_LAST` consolidates the oldest required backups into a base and removes superseded restore points, retaining the last N backups without periodic chain resets. This involves processing backup data; Restic retrieves the required backups and uploads the consolidated base.
+
+Legacy chains with `FORMAT=rbd` use native Ceph exports and do not support `KEEP_LAST`. Upgrades do not convert them automatically: use the backup operation's `--reset` option after upgrading to start a qcow2-based chain. Older backup images remain until removed separately.
+
 ## Datastore Internals
 
 Images are stored in a Ceph pool, named after its OpenNebula ID `one-<IMAGE ID>`. Virtual Machine disks are stored by default in the same pool (Ceph Mode). You can also choose to export the Image rbd to the hypervisor local storage using the SSH Mode.
