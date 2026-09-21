@@ -68,19 +68,19 @@ OneFlow reads the figures of every worker and applies the rules of the worker ro
 
 ### Scaling Up 
 
-OneFlow adds one worker when `SLURM_PENDING` is above 0 in two consecutive reads, and then waits 120 seconds before it reads again, so one pending job adds one VM and that VM has time to boot. OneFlow reads the figures every `autoscaler_interval` seconds, 90 by default in `/etc/one/oneflow-server.conf` on the Front-end. With the 30 seconds that the [Requirements](#requirements) recommend, a pending job normally receives its worker within about a minute and a half, and each further pending job a few minutes later. A job that no worker could ever run does not count. A GPU request on a pool without GPUs is refused at submit time, and a job that asks for more cores than any worker has waits with the reason `PartitionConfig`, which the workers leave out of `SLURM_PENDING`.
+OneFlow adds one worker when `SLURM_PENDING` is above 0 in two consecutive reads, and then waits 120 seconds before it reads again, so one pending job adds one VM and that VM has time to boot. OneFlow reads the figures every `autoscaler_interval` seconds, 90 by default in `/etc/one/oneflow-server.conf` on the Front-end. With the 30-second interval that the [Requirements](#requirements) recommend, a pending job normally receives its worker within about a minute and a half, and each further pending job a few minutes later. A job that no worker could ever run does not count. A GPU request on a pool without GPUs is refused at submit time, and a job that asks for more cores than any worker has waits with the reason `PartitionConfig`, which the workers leave out of `SLURM_PENDING`.
 
 ### Scaling Down
 
-OneFlow always removes the oldest VM of a role, without draining it, so the appliance drains first. When the oldest worker has had no job for `ONEAPP_WORKER_IDLE_SECONDS` (ten minutes by default) and the queue is empty, it drains its own Slurm node. While that node is drained and empty, every worker publishes `OLDEST_IDLE` as `1`, and OneFlow removes the VM when the average remains above 0.99 in two reads 60 seconds apart. The node leaves the Cluster when the VM shuts down. 
+OneFlow always removes the oldest VM of a role, without draining it, so the appliance drains first. When the oldest worker has had no job for `ONEAPP_WORKER_IDLE_SECONDS` (ten minutes by default) and the queue is empty, it drains its own Slurm node. While that node is drained and empty, every worker publishes `OLDEST_IDLE` as `1`, and OneFlow removes the VM when the average remains above 0.99 in two reads 60 seconds apart. The node leaves the Cluster when the VM shuts down.
 
-Three guards apply: 
+Three guards apply:
 
 * A worker never drains while the role is at `min_vms`.
-* A drained node returns to service when a job appears, or when OneFlow has not removed it after `ONEAPP_WORKER_DRAIN_SECONDS` (ten minutes by default). 
-* A reconciler on the portal runs every 30 seconds and deletes any node whose VM has left the service and holds no job. 
+* A drained node returns to service when a job appears, or when OneFlow has not removed it after `ONEAPP_WORKER_DRAIN_SECONDS` (ten minutes by default).
+* A reconciler on the portal runs every 30 seconds and deletes any node whose VM has left the service and holds no job.
 
-On the testbed a scale down removed exactly the drained VM, and the job on the other worker kept running. The pool changes one VM at a time between 1 and `max_vms`, 6 is set as default in the Open OnDemand marketplace template.
+On the testbed a scale down removed exactly the drained VM, and the job on the other worker kept running. The pool changes one VM at a time between 1 and `max_vms`. 6 is set as default in the Open OnDemand marketplace template.
 
 ## Requirements
 
@@ -88,10 +88,10 @@ On the testbed a scale down removed exactly the drained VM, and the job on the o
 * The two Virtual Networks defined [above](#networks). The compute network is reserved for the service and no larger than a `/24` subnet, unless you set `ONEAPP_POOL_RANGE`. If a firewall sits between the networks, the roles need NFS (2049) and the software cache (3128) on the storage VM, LDAP (389) and the Slurm controller (6817) on the portal, `slurmd` (6818) and the session ports on the workers, and OneGate (5030 by default) from every VM.
 * Outbound HTTP from the storage role to the EESSI CernVM-FS servers.
 * Capacity for three VMs plus the workers you expect. The marketplace template gives every VM 2 vCPU and 4 GB of memory, and 8 GB to the portal, which runs the Slurm controller and MariaDB along with Open OnDemand. The portal used 710 MB of its 7941 MB with everything running on the testbed. The VM template passes the CPU of the Host through to the VMs (`CPU_MODEL` set to `host-passthrough`), so EESSI loads the software built for that CPU family. Every worker of a role has the same size, and a session is prohibited from requesting more resources than a single worker is allocated.
-* For a faster scale up, set `:autoscaler_interval: 30` in `/etc/one/oneflow-server.conf` on the Front-end and restart `opennebula-flow`. OneFlow then reads the figures of the workers every 30 seconds instead of 90. This is a setting of the Front-end, made once for every service that runs on it, it cannot be set through the appliance.
+* For a faster scale-up, set `:autoscaler_interval: 30` in `/etc/one/oneflow-server.conf` on the Front-end and restart `opennebula-flow`. OneFlow then reads the figures of the workers every 30 seconds instead of 90. This is a setting of the Front-end, made once for every service that runs on it. It cannot be set through the appliance.
 
 ## The Munge Key
 
 Munge is how the portal and the workers manage credentials. Every Slurm message carries a token signed with one secret key that all VMs share. The portal creates the key at first boot (1024 random bytes) and keeps it on the storage export, so a replaced portal uses the same key. It also publishes the key, base64 encoded, as `SLURM_MUNGE_KEY` in the user template of the portal VM through OneGate, and every worker reads it from there at boot.
 
-Anyone who can read the template of the portal VM in OpenNebula can read the key, and with the key they can interact with Cluster as if they were any given user. The Elastic Slurm service has the same exposure, therefore it is important to restrict who can inspect the VMs of the service. Inside the VMs the key and the OneGate token are readable by root only, therefore a session user cannot read them.
+Anyone who can read the template of the portal VM in OpenNebula can read the key, and with the key they can interact with the Cluster as if they were any given user. The Elastic Slurm service has the same exposure. Therefore it is important to restrict who can inspect the VMs of the service. Inside the VMs the key and the OneGate token are readable by root only. Therefore a session user cannot read them.

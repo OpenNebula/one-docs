@@ -9,13 +9,13 @@ weight: "1"
 type: docs
 ---
 
-The Open OnDemand Service deploys an [Open OnDemand](https://openondemand.org/) portal on OpenNebula. A user can sign in from a browser and opens JupyterLab, RStudio, Octave, a C++ notebook, VS Code or an Xfce desktop on a compute VM. Scientific software comes from the [EESSI](https://www.eessi.io/) catalogue, and the home directory is the same in every session.
+The Open OnDemand Service deploys an [Open OnDemand](https://openondemand.org/) portal on OpenNebula. A user can sign in from a browser and open JupyterLab, RStudio, Octave, a C++ notebook, VS Code or an Xfce desktop on a compute VM. Scientific software comes from the [EESSI](https://www.eessi.io/) catalogue, and the home directory is the same in every session.
 
 The service is a OneFlow service built from one appliance image. Three roles boot from it, and every session is a job of the service's own Slurm Cluster. OneFlow adds a compute VM when a job waits for one, and removes the oldest worker after it has been idle for a period. The service brings its own Slurm Cluster and needs no other Cluster. It suits teaching environments and notebook access for research groups.
 
 ## How Should I Read this Chapter
 
-Start with the [Quick Start Guide]({{% relref "solutions/integration_blueprints/open_ondemand/quick_start/" %}}) to deploy the Open OneDemand service from the Community Marketplace and open a notebook. The [Service Architecture]({{% relref "solutions/integration_blueprints/open_ondemand/architecture/" %}}) explains the roles, the networks and how a session runs. Then, consult the following guides for further details:
+Start with the [Quick Start Guide]({{% relref "solutions/integration_blueprints/open_ondemand/quick_start/" %}}) to deploy the Open OnDemand service from the Community Marketplace and open a notebook. The [Service Architecture]({{% relref "solutions/integration_blueprints/open_ondemand/architecture/" %}}) explains the roles, the networks and how a session runs. Then, consult the following guides for further details:
 
 * [Configuration]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/" %}}): Covers inputs, scaling, worker sizes, Slurm, external identity providers and users.
 * [Operations]({{% relref "solutions/integration_blueprints/open_ondemand/operations/" %}}): Covers manual scaling, persistent home directories, upgrades and removal.
@@ -39,7 +39,7 @@ Every VM boots from the same image. `ONEAPP_ROLE`, set for each role in the serv
 * **portal**: A single VM. It runs Open OnDemand, the LDAP directory, the Dex login service, and the Slurm controller with its accounting database.
 * **worker**: One to six VMs, scaled by OneFlow. Each VM joins the Cluster as a Slurm worker node and runs the user sessions as jobs. Each job gets only the cores and the memory it requested.
 
-The service also creates the initial users at first boot and keeps an accounting record of every session. It gives the portal a TLS certificate, which is self-signed by default. For a public name the certificate comes from [Let's Encrypt](https://letsencrypt.org/), or you can use one of your own.
+The service also creates the initial users at first boot and keeps an accounting record of every session. It gives the portal a TLS certificate, which is self-signed by default. For a public name, the certificate comes from [Let's Encrypt](https://letsencrypt.org/), or you can use one of your own.
 
 ## Slurm Components
 
@@ -61,7 +61,7 @@ The service uses Slurm 23.11 as its job scheduler. A job is a request for cores,
 * [**Open OnDemand**](https://osc.github.io/ood-documentation/latest/): The portal software, from the Ohio Supercomputer Center. The service uses its `slurm` adapter for its own Cluster and for an optional second Slurm Cluster.
 * [**Slurm**](https://slurm.schedmd.com/): The workload manager, version 23.11 from Ubuntu 24.04. The portal runs the controller and the accounting daemon. Every worker joins as a dynamic node. Every session is a job, and cgroup v2 limits it to its cores and memory.
 * [**EESSI**](https://www.eessi.io/docs/): A shared scientific software catalogue distributed over CernVM-FS. The image ships the CernVM-FS client and a site cache. The software itself is fetched on demand.
-* [**Elastic Slurm**]({{% relref "platform_services/slurm/" %}}): The OneSlurm service, is optional. The Open OnDemand Service does not use it. A site that already runs one can attach it as a second Cluster for batch jobs, with the same users and home directory, as described in [Configuration]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/#an-external-slurm-cluster" %}}).
+* [**Elastic Slurm**]({{% relref "platform_services/slurm/" %}}): The OneSlurm service is optional. The Open OnDemand Service does not use it. A site that already runs one can attach it as a second Cluster for batch jobs, with the same users and home directory, as described in [Configuration]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/#an-external-slurm-cluster" %}}).
 
 ## Supported Versions
 

@@ -13,7 +13,7 @@ This section describes the inputs of the Open OnDemand Service. It also covers r
 
 ## Service Inputs
 
-All inputs are `ONEAPP_*` context variables. OneFlow places every input in the context of every VM of the service, where root can read it. This includes `ONEAPP_PORTAL_CERTIFICATE_KEY` and `ONEAPP_AUTH_OIDC_CLIENT_SECRET`. Every input is optional, and the Sunstone wizard groups them into four tabs, **Portal**, **Users and login**, **Home directories** and **Software catalogue**. A feature with an `_ENABLED` switch shows its other inputs only while the switch is set to `YES`, and ignores them while it is set to `NO`. If a switch is set to `YES` and a required field is empty, the role stops at boot, and the message names the field, refer to [A Role Does Not Reach RUNNING]({{% relref "solutions/integration_blueprints/open_ondemand/monitoring_and_troubleshooting/#a-role-does-not-reach-running" %}}) in the troubleshooting documentation.
+All inputs are `ONEAPP_*` context variables. OneFlow places every input in the context of every VM of the service, where root can read it. This includes `ONEAPP_PORTAL_CERTIFICATE_KEY` and `ONEAPP_AUTH_OIDC_CLIENT_SECRET`. Every input is optional, and the Sunstone wizard groups them into four tabs, **Portal**, **Users and login**, **Home directories** and **Software catalogue**. A feature with an `_ENABLED` switch shows its other inputs only while the switch is set to `YES`, and ignores them while it is set to `NO`. If a switch is set to `YES` and a required field is empty, the role stops at boot, and the message names the field. Refer to [A Role Does Not Reach RUNNING]({{% relref "solutions/integration_blueprints/open_ondemand/monitoring_and_troubleshooting/#a-role-does-not-reach-running" %}}) in the troubleshooting documentation.
 
 | **Tab** | **Input** | **Default** | **Description** |
 |---|---|---|---|
@@ -52,13 +52,13 @@ These attributes never appear in the wizard. Set them in the `template_contents`
 
 ## Sizing the Roles
 
-The marketplace template gives every VM 2 vCPU and 4 GB of memory, and 8 GB for the portal. Every session is a Slurm job that reserves the cores and the memory its form requests, and a worker takes sessions until its cores or its memory are fully reserved. Size the worker role for the sessions one VM should hold. OneFlow always adds workers of the size set in the worker role, never a bigger one, and the forms offer at most the resources of the largest worker. To offer bigger sessions, raise the memory or the CPU parameter of the worker role, or add a second worker role of another size, see [Worker Sizes](#worker-sizes). 
+The marketplace template gives every VM 2 vCPU and 4 GB of memory, and 8 GB for the portal. Every session is a Slurm job that reserves the cores and the memory its form requests, and a worker takes sessions until its cores or its memory are fully reserved. Size the worker role for the sessions one VM should hold. OneFlow always adds workers of the size set in the worker role, never a bigger one, and the forms offer at most the resources of the largest worker. To offer bigger sessions, raise the memory or the CPU parameter of the worker role, or add a second worker role of another size. Refer to [Worker Sizes](#worker-sizes). 
 
 The portal runs the Slurm controller, its accounting daemon and MariaDB beside Open OnDemand, and uses about 700 MB of memory when idle. To change a size, edit the service template before instantiating it and set `CPU`, `VCPU` and `MEMORY` in the `template_contents` of the role.
 
 ## Scaling the Worker Pool
 
-The pool scales automatically, see [How the Worker Pool Grows and Shrinks]({{% relref "solutions/integration_blueprints/open_ondemand/architecture/#how-the-worker-pool-grows-and-shrinks" %}}). The workers publish `SLURM_PENDING`, the number of jobs waiting for a worker of their role, and OneFlow adds one VM when the value stays above 0 for two periods of 30 seconds. The oldest worker drains its Slurm node once it has had no job for `ONEAPP_WORKER_IDLE_SECONDS` and nothing is pending, publishes `OLDEST_IDLE=1` while the node is drained and empty, and OneFlow removes it after two periods of 60 seconds. `ONEAPP_WORKER_DRAIN_SECONDS` undoes a drain when OneFlow does not remove the worker in time, and the last worker of a role never drains. Both are [Advanced Attributes](#advanced-attributes) of the worker role. 
+The worker pool scales automatically. Refer to [How the Worker Pool Grows and Shrinks]({{% relref "solutions/integration_blueprints/open_ondemand/architecture/#how-the-worker-pool-grows-and-shrinks" %}}) for more details. The workers publish `SLURM_PENDING`, the number of jobs waiting for a worker of their role, and OneFlow adds one VM when the value stays above 0 for two periods of 30 seconds. The oldest worker drains its Slurm node once it has had no job for `ONEAPP_WORKER_IDLE_SECONDS` and nothing is pending, publishes `OLDEST_IDLE=1` while the node is drained and empty, and OneFlow removes it after two periods of 60 seconds. `ONEAPP_WORKER_DRAIN_SECONDS` undoes a drain when OneFlow does not remove the worker in time, and the last worker of a role never drains. Both are [Advanced Attributes](#advanced-attributes) of the worker role.
 
 For a pool larger than six VMs, raise `max_vms` of the worker role in the service template. OneFlow refuses a scale command during the cooldown after each scale operation, 300 seconds after a policy acts and 120 seconds after a manual scale. To set the size manually while the service is `RUNNING`:
 
@@ -86,30 +86,30 @@ The service runs its own Slurm Cluster, always on. The portal role runs `slurmct
 ```shell
 sbatch -c 1 --mem=512M -t 5 --wrap hostname
 squeue
-sacct -j <job id>
+sacct -j <JOB_ID>
 ```
 
-The job runs on a worker with the cores and the memory it requested. A job without `--mem` gets `ONEAPP_SLURM_DEF_MEM_PER_CPU` MB per core. The partition gives a job one hour when it sets no time limit, and allows up to twelve hours. A job that waits for a worker grows the pool, see [Scaling the Worker Pool](#scaling-the-worker-pool). A job that no worker of the pool could ever run does not grow it. A GPU request on a pool without one is refused at submit with `Requested node configuration is not available`. A request for more cores than the largest worker has waits with reason `PartitionConfig`. Accounting runs through `slurmdbd` on the portal, so `sacct` keeps the history of every job and session. The portal dumps the database to the storage export every 30 minutes, and a new portal restores the newest dump when it boots.
+The job runs on a worker with the cores and the memory it requested. A job without `--mem` gets `ONEAPP_SLURM_DEF_MEM_PER_CPU` MB per core. The partition gives a job one hour when it sets no time limit, and allows up to twelve hours. A job that awaits a worker grows the pool. Refer to [Scaling the Worker Pool](#scaling-the-worker-pool). A job does not grow the pool if no worker could run it. A GPU request on a pool without one is refused upon submission with `Requested node configuration is not available`. A request for more cores than the largest worker waits with reason `PartitionConfig`. Accounting runs through `slurmdbd` on the portal, so `sacct` keeps the history of every job and session. The portal dumps the database to the storage export every 30 minutes, and a new portal restores the newest dump when it boots.
 
 {{< image path="/images/open_ondemand/light/job_composer_slurm.png"
 alt="A job submitted from the Job Composer and completed on the Slurm Cluster" align="center" width="90%" mb="20px" >}}
 
 ### MPI Jobs on Several Workers
 
-A batch job can use several workers at once with MPI. The EESSI catalogue provides OpenMPI, and the image ships the PMIx library that `srun` uses to start the processes. A job script loads the module and starts the program with `srun --mpi=pmix` or with `mpirun`:
+A batch job can use several workers at once through MPI. The EESSI catalogue provides [OpenMPI](https://www.open-mpi.org/), and the image ships the PMIx library that `srun` uses to start processes. A job script loads the module and starts the program with `srun --mpi=pmix` or with `mpirun`:
 
-```
+```shell
 #!/bin/bash -l
 #SBATCH -N 2 --ntasks-per-node=1 -c 1 --mem=512M -t 10
 module load OpenMPI/5.0.8-GCC-14.3.0
 srun --mpi=pmix ./hello
 ```
 
-On the testbed, a two node program compiled with `mpicc` from EESSI ran on both workers with `srun --mpi=pmix` and with `mpirun`. The interactive applications use one worker each.
+On the testbed, a two-node program compiled with `mpicc` from EESSI ran on both workers with `srun --mpi=pmix` and with `mpirun`. The interactive applications use one worker each.
 
 ### An External Slurm Cluster
 
-The service runs its own Slurm Cluster and needs no other one. If your site already runs a second Slurm Cluster, such as the [Elastic Slurm]({{% relref "platform_services/slurm/" %}}) service, you can attach it for batch jobs. It has to share the users and the home directories with the portal. The portal offers it in the Job Composer and Active Jobs under the name in `ONEAPP_SLURM_TITLE`. The interactive applications keep running on the Cluster of the service. `ONEAPP_SLURM_CONTROLLER_ENABLED` and `ONEAPP_SLURM_CONTROLLER_HOST` are [Advanced Attributes](#advanced-attributes) of the portal role. A running portal accepts them with `onevm updateconf`.
+The service runs its own Slurm Cluster and does not require an existing Slurm Cluster. If your site already runs a second Slurm Cluster, such as the [Elastic Slurm]({{% relref "platform_services/slurm/" %}}) service, you can attach it for batch jobs. It has to share the users and the home directories with the portal. The portal offers it in the Job Composer and Active Jobs under the name in `ONEAPP_SLURM_TITLE`. The interactive applications keep running on the service's own Cluster. `ONEAPP_SLURM_CONTROLLER_ENABLED` and `ONEAPP_SLURM_CONTROLLER_HOST` are [Advanced Attributes](#advanced-attributes) of the portal role. A running portal accepts them with `onevm updateconf`.
 
 1. Note the compute addresses of the portal and storage VMs of the running service, the second address of each in `onevm list --list ID,NAME,IP`.
 2. Instantiate `OneSlurm` on the same compute network with these values for four of its service inputs. They are not environment variables. In Sunstone they are fields of the instantiate wizard of the OneSlurm service template, and from the command line they go in the JSON file that `oneflow-template instantiate` takes, which has to list every input of the template, the others at their defaults:
@@ -138,7 +138,7 @@ The service runs its own Slurm Cluster and needs no other one. If your site alre
    }
    ```
 
-3. Once OneSlurm is `RUNNING`, declare the Cluster on the portal with the compute address of the controller:
+3. Once the OneSlurm service is `RUNNING`, declare the Cluster on the portal with the compute address of the controller:
 
    ```shell
    onevm updateconf <portal vm id> --append <<EOT
@@ -146,11 +146,11 @@ The service runs its own Slurm Cluster and needs no other one. If your site alre
    EOT
    ```
 
-For that Cluster, `sbatch`, `squeue`, `scancel`, `sinfo`, `sacct` and `scontrol` run on its controller over SSH as the user. The controller therefore has to answer on port 22 from the compute address of the portal. Job history in `sacct` needs `slurmdbd` on that controller, which the default OneSlurm deployment does not run. The `appliances/one-ondemand/docs/slurmdbd-setup.sh` script of the [appliance repository](https://github.com/OpenNebula/marketplace-community) installs `slurmdbd` with MariaDB, enables accounting in `slurm.conf` and registers the Cluster.
+For that Cluster, `sbatch`, `squeue`, `scancel`, `sinfo`, `sacct` and `scontrol` run on its controller over SSH as the user. The controller therefore has to answer on port 22 from the compute address of the portal. The job history in `sacct` needs `slurmdbd` on that controller, which the default OneSlurm deployment does not run. The `appliances/one-ondemand/docs/slurmdbd-setup.sh` script of the [appliance repository](https://github.com/OpenNebula/marketplace-community) installs `slurmdbd` with MariaDB, enables accounting in `slurm.conf` and registers the Cluster.
 
 ## Adding Software for Every User
 
-The scientific software comes from the [EESSI](https://www.eessi.io/docs/) catalogue, built with [EasyBuild](https://easybuild.io/) and delivered over CernVM-FS. EasyBuild itself is a module of the catalogue, so a user can build in their home a package that EESSI lacks. The service also has a shared software directory, so that the operator builds a package once and every user sees it.
+The scientific software comes from the [EESSI](https://www.eessi.io/docs/) catalogue, built with [EasyBuild](https://easybuild.io/) and delivered over CernVM-FS. EasyBuild itself is a module of the catalogue, so a user can build in their home directory a package that EESSI lacks. The service also has a shared software directory, so that the operator builds a package once and every user sees it.
 
 The storage role exports the directory, and the portal and the workers mount it at `/opt/eessi`. That is the path where the EESSI catalogue looks for the additions of a site, and the EESSI init adds the modules found there to `MODULEPATH` in every session and every job. Nothing else needs configuration. Only the `eessi` user writes there, from the portal.
 
@@ -160,7 +160,7 @@ To build a package, give `ood-site-install` an EasyBuild recipe on the portal, a
 ood-site-install /opt/one-ondemand/config/easybuild/hello-2.12.1-GCCcore-14.3.0.eb
 ```
 
-The command loads EasyBuild from EESSI as the `eessi` user, builds the recipe and its missing dependencies from source, and installs the result in the shared directory under the CPU family of the VM. A build takes minutes. When it ends, the package is in `module avail` for every user, in every session and on every worker, next to the EESSI modules:
+The command loads EasyBuild from EESSI as the `eessi` user, builds the recipe and its missing dependencies from source, and installs the result in the shared directory under the CPU family of the VM. A build normally takes several minutes. When it ends, the package is available in `module avail` for every user, in every session and on every worker, next to the EESSI modules:
 
 ```shell
 module load hello
@@ -171,11 +171,11 @@ hello
 
 ## External Identity Provider
 
-When `ONEAPP_AUTH_OIDC_ENABLED` is `YES`, the login page offers the provider in `ONEAPP_AUTH_OIDC_ISSUER`, `ONEAPP_AUTH_OIDC_CLIENT_ID` and `ONEAPP_AUTH_OIDC_CLIENT_SECRET` beside the local directory. It appears under the name in `ONEAPP_AUTH_OIDC_NAME`. Register `https://<ONEAPP_PORTAL_HOST_NAME>/dex/callback` as the redirect URI at the provider. The account name is the `preferred_username` claim. When the provider sends no such claim, it is the part of the email before the at sign. The session runs as a Unix user with a home directory. A user who signs in this way therefore needs an entry in the LDAP directory under that name.
+When `ONEAPP_AUTH_OIDC_ENABLED` is `YES`, the login page offers the provider in `ONEAPP_AUTH_OIDC_ISSUER`, `ONEAPP_AUTH_OIDC_CLIENT_ID` and `ONEAPP_AUTH_OIDC_CLIENT_SECRET` beside the local directory. It appears under the name in `ONEAPP_AUTH_OIDC_NAME`. Register `https://<ONEAPP_PORTAL_HOST_NAME>/dex/callback` as the redirect URI at the provider. The account name is the `preferred_username` claim. When the provider sends no such claim, it is the part of the email before the @ sign. The session runs as a Unix user with a home directory. A user who signs in this way therefore needs an entry in the LDAP directory under that name.
 
 ## Managing Users
 
-Users live in the LDAP directory of the portal role. The portal generates the administrator password at first boot and keeps it in `/etc/one-ondemand/ldap-admin.pass`, readable by root only. To add a user, run this on the portal VM:
+Users live in the LDAP directory of the portal role. The portal generates the administrator password at first boot and keeps it in `/etc/one-ondemand/ldap-admin.pass`, readable by root only. To add a new user, run the following on the portal VM command line, with the appropriate details replaced:
 
 ```shell
 ldapadd -x -D cn=admin,dc=ood,dc=local -y /etc/one-ondemand/ldap-admin.pass <<EOT

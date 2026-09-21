@@ -34,7 +34,7 @@ Create both networks from the **Networks -> Virtual Networks** view with **+ Cre
 
 ### Create the Management Network
 
-Your cloud may already have a public network suitable for the management network, if this is the case, skip the following steps and proceed to [Create the Compute Network](#create-the-compute-network)
+Your cloud may already have a public network suitable for the management network. If this is the case, skip the following steps and proceed to [Create the Compute Network](#create-the-compute-network)
 
 1. **General**: Give it a name, for example `ood-management`. Select the Cluster of the Hosts that will run the service. Click **Next**.
 
@@ -77,7 +77,7 @@ alt="Create Virtual Network wizard, Addresses tab of the compute network" align=
 
 ## Step 2. Download the Appliance
 
-Register the [Community Marketplace](https://github.com/OpenNebula/marketplace-community/wiki/marketplace_start) once if your installation does not already have it. Then, from **Storage -> Apps**, search for and download `Open OnDemand Service` into an available image datastore with sufficient space. The download imports three objects: image that the three roles share, the VM template that boots that image, and the service template `Open OnDemand Service`. Alternatively, you can register the marketplace from the Front-end command line using the following command:
+Register the [Community Marketplace](https://github.com/OpenNebula/marketplace-community/wiki/marketplace_start) once if your installation does not already have it. Then, from **Storage -> Apps**, search for and download `Open OnDemand Service` into an available image datastore with sufficient space. The download imports three objects: an image that the three roles share, the VM template that boots that image, and the service template `Open OnDemand Service`. Alternatively, you can register the marketplace from the Front-end command line using the following command:
 
 ```shell
 onemarketapp export 'Open OnDemand Service' 'Open OnDemand Service' --datastore default
@@ -152,7 +152,7 @@ Click on the service in the list and select the **Roles** tab to see the three r
 {{< image path="/images/open_ondemand/light/sunstone_service_roles.png"
 alt="The three roles of the running service" align="center" width="90%" mb="20px" >}}
 
-A role that remains in `DEPLOYING` has not declared itself ready, see [Monitoring and Troubleshooting]({{% relref "solutions/integration_blueprints/open_ondemand/monitoring_and_troubleshooting/#a-role-does-not-reach-running" %}}).
+A role that remains in `DEPLOYING` has not declared itself ready. Refer to [Monitoring and Troubleshooting]({{% relref "solutions/integration_blueprints/open_ondemand/monitoring_and_troubleshooting/#a-role-does-not-reach-running" %}}).
 
 ## Step 5. Open the Portal
 
@@ -179,7 +179,7 @@ The address belongs to the management network. If your computer reaches that net
 
 There are three things that give the portal a public name:
 
-* A public address that forwards to the portal VM, 
+* A public address that forwards to the portal VM
 * A DNS name for that address
 * The DNS name as the portal Host name
 
@@ -217,12 +217,12 @@ alt="Open OnDemand dashboard" align="center" width="90%" mb="20px" >}}
 
 ## Launch a Notebook
 
-From **Interactive Apps -> Jupyter Notebook**, keep one core, 2 GB of memory and one hour, or raise them. The limits are what the largest worker has. Click **Launch**. A **GPUs** field appears only when a worker has a GPU. A **Worker size** field appears only when the service has several worker roles, see [Worker Sizes]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/#worker-sizes" %}}).
+From **Interactive Apps -> Jupyter Notebook**, keep one core, 2 GB of memory and one hour, or raise them. The limits are what the largest worker has. Click **Launch**. A **GPUs** field appears only when a worker has a GPU. A **Worker size** field appears only when the service has several worker roles. Refer to [Worker Sizes]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/#worker-sizes" %}}).
 
 {{< image path="/images/open_ondemand/light/jupyter_form.png"
 alt="Jupyter launch form" align="center" width="90%" mb="20px" >}}
 
-The session is a job of the Slurm Cluster of the service. Its card under **My Interactive Sessions** shows the Cluster, the job id and the worker it runs on. An example is `Runs on: Slurm, job 1 on ood-worker-128`. A session that finds no free cores shows `Queued` on its card. It waits until a session ends or OneFlow adds a worker, a couple of minutes with the Front-end setting the [Requirements]({{% relref "solutions/integration_blueprints/open_ondemand/architecture/#requirements" %}}) recommend. The first session on a fresh deployment takes longer to start, while the site cache fetches the Python module. When the card turns `Running`, click **Open the Jupyter notebook**.
+The session is a job of the Slurm Cluster of the service. Its card under **My Interactive Sessions** shows the Cluster, the job id and the worker it runs on. An example is `Runs on: Slurm, job 1 on ood-worker-128`. A session that finds no free cores shows `Queued` on its card. It waits until a session ends or OneFlow adds a worker. With the Front-end setting recommended in the [Requirements]({{% relref "solutions/integration_blueprints/open_ondemand/architecture/#requirements" %}}) this normally takes a couple of minutes. The first session on a fresh deployment takes longer to start, while the site cache fetches the Python module. When the card turns `Running`, click **Open the Jupyter notebook**.
 
 {{< image path="/images/open_ondemand/light/session_card.png"
 alt="Session card" align="center" width="90%" mb="20px" >}}
