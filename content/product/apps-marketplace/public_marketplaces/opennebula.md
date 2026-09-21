@@ -27,3 +27,7 @@ OpenNebula maintains two appliance marketplaces:
 | `ENDPOINT`   | The Marketplace endpoint URL                            |
 
 For instructions on adding the OpenNebula Community Marketplace to your OpenNebula installation, please see the [OpenNebula Community Marketplace Wiki](https://github.com/OpenNebula/marketplace-community/wiki/marketplace_start).
+
+## Access Through an HTTP Proxy
+
+To use a proxy, set `HTTP_PROXY` in the OpenNebula service environment or add `--proxy http://username:password@proxy.example.com:8080` to the `MARKET_MAD` arguments in [oned.conf]({{% relref "../../operation_references/opennebula_services_configuration/oned#marketplace-driver-configuration" %}}). The `--proxy` option takes precedence over the environment variable.
