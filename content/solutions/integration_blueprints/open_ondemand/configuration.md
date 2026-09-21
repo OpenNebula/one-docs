@@ -108,16 +108,31 @@ On the testbed, a two node program compiled with `mpicc` from EESSI ran on both 
 The service runs its own Slurm cluster and needs no other one. If your site already runs a second Slurm cluster, such as the [Elastic Slurm]({{% relref "platform_services/slurm/" %}}) service, you can attach it for batch jobs. It has to share the users and the home directories with the portal. The portal offers it in the Job Composer and Active Jobs under the name in `ONEAPP_SLURM_TITLE`. The interactive applications keep running on the cluster of the service. `ONEAPP_SLURM_CONTROLLER_ENABLED` and `ONEAPP_SLURM_CONTROLLER_HOST` are [Advanced Attributes](#advanced-attributes) of the portal role. A running portal accepts them with `onevm updateconf`.
 
 1. Note the compute addresses of the portal and storage VMs of the running service, the second address of each in `onevm list --list ID,NAME,IP`.
-2. Instantiate `OneSlurm` on the same compute network with its local LDAP disabled:
+2. Instantiate `OneSlurm` on the same compute network with these values for four of its service inputs. They are not environment variables. In Sunstone they are fields of the instantiate wizard of the OneSlurm service template, and from the command line they go in the JSON file that `oneflow-template instantiate` takes, which has to list every input of the template, the others at their defaults:
 
-   ```default
-   ONEAPP_LDAP_ENABLE      NO
-   ONEAPP_LDAP_DOMAIN      ood.local
-   ONEAPP_LDAP_URL         ldap://<portal compute address>
-   ONEAPP_SLURM_NFS_HOME   <storage compute address>:/export/home
+   | Service input | Value |
+   |---|---|
+   | `ONEAPP_LDAP_ENABLE` | `NO` |
+   | `ONEAPP_LDAP_DOMAIN` | `ood.local` |
+   | `ONEAPP_LDAP_URL` | `ldap://<portal compute address>` |
+   | `ONEAPP_SLURM_NFS_HOME` | `<storage compute address>:/export/home` |
+   {.w-100}
+
+   ```shell
+   oneflow-template instantiate 'OneSlurm' oneslurm.json
    ```
 
-   From the command line, the instantiation file has to list every input of the template, with the others at their defaults.
+   ```json
+   {
+     "networks_values": [ { "Service": { "id": "<compute network id>" } } ],
+     "custom_attrs_values": {
+       "ONEAPP_LDAP_ENABLE": "NO",
+       "ONEAPP_LDAP_DOMAIN": "ood.local",
+       "ONEAPP_LDAP_URL": "ldap://<portal compute address>",
+       "ONEAPP_SLURM_NFS_HOME": "<storage compute address>:/export/home"
+     }
+   }
+   ```
 
 3. Once OneSlurm is `RUNNING`, declare the cluster on the portal with the compute address of the controller:
 
