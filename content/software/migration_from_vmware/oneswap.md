@@ -388,7 +388,7 @@ booting the VM from a rescue CD and fixing grub may be necessary.
 - If the guest uses NTFS system compression, see [Windows CompactOS Support](#windows-compactos-support).
 - When the converted guest is detected as Windows, OneSwap automatically tunes the resulting OpenNebula VM Template following KVM best practices for Windows:
   - Enables Hyper-V enlightenments (`HYPERV=YES` plus the corresponding Hyper-V clock and feature flags in `RAW`), along with ACPI, APIC, PAE and LOCALTIME features.
-  - Sets the CPU model to `host-passthrough` (unless `--cpu-model` was specified), machine type `q35` and architecture `x86_64`.
+  - Sets the CPU model to `host-passthrough` (unless `--cpu-model` was specified), the machine type to `q35` (unless `--machine` was specified), and the architecture to `x86_64`.
   - Configures a `virtio` video device, a USB tablet input device for proper mouse handling, SCSI disk bus and automatic virtio multi-queue.
   - Adds `REPORT_READY` and `TOKEN` to the context section, and sets `GUEST_AGENT=YES` if `--win-qemu-ga` was used.
 
@@ -681,12 +681,28 @@ The capacity and devices of the created VM Template default to the values read f
 - `--cpu cpus` / `--vcpu vcpus`: physical CPU / vCPU values to set in OpenNebula. Default is to match the CPU cores in vCenter.
 - `--memory-max memorymb` / `--vcpu-max vcpumax`: maximum memory (MB) and vCPU values for hot resize. Memory/CPU Hot Add must be enabled in VMware (when enabled in vCenter, hot resize is configured automatically in the template).
 - `--cpu-model model_type`: set a specific CPU model in OpenNebula. Default is none (for Windows guests, `host-passthrough` is set automatically).
+- `--cpu-features features`: comma-separated or array/string CPU model features to add to `CPU_MODEL/FEATURES`. Requires `--cpu-model`.
+- `--machine machine_type`: set the KVM machine type in `OS/MACHINE`, for example `q35`.
 - `--dev-prefix prefix`: the dev prefix to use on the disks in OpenNebula (e.g. `sd`, `hd`, `vd`, `xvd`). Default is none (Windows disks default to `vd`).
 - `--persistent-img`: make the created images persistent in OpenNebula.
 - `--img-wait sec`: the amount of time to wait for each image to be created in OpenNebula. Default is 120 seconds.
 - `--graphics-type type`: graphics type to enable in OpenNebula (`vnc`, `sdl`, `spice`), with the related `--graphics-listen`, `--graphics-port`, `--graphics-keymap`, `--graphics-password` and `--graphics-command` options.
 - `--uefi-path /path/to/uefi` / `--uefi-sec-path /path/to/uefi.secboot`: paths to the UEFI (Secure Boot) firmware files to be configured in the VM template for UEFI guests.
 - `--root option`: choose the root filesystem to be converted when the guest has several (`ask`, `single`, `first` or `/dev/sdX`). Default: `first`.
+
+The same options can be configured in `/etc/one/oneswap.yaml`. For example:
+
+```yaml
+:cpu_model: 'Skylake-Server-noTSX-IBRS'
+:cpu_features:
+  - arch-capabilities
+  - ssbd
+  - stibp
+  - md-clear
+:machine: 'q35'
+```
+
+`cpu_features` can be provided either as a YAML array or as a comma-separated string.
 
 ### Migrating with NetApp Shift
 
