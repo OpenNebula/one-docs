@@ -45,6 +45,7 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 * Fix default `VCPU` to 1 when CPU hotplug (`VCPU_MAX`) is defined without `VCPU` [#7434](https://github.com/OpenNebula/one/issues/7434).
 * Fix duplicate `SECURITY_GROUPS` attributes in Virtual Network templates on template update [#7435](https://github.com/OpenNebula/one/issues/7435).
 * Fix `onetemplate instantiate` erroneously requiring Template `CREATE` permissions [#7020](https://github.com/OpenNebula/one/issues/7020).
+* Fix truncation of snapshot and backup IDs for CLI `oneimage show` and `onevm show` commands [#8108](https://github.com/OpenNebula/one/issues/8108).
 
 ### OneSwap
 
