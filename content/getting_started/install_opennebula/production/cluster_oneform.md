@@ -24,7 +24,6 @@ Automatically Provisioning a Cluster with OneForm consists of the following step
 A OneForm Provider handles the credentials, API logic, and configuration for connecting to on-premises or cloud servers. 
 
 #### On-premises Servers
-
 A [Provider for on-premises servers]({{% relref "product/cluster_provisioning/cluster_providers/onprem_provider/" %}}) is pre-installed with the OpenNebula Front-end. See the [On-premises Provider Documentation]({{% relref "product/cluster_provisioning/cluster_providers/onprem_provider/" %}}) for more details.
 
 #### 3rd-party Cloud and Bare-metal Service Providers
