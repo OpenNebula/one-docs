@@ -93,6 +93,6 @@ systemctl restart opennebula
 
 ## Sunstone
 
-When provisioning a Cluster with OneForm through Sunstone, fields in the **User Inputs** step cannot be entered normally because the form content is re-rendered after each change.
+When provisioning a Cluster with OneForm through Sunstone, fields in the **User Inputs** step cannot be entered normally because a user interface bug causes the form content to be re-rendered after each change.
 
-As a workaround, copy and paste the complete value into the field in a single operation. The fix will be available in OpenNebula 7.4.2.
+As a workaround, enter the values into a notepad or code editor then copy and paste each complete value into each field in a single operation. This will be fixed in OpenNebula 7.4.2.
