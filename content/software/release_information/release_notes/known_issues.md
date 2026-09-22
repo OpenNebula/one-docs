@@ -27,7 +27,7 @@ cp /var/lib/one/backups/config/<timestamp>-v<previous version>/var/lib/one/remot
    /var/lib/one/remotes/hooks/ft/fence_host.sh
 ```
 
-## Live Storage Migration with NVRAM VMs Failure
+## Live Storage Migration with NVRAM VMs Failure (Fixed 7.4.1)
 
 During Live Storage Migration the virtual machine goes through a series of commands in virsh: dumpxml, define, undefine. If the virtual machine has NVRAM there is a [silent uncaught failure](https://github.com/OpenNebula/one/issues/7770):
 
@@ -35,7 +35,7 @@ During Live Storage Migration the virtual machine goes through a series of comma
 error: Requested operation is not valid: cannot undefine domain with nvram
 ```
 
-The migrate pattern should be aware of NVRAM existence and properly use --keep-nvram during the undefine operation. Fix will be made availabe in OpenNebula 7.4.1.
+The migrate pattern should be aware of NVRAM existence and properly use --keep-nvram during the undefine operation.
 
 ## Frontend HA
 
@@ -95,4 +95,4 @@ systemctl restart opennebula
 
 When provisioning a Cluster with OneForm through Sunstone, fields in the **User Inputs** step cannot be entered normally because a user interface bug causes the form content to be re-rendered after each change.
 
-As a workaround, enter the values into a notepad or code editor then copy and paste each complete value into each field in a single operation. This will be fixed in OpenNebula 7.4.2.
+As a workaround, enter the values into a notepad or code editor then copy and paste each complete value into each field in a single operation.
