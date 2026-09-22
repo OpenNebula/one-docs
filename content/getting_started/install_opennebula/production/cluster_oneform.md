@@ -15,10 +15,6 @@ OneForm is OpenNebula’s automated cloud provisioning tool. It serves as an aut
 
 In order to use OneForm, you must first install an OpenNebula Front-end using one of the available deployment options, refer to the [Front-end Installation Documentation]({{% relref "getting_started/install_opennebula/production/minione_frontend_install/" %}}) for details. 
 
-{{< alert title="Known Issue!" type="warning" >}}
-There is currently a known issue with the **User Inputs** workflow step when provisioning a Cluster with OneForm through Sunstone. Refer to the [Known Issues Page]({{% relref "software/release_information/release_notes/known_issues/#sunstone" %}}) for details.
-{{< /alert >}}
-
 ## Provisioning Clusters with OneForm
 
 Automatically Provisioning a Cluster with OneForm consists of the following steps:
