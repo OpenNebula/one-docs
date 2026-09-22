@@ -90,3 +90,9 @@ After modifying `/etc/one/oned.conf`, restart OpenNebula:
 ```shell
 systemctl restart opennebula
 ```
+
+## Sunstone
+
+When provisioning a Cluster with OneForm through Sunstone, fields in the **User Inputs** step cannot be entered normally because the form content is re-rendered after each change.
+
+As a workaround, copy and paste the complete value into the field in a single operation. The fix will be available in OpenNebula 7.4.2.
