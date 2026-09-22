@@ -51,3 +51,7 @@ ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula -s /var/lib/one
 ```
 
 Then run `systemctl daemon-reload`.
+
+## Template Instantiation Permissions
+
+A bug was identified in Template instantiation where `CREATE` permissions on the Template object were erroneously required. This requirement has been dropped, now it requires only `USE` permissions on the Template. Users with default ACL rules are unaffected.
