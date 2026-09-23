@@ -15,6 +15,7 @@ Include a high level description and a link to the documentation explaining the 
 * Add per-VM live migration options through [`MIGRATE_AUTO_CONVERGE` and `MIGRATE_COMPRESSED`]({{% relref "/product/operation_references/configuration_references/template#template-features" %}}) VM template attributes. Administrators can now tune auto-convergence and memory compression only for selected KVM VMs, improving migration reliability and bandwidth usage without changing global driver defaults.
 -->
 
+* Added a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
 * Add support for Ceph VM backups through the [interactive backup integration]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
 * Allow overriding `CLUSTER_IDS` when instantiating Virtual Network Templates [#8065](https://github.com/OpenNebula/one/issues/8065).
 
