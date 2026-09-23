@@ -138,15 +138,28 @@ onebex://<IMAGE_DS_ID>:<PORT_ID>
 
 `IMAGE_DS_ID` is the destination Image Datastore ID where the restored disk image will be created. `PORT_ID` is the restore transfer port allocated for the interactive restore session.
 
+The writer accepts one frame per TCP connection. Each frame starts with a one-byte type:
+
+| Type | Name | Payload |
+|------|------|---------|
+| `0x00` | `DATA` | Three unsigned 64-bit big-endian integers containing the start byte, payload size, and total image size, followed by the image data. |
+| `0x01` | `FINISH` | No payload. Stops the writer and lets OpenNebula finalize the restore transfer. |
+
+After sending all the image data, the integration must open one final connection to the restore transfer port and send the `FINISH` frame. The integration must also send this frame when a restore is cancelled or fails. Do not send more data after the `FINISH` frame.
+
 If a restore fails, the restored Image remains in `LOCKED` state and should be removed manually:
 
-{{< alert title="Important" type="info" >}}
-Get the restore transfer port from the Image `PATH` attribute, which has the form `onebex://<IMAGE_DS_ID>:<PORT_ID>`, and terminate the writer process associated with that port:
+{{< alert title="Note" type="info" >}}
+Get the restore transfer port from the Image `PATH` attribute and send the `FINISH` frame to the writer. This stops the writer gracefully and allows OpenNebula to complete the transfer cleanup. Use a Front-end address that is reachable from the system where you run the command. If you run it directly on the Front-end, you can use `127.0.0.1`. The restore transfer port must be allowed by any intervening firewall:
 
 ```shell
-PORT=<PORT_ID>
-pgrep -f "onebex_writer.rb .* ${PORT} " | xargs -r kill -TERM
-oneimage delete --force <IMAGE_ID>
+python3 -c 'import socket, sys; s = socket.create_connection((sys.argv[1], int(sys.argv[2]))); s.sendall(b"\x01"); s.close()' <FRONTEND_ADDRESS> <PORT_ID>
+```
+
+After the writer finishes, delete the incomplete Image:
+
+```shell
+oneimage delete <IMAGE_ID>
 ```
 {{< /alert >}}
 

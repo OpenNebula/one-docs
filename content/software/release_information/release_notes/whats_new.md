@@ -24,6 +24,7 @@ Additionally, the following functionalities are present that were not in OpenNeb
 
 - Log HA hearbeat and replication messages at log level 5
 - Option to configure network lease policy for internal Address Ranges. The policy can be set globally in [oned.conf]({{% relref "oned#virtual-networks" %}}) or [overridden for each Virtual Network]({{% relref "manage_vnets#lease-allocation-policy" %}}).
+- Added a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process
 
 ## Other Issues Solved
 
