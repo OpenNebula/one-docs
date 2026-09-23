@@ -16,10 +16,10 @@ weight: "1"
 A template file consists of a set of attributes that defines a Virtual Machine. Using the command `onetemplate create`, a template can be registered in OpenNebula to be instantiated later. For compatibility with previous versions, you can also create a new Virtual Machine directly from a template file by using the `onevm create` command.
 
 {{< alert title="Warning" type="warning" >}}
-Some template attributes can compromise the security of the system or the security of other VMs, and can be used **only** by users in the `oneadmin` group. These attributes can be configured in [oned.conf]({{% relref "../opennebula_services_configuration/oned#oned-conf" %}}). In the following tables, default attributes are marked with `*`. For the complete list, see the [Restricted Attributes]({{% relref "img_template#img-template-restricted-attributes" %}}) section.{{< /alert >}} 
+Some template attributes can compromise the security of the system or the security of other VMs, and can be used **only** by users in the `oneadmin` group. These attributes can be configured in [oned.conf]({{% relref "../opennebula_services_configuration/oned#oned-conf" %}}). In the following tables, default attributes are marked with `*`. For the complete list, see the [Restricted Attributes]({{% relref "img_template#img-template-restricted-attributes" %}}) section.{{< /alert >}}
 
 {{< alert title="Note" type="info" >}}
-If not explicitly stated, the described attributes are valid for all supported hypervisors.{{< /alert >}} 
+If not explicitly stated, the described attributes are valid for all supported hypervisors.{{< /alert >}}
 
 ## Syntax
 
@@ -107,7 +107,7 @@ CPU    = 1
 ### Hotplug Resize VM Capacity
 
 {{< alert title="Important" type="info" >}}
-Hotplug is implemented only for KVM.{{< /alert >}} 
+Hotplug is implemented only for KVM.{{< /alert >}}
 
 If you need to resize the capacity in `RUNNING` state you have to set up some extra attributes in the VM template. These attributes must be set before the VM is started. They are driver-specific, here you can find more info for [KVM]({{% relref "../hypervisor_configuration/kvm_driver#kvm-live-resize" %}}).
 
@@ -130,7 +130,7 @@ The following attributes can be defined to set the cost of a VM. Read the [showb
 The operating system is defined with the `OS` vector attribute. The following sub-attributes are supported:
 
 {{< alert title="Note" type="info" >}}
-The hypervisor column states that the attribute is **O**ptional, **M**andatory, or `-` not supported for that hypervisor.{{< /alert >}} 
+The hypervisor column states that the attribute is **O**ptional, **M**andatory, or `-` not supported for that hypervisor.{{< /alert >}}
 
 | OS Sub-Attribute   | Description                                                                                                                                                               | KVM              | LXC   |
 |--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|-------|
@@ -181,7 +181,7 @@ OS = [ KERNEL_DS  = "$FILE[IMAGE=\"kernel 3.6\"]",
 This section (`CPU_MODEL`) configures the hardware configuration of the CPU exposed to the guest.
 
 {{< alert title="Note" type="info" >}}
-The hypervisor column states that the attribute is **O**ptional or `-` not supported for that hypervisor.{{< /alert >}} 
+The hypervisor column states that the attribute is **O**ptional or `-` not supported for that hypervisor.{{< /alert >}}
 
 | Sub-Attribute   | Description                                                                                                                                                                                                             | KVM   | LXC   |
 |-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|-------|
@@ -195,7 +195,7 @@ The hypervisor column states that the attribute is **O**ptional or `-` not suppo
 This section configures the features enabled for the VM.
 
 {{< alert title="Note" type="info" >}}
-The hypervisor column states that the attribute is **O**ptional, **M**andatory, or `-` not supported for that hypervisor.{{< /alert >}} 
+The hypervisor column states that the attribute is **O**ptional, **M**andatory, or `-` not supported for that hypervisor.{{< /alert >}}
 
 | Sub-Attribute        | Description                                                                                                                                                                                            | KVM   | LXC   |
 |----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|-------|
@@ -204,9 +204,9 @@ The hypervisor column states that the attribute is **O**ptional, **M**andatory, 
 | `APIC`               | Enables the advanced programmable IRQ management. Useful for SMP machines.                                                                                                                         | O     | -    |
 | `LOCALTIME`          | The guest clock will be synchronized to the Host’s configured timezone when booted. Useful for Windows VMs.                                                                                        | O     | -    |
 | `HYPERV`             | Add hyperv extensions to the VM. The options can be configured in the driver configuration, `HYPERV_OPTIONS`. Also, timers as configured in `HYPERV_TIMERS` are added to the domain clock. | O     | -         |
-| `GUEST_AGENT`        | Enables the QEMU Guest Agent communication. This only creates the socket inside the VM, the Guest Agent itself must be installed and started in the VM.                                        | O     | -         | 
+| `GUEST_AGENT`        | Enables the QEMU Guest Agent communication. This only creates the socket inside the VM, the Guest Agent itself must be installed and started in the VM.                                        | O     | -         |
 | `VIRTIO_SCSI_QUEUES` | Number of queues for the virtio-scsi controller.                                                                                                                                                       | O     | -  |
-| `VIRTIO_BLK_QUEUES`  | Number of dispatch queues for the virtio-blk driver.                                                                                                                                                   | O     | -   | 
+| `VIRTIO_BLK_QUEUES`  | Number of dispatch queues for the virtio-blk driver.                                                                                                                                                   | O     | -   |
 | `IOTHREADS`          | Number of iothreads for virtio disks. By default threads will be assigned to disk by round robin algorithm. Disk thread id can be forced by disk `IOTHREAD` attribute.                         | O     | -         |
 | `MIGRATE_AUTO_CONVERGE` | Auto-converge configuration for live migration. Format: `<initial>[,<increment>]` with values ranging from 0 to 100. When defined, implicitly enables the `--auto-converge` option during migration. Maps to the `virsh migrate --auto-converge-initial` and `--auto-converge-increment` options. | O     | -  |
 | `MIGRATE_COMPRESSED` | Enable compression during live migration. When set to `yes`, the VM memory will be compressed during migration to reduce bandwidth usage. Maps to the `virsh migrate --compressed` option.                                               | O     | -  |
@@ -241,9 +241,9 @@ The disks of a VM are defined with the `DISK` vector attribute. You can define a
 ### Persistent and Clone Disks
 
 {{< alert title="Note" type="info" >}}
-The hypervisor column states that the attribute is **O**ptional, **M**andatory, or `-` not supported for that hypervisor.{{< /alert >}} 
+The hypervisor column states that the attribute is **O**ptional, **M**andatory, or `-` not supported for that hypervisor.{{< /alert >}}
 
-| DISK Sub-Attribute                                                                                                                                                                                | Description                                                                                                                                                                                                                                                                                                                             | KVM                                                                                                | LXC                                                                                              | 
+| DISK Sub-Attribute                                                                                                                                                                                | Description                                                                                                                                                                                                                                                                                                                             | KVM                                                                                                | LXC                                                                                              |
 |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
 | `IMAGE_ID`                                                                                                                                                                                        | ID of the Image to use.                                                                                                                                                                                                                                                                                                                 | M (no `IMAGE`)                                                                                     | M (no `IMAGE`)                                                          |
 | `IMAGE`                                                                                                                                                                                           | Name of the Image to use.                                                                                                                                                                                                                                                                                                               | M (no `IMAGE_ID`)                                                                                  | M (no `IMAGE_ID`)                                                       |
@@ -270,19 +270,19 @@ The hypervisor column states that the attribute is **O**ptional, **M**andatory, 
 ### Volatile DISKS
 
 {{< alert title="Note" type="info" >}}
-The hypervisor column states that the attribute is **O**ptional, **M**andatory, or `-` not supported for that hypervisor.{{< /alert >}} 
+The hypervisor column states that the attribute is **O**ptional, **M**andatory, or `-` not supported for that hypervisor.{{< /alert >}}
 
 {{< alert title="Warning" type="warning" >}}
-Not supported on LXC.{{< /alert >}} 
+Not supported on LXC.{{< /alert >}}
 
 | DISK Sub-Attribute                                                                                                                                   | Description                                                                                                                                                                                                                                                                                                          | KVM                                                                                                    |
 |------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
 | `TYPE`                                                                                                                                               | Type of the disk: `swap` or `fs`.                                                                                                                                                                                                                                                                                    | O                                                                                                      |
 | `SIZE`                                                                                                                                               | size in MB.                                                                                                                                                                                                                                                                                                          | O                                                                                                      |
 | `FORMAT`                                                                                                                                             | Format of the Image: `raw` or `qcow2`.                                                                                                                                                                                                                                                                               | M(for fs)                                                                                              |
-| `DEV_PREFIX`                                                                                                                                         | Prefix for the emulated device this image will be mounted at. For instance, `hd`, `sd`. If omitted, the default `dev_prefix` set in [oned.conf]({{% relref "../opennebula_services_configuration/oned#oned-conf" %}}) will be used.                                                                                  | O                                                                                                      | 
-| `TARGET`                                                                                                                                             | device to map disk.                                                                                                                                                                                                                                                                                                  | O                                                                                                      | 
-| `DRIVER`                                                                                                                                             | special disk mapping options. KVM: `raw`, `qcow2`.                                                                                                                                                                                                                                                                   | O                                                                                                      | 
+| `DEV_PREFIX`                                                                                                                                         | Prefix for the emulated device this image will be mounted at. For instance, `hd`, `sd`. If omitted, the default `dev_prefix` set in [oned.conf]({{% relref "../opennebula_services_configuration/oned#oned-conf" %}}) will be used.                                                                                  | O                                                                                                      |
+| `TARGET`                                                                                                                                             | device to map disk.                                                                                                                                                                                                                                                                                                  | O                                                                                                      |
+| `DRIVER`                                                                                                                                             | special disk mapping options. KVM: `raw`, `qcow2`.                                                                                                                                                                                                                                                                   | O                                                                                                      |
 | `CACHE`                                                                                                                                              | Selects the cache mechanism for the disk. Values are `default`, `none`, `writethrough`, `writeback`, `directsync` and `unsafe`. More info in the [libvirt documentation](http://libvirt.org/formatdomain.html#elementsDevices).                                                                                      | O                                                                                                      |
 | `READONLY`                                                                                                                                           | Set how the image is exposed by the hypervisor.                                                                                                                                                                                                                                                                      | O e.g.: `yes`, `no`. This attribute should only be used for special storage configurations | -         |
 | `IO`                                                                                                                                                 | Set IO policy. Values are `threads`, `native`.                                                                                                                                                                                                                                                                       | O                                                                                                      |
@@ -343,7 +343,7 @@ Because this VM did not declare a `CONTEXT` or any disk using a `CDROM` Image, t
 ## Network Section
 
 {{< alert title="Note" type="info" >}}
-The hypervisor column states that the attribute is **O**ptional, **M**andatory, or `-` not supported for that hypervisor.{{< /alert >}} 
+The hypervisor column states that the attribute is **O**ptional, **M**andatory, or `-` not supported for that hypervisor.{{< /alert >}}
 
 | NIC Sub-Attribute    | Description                                                                                                                               | KVM                 | LXC                 |
 |----------------------|-------------------------------------------------------------------------------------------------------------------------------------------|---------------------|---------------------|
@@ -372,7 +372,7 @@ The hypervisor column states that the attribute is **O**ptional, **M**andatory, 
 | `PARENT`             | It is used only on alias, it references the NIC which it is an alias of.                                                                        | O                   | O                   |
 
 {{< alert title="Warning" type="warning" >}}
-The `PORTS` and `ICMP` attributes require the firewall functionality to be configured. Please read the [firewall configuration guide]({{% relref "../../virtual_machines_operation/virtual_machines_networking/security_groups#firewall" %}}).{{< /alert >}} 
+The `PORTS` and `ICMP` attributes require the firewall functionality to be configured. Please read the [firewall configuration guide]({{% relref "../../virtual_machines_operation/virtual_machines_networking/security_groups#firewall" %}}).{{< /alert >}}
 
 Here's an example of a VM with two NICs attached to two different networks:
 
@@ -410,7 +410,7 @@ NIC_DEFAULT = [ MODEL = "virtio" ]
 ## I/O Devices Section
 
 {{< alert title="Note" type="info" >}}
-The hypervisor column states that the attribute is **O**ptional, **M**andatory, or `-` not supported for that hypervisor.{{< /alert >}} 
+The hypervisor column states that the attribute is **O**ptional, **M**andatory, or `-` not supported for that hypervisor.{{< /alert >}}
 
 The following I/O interfaces can be defined for a VM:
 
@@ -558,7 +558,7 @@ The following I/O interfaces can be defined for a VM:
 <!-- END TABLE -->
 
 {{< alert title="Note" type="info" >}}
-Password will be truncated if its length exceeds eight characters for `vnc` or 60 characters for `spice`.{{< /alert >}} 
+Password will be truncated if its length exceeds eight characters for `vnc` or 60 characters for `spice`.{{< /alert >}}
 
 For example:
 
@@ -570,17 +570,17 @@ GRAPHICS = [
 ```
 
 {{< alert title="Warning" type="warning" >}}
-For the KVM hypervisor the port number is a real one, not the VNC port. So for VNC port 0 you should specify 5900, for port 1, 5901 and so on.{{< /alert >}} 
+For the KVM hypervisor the port number is a real one, not the VNC port. So for VNC port 0 you should specify 5900, for port 1, 5901 and so on.{{< /alert >}}
 
 {{< alert title="Warning" type="warning" >}}
-OpenNebula will prevent VNC port collision within a Cluster to ensure that a VM can be deployed or migrated to any Host in the selected Cluster. If the selected port is in use, the VM deployment will fail. If the user does not specify the port variable, OpenNebula will try to assign `VNC_PORTS[START] + VMID`, or the first lower available port. The `VNC_PORTS[START]` is specified inside the `oned.conf` file.{{< /alert >}} 
+OpenNebula will prevent VNC port collision within a Cluster to ensure that a VM can be deployed or migrated to any Host in the selected Cluster. If the selected port is in use, the VM deployment will fail. If the user does not specify the port variable, OpenNebula will try to assign `VNC_PORTS[START] + VMID`, or the first lower available port. The `VNC_PORTS[START]` is specified inside the `oned.conf` file.{{< /alert >}}
 
 <a id="template-context"></a>
 
 ## Context Section
 
 {{< alert title="Note" type="info" >}}
-The hypervisor column states that the attribute is **O**ptional, **M**andatory, `-` not supported for that hypervisor, or OS name where it is mandatory.{{< /alert >}} 
+The hypervisor column states that the attribute is **O**ptional, **M**andatory, `-` not supported for that hypervisor, or OS name where it is mandatory.{{< /alert >}}
 
 Context information is passed to the Virtual Machine via an ISO mounted as a partition. This information can be defined in the VM template in the optional section called Context, with the following attributes:
 
@@ -653,12 +653,12 @@ Context information is passed to the Virtual Machine via an ISO mounted as a par
 | `EJECT_CDROM`                   | Value `YES` will signal to eject the CD with the `context.sh` file when (re)contextualization is finished.                                                                                                                                                                                                                                                                                                                                                                                                         | Windows   |
 
 {{< alert title="Note" type="info" >}}
-By default, FireEdge does not allow you to create or modify the `START_SCRIPT` field. It can only be modified if the `START_SCRIPT_BASE64` field does not exist. 
+By default, FireEdge does not allow you to create or modify the `START_SCRIPT` field. It can only be modified if the `START_SCRIPT_BASE64` field does not exist.
 
 FireEdge prioritises the `START_SCRIPT_BASE64` field when the form field is filled in.{{< /alert >}}
 
 {{< alert title="Note" type="info" >}}
-If more than one of the password-changing attributes listed above is defined, only the one with highest priority will be applied. The priority is the same as the order of appearance in this table.{{< /alert >}} 
+If more than one of the password-changing attributes listed above is defined, only the one with highest priority will be applied. The priority is the same as the order of appearance in this table.{{< /alert >}}
 
 The values referred to by `VARIABLE` can be defined as:
 
@@ -698,7 +698,7 @@ DNS = "$NETWORK[DNS, NETWORK_ID=3]"
 ```
 
 {{< alert title="Note" type="info" >}}
-The network MUST be in use by any of the NICs defined in the template. The vnet_attribute can be `TEMPLATE` to include the whole vnet template in XML (base64-encoded).{{< /alert >}} 
+The network MUST be in use by any of the NICs defined in the template. The vnet_attribute can be `TEMPLATE` to include the whole vnet template in XML (base64-encoded).{{< /alert >}}
 
 **Using Image template variables**
 
@@ -709,7 +709,7 @@ root = "$IMAGE[ROOT_PASS, IMAGE_ID=0]"
 ```
 
 {{< alert title="Note" type="info" >}}
-The image MUST be in use by any of the DISKs defined in the template. The image_attribute can be `TEMPLATE` to include the whole image template in XML (base64-encoded).{{< /alert >}} 
+The image MUST be in use by any of the DISKs defined in the template. The image_attribute can be `TEMPLATE` to include the whole image template in XML (base64-encoded).{{< /alert >}}
 
 **Using User template variables**
 
@@ -720,7 +720,7 @@ ssh_key = "$USER[SSH_KEY]"
 ```
 
 {{< alert title="Note" type="info" >}}
-The user_attribute can be `TEMPLATE` to include the whole user template in XML (base64-encoded).{{< /alert >}} 
+The user_attribute can be `TEMPLATE` to include the whole user template in XML (base64-encoded).{{< /alert >}}
 
 **Pre-defined variables**, apart from those defined in the template you can use:
 
@@ -822,14 +822,14 @@ SCHED_DS_REQUIREMENTS = "\"CLUSTERS/ID\" @> 101"
 ```
 
 {{< alert title="Warning" type="warning" >}}
-If using OpenNebula’s default match-making scheduler in a hypervisor heterogeneous environment, it is a good idea to add an extra line like the following to the VM template to ensure its placement in a specific hypervisor.{{< /alert >}} 
+If using OpenNebula’s default match-making scheduler in a hypervisor heterogeneous environment, it is a good idea to add an extra line like the following to the VM template to ensure its placement in a specific hypervisor.{{< /alert >}}
 
 ```default
 SCHED_REQUIREMENTS = "HYPERVISOR=\"LXC\""
 ```
 
 {{< alert title="Warning" type="warning" >}}
-Template variables can be used in the SCHED_REQUIREMENTS section.{{< /alert >}} 
+Template variables can be used in the SCHED_REQUIREMENTS section.{{< /alert >}}
 
 - `$<template_variable>`: any single value variable of the VM template.
 - `$<template_variable>[<attribute>]`: Any single value contained in a multiple value variable in the VM template.
@@ -862,10 +862,10 @@ expr::= VARIABLE
 Rank expressions are evaluated using each Host's information. ‘+’, ‘-’, ‘\*’, ‘/’ and ‘-’ are arithmetic operators. The rank expression is calculated using floating point arithmetic and then rounded to an integer value.
 
 {{< alert title="Warning" type="warning" >}}
-The rank expression is evaluated for each Host, those Hosts with a higher rank are used first to start the VM. The rank policy must be implemented by the scheduler. Check the configuration guide to configure the scheduler.{{< /alert >}} 
+The rank expression is evaluated for each Host, those Hosts with a higher rank are used first to start the VM. The rank policy must be implemented by the scheduler. Check the configuration guide to configure the scheduler.{{< /alert >}}
 
 {{< alert title="Warning" type="warning" >}}
-Similar to the requirements attribute, any number (integer or float) attribute defined for the Host can be used in the rank attribute.{{< /alert >}} 
+Similar to the requirements attribute, any number (integer or float) attribute defined for the Host can be used in the rank attribute.{{< /alert >}}
 
 Here are some examples:
 
@@ -900,7 +900,7 @@ There are some predefined Host attributes that can be used in the requirements a
 You can execute `onehost show <id> -x` to see all the attributes and their values.
 
 {{< alert title="Note" type="info" >}}
-Check the [Monitoring Subsystem]({{% relref "../../../product/integration_references/infrastructure_drivers_development/devel-im#devel-im" %}}) guide to find out how to extend the information model and add any information probe to the Hosts.{{< /alert >}} 
+Check the [Monitoring Subsystem]({{% relref "../../../product/integration_references/infrastructure_drivers_development/devel-im#devel-im" %}}) guide to find out how to extend the information model and add any information probe to the Hosts.{{< /alert >}}
 
 <a id="template-raw-section"></a>
 
@@ -1079,7 +1079,7 @@ In Sunstone, the `USER_INPUTS` can be ordered with the mouse.
 `USER_INPUTS_METADATA` provides the template creator with the possibility to add titles and descriptions to the user inputs. To understand how Sunstone renders user inputs metadata, [see User Inputs in Sunstone]({{% relref "../../virtual_machines_operation/virtual_machines/vm_templates#vm-guide-user-inputs-sunstone" %}}).
 
 {{< alert title="Note" type="info" >}}
-`USER_INPUTS_METADATA` will only be used in Sunstone, not in other components of OpenNebula.{{< /alert >}} 
+`USER_INPUTS_METADATA` will only be used in Sunstone, not in other components of OpenNebula.{{< /alert >}}
 
 | Attribute     | Mandatory   | Description                                                                                                                                                                |
 |---------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
