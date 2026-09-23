@@ -358,7 +358,7 @@ The hypervisor column states that the attribute is **O**ptional, **M**andatory, 
 | `SCRIPT`             | Name of a shell script to be executed after creating the tun device for the VM.                                                           | O                   | O                   |
 | `MODEL`              | Hardware that will emulate this network interface. In KVM you can choose `virtio` to select its specific virtualization IO framework.     | O                   | -                   |
 | `FILTER`             | To define a network filtering rule for the interface.                                                                                     | O                   | O                   |
-| `SECURITY_GROUPS`    | Command-separated list of the ids of the security groups to be applied to this interface.                                                 | O                   | -                   |
+| `SECURITY_GROUPS`    | Comma-separated list of the ids of the security groups to be applied to this interface.                                                   | O                   | -                   |
 | `INBOUND_AVG_BW`     | Average bitrate for the interface in kilobytes/second for inbound traffic.                                                                | O                   | O                   |
 | `INBOUND_PEAK_BW`    | Maximum bitrate for the interface in kilobytes/second for inbound traffic.                                                                | O                   | O                   |
 | `INBOUND_PEAK_KB`    | Data that can be transmitted at peak speed in kilobytes.                                                                                  | O                   | -                   |
