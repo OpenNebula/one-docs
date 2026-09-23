@@ -16,27 +16,42 @@ Include a high level description and a link to the documentation explaining the 
 -->
 
 * Added a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
+* Add support for Ceph VM backups through the [interactive backup integration]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
+* Allow overriding `CLUSTER_IDS` when instantiating Virtual Network Templates [#8065](https://github.com/OpenNebula/one/issues/8065).
 
 ## Resolved Issues
 
 The following issues have been solved in 7.4.2:
 
-<!-- item structure
-One line per issue starting with "Fix ...". Descrive the issue so the user understands the fix. Add link to GH. Example:
-
-* Fix failure of `onegroup create` CLI command with empty `--resource` parameter [#7458](https://github.com/OpenNebula/one/issues/7458).
--->
 * Fix update any item without having permissions to create it on yaml FireEdge views [#6416](https://github.com/OpenNebula/one/issues/6416).
 * Fix VM template instantiation to allow precise memory values to be entered directly when memory modification is configured as a range [#7426](https://github.com/OpenNebula/one/issues/7426).
 * Fix Restic Datastore - the password filed is not masking the password [#7444](https://github.com/OpenNebula/one/issues/7444).
 * Fix missing theme colors in Sunstone quota panels and improve quota usage readability with per-metric values and progress bars [#6869](https://github.com/OpenNebula/one/issues/6869).
+* Fix unable to flush offline host in Sunstone [#7407](https://github.com/OpenNebula/one/issues/7407).
 - Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
+* Fix missing VRouter NIC attach/detach action [#7708](https://github.com/OpenNebula/one/issues/7708).
+* Fix VNC console reliability for LXC virtual machines by increasing Guacamole tunnel timeouts and preventing premature disconnections due to svncterm inactivity [#8095](https://github.com/OpenNebula/one/issues/8095).
+* Fix SPICE support in Sunstone [#7667](https://github.com/OpenNebula/one/issues/7667).
+* Fix service template updates in Sunstone [#7193](https://github.com/OpenNebula/one/issues/7193).
+* Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
+* Fix Zendesk support ticket comments by preventing replies to closed tickets and displaying errors when comment delivery fails [#7280](https://github.com/OpenNebula/one/issues/7280).
+* Fix OneBEX interactive exports when backup datastores use non-default paths by passing the backup directory in the export request [#8093](https://github.com/OpenNebula/one/issues/8093).
+* Fix [FireEdge] Service Template chmod fails silently [#8096](https://github.com/OpenNebula/one/issues/8096).
+* Fix usage of HTTP proxy credentials for marketplace monitoring [#8043](https://github.com/OpenNebula/one/issues/8043).
+* Fix default `VCPU` to 1 when CPU hotplug (`VCPU_MAX`) is defined without `VCPU` [#7434](https://github.com/OpenNebula/one/issues/7434).
+* Fix duplicate `SECURITY_GROUPS` attributes in Virtual Network templates on template update [#7435](https://github.com/OpenNebula/one/issues/7435).
+* Fix `onetemplate instantiate` erroneously requiring Template `CREATE` permissions [#7020](https://github.com/OpenNebula/one/issues/7020).
+* Fix truncation of snapshot and backup IDs for CLI `oneimage show` and `onevm show` commands [#8108](https://github.com/OpenNebula/one/issues/8108).
+* Fix onezone serversync to synchronize OneForm, OneKS, and FireEdge configuration files across Front-end hosts and restart the corresponding services when those files change [#8039](https://github.com/OpenNebula/one/issues/8039).
+* Fix OneSwap conversion of Windows guests using CompactOS/WOF-compressed NTFS system files [#7342](https://github.com/OpenNebula/one/issues/7342).
+* Fix OneSwap context injection running the RHEL-specific `subscription-manager` command on RHEL-compatible distributions [#8111](https://github.com/OpenNebula/one/issues/8111).
+* Fix `oneimage` and `onevm` commands to not truncate IDs greater than 999 [#8108](https://github.com/OpenNebula/one/issues/8108)
 
 ---
 
 ## Updating Sunstone Configuration Files
 
-After upgradte to 7.4.2, check the following settings to enable the new Sunstone functionality in the intended views. All paths below are relative to `/etc/one/fireedge/` on the OpenNebula Front-end Host.
+After upgrading to 7.4.2, check the following settings to enable the new Sunstone functionality in the intended views. All paths below are relative to `/etc/one/fireedge/` on the OpenNebula Front-end Host.
 
 Merge these settings into the existing YAML sections, preserving other settings and actions. Do not create duplicate `info-tabs` or `filters` keys.
 
@@ -90,4 +105,38 @@ Add the following content:
     - title: Update Group
       path: /group/update
       Component: CreateGroup
+```
+
+### Expose virtual router NIC attach/detach actions [#7708](https://github.com/OpenNebula/one/issues/7708)
+
+In `sunstone/views/*/vrouter-tab.yaml`, as part of `nics` attributes after the entry:
+
+```yaml
+   nics:
+    enabled: true
+```
+
+Add the following content:
+
+```yaml
+    actions:
+      nic-attach: true
+      nic-detach: true
+```
+
+### Add the SPICE console [#7667](https://github.com/OpenNebula/one/issues/7667).
+
+Add the file `sunstone/tabs/81-spice-tab.yaml`
+
+```yaml
+    - title: SPICE
+      path: /spice/:id
+      sidebar: false
+      Component: Spice
+```
+
+In `sunstone/views/admin/vm-tab.yaml`, `sunstone/views/cloud/vm-tab.yaml`, `sunstone/views/groupadmin/vm-tab.yaml`, `sunstone/views/admin/user-tab.yaml`, in the `actions` section add the following content:
+
+```yaml
+    - spice: true
 ```

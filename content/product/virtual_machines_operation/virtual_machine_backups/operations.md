@@ -34,11 +34,6 @@ Incremental backups of **qcow2** disks can use two different modes via the `INCR
 - **CBT** (Changed Block Tracking). For each increment OpenNebula creates a block bitmap in the disk image to track which blocks have changed since the last backup.
 - **SNAPSHOT**. OpenNebula tracks changes by creating a separate disk snapshot. This snapshot stores all disk changes since the last backup.
 
-Also, for **RBD** disks (Ceph), FULL and INCREMENT backups are currently stored in a different way, although the difference should be transparent to the user:
-
-- **Full** backups (`FORMAT=raw`) store the RBD export converted to a qcow2 file. The restore process involves converting it to a RAW file and importing it to the Ceph pool.
-- **Incremental** backups (`FORMAT=rbd`) store the initial RBD export, as well as zero or more increment files, in the native format of Ceph exports (rbd export –export-format 2 / rbd export-diff). The restore process involves importing the initial export and applying the diff files in the same order, one by one.
-
 {{< alert title="Note" type="info" >}}
 The `INTERACTIVE` backup workflow is reserved for supported third-party integrations, such as the [OpenNebula-Veeam&reg; Backup Integration]({{% relref "../../../product/cluster_configuration/backup_system/veeam.md#vm-backups-veeam" %}}). It is not a standalone backup backend for users to configure directly. In this workflow, OpenNebula exposes the backup data through OneBEX and the external backup system pulls the data from the hypervisor.
 
@@ -67,7 +62,7 @@ In order to save space in the backup system, RAW disk backups are converted and 
 - Live backups are only supported for KVM
 - Attaching a disk to a VM that had an incremental backup previously made will yield an error. The –reset option for the backup operation is required to recreate a new incremental chain
 - Incremental backups on VMs with disk or system snapshots is not supported
-- `KEEP_LAST` option is not supported for Incremental backups of Ceph disks
+- For Ceph retention requirements, see [Backup Format and Retention]({{% relref "product/cluster_configuration/storage_system/ceph_ds#backup-format-and-retention" %}}).
 - Interactive backups only support datastores using the `local`, `shared` and `lvm*` TM drivers.
 
 ## Preparing VMs for Backups
