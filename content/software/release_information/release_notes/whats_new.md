@@ -121,7 +121,6 @@ Additionally, the following functionalities are present that were not in OpenNeb
 
 * [Enabled the customization of the favicon in FireEdge]({{% relref "product/operation_references/opennebula_services_configuration/fireedge.md#branding-fireedge" %}}).
 * Added the capacity to [batch delete scheduled actions from all service VMs]({{% relref "product/virtual_machines_operation/multi-vm_workflows/appflow_use_cli/#deleting-scheduled-actions-from-service-vms" %}}), negating the need to delete actions from each individual VM.
-* Added a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process
 
 ## Other Issues Solved
 
