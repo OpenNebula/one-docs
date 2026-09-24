@@ -15,15 +15,15 @@ Include a high level description and a link to the documentation explaining the 
 * Add per-VM live migration options through [`MIGRATE_AUTO_CONVERGE` and `MIGRATE_COMPRESSED`]({{% relref "/product/operation_references/configuration_references/template#template-features" %}}) VM template attributes. Administrators can now tune auto-convergence and memory compression only for selected KVM VMs, improving migration reliability and bandwidth usage without changing global driver defaults.
 -->
 
+* Added a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
+* Add support for Ceph VM backups through the [interactive backup integration]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
+* Allow overriding `CLUSTER_IDS` when instantiating Virtual Network Templates [#8065](https://github.com/OpenNebula/one/issues/8065).
+
 ## Resolved Issues
 
 The following issues have been solved in 7.4.2:
 
-<!-- item structure
-One line per issue starting with "Fix ...". Descrive the issue so the user understands the fix. Add link to GH. Example:
-
-* Fix failure of `onegroup create` CLI command with empty `--resource` parameter [#7458](https://github.com/OpenNebula/one/issues/7458).
--->
+* Fix potential disk data loss by rejecting live datastore migration of VMs with qcow2 disks containing internal snapshots [#8092](https://github.com/OpenNebula/one/issues/8092).
 * Fix update any item without having permissions to create it on yaml FireEdge views [#6416](https://github.com/OpenNebula/one/issues/6416).
 * Fix VM template instantiation to allow precise memory values to be entered directly when memory modification is configured as a range [#7426](https://github.com/OpenNebula/one/issues/7426).
 * Fix Restic Datastore - the password filed is not masking the password [#7444](https://github.com/OpenNebula/one/issues/7444).
@@ -37,6 +37,17 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 * Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
 * Fix Zendesk support ticket comments by preventing replies to closed tickets and displaying errors when comment delivery fails [#7280](https://github.com/OpenNebula/one/issues/7280).
 * Fix FireEdge failing to connect when VNC `LISTEN` is set to a DNS name [#6976](https://github.com/OpenNebula/one/issues/6976).
+* Fix OneBEX interactive exports when backup datastores use non-default paths by passing the backup directory in the export request [#8093](https://github.com/OpenNebula/one/issues/8093).
+* Fix [FireEdge] Service Template chmod fails silently [#8096](https://github.com/OpenNebula/one/issues/8096).
+* Fix usage of HTTP proxy credentials for marketplace monitoring [#8043](https://github.com/OpenNebula/one/issues/8043).
+* Fix default `VCPU` to 1 when CPU hotplug (`VCPU_MAX`) is defined without `VCPU` [#7434](https://github.com/OpenNebula/one/issues/7434).
+* Fix duplicate `SECURITY_GROUPS` attributes in Virtual Network templates on template update [#7435](https://github.com/OpenNebula/one/issues/7435).
+* Fix `onetemplate instantiate` erroneously requiring Template `CREATE` permissions [#7020](https://github.com/OpenNebula/one/issues/7020).
+* Fix truncation of snapshot and backup IDs for CLI `oneimage show` and `onevm show` commands [#8108](https://github.com/OpenNebula/one/issues/8108).
+* Fix onezone serversync to synchronize OneForm, OneKS, and FireEdge configuration files across Front-end hosts and restart the corresponding services when those files change [#8039](https://github.com/OpenNebula/one/issues/8039).
+* Fix OneSwap conversion of Windows guests using CompactOS/WOF-compressed NTFS system files [#7342](https://github.com/OpenNebula/one/issues/7342).
+* Fix OneSwap context injection running the RHEL-specific `subscription-manager` command on RHEL-compatible distributions [#8111](https://github.com/OpenNebula/one/issues/8111).
+* Fix `oneimage` and `onevm` commands to not truncate IDs greater than 999 [#8108](https://github.com/OpenNebula/one/issues/8108)
 
 ---
 
@@ -127,7 +138,6 @@ Add the file `sunstone/tabs/81-spice-tab.yaml`
 ```
 
 In `sunstone/views/admin/vm-tab.yaml`, `sunstone/views/cloud/vm-tab.yaml`, `sunstone/views/groupadmin/vm-tab.yaml`, `sunstone/views/admin/user-tab.yaml`, in the `actions` section add the following content:
-
 
 ```yaml
     - spice: true

@@ -476,7 +476,7 @@ Drivers to manage different Marketplaces, specialized for the storage backend.
 - `ARGUMENTS`: for the driver executable:
   - `-t` number of threads, i.e., number of simultaneous repo operations
   - `-m` Marketplace mads separated by commas
-  - `--proxy` proxy URI, if required to access the internet. For example `--proxy http://1.2.3.4:5678`
+  - `--proxy` proxy URI, if required to access the internet. For example `--proxy http://username:password@proxy.example.com:8080`. For the `one` monitor, this overrides the `HTTP_PROXY` environment variable.
   - `-w` timeout in seconds to execute external commands (default unlimited)
 
 Sample configuration:
