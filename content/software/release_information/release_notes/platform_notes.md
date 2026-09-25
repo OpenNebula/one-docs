@@ -30,7 +30,7 @@ For supported deployments, hypervisor nodes in the same Cluster must run the sam
 | Rocky Linux              | 9, 10                                      | [Front-end Installation]({{% relref "frontend_install" %}}).<br/>Available through Red Hat packages.                 |
 | Ubuntu Server            | 24.04 (LTS), 26.04 (LTS)                   | [Front-end Installation]({{% relref "frontend_install" %}})                                                     |
 | Debian                   | 12, 13                                     | [Front-end Installation]({{% relref "frontend_install" %}})  |
-| SUSE Linux Enterprise    | 15                                         | [Front-end Installation]({{% relref "frontend_install" %}})                                                     |
+| SUSE Linux Enterprise    | 16                                         | [Front-end Installation]({{% relref "frontend_install" %}})                                                     |
 | openSUSE                 | 16                                         | [Front-end Installation]({{% relref "frontend_install" %}})                                                     |
 | MariaDB or MySQL         | Version included in the Linux distribution | [MySQL Setup]({{% relref "software/installation_process/frontend_installation/database#mysql" %}})              |
 | SQLite                   | Version included in the Linux distribution | Default DB, no configuration needed                                                                             |
@@ -47,7 +47,7 @@ Support for nodes’ operating system ensures that the latest two LTS releases f
 | Rocky Linux              | 9, 10                                                                                                      | [KVM Driver]({{% relref "../../../product/operation_references/hypervisor_configuration/kvm_driver#kvmg" %}}).<br/>Available through Red Hat packages. |
 | Ubuntu Server            | 24.04 (LTS), 26.04 (LTS)                                                                                   | [KVM Driver]({{% relref "../../../product/operation_references/hypervisor_configuration/kvm_driver#kvmg" %}})                           |
 | Debian                   | 12, 13                                                                                                     | [KVM Driver]({{% relref "../../../product/operation_references/hypervisor_configuration/kvm_driver#kvmg" %}})                           |
-| SUSE Linux Enterprise    | 15                                                                                                         | [KVM Driver]({{% relref "../../../product/operation_references/hypervisor_configuration/kvm_driver#kvmg" %}})                           |
+| SUSE Linux Enterprise    | 16                                                                                                         | [KVM Driver]({{% relref "../../../product/operation_references/hypervisor_configuration/kvm_driver#kvmg" %}})                           |
 | openSUSE                 | 16                                                                                                         | [KVM Driver]({{% relref "../../../product/operation_references/hypervisor_configuration/kvm_driver#kvmg" %}})                           |
 | KVM/Libvirt              | Support for version included in the Linux distribution.                                                    | [KVM Node Installation]({{% relref "kvm_node_installation#kvm-node" %}}) |
 
