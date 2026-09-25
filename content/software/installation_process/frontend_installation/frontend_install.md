@@ -81,7 +81,7 @@ Available packages for OpenNebula clients, the Front-end and hypervisor nodes:
 | **opennebula-common**                                                                                    | Shared content for OpenNebula packages                                                                                                               |
 | **opennebula-common-onecfg**                                                                             | Helpers for [Configuration Management]({{% relref "software/upgrade_process/configuration_management_ee/" %}}) tool                                     |
 | rpm: **opennebula-java** <br/><br/>deb: **libopennebula-java** <br/><br/>deb: **libopennebula-java-doc** | [Java OCA]({{% relref "/product/integration_references/system_interfaces/java#java" %}}) Bindings                                            |
-| **python3-pyone**                                                                                        | [Python 3 OCA]({{% relref "/product/integration_references/system_interfaces/python#python" %}}) Bindings                                    |
+| **python3-pyone** <br/><br/> SLES/openSUSE: **python313-pyone**                                          | [Python 3 OCA]({{% relref "/product/integration_references/system_interfaces/python#python" %}}) Bindings                                    |
 
 There are also packages with debugging symbols for some platforms, e.g., `openenbula-debuginfo` on AlmaLinux/RHEL and `opennebula-dbgsym` on Debian/Ubuntu. Other architecture-specific components might come with similarly named packages, please check your packaging database if necessary.
 
