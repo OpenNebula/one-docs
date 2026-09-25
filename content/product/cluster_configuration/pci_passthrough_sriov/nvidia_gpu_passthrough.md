@@ -22,8 +22,8 @@ NVIDIA GPUs can be deployed in OpenNebula using one of the following deployment 
 | Deployment Model | Typical Platforms | VFIO Driver | Additional Configuration |
 | ----- | ----- | ----- | ----- |
 | Conventional PCI Passthrough | H100 PCIe, H100 SXM, H200, L40, L40S, RTX, A100 | `vfio-pci` | Standard PCI passthrough |
-| [NVIDIA vGPU / MIG-backed vGPU]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_mig_passthrough/" %}}) | A100, H100, H200, B200 | NVIDIA vGPU stack | NVIDIA vGPU or MIG-backed vGPU configuration |
-| [Grace Platform Virtualization]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_grace_platform/" %}}) | GH200, GB200 | `nvgrace_gpu_vfio_pci` | Grace-specific virtualization configuration |
+| [NVIDIA vGPU / MIG-backed vGPU]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_mig_passthrough/" %}}) | A100, H100, H200, B200, B300 | NVIDIA vGPU stack | NVIDIA vGPU or MIG-backed vGPU configuration |
+| [Grace Platform Virtualization]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_grace_platform/" %}}) | GH200, GB200, GB300 | `nvgrace_gpu_vfio_pci` | Grace-specific virtualization configuration |
 
 For **conventional PCI passthrough**, the NVIDIA driver is **not required** on the Host. The GPU is owned exclusively by the guest operating system, where the NVIDIA driver is installed after deployment.
 
