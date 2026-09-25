@@ -34,6 +34,7 @@ Include a high-level description and a link to the documentation explaining the 
 * Add support for [OneKS deployments in air-gapped environments]({{% relref "platform_services/oneks/management/configuration/#air-gapped-environments" %}}) by allowing appliance auto-import to be disabled and manually imported appliances to be discovered [#7984](https://github.com/OpenNebula/one/issues/7984).
 * Extend [PCI network Physical Function (PF) control]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces#legacy-and-switchdev-modes" %}}) to support PF flags in switchdev mode [#7679](https://github.com/OpenNebula/one/issues/7679).
 * Bring up network [Physical Functions when using Virtual Functions]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces#physical-functions-and-virtual-functions" %}}) as PCI network interfaces, regardless of the SR-IOV mode [#7679](https://github.com/OpenNebula/one/issues/7679).
+* Add OpenNebula packages for [SUSE Linux Enterprise Server 16]({{% relref "software/installation_process/frontend_installation/opennebula_repository_configuration_ce/#suse" %}}), which replaces SUSE Linux Enterprise Server 15 as a supported platform (see [Platform Notes]({{% relref "platform_notes" %}})).
 
 ## Resolved Issues
 
