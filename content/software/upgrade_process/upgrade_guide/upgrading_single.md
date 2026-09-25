@@ -86,8 +86,8 @@ zypper refresh
 zypper update opennebula opennebula-gate opennebula-flow opennebula-fireedge opennebula-form opennebula-guacd opennebula-migration python313-pyone
 ```
 
-{{< alert title="Warning" type="warning" >}}
-The Python bindings package is named after the Python version of the distribution: use `python313-pyone` on openSUSE 16 and `python311-pyone` on SLES 15. {{< /alert >}}
+{{< alert title="Note" type="info" >}}
+On SLES/openSUSE the Python bindings package is named after the Python version of the distribution, `python313-pyone`. {{< /alert >}}
 
 ### Step 7. Update Configuration Files
 
