@@ -265,7 +265,7 @@ From this file, OneForm automatically generates the following structure in the P
   "name": "MyCloud",
   "description": "MyCloud Infrastructure Provider",
   "version": "1.0",
-  "cloud_provider": "mycloud",
+  "driver": "mycloud",
   "connection": {
     "api_key": "$api_key",
     "region": "$region"
@@ -398,16 +398,18 @@ Below you have the recommended configuration:
 
 ```default
 [defaults]
-interpreter_python = /usr/bin/python3
-library    = ./roles
-roles_path = ./roles
+interpreter_python = auto
 inventory_plugins  = /usr/share/one/ansible/plugins/inventory
-collections_path   = /usr/share/one/one-deploy
-callback_whitelist = profile_tasks
-display_skipped_hosts = False
-retry_files_enabled   = False
-host_key_checking     = False
-allow_world_readable_tmpfiles = True
+roles_path         = /usr/share/one/one-deploy/roles:/usr/share/one/one-deploy/vendor/ceph-ansible/roles/
+collections_path   = /usr/share/one/one-deploy/ansible_collections/
+callbacks_enabled  = profile_tasks
+display_skipped_hosts = false
+retry_files_enabled   = false
+host_key_checking     = false
+allow_world_readable_tmpfiles = true
+
+[inventory]
+host_pattern_mismatch = ignore
 
 [privilege_escalation]
 become = True
@@ -474,11 +476,9 @@ These values are then injected into the Jinja2 inventory template defined in the
 
 To enable this mechanism, you must declare a basic inventory source using the plugin:
 
-````yaml
-
 ```yaml
 plugin: opennebula_form
-````
+```
 
 ### Jinja2 templates
 
@@ -562,7 +562,7 @@ all:
           phydev: enp125s0
           vn_mad: vxlan
           vxlan_mode: evpn
-          vlan_id: automatic
+          automatic_vlan_id: "yes"
           dns: 8.8.8.8
           gateway: 192.168.0.1
           ip_link_conf: nolearning=
@@ -653,7 +653,7 @@ In addition to Terraform and Ansible logic, drivers include optional support for
 - **Elastic driver**: automates the request and release of public IP addresses from the cloud provider. This is useful for services that require access from the internet.
 - **IPAM driver**: manages internal IP address allocation and ensures each VM receives a valid and unique IP during provisioning.
 
-Both components are fully supported by OneForm and integrated into the networking phase. For detailed information on how to implement and configure them, refer to the dedicated [Elastic and IPAM Drivers section]().
+Both components are fully supported by OneForm and integrated into the networking phase. For detailed information on how to implement and configure them, refer to the dedicated [Elastic and IPAM Drivers section]({{% relref "product/integration_references/infrastructure_drivers_development/devel-ipam/" %}}).
 
 Here is an example of how these drivers are added to the driver directory:
 
