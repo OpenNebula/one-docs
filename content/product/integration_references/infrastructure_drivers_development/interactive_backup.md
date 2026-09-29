@@ -60,6 +60,10 @@ Make sure that:
 - OpenNebula remotes are synchronized after changing the OneBEX configuration.
 - The standard OpenNebula Front-end to Host connectivity is working.
 
+{{< alert title="Network Security" type="warning" >}}
+OneBEX uses HTTP by default. Integrations can provide TLS in front of OneBEX. For example, with Veeam see [Configuring SSL in the Hosts]({{% relref "../../../product/cluster_configuration/backup_system/veeam.md#41-configuring-ssl-in-the-hosts" %}}). Restrict the OneBEX port to the Front-end and external backup system networks because it carries raw VM disk data while backups are running.
+{{< /alert >}}
+
 ## Configuring OneBEX
 
 OneBEX is configured from the OpenNebula remotes directory on the Front-end:
@@ -137,6 +141,10 @@ onebex://<IMAGE_DS_ID>:<PORT_ID>
 ```
 
 `IMAGE_DS_ID` is the destination Image Datastore ID where the restored disk image will be created. `PORT_ID` is the restore transfer port allocated for the interactive restore session.
+
+{{< alert title="Network Security" type="warning" >}}
+By default, the restore writer listens on all interfaces (`0.0.0.0`). Set the `ONE_BEX_WRITER_ADDR` environment variable in the Front-end to make it listen on a specific address. Restrict the restore transfer ports at the firewall to the integration components that send restore data because the writer accepts raw image data without authentication or encryption.
+{{< /alert >}}
 
 The writer accepts one frame per TCP connection. Each frame starts with a one-byte type:
 
