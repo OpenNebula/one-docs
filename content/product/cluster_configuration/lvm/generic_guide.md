@@ -5,109 +5,301 @@ weight: "4"
 ---
 
 
-### Hosts SAN Configuration
+This guide describes how to configure a generic SAN-backed LVM datastore for OpenNebula.
 
-The abstraction required to access LUNs consists of block devices. This means that there are several ways to set them up, although it usually involves using a network block protocol such as iSCSI or Fibre Channel, as well as some form of path redundancy, such as DM Multipath.
+<a id="hosts-san-configuration"></a>
 
-Hypervisor hosts acting as SCSI initiators must be configured according to the storage vendor's documentation and recommended best practices. The exact implementation may vary depending on the storage platform, access protocol (iSCSI or Fibre Channel), and multipathing requirements. Vendor-specific guidance should always take precedence over generic operating system configuration procedures.
+## Hosts SAN Configuration
 
-The following example illustrates a generic iSCSI and DM Multipath configuration on Linux hosts and is provided for reference purposes only.
+The LUNs used by the LVM datastore must be exposed as block devices to all hypervisor Hosts using the datastore. They can be accessed using iSCSI or Fibre Channel, with DM Multipath providing path redundancy when multiple paths to the storage are available.
 
+The storage system, iSCSI targets or Fibre Channel fabric, and LUN mappings must be configured according to the storage vendor's documentation. The following sections describe the Host-side configuration for iSCSI, Fibre Channel, and DM Multipath.
+
+#### Install the SCSI Utilities
+
+The SCSI utilities are used to inspect discovered LUNs and re-scan the SCSI buses. Install them on all hypervisor Hosts that access the SAN.
+
+{{< tabpane text=true right=false >}}
+{{% tab header="**OS**:" disabled=true /%}}
+
+{{% tab header="RHEL / AlmaLinux"%}}
+```shell
+dnf install -y sg3_utils
 ```
-# === ISCSI ===
+{{% /tab %}}
+{{% tab header="Debian / Ubuntu"%}}
+```shell
+apt update
+apt install -y sg3-utils
+```
+{{% /tab %}}
+{{% tab header="SUSE / openSUSE"%}}
+```shell
+zypper install -y sg3_utils
+```
+{{% /tab %}}
+{{< /tabpane >}}
 
-TARGET_IP="192.168.1.100"                             # IP of SAN appliance
-TARGET_IQN="iqn.2023-01.com.example:storage.target1"  # iSCSI Qualified Name
+### iSCSI
 
-# === Install tools ===
-# RedHat derivates:
-sudo dnf install -y iscsi-initiator-utils
-# Ubuntu/Debian:
-sudo apt update && sudo apt install -y open-iscsi
-# SLES/openSUSE:
-sudo zypper install -y open-iscsi
+When iSCSI is used to provide access to the SAN, each OpenNebula Host must have an iSCSI initiator configured and network connectivity to the storage targets.
 
-# === Enable iSCSI services ===
-# RedHat derivates:
-sudo systemctl enable --now iscsid
-# Ubuntu/Debian:
-sudo systemctl enable --now open-iscsi
-# SLES/openSUSE:
-sudo systemctl enable --now iscsid.socket iscsi
+Before configuring the iSCSI initiator, ensure that:
 
-# === Discover targets ===
-sudo iscsiadm -m discovery -t sendtargets -p "$TARGET_IP"
+- The iSCSI target is configured on the storage system.
+- The required LUNs are mapped to the corresponding iSCSI initiators.
+- All OpenNebula Hosts that need access to the datastore can access the same LUNs.
+- Network connectivity between the OpenNebula Hosts and the iSCSI target is available.
+- For redundant configurations, multiple paths to the storage are available.
 
-# === Log in to the target ===
-sudo iscsiadm -m node -T "$TARGET_IQN" -p "$TARGET_IP" --login
+####  Install the iSCSI Initiator Tools
 
-# === Make login persistent across reboots ===
-sudo iscsiadm -m node -T "$TARGET_IQN" -p "$TARGET_IP" \
-     --op update -n node.startup -v automatic
+{{< tabpane text=true right=false >}}
+{{% tab header="**OS**:" disabled=true /%}}
+
+{{% tab header="RHEL / AlmaLinux"%}}
+On RHEL and AlmaLinux, the iSCSI initiator tools are provided by the `iscsi-initiator-utils` package:
+
+```shell 
+dnf install iscsi-initiator-utils
+```
+{{% /tab %}}
+{{% tab header="Debian / Ubuntu"%}}
+On Debian and Ubuntu, the iSCSI initiator tools are provided by the `open-iscsi` package:
+
+```shell
+apt update
+apt install open-iscsi
+```
+{{% /tab %}}
+{{% tab header="SUSE / openSUSE"%}}
+On SUSE and openSUSE, install the iSCSI initiator tools with:
+
+```shell
+zypper install open-iscsi
+```
+{{% /tab %}}
+{{< /tabpane >}}
+
+#### Configure the iSCSI Initiator
+
+Enable and start the `iscsid` service:
+
+```shell
+systemctl enable --now iscsid
 ```
 
+The initiator IQN may be required when configuring LUN mapping or access control on the storage system.
+
+The iSCSI initiator name assigned to the Host can be inspected in `/etc/iscsi/initiatorname.iscsi`.
+
+Discover the iSCSI targets available on the storage system:
+
+```shell
+iscsiadm -m discovery -t sendtargets -p <TARGET_IP>
 ```
-# === MULTIPATH ===
 
-# === Install tools ===
-# RedHat derivates:
-sudo dnf install -y device-mapper-multipath
-# Ubuntu/Debian:
-sudo apt update && sudo apt install -y multipath-tools
-# SLES/openSUSE:
-sudo zypper install -y multipath-tools
+The discovery operation creates node records for the targets returned by the storage system. The configured nodes can be listed with:
 
-# === Enable multipath daemon ===
-sudo systemctl enable --now multipathd
+```shell
+iscsiadm -m node
+```
 
-# === Create multipath config file ===
-sudo tee /etc/multipath.conf > /dev/null <<EOF
+Log in to the required iSCSI target:
+
+```shell
+iscsiadm -m node -T <TARGET_IQN> -p <TARGET_IP> --login
+```
+
+If the same target is accessible through multiple storage interfaces, repeat the discovery and login process for each required path.
+
+Verify the active iSCSI sessions:
+
+```shell
+iscsiadm -m session
+```
+
+Configure the target to be automatically connected after the Host reboots:
+
+```shell
+iscsiadm -m node -T <TARGET_IQN> -p <TARGET_IP> --op update -n node.startup -v automatic
+```
+
+If the target is accessed through multiple storage interfaces, repeat this configuration for each required target portal.
+
+After logging in to the target, the LUNs mapped to the initiator should be detected by the Linux SCSI subsystem and exposed as block devices.
+
+Verify that the SAN LUNs are visible:
+
+```shell
+lsblk
+```
+The detected SCSI devices can also be inspected with:
+
+```shell
+lsscsi
+```
+
+If new LUNs are presented to an already connected Host, or the expected LUNs are not detected automatically, re-scan the SCSI buses to discover new devices.
+
+```shell
+rescan-scsi-bus.sh
+```
+
+### Fibre Channel
+
+When Fibre Channel is used to provide access to the SAN, each OpenNebula Host must have one or more Fibre Channel HBAs configured and connected to the SAN fabric.
+
+Before configuring the operating system, ensure that:
+
+- The Fibre Channel HBAs are detected by the operating system.
+- The required zoning is configured on the Fibre Channel switches.
+- The SAN LUNs are mapped to the WWPNs of the corresponding OpenNebula Hypervisors.
+- All Hosts that need access to the datastore can access the same LUNs.
+- For redundant configurations, multiple independent paths to the storage are available.
+
+The exact zoning, LUN mapping, and HBA configuration depends on the SAN and Fibre Channel infrastructure. Refer to the storage and Fibre Channel switch vendor documentation for the recommended configuration.
+
+Check the Fibre Channel HBA ports available on the Host:
+
+```shell
+ls /sys/class/fc_host/
+```
+
+The WWPNs of the Fibre Channel HBA ports can be obtained with:
+
+```shell
+cat /sys/class/fc_host/host*/port_name
+```
+
+Check the state of the Fibre Channel ports:
+
+```shell
+cat /sys/class/fc_host/host*/port_state
+```
+
+Verify that the SAN LUNs are visible:
+
+```shell
+lsblk
+```
+
+The discovered SCSI devices can also be verified with:
+
+```shell
+lsscsi
+```
+
+If new LUNs are presented to an already connected Host, or the expected LUNs are not detected automatically, re-scan the SCSI buses to discover new devices.
+
+```shell
+rescan-scsi-bus.sh
+```
+
+### DM Multipath
+
+DM Multipath provides path redundancy by combining multiple paths to the same SAN LUN into a single block device. It should be configured on all hypervisor Hosts that have multiple paths to the storage.
+
+The exact Multipath configuration depends on the storage system. Refer to the storage vendor's documentation for the recommended configuration and device-specific settings.
+
+#### Install the Multipath Tools
+
+{{< tabpane text=true right=false >}}
+{{% tab header="**OS**:" disabled=true /%}}
+
+{{% tab header="RHEL / AlmaLinux"%}}
+```shell
+dnf install -y device-mapper-multipath
+```
+{{% /tab %}}
+{{% tab header="Debian / Ubuntu"%}}
+```shell
+apt update
+apt install -y multipath-tools
+```
+{{% /tab %}}
+{{% tab header="SUSE / openSUSE"%}}
+```shell
+zypper install -y multipath-tools
+```
+{{% /tab %}}
+{{< /tabpane >}}
+
+#### Configure DM Multipath
+
+Enable and start the `multipathd` service:
+
+```shell
+systemctl enable --now multipathd
+```
+
+Create `/etc/multipath.conf` with the basic Multipath configuration:
+
+```text
 defaults {
     user_friendly_names yes
     find_multipaths yes
 }
-# Optional: blacklist local boot disks if needed
-# blacklist {
-#     devnode "^sd[a-z]"
-# }
-EOF
-
-# === Reload multipath ===
-sudo multipath -F    # Flush existing config (safely if not in use)
-sudo multipath       # Re-scan for multipath devices
-sudo systemctl restart multipathd
-
-# === Show current multipath devices ===
-sudo multipath -ll
 ```
+
+Restart `multipathd` to apply the configuration:
+
+```shell
+systemctl restart multipathd
+```
+
+Verify the detected Multipath devices and their paths:
+
+```shell
+multipath -ll
+```
+
+For example, a LUN available through multiple paths should be represented
+by a single Multipath device:
+
+```text
+mpatha (360000000000000000000000000000001) dm-2 VENDOR,MODEL
+size=1.0T features='1 queue_if_no_path' hwhandler='0' wp=rw
+`-+- policy='service-time 0' prio=1 status=active
+  |- 2:0:0:1 sdb 8:16 active ready running
+  `- 3:0:0:1 sdc 8:32 active ready running
+```
+
+The resulting Multipath device is available under `/dev/mapper/`, for example `/dev/mapper/mpatha`. Use the Multipath device for the LVM configuration instead of an individual SCSI path such as `/dev/sdb` or `/dev/sdc`.
 
 <a id="frontend-configuration"></a>
 
 ## Front-end Configuration
 
-The Front-end needs access to the shared SAN server in order to perform LVM operations. It can
-either access it directly, or using some host(s) as proxy/bridge.
+The Front-end needs access to the shared SAN storage to perform LVM operations. It can either access the SAN directly or use one or more hypervisor Hosts as SAN proxies.
 
-For direct access, **the Front-end will need to be configured in the same way as hosts**, and no
-further configuration will be needed. Example for illustration purposes:
+For direct access, the Front-end must be configured in the same way as the hypervisor Hosts. For iSCSI storage, it must have connectivity to the iSCSI target and be configured as an iSCSI initiator. For Fibre Channel storage, it must have Fibre Channel connectivity to the SAN, and the required LUNs must be presented to the WWPNs of its Fibre Channel HBA ports.
 
-```
+When DM Multipath is used, it must also be configured on the Front-end so that the SAN LUNs are available as Multipath devices. No additional OpenNebula configuration is required for direct SAN access.
+
+Example for illustration purposes:
+
+```text
 -------------
 | Front-end | ---- /dev/mapper/mpath* ------+
--------------     (iSCSI + multipath)       |
-                                            |
-                                            v
-  ---------                              --------------
-  | host2 | ---- /dev/mapper/mpath* ---> | SAN server |
-  ---------     (iSCSI + multipath)      --------------
-                                            ^
-                                            |
-  ---------                                 |
-  | hostN | ---- /dev/mapper/mpath* --------+
-  ---------     (iSCSI + multipath)
+-------------
+                (iSCSI/FC + Multipath)       |
+                                             |
+                                             v
+---------                                ---------------
+| host2 | ---- /dev/mapper/mpath* -----> | SAN  Target |
+---------       (iSCSI/FC + Multipath)   ---------------
+                                             ^
+                                             |
+---------                                    |
+| hostN | ---- /dev/mapper/mpath* -----------+
+---------
+                (iSCSI/FC + Multipath)
 ```
 
-Alternatively, delegate front-end SAN operations to one or more specific hosts by setting the `BRIDGE_LIST` attribute in both the System and Image datastores. The front-end refers to one of the hosts in the list to proxy SAN operations. Only a reduced set of operations are initiated in the front-end, such as the ones intended for undeployed VMs.
+If direct SAN connectivity cannot be provided to the Front-end, set the `BRIDGE_LIST` attribute in both the System and Image datastores to specify one or more hypervisor Hosts that will act as SAN proxies.
+
+This configuration is particularly useful with Fibre Channel storage when the Front-end does not have an FC HBA or cannot be connected to the Fibre Channel fabric. The Hosts specified in `BRIDGE_LIST` must have access to the SAN and be configured with the corresponding iSCSI or Fibre Channel connectivity and, when multiple paths are available, DM Multipath.
 
 ## Troubleshooting
 
@@ -131,11 +323,11 @@ If it returns `devices/use_devicesfile=1`, then the devices file is being used a
 case, just add the device path to the whitelist and check again:
 
 ```
-# echo /dev/mapper/mpatha >> /etc/lvm/devices/system.devices
-# pvs
+lvmdevices --adddev /dev/mapper/mpatha
+pvs
 ```
 
-### Pool becomes full after live datastore migration
+### Pool Becomes Full After Live Datastore Migration
 
 **Problem:** After a live datastore migration between two `fs_lvm_ssh` datastores with `LVM_THIN_ENABLE=yes` the disk now shows full:
 
