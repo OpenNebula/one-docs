@@ -15,6 +15,29 @@ The LUNs used by the LVM datastore must be exposed as block devices to all hyper
 
 The storage system, iSCSI targets or Fibre Channel fabric, and LUN mappings must be configured according to the storage vendor's documentation. The following sections describe the host-side configuration for iSCSI, Fibre Channel, and DM Multipath.
 
+#### Install the SCSI Utilities
+
+The SCSI utilities are used to inspect discovered LUNs and rescan the SCSI buses. Install them on all hypervisor hosts that access the SAN.
+
+##### RHEL/AlmaLinux
+
+```bash
+dnf install -y sg3_utils
+```
+
+##### Debian/Ubuntu
+
+```bash
+apt update
+apt install -y sg3-utils
+```
+
+##### SUSE/openSUSE
+
+```bash
+zypper install -y sg3_utils
+```
+
 ### iSCSI
 
 When iSCSI is used to provide access to the SAN, each OpenNebula Host must have an iSCSI initiator configured and network connectivity to the storage targets.
@@ -34,7 +57,7 @@ Before configuring the iSCSI initiator, ensure that:
 On RHEL and AlmaLinux, the iSCSI initiator tools are provided by the `iscsi-initiator-utils` package:
 
 ```bash 
-dnf install iscsi-initiator-utils sg3-utils
+dnf install iscsi-initiator-utils
 ```
 
 ##### Debian/Ubuntu
@@ -43,7 +66,7 @@ On Debian and Ubuntu, the iSCSI initiator tools are provided by the `open-iscsi`
 
 ```bash
 apt update
-apt install open-iscsi sg3-utils
+apt install open-iscsi
 ```
 
 ##### SUSE/openSUSE
@@ -51,7 +74,7 @@ apt install open-iscsi sg3-utils
 On SUSE and openSUSE, install the iSCSI initiator tools with:
 
 ```bash
-zypper install open-iscsi sg3_utils
+zypper install open-iscsi
 ```
 
 #### Configure the iSCSI Initiator
@@ -62,7 +85,7 @@ Enable and start the `iscsid` service:
 systemctl enable --now iscsid
 ```
 
-The initiator IQN required when configuring LUN mapping or access control on the storage system.
+The initiator IQN may be required when configuring LUN mapping or access control on the storage system.
 
 The iSCSI initiator name assigned to the Host can be checked in `/etc/iscsi/initiatorname.iscsi`.
 
@@ -97,6 +120,8 @@ Configure the target to be automatically connected after the Host reboots:
 ```bash
 iscsiadm -m node -T <TARGET_IQN> -p <TARGET_IP> --op update -n node.startup -v automatic
 ```
+
+If the target is accessed through multiple storage interfaces, repeat this configuration for each required target portal.
 
 After logging in to the target, the LUNs mapped to the initiator should be detected by the Linux SCSI subsystem and exposed as block devices.
 
@@ -154,7 +179,7 @@ Verify that the SAN LUNs are visible:
 lsblk
 ```
 
-If `lsscsi` is installed, the discovered SCSI devices can also be verified with:
+The discovered SCSI devices can also be verified with:
 
 ```bash
 lsscsi
@@ -180,7 +205,7 @@ The exact Multipath configuration depends on the storage system. Refer to the st
 dnf install -y device-mapper-multipath
 ```
 
-#### Debian/Ubuntu
+##### Debian/Ubuntu
 
 ```bash
 apt update
@@ -267,7 +292,7 @@ Example for illustration purposes:
 
 If direct SAN connectivity cannot be provided to the Front-end, set the `BRIDGE_LIST` attribute in both the System and Image datastores to specify one or more hypervisor hosts that will act as SAN proxies.
 
-This configuration is particularly useful with Fibre Channel storage when the Front-end does not have an FC HBA or cannot be connected to the Fibre Channel fabric. The hosts specified in `BRIDGE_LIST` must have access to the SAN and be configured with the corresponding iSCSI or Fibre Channel connectivity and DM Multipath configuration.
+This configuration is particularly useful with Fibre Channel storage when the Front-end does not have an FC HBA or cannot be connected to the Fibre Channel fabric. The hosts specified in `BRIDGE_LIST` must have access to the SAN and be configured with the corresponding iSCSI or Fibre Channel connectivity and, when multiple paths are available, DM Multipath.
 
 ## Troubleshooting
 
@@ -291,8 +316,8 @@ If it returns `devices/use_devicesfile=1`, then the devices file is being used a
 case, just add the device path to the whitelist and check again:
 
 ```
-# echo /dev/mapper/mpatha >> /etc/lvm/devices/system.devices
-# pvs
+lvmdevices --adddev /dev/mapper/mpatha
+pvs
 ```
 
 ### Pool becomes full after live datastore migration
