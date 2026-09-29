@@ -64,7 +64,7 @@ systemctl enable --now iscsid
 
 The initiator IQN required when configuring LUN mapping or access control on the storage system.
 
-The iSCSI initiator name assigned to the Host can be checked in `/etc/iscsi/initiatorname.iscsi`:
+The iSCSI initiator name assigned to the Host can be checked in `/etc/iscsi/initiatorname.iscsi`.
 
 Discover the iSCSI targets available on the storage system:
 
