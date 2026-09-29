@@ -11,32 +11,34 @@ This guide describes how to configure a generic SAN-backed LVM datastore for Ope
 
 ## Hosts SAN Configuration
 
-The LUNs used by the LVM datastore must be exposed as block devices to all hypervisor hosts using the datastore. They can be accessed using iSCSI or Fibre Channel, with DM Multipath providing path redundancy when multiple paths to the storage are available.
+The LUNs used by the LVM datastore must be exposed as block devices to all hypervisor Hosts using the datastore. They can be accessed using iSCSI or Fibre Channel, with DM Multipath providing path redundancy when multiple paths to the storage are available.
 
-The storage system, iSCSI targets or Fibre Channel fabric, and LUN mappings must be configured according to the storage vendor's documentation. The following sections describe the host-side configuration for iSCSI, Fibre Channel, and DM Multipath.
+The storage system, iSCSI targets or Fibre Channel fabric, and LUN mappings must be configured according to the storage vendor's documentation. The following sections describe the Host-side configuration for iSCSI, Fibre Channel, and DM Multipath.
 
 #### Install the SCSI Utilities
 
-The SCSI utilities are used to inspect discovered LUNs and rescan the SCSI buses. Install them on all hypervisor hosts that access the SAN.
+The SCSI utilities are used to inspect discovered LUNs and re-scan the SCSI buses. Install them on all hypervisor Hosts that access the SAN.
 
-##### RHEL/AlmaLinux
+{{< tabpane text=true right=false >}}
+{{% tab header="**OS**:" disabled=true /%}}
 
-```bash
+{{% tab header="RHEL / AlmaLinux"%}}
+```shell
 dnf install -y sg3_utils
 ```
-
-##### Debian/Ubuntu
-
-```bash
+{{% /tab %}}
+{{% tab header="Debian / Ubuntu"%}}
+```shell
 apt update
 apt install -y sg3-utils
 ```
-
-##### SUSE/openSUSE
-
-```bash
+{{% /tab %}}
+{{% tab header="SUSE / openSUSE"%}}
+```shell
 zypper install -y sg3_utils
 ```
+{{% /tab %}}
+{{< /tabpane >}}
 
 ### iSCSI
 
@@ -48,62 +50,64 @@ Before configuring the iSCSI initiator, ensure that:
 - The required LUNs are mapped to the corresponding iSCSI initiators.
 - All OpenNebula Hosts that need access to the datastore can access the same LUNs.
 - Network connectivity between the OpenNebula Hosts and the iSCSI target is available.
-- For redundant configurations, multiple paths to the storage are  available.
+- For redundant configurations, multiple paths to the storage are available.
 
-####  Install the iSCSI initiator tools.
+####  Install the iSCSI Initiator Tools
 
-##### RHEL/AlmaLinux
+{{< tabpane text=true right=false >}}
+{{% tab header="**OS**:" disabled=true /%}}
 
+{{% tab header="RHEL / AlmaLinux"%}}
 On RHEL and AlmaLinux, the iSCSI initiator tools are provided by the `iscsi-initiator-utils` package:
 
-```bash 
+```shell 
 dnf install iscsi-initiator-utils
 ```
-
-##### Debian/Ubuntu
-
+{{% /tab %}}
+{{% tab header="Debian / Ubuntu"%}}
 On Debian and Ubuntu, the iSCSI initiator tools are provided by the `open-iscsi` package:
 
-```bash
+```shell
 apt update
 apt install open-iscsi
 ```
-
-##### SUSE/openSUSE
-
+{{% /tab %}}
+{{% tab header="SUSE / openSUSE"%}}
 On SUSE and openSUSE, install the iSCSI initiator tools with:
 
-```bash
+```shell
 zypper install open-iscsi
 ```
+{{% /tab %}}
+{{< /tabpane >}}
 
 #### Configure the iSCSI Initiator
 
 Enable and start the `iscsid` service:
 
-```bash
+```shell
 systemctl enable --now iscsid
 ```
 
 The initiator IQN may be required when configuring LUN mapping or access control on the storage system.
 
-The iSCSI initiator name assigned to the Host can be checked in `/etc/iscsi/initiatorname.iscsi`.
+The iSCSI initiator name assigned to the Host can be inspected in `/etc/iscsi/initiatorname.iscsi`.
 
 Discover the iSCSI targets available on the storage system:
 
-```bash
+```shell
 iscsiadm -m discovery -t sendtargets -p <TARGET_IP>
 ```
 
 The discovery operation creates node records for the targets returned by the storage system. The configured nodes can be listed with:
 
-```bash
+```shell
 iscsiadm -m node
 ```
 
 Log in to the required iSCSI target:
 
-```bash
+```shell
 iscsiadm -m node -T <TARGET_IQN> -p <TARGET_IP> --login
 ```
 
@@ -111,13 +115,13 @@ If the same target is accessible through multiple storage interfaces, repeat the
 
 Verify the active iSCSI sessions:
 
-```bash
+```shell
 iscsiadm -m session
 ```
 
 Configure the target to be automatically connected after the Host reboots:
 
-```bash
+```shell
 iscsiadm -m node -T <TARGET_IQN> -p <TARGET_IP> --op update -n node.startup -v automatic
 ```
 
@@ -127,18 +131,18 @@ After logging in to the target, the LUNs mapped to the initiator should be detec
 
 Verify that the SAN LUNs are visible:
 
-```bash
+```shell
 lsblk
 ```
 The detected SCSI devices can also be inspected with:
 
-```bash
+```shell
 lsscsi
 ```
 
-If new LUNs are presented to an already connected Host, or the expected LUNs are not detected automatically, rescan the SCSI buses to discover new devices.
+If new LUNs are presented to an already connected Host, or the expected LUNs are not detected automatically, re-scan the SCSI buses to discover new devices.
 
-```bash
+```shell
 rescan-scsi-bus.sh
 ```
 
@@ -157,72 +161,75 @@ Before configuring the operating system, ensure that:
 The exact zoning, LUN mapping, and HBA configuration depends on the SAN and Fibre Channel infrastructure. Refer to the storage and Fibre Channel switch vendor documentation for the recommended configuration.
 
 Check the Fibre Channel HBA ports available on the Host:
-```bash
+
+```shell
 ls /sys/class/fc_host/
 ```
 
 The WWPNs of the Fibre Channel HBA ports can be obtained with:
 
-```bash
+```shell
 cat /sys/class/fc_host/host*/port_name
 ```
 
 Check the state of the Fibre Channel ports:
 
-```bash
+```shell
 cat /sys/class/fc_host/host*/port_state
 ```
 
 Verify that the SAN LUNs are visible:
 
-```bash
+```shell
 lsblk
 ```
 
 The discovered SCSI devices can also be verified with:
 
-```bash
+```shell
 lsscsi
 ```
 
-If new LUNs are presented to an already connected Host, or the expected LUNs are not detected automatically, rescan the SCSI buses to discover new devices.
+If new LUNs are presented to an already connected Host, or the expected LUNs are not detected automatically, re-scan the SCSI buses to discover new devices.
 
-```bash
+```shell
 rescan-scsi-bus.sh
 ```
 
 ### DM Multipath
 
-DM Multipath provides path redundancy by combining multiple paths to the same SAN LUN into a single block device. It should be configured on all hypervisor hosts that have multiple paths to the storage.
+DM Multipath provides path redundancy by combining multiple paths to the same SAN LUN into a single block device. It should be configured on all hypervisor Hosts that have multiple paths to the storage.
 
 The exact Multipath configuration depends on the storage system. Refer to the storage vendor's documentation for the recommended configuration and device-specific settings.
 
-#### Install the Multipath tools.
+#### Install the Multipath Tools
 
-##### RHEL/AlmaLinux
+{{< tabpane text=true right=false >}}
+{{% tab header="**OS**:" disabled=true /%}}
 
-```bash
+{{% tab header="RHEL / AlmaLinux"%}}
+```shell
 dnf install -y device-mapper-multipath
 ```
-
-##### Debian/Ubuntu
-
-```bash
+{{% /tab %}}
+{{% tab header="Debian / Ubuntu"%}}
+```shell
 apt update
 apt install -y multipath-tools
 ```
-
-##### SLES/openSUSE
-
-```bash
+{{% /tab %}}
+{{% tab header="SUSE / openSUSE"%}}
+```shell
 zypper install -y multipath-tools
 ```
+{{% /tab %}}
+{{< /tabpane >}}
 
 #### Configure DM Multipath
 
 Enable and start the `multipathd` service:
 
-```bash
+```shell
 systemctl enable --now multipathd
 ```
 
@@ -237,13 +244,13 @@ defaults {
 
 Restart `multipathd` to apply the configuration:
 
-```bash
+```shell
 systemctl restart multipathd
 ```
 
 Verify the detected Multipath devices and their paths:
 
-```bash
+```shell
 multipath -ll
 ```
 
@@ -264,9 +271,9 @@ The resulting Multipath device is available under `/dev/mapper/`, for example `/
 
 ## Front-end Configuration
 
-The Front-end needs access to the shared SAN storage to perform LVM operations. It can either access the SAN directly or use one or more hypervisor hosts as SAN proxies.
+The Front-end needs access to the shared SAN storage to perform LVM operations. It can either access the SAN directly or use one or more hypervisor Hosts as SAN proxies.
 
-For direct access, the Front-end must be configured in the same way as the hypervisor hosts. For iSCSI storage, it must have connectivity to the iSCSI target and be configured as an iSCSI initiator. For Fibre Channel storage, it must have Fibre Channel connectivity to the SAN, and the required LUNs must be presented to the WWPNs of its Fibre Channel HBA ports.
+For direct access, the Front-end must be configured in the same way as the hypervisor Hosts. For iSCSI storage, it must have connectivity to the iSCSI target and be configured as an iSCSI initiator. For Fibre Channel storage, it must have Fibre Channel connectivity to the SAN, and the required LUNs must be presented to the WWPNs of its Fibre Channel HBA ports.
 
 When DM Multipath is used, it must also be configured on the Front-end so that the SAN LUNs are available as Multipath devices. No additional OpenNebula configuration is required for direct SAN access.
 
@@ -290,9 +297,9 @@ Example for illustration purposes:
                 (iSCSI/FC + Multipath)
 ```
 
-If direct SAN connectivity cannot be provided to the Front-end, set the `BRIDGE_LIST` attribute in both the System and Image datastores to specify one or more hypervisor hosts that will act as SAN proxies.
+If direct SAN connectivity cannot be provided to the Front-end, set the `BRIDGE_LIST` attribute in both the System and Image datastores to specify one or more hypervisor Hosts that will act as SAN proxies.
 
-This configuration is particularly useful with Fibre Channel storage when the Front-end does not have an FC HBA or cannot be connected to the Fibre Channel fabric. The hosts specified in `BRIDGE_LIST` must have access to the SAN and be configured with the corresponding iSCSI or Fibre Channel connectivity and, when multiple paths are available, DM Multipath.
+This configuration is particularly useful with Fibre Channel storage when the Front-end does not have an FC HBA or cannot be connected to the Fibre Channel fabric. The Hosts specified in `BRIDGE_LIST` must have access to the SAN and be configured with the corresponding iSCSI or Fibre Channel connectivity and, when multiple paths are available, DM Multipath.
 
 ## Troubleshooting
 
@@ -320,7 +327,7 @@ lvmdevices --adddev /dev/mapper/mpatha
 pvs
 ```
 
-### Pool becomes full after live datastore migration
+### Pool Becomes Full After Live Datastore Migration
 
 **Problem:** After a live datastore migration between two `fs_lvm_ssh` datastores with `LVM_THIN_ENABLE=yes` the disk now shows full:
 
