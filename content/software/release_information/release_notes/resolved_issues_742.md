@@ -47,6 +47,20 @@ After upgrading to 7.4.2, check the following settings to enable the new Sunston
 
 Merge these settings into the existing YAML sections, preserving other settings and actions. Do not create duplicate `info-tabs` or `filters` keys.
 
+### Enable VM backup cancellation in Sunstone [#8069](https://github.com/OpenNebula/one/issues/8069)
+
+In `sunstone/views/admin/vm-tab.yaml`, `sunstone/views/groupadmin/vm-tab.yaml` and `sunstone/views/user/vm-tab.yaml`, add `backup-cancel: true` under `info-tabs.backup.actions`:
+
+```yaml
+info-tabs:
+  backup:
+    enabled: true
+    actions:
+      backup-cancel: true
+```
+
+The `admin` view already has an `actions` section for backups; add the new entry alongside its existing actions. In the `groupadmin` and `user` views, create the `actions` section under `backup` if it does not already exist. Restart FireEdge for the configuration changes to take effect.
+
 ### Update any item without having permissions to create it on yaml FireEdge views [#6416](https://github.com/OpenNebula/one/issues/6416)
 
 In `sunstone/tabs/40-networks-tab.yaml`, as part of `routes` attributes after the entry:
