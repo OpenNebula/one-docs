@@ -10,11 +10,13 @@ weight: "1"
 
 ## Overview
 
-StorPool is a distributed, software-defined block storage platform that transforms standard x86 servers into enterprise-grade shared storage. Native integration with OpenNebula enables full VM disk lifecycle management — provisioning, cloning, snapshots, live migration, and cleanup — with the performance, reliability, and operational simplicity that production clouds demand.
+[StorPool](https://storpool.com/) is a distributed, software-defined block storage platform that transforms standard x86 servers into enterprise-grade shared storage. Native integration with OpenNebula enables full VM disk lifecycle management — provisioning, cloning, snapshots, live migration, and cleanup — with the performance, reliability, and operational simplicity that production clouds demand.
 
 With StorPool, OpenNebula clouds gain storage that scales linearly, eliminates single points of failure, and delivers consistent sub-millisecond latency regardless of load — all managed through the familiar OpenNebula interface without manual storage operations.
 
-### Why StorPool \+ OpenNebula
+{{< alert title="Support" type="primary" >}}This integration is developed, maintained, and supported by StorPool. The integration software and its associated technical support are not covered by the OpenNebula Subscription. OpenNebula Support continues to cover OpenNebula components in accordance with the customer's OpenNebula Subscription. Please refer to the [support section]({{% relref "product/cluster_configuration/partner_supported_storage/storpool/#development-and-support" %}}) for further details about support for the StorPool integration.{{< /alert >}} 
+
+### Why StorPool + OpenNebula
 
 |       |       |
 | ----- | ----- |
@@ -23,7 +25,6 @@ With StorPool, OpenNebula clouds gain storage that scales linearly, eliminates s
 | **Proven Scale** | 13+ million IOPS demonstrated on production Clusters; linear scaling as you add nodes |
 | **Operational Simplicity** | In-service upgrades, online configuration changes, and automatic failure recovery |
 {.no-header}
-
 
 ## StorPool Capabilities
 
@@ -55,7 +56,7 @@ When you deploy StorPool with OpenNebula, your infrastructure benefits from the 
 * **Storage QoS** — Per-volume IOPS and bandwidth limits ensure SLA compliance  
 * **iSCSI and NVMe/TCP** — Connect systems that don't support the native StorPool driver
 
-[See all StorPool features](https://storpool.com/features)
+[**--> See all StorPool features**](https://storpool.com/features)
 
 ## OpenNebula Integration Features
 
@@ -83,7 +84,7 @@ When you deploy StorPool with OpenNebula, your infrastructure benefits from the 
 | VM disk snapshot limits | ✅ Optional | Disk snapshot limits with configurable thresholds. |
 |  |  |  |
 | Remote snapshot transfer | ✅ Optional | Optionally send a StorPool snapshot of VM disk or Image data to a secondary StorPool Cluster when deleted from OpenNebula (e.g., for regulatory compliance or law enforcement requirements). |
-| Domain XML deploy tweaks | ✅ Optional | Additional libvirt customizations via deploy scripts (for options not yet exposed in OpenNebula templates) [**--> StorPool Knowledge Base**](https://kb.storpool.com/storpool_integrations/OpenNebula/docs/deploy_tweaks.html) |
+| Domain XML deploy tweaks | ✅ Optional | Additional libvirt customizations via deploy scripts (for options not yet exposed in OpenNebula templates). [**--> StorPool Knowledge Base**](https://kb.storpool.com/storpool_integrations/OpenNebula/docs/deploy_tweaks.html) |
 | VM checkpoint on StorPool | ✅ Optional | Option to keep the VM checkpoint files on StorPool block devices. |
 | Atomic VM disk snapshots | ✅ Optional | Replace the default VM snapshot interface in OpenNebula  with a custom VM snapshot interface managable to do atomic disk snapshots. |
 
@@ -135,25 +136,15 @@ Example Image datastore:
 
 ```default
 NAME = "StorPool IMAGE"
-
 TYPE = "IMAGE_DS"
-
 DS_MAD = "storpool"
-
 TM_MAD = "storpool"
-
 DISK_TYPE = "block"
-
 BRIDGE_LIST = "node1 node2 node3"
-
 Example System datastore:
-
 NAME = "StorPool SYSTEM"
-
 TYPE = "SYSTEM_DS"
-
 TM_MAD = "storpool"
-
 BRIDGE_LIST = "node1 node2 node3"
 ```
 
