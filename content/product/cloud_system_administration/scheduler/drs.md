@@ -26,6 +26,8 @@ OpenNebula DRS employs an integer linear programming (ILP) solver to optimize Cl
 
 A VM might be migrated to another Host or another datastore, but can't change both Host and datastore simultaneously.
 
+Migration recommendations can be made for the VMs in the following [states]({{% relref "product/operation_references/configuration_references/vm_states#vm-states" %}}): `ACTIVE`/`RUNNING`, `SUSPENDED`, or `POWEROFF`. VMs in the `UNDEPLOYED` and `STOPPED` states are not considered. If the Cluster contains a VM in any other state, resource optimization is skipped.
+
 ## Configuration and Usage
 
 **To enable OneDRS**: In Sunstone, go to **Infrastructure -> Clusters**, select the relevant Cluster then click **Enable OneDRS** in the **OneDRS** tab. Alternatively, in the Cluster template set the `ONE_DRS` configuration attribute.
