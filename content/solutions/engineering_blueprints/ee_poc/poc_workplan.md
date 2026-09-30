@@ -60,29 +60,31 @@ Personnel who execute and operate the OpenNebula PoC are expected to possess the
 
 {{< image path="/images/ISO/poc_diagram.png" align="center" width="90%" mb="20px">}}
 
-### Request a Demo
+### 1. Request a Demo
 
 The first step is to request a live demo. Contact us by [filling the demonstration request form](https://opennebula.io/evaluate-opennebula/#request-demo) or by email at sales@opennebula.io.
 
-### Introduction and Information Gathering Call
+### 2. Information Gathering Call {#information-gathering-call}
 
-During this introductory call you communicate with OpenNebula's solution architects to discuss the details of your use case and then establish timescales and criteria required to successfully complete the PoC and transition to an OpenNebula Enterprise Edition annual subscription. 
+During this call you communicate with OpenNebula's solution architects to discuss the details of your use case and then establish timescales and criteria required to successfully complete the PoC and transition to an OpenNebula Enterprise Edition annual subscription.
+
+We will prepare a spreadsheet describing the success criteria to be used during the PoC. It will be based on the criteria in the [Success Criteria guide]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/" %}}) and will include any custom success criteria that are within the [scope of the PoC]({{% relref "solutions/engineering_blueprints/ee_poc/poc_overview/#is-running-an-opennebula-poc-for-me" %}}).
 
 Once we complete the initial arrangements, you will be contacted by an engineer to start the deployment if Option 1 is possible, or provided with a personalized, one-time link to download the ISO file prepared specifically for your deployment to perform Option 2.
 
-### Introductory Call
+### 3. Deployment Call
 
 On the PoC kick-off date the installation will proceed with the SSH and VPN credentials shared by the potential customer. If the ISO installation method is preferred, a one-hour call will be scheduled to discuss additional details on the ISO installation process. You will be able to complete the ISO installation during the call with the support of OpenNebula Engineers, following the [ISO-based deployment guide]({{% relref "solutions/engineering_blueprints/ee_poc/ee_poc_iso/#Introduction" %}}).
 
-### Tutorial
+### 4. Tutorial
 
 A 90 minute tutorial covering the basics of OpenNebula is included in this PoC program. You will gain  enough knowledge of the OpenNebula platform to kick-start your internal evaluation.
 
-### Support
+### 5. Support
 
 Throughout the duration of the PoC, the Sales Engineering team will be the primary point of contact and will manage the testing alongside the OpenNebula engineering team who will be available through an ad-hoc mailing list to ask and solve doubts and issues you may encounter in your evaluation. This testing period will last up to a maximum of four weeks from the date you choose to start the PoC.
 
-### Wrap-up
+### 6. Wrap-up
 
-As you come to the end of the PoC testing period, a wrap-up call will be scheduled with you and the OpenNebula team as an opportunity to discuss any issues, the PoC’s results, and the next steps to transition to an annual Enterprise Edition subscription.
+As you come to the end of the PoC testing period, a wrap-up call will be scheduled with you and the OpenNebula team as an opportunity to discuss any issues, the PoC’s results, and the next steps to transition to an annual Enterprise Edition subscription. During this call, we will review the success criteria spreadsheet with you to ascertain whether the different success criteria items were correctly validated.
 <br><br>
