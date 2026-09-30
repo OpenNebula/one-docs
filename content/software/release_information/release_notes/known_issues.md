@@ -43,7 +43,7 @@ The migrate pattern should be aware of NVRAM existence and properly use --keep-n
 
 ## Veeam Backups
 
-### Worker creation
+### Worker Creation
 
 Worker creation and restores [will fail](https://github.com/OpenNebula/one/issues/7949) if the VM with ID 0 doesn't exist in the database.
 
@@ -93,15 +93,17 @@ systemctl restart opennebula
 
 ## Sunstone
 
+### OneForm User Inputs Form Malfunction
+
 When provisioning a Cluster with OneForm through Sunstone, fields in the **User Inputs** step cannot be entered normally because a user interface bug causes the form content to be re-rendered after each change.
 
 As a workaround, enter the values into a notepad or code editor then copy and paste each complete value into each field in a single operation.
 
 ### VM Actions Missing in the Group Admin View
 
-Some VM actions are not displayed in the **Group Admin** view because `/etc/one/fireedge/sunstone/views/groupadmin/vm-tab.yaml` uses legacy action names.
+Some VM actions are not displayed in the **Group Admin** view because the config file `/etc/one/fireedge/sunstone/views/groupadmin/vm-tab.yaml` uses legacy action names.
 
-As a workaround, edit the file and replace the legacy action names as follows, preserving all other existing entries:
+As a workaround, edit the file and substitute the legacy action names as follows, preserving all other existing entries:
 
 ```diff
  actions:
@@ -157,7 +159,7 @@ As a workaround, edit the file and replace the legacy action names as follows, p
        charter_create: true
 ```
 
-After saving the file, restart FireEdge:
+After updating and saving the file, restart the FireEdge service:
 
 ```shell
 systemctl restart opennebula-fireedge
