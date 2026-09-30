@@ -51,6 +51,6 @@ Performing a VM backup requires support from the hypervisor and the disk image f
 
 <sup>\*</sup> Any datastore based on files with the given format, i.e. NFS/SAN or Local.
 
-<sup>†</sup> Ceph full and incremental backups are currently stored in a different way, see [backup types]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations#backup-types" %}}) for more details.
+<sup>†</sup> See [Ceph Backup Format and Retention]({{% relref "product/cluster_configuration/storage_system/ceph_ds#backup-format-and-retention" %}}).
 
 <sup>‡</sup> Only supported in [thin mode]({{% relref "product/cluster_configuration/lvm/filemode#lvm-thin" %}}).
