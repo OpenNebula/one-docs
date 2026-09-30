@@ -8,14 +8,16 @@ weight: 2
 
 Each OpenNebula deployment is different but they all have to provide a basic set of functionalities that form a complete solution. We have assembled them in functional groups to make navigation through PoC easy and ordered. Upon completion of all tests, we can announce success and move on to the next phase. Sometimes a special requirement is needed and we add them to our plan during the [Introduction and Information Gathering Call]({{% relref "solutions/engineering_blueprints/ee_poc/poc_workplan/#introduction-and-information-gathering-call" %}}).
 
-## Storage Configuration
+## Default Success Criteria
+
+### Storage Configuration
 
 | **ID** | **Task**                                             | **Validation description**                                                                 | **Video tutorials**                                                                                 | **Documentation**                                                                           |
 | ------ | ---------------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | SC1    | Configure additional System, Image & File Datastores | This is done by adding shared storage and defining the specific datastores via CLI or GUI. | ▶️ [Adding New Datastores in OpenNebula](https://youtu.be/iBfnZSJ9rQw?si=ztfXq_ziAt5nMRpf)          | [Storage System]({{% relref "product/cluster_configuration/storage_system/datastores/" %}}) |
 | SC2    | Configure Backup Datastore (if required)             | This is done by configuring RESTIC and then adding the datastore via GUI.                  | ▶️ [Backup and Restore Virtual Machines in OpenNebula](https://www.youtube.com/watch?v=kJRBuG2-JLo) | [Backup System]({{% relref "product/cluster_configuration/backup_system/overview/" %}})     |
 
-## Network Configuration
+### Network Configuration
 
 | **ID** | **Task**                                                                          | **Validation description**                                               | **Video tutorials**                                                                                  | **Documentation**                                                                                                 |
 | ------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -23,7 +25,7 @@ Each OpenNebula deployment is different but they all have to provide a basic set
 | SC4    | Add IP ranges to Virtual Networks                                                 | Define in Virtual network specific IP range per network.                 | ▶️ [Virtual Network Management in OpenNebula](https://youtu.be/ThxGVlC7Jq8?si=pqtChXAud1XBDE0x)      | [VNET management]({{% relref "product/cluster_configuration/networking_system/manage_vnets/" %}})                 |
 | SC5    | Configure Security Groups                                                         | Set up Security group rule and define specific protocols.                | ▶️ [Virtual Network Security Groups in OpenNebula](https://youtu.be/azJ-1Ho3nOA?si=iS_CV4CkU7aWO2_T) | [VM networking]({{% relref "product/virtual_machines_operation/virtual_machines_networking/security_groups/" %}}) |
 
-## Virtual Machine Administration
+### Virtual Machine Administration
 
 | **ID** | **Task**                                                    | **Validation description**                                                                                        | **Video tutorials**                                                                                      | **Documentation**                                                                                                                               |
 | ------ | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -38,7 +40,7 @@ Each OpenNebula deployment is different but they all have to provide a basic set
 | SC14   | Use of power options on a VM (Start / Stop / Reboot / etc.) | Go into the VM interface, and choose Stop and start.                                                              | ▶️ [Basic VM Operations in OpenNebula](https://www.youtube.com/watch?v=j6e0y4ShrMk)                      | [VM instances]({{% relref "product/virtual_machines_operation/virtual_machines/vm_instances/" %}})                                              |
 | SC15   | Manage VM via VNC Console                                   | Click on VNC icon and open console.                                                                               |                                                                                                          | [VNC access]({{% relref "product/control_plane_configuration/graphical_user_interface/fireedge_sunstone/#opennebula-vnc-remote-connection" %}}) |
 
-## Platform Administration
+### Platform Administration
 
 | **ID** | **Task**                                         | **Validation description**                                                  | **Video tutorials**                                                                                   | **Documentation**                                                                                            |
 | ------ | ------------------------------------------------ | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
@@ -47,3 +49,5 @@ Each OpenNebula deployment is different but they all have to provide a basic set
 | SC18   | Create additional 'views' and assign to group(s) | Create a non-standard view and switch to it.                                | ▶️ [Managing Custom Sunstone Views in OpenNebula](https://www.youtube.com/watch?v=g03gKz_rG04)        | [Sunstone views]({{% relref "product/cloud_system_administration/multitenancy/fireedge_sunstone_views/" %}}) |
 | SC19   | Create a VDC and assign to group(s)              | Define a VDC, allocate resources and assign a group.                        | ▶️ [Create and Manage Virtual Datacenters in OpenNebula](https://www.youtube.com/watch?v=NmR0XSds3Fg) | [Manage VDCs]({{% relref "product/cloud_system_administration/multitenancy/manage_vdcs/" %}})                |
 | SC20   | Create and assign quota to group(s)              | In an existing group, create a quota and showcase how it functions.         | ▶️ [Enforcing Resource Quotas in OpenNebula](https://www.youtube.com/watch?v=wAd9YpFJnq4)             | [Quotas]({{% relref "product/cloud_system_administration/capacity_planning/quotas/" %}})                     |
+
+## AI Factory Success Criteria (Optional)
