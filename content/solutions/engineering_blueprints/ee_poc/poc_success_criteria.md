@@ -1,12 +1,12 @@
 ---
-title: "PoC Success Criteria"
+title: "Success Criteria"
 linkTitle: "Success Criteria"
 description: "Recommended success criteria for an OpenNebula Proof of Concept."
 weight: 2
 
 ---
 
-Each OpenNebula deployment is different but they all have to provide a basic set of functionalities that form a complete solution. We have assembled them in functional groups to make navigation through PoC easy and ordered. Upon completion of all tests, we can announce success and move on to the next phase. Sometimes a special requirement is needed and we add them to our plan during the [Introduction and Information Gathering Call]({{% relref "solutions/engineering_blueprints/ee_poc/poc_workplan/#introduction-and-information-gathering-call" %}}).
+Each OpenNebula deployment is different but they all have to provide a basic set of functionalities that form a complete solution. We have assembled them in functional groups to make navigation through PoC easy and ordered. Upon completion of all tests, we can announce success and move on to the next phase. Sometimes a special requirement is needed and we add them to our plan during the [Information Gathering Call]({{% relref "solutions/engineering_blueprints/ee_poc/poc_workplan/#information-gathering-call" %}}).
 
 ## Default Success Criteria
 
