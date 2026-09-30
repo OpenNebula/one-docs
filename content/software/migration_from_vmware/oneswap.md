@@ -656,6 +656,8 @@ OneSwap injects the [OpenNebula context packages]({{% relref "kvm_contextualizat
 - `--context-timeout SECONDS`: maximum time allowed for each context injection command before it is aborted. Set to `0` to disable. Default: `600`.
 - `--disable-contextualization`: remove the default contextualization options in the OpenNebula template (by default Network and SSH contextualization are enabled).
 
+For Enterprise Linux 8, 9 and 10 guests, OneSwap installs the local context RPM directly with `dnf` and does not bootstrap EPEL. Repository access may still be used by `dnf` to resolve package dependencies, but unavailable repositories are skipped with short timeouts to avoid unnecessarily delaying context injection.
+
 Additional guest software can be injected during the conversion:
 
 - `--virtio /path/to/iso`: full path of the VirtIO driver ISO used to inject storage and network drivers into Windows guests. Configure this option when Windows disks use the `vd` device prefix; otherwise the converted VM may fail to boot if the drivers are not already installed.
