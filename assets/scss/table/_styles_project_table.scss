@@ -48,3 +48,7 @@ table tbody tr:not(:last-child) td {
   border: 1px solid var(--table-code-border-color);
   background: var(--table-code-background-color);
 }
+
+table.no-header thead {
+  display: none;
+}
