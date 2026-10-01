@@ -14,7 +14,7 @@ weight: "2"
 
 In order to use a physical or virtual server as a Host, you must first prepare the server with a hypervisor and configure it to be added to OpenNebula as a Host, refer to the guides to prepare a [KVM node]({{% relref "software/installation_process/cluster_installation/kvm_node_installation/" %}}) or an [LXC node]({{% relref "software/installation_process/cluster_installation/lxc_node_installation/" %}}).
 
-Once you have prepared your physical or virtual nodes, you can add them to OpenNebula as Hosts. To add a Host only its hostname and type is needed. 
+Once you have prepared your physical or virtual nodes, you can add them to OpenNebula as Hosts. To add a Host only its hostname and type is needed.
 
 {{< alert title="Warning" type="warning" >}}
 Before adding a Linux Host check that you can SSH to it without being prompted for a password.{{< /alert >}}
@@ -258,7 +258,7 @@ This tag can be used at a later time for scheduling purposes, [see more details 
 
 ### Updating Host Files
 
-When OpenNebula monitors a Host it copies driver files to `/var/lib/one-remotes`. When these files are updated they need to be copied again to the Hosts with the `sync` command. To keep track of the probes version there’s a file in `/var/lib/one/remotes/VERSION`. By default this holds the OpenNebula version (e.g., ‘7.0.0’). This version can be seen in the Hosts by using `onehost show <host>`:
+When OpenNebula monitors a Host it copies driver files to `/var/lib/one-remotes`. When these files are updated they need to be copied again to the Hosts with the `onehost sync` command. To keep track of the probes version there’s a file in `/var/lib/one/remotes/VERSION`. By default this holds the OpenNebula version (e.g., ‘7.0.0’). This version can be seen in the Hosts by using `onehost show <host>`:
 
 ```shell
 onehost show 0
