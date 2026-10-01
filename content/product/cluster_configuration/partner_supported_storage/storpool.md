@@ -14,7 +14,7 @@ weight: "1"
 
 With StorPool, OpenNebula clouds gain storage that scales linearly, eliminates single points of failure, and delivers consistent sub-millisecond latency regardless of load — all managed through the familiar OpenNebula interface without manual storage operations.
 
-{{< alert title="Support" type="primary" >}}This integration is developed, maintained, and supported by StorPool. The integration software and its associated technical support are not covered by the OpenNebula Subscription. OpenNebula Support continues to cover OpenNebula components in accordance with the customer's OpenNebula Subscription. Please refer to the [support section]({{% relref "product/cluster_configuration/partner_supported_storage/storpool/#development-and-support" %}}) for further details about support for the StorPool integration.{{< /alert >}} 
+{{< alert title="Support" type="primary" >}}This integration is developed, maintained, and supported by StorPool. The integration software and its associated technical support are not covered by the OpenNebula Subscription. OpenNebula Support continues to cover OpenNebula components in accordance with the customer's OpenNebula Subscription. Please refer to the [support section below]({{% relref "product/cluster_configuration/partner_supported_storage/storpool/#development-and-support" %}}) for details about support for the StorPool integration.{{< /alert >}} 
 
 ### Why StorPool + OpenNebula
 
