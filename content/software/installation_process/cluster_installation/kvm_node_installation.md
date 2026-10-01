@@ -219,20 +219,29 @@ scp -p /var/lib/one/.ssh/id_rsa <node3>:/var/lib/one/.ssh/
 
 You should verify that none of these connections (under user `oneadmin`) fail and none require a password:
 
-* from the Front-end to Front-end itself
-* from the Front-end to all nodes
-* from all nodes to all nodes
-* from all nodes back to Front-end
+* From the Front-end to Front-end itself
+* From the Front-end to all nodes
+* From all nodes to all nodes
+* From all nodes back to Front-end
+
+{{< alert title="SSH Agent Forwarding" type="info" >}}
+If you are using the integrated SSH authentication agent service (and did not distribute the private key to the nodes), you must use the agent socket on the Front-end and pass the agent forwarding flag `-A` on your initial connections to nodes. This securely proxies your authentication keys through the hop to validate multi-hop connections.
+
+If you followed the optional step to manually distribute the oneadmin private key to your nodes, exporting the socket and utilizing the `-A` flag is not required.
+{{< /alert >}}
 
 For example, execute on the Front-end:
 
 ```shell
+# use the integrated SSH authentication agent
+export SSH_AUTH_SOCK=/var/run/one/ssh-agent.sock
+
 # from Front-end to Front-end itself
 ssh <frontend>
 exit
 
 # from Front-end to node, back to Front-end and to other nodes
-ssh <node1>
+ssh -A <node1>
 ssh <frontend>
 exit
 ssh <node2>
@@ -242,7 +251,7 @@ exit
 exit
 
 # from Front-end to node, back to Front-end and to other nodes
-ssh <node2>
+ssh -A <node2>
 ssh <frontend>
 exit
 ssh <node1>
@@ -252,7 +261,7 @@ exit
 exit
 
 # from Front-end to nodes and back to Front-end and other nodes
-ssh <node3>
+ssh -A <node3>
 ssh <frontend>
 exit
 ssh <node1>
