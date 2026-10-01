@@ -62,20 +62,19 @@ When you deploy StorPool with OpenNebula, your infrastructure benefits from the 
 
 ### Standard Datastore Operations
 
-**StorPool supports all standard OpenNebula datastore features**, including image provisioning, VM disk management, live migration, snapshots, and cloning operations. For limitations and exceptions, see the Compatibility Notes section below.
+**StorPool supports all standard OpenNebula datastore features** (see [Datastores]({{% relref "product/cluster_configuration/storage_system/datastores" %}})), including image provisioning, VM disk management, live migration, snapshots, and cloning operations. For limitations and exceptions, see the [Compatibility Notes](#compatibility-notes) section below.
 
 ### Extra Features
 
 | **Feature** | **Supported** | **Notes & Documentation** |
 | ----- | ----- | ----- |
 | Delayed disk termination | ✅ Yes | Deleted VM disks are preserved for 48 hours (configurable), allowing recovery from accidental deletions. |
-| StorPool VolumeCare tags | ✅ Yes | Automated snapshot policies per VM. [**--> StorPool Knowledge Base**](https://kb.storpool.com/storpool_integrations/OpenNebula/docs/volumecare.html) |
-| StorPool QoS Class tags | ✅ Yes | Per-VM performance policies. [**--> StorPool Knowledge Base**](https://kb.storpool.com/storpool_integrations/OpenNebula/docs/qosclass.html) |
+| StorPool VolumeCare tags | ✅ Yes | [Automated snapshot policies per VM.](https://kb.storpool.com/storpool_integrations/OpenNebula/docs/volumecare.html) |
+| StorPool QoS Class tags | ✅ Yes | [Per-VM performance policies.](https://kb.storpool.com/storpool_integrations/OpenNebula/docs/qosclass.html) |
 | Multiple StorPool Clusters | ✅ Yes | Different Clusters as separate datastores. |
-| StorPool MultiCluster | ✅ Preview | Technology preview. [**--> StorPool Knowledge Base**](https://kb.storpool.com/admin_guide/multi/multicluster_intro.html) |
+| StorPool MultiCluster | ✅ Preview | [Introduction to multi-cluster mode.](https://kb.storpool.com/admin-guide/multi/multi-cluster-introduction.html) |
 | Multiple OpenNebula instances | ✅ Yes | Multiple controllers sharing a single StorPool Cluster. |
 | CDROM hotplug | ✅ Yes | Attach/detach CD images to running VMs. |
-|  |  |  |
 
 ### Optional Features
 
@@ -84,7 +83,7 @@ When you deploy StorPool with OpenNebula, your infrastructure benefits from the 
 | VM disk snapshot limits | ✅ Optional | Disk snapshot limits with configurable thresholds. |
 |  |  |  |
 | Remote snapshot transfer | ✅ Optional | Optionally send a StorPool snapshot of VM disk or Image data to a secondary StorPool Cluster when deleted from OpenNebula (e.g., for regulatory compliance or law enforcement requirements). |
-| Domain XML deploy tweaks | ✅ Optional | Additional libvirt customizations via deploy scripts (for options not yet exposed in OpenNebula templates). [**--> StorPool Knowledge Base**](https://kb.storpool.com/storpool_integrations/OpenNebula/docs/deploy_tweaks.html) |
+| Domain XML deploy tweaks | ✅ Optional | [Additional libvirt customizations via deploy scripts (for options not yet exposed in OpenNebula templates).](https://kb.storpool.com/storpool_integrations/OpenNebula/docs/deploy_tweaks.html) |
 | VM checkpoint on StorPool | ✅ Optional | Option to keep the VM checkpoint files on StorPool block devices. |
 | Atomic VM disk snapshots | ✅ Optional | Replace the default VM snapshot interface in OpenNebula  with a custom VM snapshot interface managable to do atomic disk snapshots. |
 
@@ -93,10 +92,10 @@ When you deploy StorPool with OpenNebula, your infrastructure benefits from the 
 | **Item** | **Status** |
 | ----- | ----- |
 | **VM State Snapshots** | Not supported related to libvirt limitation with RAW disks. Alternative: reconfigure OpenNebula's 'VM snapshot' interface to perform atomic disk only snapshots via StorPool. |
-| **OpenNebula Backups** | Only FULL backup mode is supported. Incremental backups are not available. Also require temporary space on the Hosts before transferring to the backup backend. |
-| **Persistent Image Attributes** | Persistent images with SHAREABLE or IMMUTABLE attributes are not supported. |
-| **Tested Platforms** | KVM hypervisor on current Alma Linux and Ubuntu, and other StorPool-supported Linux distributions. |
-| **vTPM support** | limited compatibility due to the current upstream design/implementation \- the vault is stored on file, so it is not compatible StorPool snapshots and extra functionalities like volumecare and disaster recovery engine |
+| [**OpenNebula Backups**]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations" %}}) | Only FULL backup mode is supported. Incremental backups are not available. Also require temporary space on the Hosts before transferring to the backup backend. |
+| [**Persistent Image Attributes**]({{% relref "product/operation_references/configuration_references/img_template" %}}) | Persistent images with SHAREABLE or IMMUTABLE attributes are not supported. |
+| **Tested Platforms** | KVM hypervisor on current Alma Linux and Ubuntu, and other StorPool-supported Linux distributions. For details, see OpenNebula's [Release Information]({{% relref "software/release_information" %}}) and StorPool's [System Requirements](https://storpool.com/latest/StorPool-System-Requirements-latest.pdf).|
+| [**vTPM support**]({{% relref "product/virtual_machines_operation/virtual_machines/vm_templates#tpm" %}}) | limited compatibility due to the current upstream design/implementation - the vault is stored on file, so it is not compatible StorPool snapshots and extra functionalities like volumecare and disaster recovery engine. |
 
 For current known issues visit the [StorPool Knowledge Base Known Issues Page](https://kb.storpool.com/storpool_integrations/OpenNebula/docs/known_issues.html).
 
@@ -106,7 +105,7 @@ At a high level, the integration works as follows:
 
 * **StorPool Cluster**: A set of Linux servers run the StorPool distributed storage software. Their local drives are aggregated into a single pool of shared block storage with synchronous replication and linear scaling of capacity and performance.
 
-* **OpenNebula Front-end**: The OpenNebula Front-end runs the StorPool datastore (DS\_MAD) and transfer manager (TM\_MAD) drivers. It communicates with the StorPool API management interface to create, clone, rename, and delete volumes corresponding to OpenNebula images and VM disks. The controller is running on a Highly Available VM managed by storpool\_havm service. 
+* **OpenNebula Front-end**: The OpenNebula [Front-end]({{% relref "product/control_plane_configuration" %}}) runs the StorPool datastore (DS_MAD) and transfer manager (TM_MAD) drivers. It communicates with the StorPool API management interface to create, clone, rename, and delete volumes corresponding to OpenNebula images and VM disks. The controller is running on a Highly Available VM managed by storpool_havm service. 
 
 * **OpenNebula Nodes (Hypervisors)**: KVM hypervisor nodes run the `storpool_block` initiator driver to access StorPool volumes as block devices. In **Hyper-Converged Infrastructure (HCI)** deployments, these nodes run both compute workloads and the StorPool storage service on the same physical hardware. VM disks are attached directly from StorPool to the hypervisors, with OpenNebula orchestrating which volumes attach to which Hosts.
 
@@ -126,8 +125,8 @@ Support for the add-on is included in the StorPool Storage license. Supported re
 
 | **Topic** | **Description** | **Link** |
 | ----- | ----- | ----- |
-| Installation and Upgrade | Step-by-step guide to installing the storpool\_block initiator and driver components | [Installation and Upgrade](https://kb.storpool.com/storpool_integrations/OpenNebula/docs/installation.html) |
-| OpenNebula Configuration | Required settings for oned.conf, TM\_MAD, DS\_MAD, and Datastore templates | [OpenNebula Configuration](https://kb.storpool.com/storpool_integrations/OpenNebula/docs/one_configuration.html) |
+| Installation and Upgrade | Step-by-step guide to installing the storpool_block initiator and driver components | [Installation and Upgrade](https://kb.storpool.com/storpool_integrations/OpenNebula/docs/installation.html) |
+| OpenNebula Configuration | Required settings for [oned.conf]({{% relref "../../../product/operation_references/opennebula_services_configuration/oned" %}}), TM_MAD, DS_MAD, and Datastore templates | [OpenNebula Configuration](https://kb.storpool.com/storpool_integrations/OpenNebula/docs/one_configuration.html) |
 | Support Life Cycles | Support policy for OpenNebula releases and the StorPool add-on | [Support Life Cycles](https://kb.storpool.com/storpool_integrations/OpenNebula/support_lifecycle.html) |
 
 ## Configuration examples
