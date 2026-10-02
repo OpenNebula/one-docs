@@ -63,7 +63,7 @@ By default, short-term forecasts cover the next five minutes.
 
 ## Forecast Generation
 
-Forecasts rely on OpenNebula’s built-in monitoring system ([The OpenNebula Monitoring System]({{% relref "product/cloud_system_administration/scheduler/configuration/#monitor-alert-configuration" %}})). Periodically, monitoring probes analyze real-time CPU, memory, disk, and network metrics to generate predictions. Each Host maintains a local time-series database (`/var/lib/one-remotes-db/host.db`) storing historical data for forecasting. Similarly, every VM has a dedicated database (`/var/lib/one-remotes-db/<VM_ID>.db`) that tracks its individual metrics.
+Forecasts rely on OpenNebula’s built-in monitoring system ([The OpenNebula Monitoring System]({{% relref "../resource_monitoring/monitoring_system#monitor-alert-configuration" %}})). Periodically, monitoring probes analyze real-time CPU, memory, disk, and network metrics to generate predictions. Each Host maintains a local time-series database (`/var/lib/one-remotes-db/host.db`) storing historical data for forecasting. Similarly, every VM has a dedicated database (`/var/lib/one-remotes-db/<VM_ID>.db`) that tracks its individual metrics.
 
 {{< alert title="Note" type="info" >}}
 When a VM migrates, a new database is created on the destination Host, temporarily reducing forecast accuracy until sufficient data accumulates.{{< /alert >}} 
