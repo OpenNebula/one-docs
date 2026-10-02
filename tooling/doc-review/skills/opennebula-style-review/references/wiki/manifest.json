@@ -1,0 +1,66 @@
+{
+  "retrieved_at": "2026-09-29",
+  "upstream_revision": null,
+  "pages": [
+    {
+      "path": "Branding.md",
+      "url": "https://github.com/OpenNebula/website/wiki/Branding",
+      "raw_url": "https://raw.githubusercontent.com/wiki/OpenNebula/website/Branding.md",
+      "sha256": "cfd1325d9f00ccb6776be9f92042c433323e4b1d4d09fa887136c9765d800547"
+    },
+    {
+      "path": "Capitalization.md",
+      "url": "https://github.com/OpenNebula/website/wiki/Capitalization",
+      "raw_url": "https://raw.githubusercontent.com/wiki/OpenNebula/website/Capitalization.md",
+      "sha256": "296e7065268f94d042d18eb1d9785316ee0624a6fd5b243bed2fbf456f9961dc"
+    },
+    {
+      "path": "Code-and-Command-Line.md",
+      "url": "https://github.com/OpenNebula/website/wiki/Code-and-Command-Line",
+      "raw_url": "https://raw.githubusercontent.com/wiki/OpenNebula/website/Code-and-Command-Line.md",
+      "sha256": "cf6d1986193aba82c408305b73fcf24f73874ce68e2a37c77be92b32b7b1c89e"
+    },
+    {
+      "path": "Document-Structure.md",
+      "url": "https://github.com/OpenNebula/website/wiki/Document-Structure",
+      "raw_url": "https://raw.githubusercontent.com/wiki/OpenNebula/website/Document-Structure.md",
+      "sha256": "b8396b92511a4a77882a5405b88d72b3e920c2b6e4b38e9e240ec5a9fffe1341"
+    },
+    {
+      "path": "Document-Type.md",
+      "url": "https://github.com/OpenNebula/website/wiki/Document-Type",
+      "raw_url": "https://raw.githubusercontent.com/wiki/OpenNebula/website/Document-Type.md",
+      "sha256": "4d522a5d440555c022c1c324e5dacfdadef4ff38a7ff38a3517fe7399ff5dc50"
+    },
+    {
+      "path": "Home.md",
+      "url": "https://github.com/OpenNebula/website/wiki/Home",
+      "raw_url": "https://raw.githubusercontent.com/wiki/OpenNebula/website/Home.md",
+      "sha256": "0c7550d4aa048bc89ed5e6ce15dd00fb7fa22c5f77ddf3559595fbf181adf4df"
+    },
+    {
+      "path": "Images.md",
+      "url": "https://github.com/OpenNebula/website/wiki/Images",
+      "raw_url": "https://raw.githubusercontent.com/wiki/OpenNebula/website/Images.md",
+      "sha256": "3bfd8bbfff63f2ae6103dddb69e369359af8fae2794998025d3f8967395924d3"
+    },
+    {
+      "path": "Links-and-References.md",
+      "url": "https://github.com/OpenNebula/website/wiki/Links-and-References",
+      "raw_url": "https://raw.githubusercontent.com/wiki/OpenNebula/website/Links-and-References.md",
+      "sha256": "28478f008ac799ff84658054b6db789d02d15602483c22ee5b17fef04a6d6fa8"
+    },
+    {
+      "path": "Spelling.md",
+      "url": "https://github.com/OpenNebula/website/wiki/Spelling",
+      "raw_url": "https://raw.githubusercontent.com/wiki/OpenNebula/website/Spelling.md",
+      "sha256": "f8d263975c6ec150b49db840e7a2970aec225705beebf82da38f393ede8ada9f"
+    },
+    {
+      "path": "Writing-Style.md",
+      "url": "https://github.com/OpenNebula/website/wiki/Writing-Style",
+      "raw_url": "https://raw.githubusercontent.com/wiki/OpenNebula/website/Writing-Style.md",
+      "sha256": "2ca89a21cff993ba38504ab24e5dfd1838b1d6c2cca38d5d5fae0aae9e82ff87"
+    }
+  ]
+}

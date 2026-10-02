@@ -1,0 +1,292 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "skill": {
+      "type": "string",
+      "enum": [
+        "opennebula-doc-review",
+        "opennebula-style-review"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "complete",
+        "partial",
+        "blocked"
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "files",
+            "diff"
+          ]
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "document_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "base_revision": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "head_revision": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "working_tree_dirty": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "reviewed_state": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "files",
+        "document_version",
+        "base_revision",
+        "head_revision",
+        "working_tree_dirty",
+        "reviewed_state"
+      ]
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "locator": {
+            "type": "string"
+          },
+          "revision_or_hash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "explanation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "locator",
+          "revision_or_hash",
+          "explanation"
+        ]
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "flow",
+              "clarity",
+              "completeness",
+              "consistency",
+              "style",
+              "links"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "major",
+              "minor",
+              "suggestion"
+            ]
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "introduced",
+              "pre-existing",
+              "unknown"
+            ]
+          },
+          "location": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "start_line": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "end_line": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "path",
+              "start_line",
+              "end_line"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string"
+          },
+          "suggested_change": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "source": {
+                  "type": "string"
+                },
+                "locator": {
+                  "type": "string"
+                },
+                "revision_or_hash": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "source",
+                "locator",
+                "revision_or_hash",
+                "explanation"
+              ]
+            },
+            "minItems": 1
+          },
+          "rule_strength": {
+            "type": "string",
+            "enum": [
+              "requirement",
+              "recommendation",
+              "not-applicable"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "severity",
+          "confidence",
+          "origin",
+          "location",
+          "summary",
+          "impact",
+          "suggested_change",
+          "evidence",
+          "rule_strength"
+        ]
+      }
+    },
+    "unresolved_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "skipped",
+              "unavailable"
+            ]
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "status",
+          "detail"
+        ]
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "skill",
+    "status",
+    "scope",
+    "sources",
+    "findings",
+    "unresolved_questions",
+    "checks",
+    "limitations"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenNebula Documentation Review"
+}
