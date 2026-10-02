@@ -26,6 +26,8 @@ OpenNebula DRS employs an integer linear programming (ILP) solver to optimize Cl
 
 A VM might be migrated to another Host or another datastore, but can't change both Host and datastore simultaneously.
 
+Migration recommendations can be made for the VMs in the following [states]({{% relref "product/operation_references/configuration_references/vm_states#vm-states" %}}): `ACTIVE`/`RUNNING`, `SUSPENDED`, or `POWEROFF`. VMs in the `UNDEPLOYED` and `STOPPED` states are not considered. If the Cluster contains a VM in any other state, resource optimization is skipped.
+
 ## Configuration and Usage
 
 **To enable OneDRS**: In Sunstone, go to **Infrastructure -> Clusters**, select the relevant Cluster then click **Enable OneDRS** in the **OneDRS** tab. Alternatively, in the Cluster template set the `ONE_DRS` configuration attribute.
@@ -75,6 +77,7 @@ The Load Balancing policy can combine multiple performance indicators:
 - **CPU Usage**: Load distribution based on actual CPU utilization of the VM.
 - **CPU Capacity**: Allocation based on requested CPU (the VM template attribute).
 - **Memory Usage**: Balancing based on requested memory.
+- **Storage Space**: Balancing based on the storage space of the datastores.
 - **Disk I/O**: Consideration of read/write operations.
 - **Network Traffic**: Optimization based on network throughput.
 
@@ -87,8 +90,11 @@ ONE_DRS=[
   DISK_WEIGHT="0.5",
   MEMORY_WEIGHT="0",
   NET_WEIGHT="0",
+  STORAGE_WEIGHT="0",
   ... ]
 ```
+
+**Note:** Storage space balancing assumes that each datastore represents an independent storage capacity. Datastores sharing the same underlying storage resource report the same total, used, and free space. Therefore, they should be avoided. For accurate balancing, configure datastores so that each one maps to a distinct storage capacity resource.
 
 ### Predictive DRS
 
