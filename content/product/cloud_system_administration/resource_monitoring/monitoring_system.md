@@ -83,7 +83,7 @@ To fine tune monitoring probes you can adjust parameters in `/var/lib/one/remote
 
 ### Configure OpenNebula
 
-No initial configuration is required because the monitoring daemon is enabled by default in [/etc/one/oned.conf]({{% relref "../../../product/operation_references/opennebula_services_configuration/oned#oned-conf" %}}) as a monitor driver.
+No initial configuration is required because the monitoring daemon is enabled by default in [/etc/one/oned.conf]({{% relref "product/operation_references/opennebula_services_configuration/oned#oned-conf" %}}) as a monitor driver.
 
 For example:
 
