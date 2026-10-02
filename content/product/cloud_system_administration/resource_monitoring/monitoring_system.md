@@ -83,7 +83,7 @@ To fine tune monitoring probes you can adjust parameters in `/var/lib/one/remote
 
 ### Configure OpenNebula
 
-No initial configuration is required because the monitoring daemon is enabled by default in [/etc/one/oned.conf]({{% relref "../../../product/operation_references/opennebula_services_configuration/oned#oned-conf" %}}) as a monitor driver.
+No initial configuration is required because the monitoring daemon is enabled by default in [/etc/one/oned.conf]({{% relref "product/operation_references/opennebula_services_configuration/oned#oned-conf" %}}) as a monitor driver.
 
 For example:
 
@@ -120,12 +120,12 @@ The monitoring data collected by OpenNebula probes is processed by the monitorin
 
 Each physical Host in an OpenNebula deployment maintains its own dedicated monitoring databases. These databases are updated through the regular Host and VM monitoring cycles:
 
-- **Location**: `/var/tmp/one_db/host.db`
+- **Location**: `/var/lib/one-remotes-db/host.db`
 - **Purpose**: Stores historical monitoring metrics for the Host
 
 Additionally, for each VM running on a Host, a dedicated database tracks its specific metrics:
 
-- **Location**: `/var/tmp/one_db/<VM_ID>.db` (stored on the Host where the VM is running)
+- **Location**: `/var/lib/one-remotes-db/<VM_ID>.db` (stored on the Host where the VM is running)
 - **Purpose**: Stores historical monitoring metrics for the specific VM
 
 {{< alert title="Note" type="info" >}}

@@ -354,7 +354,7 @@ The plugins <tm_mad>/monitor_ds + kvm-probes.d/monitor_ds.sh will report the inf
 
 ### The monitor_ds script.
 
-The monitor_ds.sh probe from the IM, if the `.monitor` file is present (e.g., `/var/lib/one/datastores/100/.monitor`), will execute its contents in the form `/var/tmp/one/remotes/tm/$(cat .monitor)/monitor_ds /var/lib/one/datastores/100/`. Note that the argument is the datastore path and not the VM or VM disk.
+The monitor_ds.sh probe from the IM, if the `.monitor` file is present (e.g., `/var/lib/one/datastores/100/.monitor`), will execute its contents in the form `/var/lib/one-remotes/remotes/tm/$(cat .monitor)/monitor_ds /var/lib/one/datastores/100/`. Note that the argument is the datastore path and not the VM or VM disk.
 
 The script is responsible for getting the information from all disks of all VMs in the datastore in that node.
 
