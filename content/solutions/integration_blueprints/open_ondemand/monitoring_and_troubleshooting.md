@@ -65,7 +65,7 @@ The following list presents some common causes:
 
 1. Check that every role is `RUNNING`.
 2. On the portal, `squeue -u <user>` shows the job of the session. `PENDING` with reason `Resources` means no worker has the cores or the memory free. If the pool is growing, see [The Pool Does Not Scale](#the-pool-does-not-scale). `PartitionConfig` means no worker of the pool could ever run it, so lower the cores or the memory in the form.
-3. `sinfo -R` lists the down or drained nodes with the reason. A node `drained` with reason `one-ondemand scale-down` is about to be removed. A node `down*` has stopped answering the controller. Refer to [A Worker Is Missing from sinfo](#a-worker-is-missing-from-sinfo).
+3. `sinfo -R` lists the down or drained nodes with the reason. A node `drained` with reason `open-ondemand scale-down` is about to be removed. A node `down*` has stopped answering the controller. Refer to [A Worker Is Missing from sinfo](#a-worker-is-missing-from-sinfo).
 4. `sacct -j <job id>` shows how the job ended. `NODE_FAIL` means its worker died, and `OUT_OF_MEMORY` means the session used more memory than it requested.
 5. Read `output.log` in the session directory. `module load` errors mean a problem with the software catalogue, and `Permission denied` on the home means a problem with the export. `/var/log/slurm/slurmd.log` on the worker records why a job could not start there.
 6. On the worker, `runuser -u <user> -- ls /cvmfs/software.eessi.io/versions` shows whether that user can reach the catalogue.
@@ -82,7 +82,7 @@ When those lines stop, or `last_eval` stays empty while the workers publish `SLU
 
 The pool grows only while the workers publish `SLURM_PENDING` above 0, and only up to `max_vms`. `SLURM_PENDING` counts the jobs waiting for cores or memory that a worker of the role could give them; a job waiting with reason `PartitionConfig` asks for more cores than the largest worker has and never counts.
 
-The pool shrinks only when the oldest worker publishes `OLDEST_IDLE=1`, plus the five-minute cooldown of the scale down policy. The worker publishes it once it has drained its node, after `ONEAPP_WORKER_IDLE_SECONDS` without a job and nothing pending, and the node then shows as `drained` with reason `one-ondemand scale-down` in `sinfo -R`. A single worker never drains, and a drain that OneFlow does not act on within `ONEAPP_WORKER_DRAIN_SECONDS` is undone.
+The pool shrinks only when the oldest worker publishes `OLDEST_IDLE=1`, plus the five-minute cooldown of the scale down policy. The worker publishes it once it has drained its node, after `ONEAPP_WORKER_IDLE_SECONDS` without a job and nothing pending, and the node then shows as `drained` with reason `open-ondemand scale-down` in `sinfo -R`. A single worker never drains, and a drain that OneFlow does not act on within `ONEAPP_WORKER_DRAIN_SECONDS` is undone.
 
 ## A Worker Is Missing from sinfo
 

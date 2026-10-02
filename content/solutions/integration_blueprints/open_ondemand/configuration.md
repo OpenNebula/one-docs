@@ -146,7 +146,7 @@ The service runs its own Slurm Cluster and does not require an existing Slurm Cl
    EOT
    ```
 
-For that Cluster, `sbatch`, `squeue`, `scancel`, `sinfo`, `sacct` and `scontrol` run on its controller over SSH as the user. The controller therefore has to answer on port 22 from the compute address of the portal. The job history in `sacct` needs `slurmdbd` on that controller, which the default OneSlurm deployment does not run. The `appliances/one-ondemand/docs/slurmdbd-setup.sh` script of the [appliance repository](https://github.com/OpenNebula/marketplace-community) installs `slurmdbd` with MariaDB, enables accounting in `slurm.conf` and registers the Cluster.
+For that Cluster, `sbatch`, `squeue`, `scancel`, `sinfo`, `sacct` and `scontrol` run on its controller over SSH as the user. The controller therefore has to answer on port 22 from the compute address of the portal. The job history in `sacct` needs `slurmdbd` on that controller, which the default OneSlurm deployment does not run. The `appliances/open-ondemand/docs/slurmdbd-setup.sh` script of the [appliance repository](https://github.com/OpenNebula/marketplace-community) installs `slurmdbd` with MariaDB, enables accounting in `slurm.conf` and registers the Cluster.
 
 ## Adding Software for Every User
 
@@ -157,7 +157,7 @@ The storage role exports the directory, and the portal and the workers mount it 
 To build a package, give `ood-site-install` an EasyBuild recipe on the portal, as root. The image ships a recipe for GNU Hello as an example:
 
 ```shell
-ood-site-install /opt/one-ondemand/config/easybuild/hello-2.12.1-GCCcore-14.3.0.eb
+ood-site-install /opt/open-ondemand/config/easybuild/hello-2.12.1-GCCcore-14.3.0.eb
 ```
 
 The command loads EasyBuild from EESSI as the `eessi` user, builds the recipe and its missing dependencies from source, and installs the result in the shared directory under the CPU family of the VM. A build normally takes several minutes. When it ends, the package is available in `module avail` for every user, in every session and on every worker, next to the EESSI modules:
@@ -175,10 +175,10 @@ When `ONEAPP_AUTH_OIDC_ENABLED` is `YES`, the login page offers the provider in 
 
 ## Managing Users
 
-Users live in the LDAP directory of the portal role. The portal generates the administrator password at first boot and keeps it in `/etc/one-ondemand/ldap-admin.pass`, readable by root only. To add a new user, run the following on the portal VM command line, with the appropriate details replaced:
+Users live in the LDAP directory of the portal role. The portal generates the administrator password at first boot and keeps it in `/etc/open-ondemand/ldap-admin.pass`, readable by root only. To add a new user, run the following on the portal VM command line, with the appropriate details replaced:
 
 ```shell
-ldapadd -x -D cn=admin,dc=ood,dc=local -y /etc/one-ondemand/ldap-admin.pass <<EOT
+ldapadd -x -D cn=admin,dc=ood,dc=local -y /etc/open-ondemand/ldap-admin.pass <<EOT
 dn: cn=alice,ou=Groups,dc=ood,dc=local
 objectClass: posixGroup
 cn: alice
