@@ -3,6 +3,7 @@ public/
 node_modules/
 _vendor/
 resources/
+tooling/doc-review/out
 .hugo_build.lock
 package.json
 package-lock.json
