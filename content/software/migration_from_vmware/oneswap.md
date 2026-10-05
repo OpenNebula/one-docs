@@ -367,7 +367,8 @@ OneSwap supports three different modes for the migration of Virtual Machines:
 - **Delta mode** (`--delta`) is intended for low-downtime migrations (slower)
   - **VMs must be powered on**
   - Requires passwordless root SSH access to the ESXi host where the VM runs.
-  - OneSwap creates a snapshot of the running VM, transfers and converts the base disks while the VM keeps running, and only powers off the VM for the final delta synchronization. The total downtime is reported at the end of the migration.
+  - OneSwap creates a snapshot of the running VM, transfers and converts the base disks while the VM keeps running, and shuts down the source VM only for the final delta synchronization. The total downtime is reported at the end of the migration.
+  - When VMware Tools are available and running, OneSwap requests a graceful guest shutdown and waits until the VM is confirmed to be powered off before copying the final delta. If VMware Tools are unavailable, OneSwap falls back to a hard power-off.
 
 ### On Linux VMs
 - The virtual machine must have the kernel headers installed. The name of the package may differ on each distribution, for instance, in Ubuntu the package to install is `linux-headers` and in Alma Linux is `kernel-headers`.
@@ -601,7 +602,8 @@ When ready for the maintenance window, commit the prepared migration:
 oneswap convert VM_NAME --delta --delta-commit
 ```
 
-This applies the final delta to the prepared disk, performs the remaining guest customization, imports the image into OpenNebula, creates the VM Template, and removes the OneSwap VMware snapshot.
+During the commit, OneSwap shuts down the source VM and waits until it is confirmed to be powered off before copying the final delta. When VMware Tools are available and running, a graceful guest shutdown is requested; otherwise, OneSwap falls back to a hard power-off. If the shutdown fails or the VM does not reach the powered-off state within the allowed timeout, the migration fails instead of continuing with the final delta copy.
+Once the source VM is powered off, OneSwap copies and applies the final delta to the prepared disk, performs the remaining guest customization, imports the image into OpenNebula, creates the VM Template, and removes the OneSwap VMware snapshot.
 
 If the prepared migration should be cancelled, clean it up with:
 
@@ -653,6 +655,8 @@ OneSwap injects the [OpenNebula context packages]({{% relref "kvm_contextualizat
 - `--context-fail-on-low-space`: fail the disk conversion instead of warning and skipping when the guest root filesystem free space is below `--context-min-free`.
 - `--context-timeout SECONDS`: maximum time allowed for each context injection command before it is aborted. Set to `0` to disable. Default: `600`.
 - `--disable-contextualization`: remove the default contextualization options in the OpenNebula template (by default Network and SSH contextualization are enabled).
+
+For Enterprise Linux 8, 9 and 10 guests, OneSwap installs the local context RPM directly with `dnf` and does not bootstrap EPEL. Repository access may still be used by `dnf` to resolve package dependencies, but unavailable repositories are skipped with short timeouts to avoid unnecessarily delaying context injection.
 
 Additional guest software can be injected during the conversion:
 

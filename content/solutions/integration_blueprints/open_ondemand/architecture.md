@@ -20,8 +20,8 @@ The Open OnDemand Service has three roles and uses two Virtual Networks. Each us
 | `worker` | 1 to 6, elastic | `slurmd`, joined to the Cluster as a dynamic node, and the user sessions as Slurm jobs |
 {.w-100}
 
-{{< image path="/images/open_ondemand/light/architecture.svg" pathDark="/images/open_ondemand/dark/architecture.svg"
-alt="The storage, portal and worker roles between the management and compute networks, with the flows between them" align="center" width="100%" mb="20px" >}}
+{{< image path="/images/open_ondemand/open_od_architecture.svg" 
+alt="The storage, portal and worker roles between the management and compute networks, with the flows between them" align="center" width="100%" mb="20px" border="false" shadow="false" >}}
 
 OneFlow starts `storage` first. It starts `portal` when the storage role is ready, and `worker` when both are ready. Each role reports `READY` through OneGate only when it is actually serving. The service therefore reaches `RUNNING` when a user can sign in and open a session.
 
