@@ -16,7 +16,7 @@ A OneKS K8s Cluster lifecycle normally follows this sequence:
 * **Create a K8s Cluster**: Provision the control plane and required infrastructure.
 * **Access the K8s Cluster**: Retrieve the kubeconfig and validate Kubernetes API access.
 * **Add or Scale Worker Capacity**: Create or resize node groups.
-* **Manage Applications**: Browse the catalogue, install applications, and remove installed releases.
+* **Manage Applications**: Browse the catalog, install applications, and remove installed releases.
 * **Upgrade the K8s Cluster**: Move the K8s Cluster to a supported Kubernetes version.
 * **Recover Failed Operations**: Retry selected failed lifecycle actions.
 * **Delete the K8s Cluster**: Deprovision the K8s Cluster and associated resources.
@@ -407,11 +407,11 @@ For further details about the API, see the [OneKS REST API Reference]({{% relref
 
 ## Managing Applications
 
-OneKS provides a catalogue of applications that can be installed as managed Helm releases in a K8s Cluster. Before installing an application, the K8s Cluster must be in the `RUNNING` state, the monitor configuration must be enabled, and at least one node group must contain a worker VM. See [Monitor Configuration]({{% relref "platform_services/oneks/management/configuration/#monitor-configuration" %}}) for instructions on enabling the monitor.
+OneKS provides a catalog of applications that can be installed as managed Helm releases in a K8s Cluster. Before installing an application, the K8s Cluster must be in the `RUNNING` state, the monitor configuration must be enabled, and at least one node group must contain a worker VM. See [Monitor Configuration]({{% relref "platform_services/oneks/management/configuration/#monitor-configuration" %}}) for instructions on enabling the monitor.
 
-The catalogue entry and the installed release have different identifiers:
+The catalog entry and the installed release have different identifiers:
 
-* **Application ID**: Stable catalogue identifier used to inspect and install an application.
+* **Application ID**: Stable catalog identifier used to inspect and install an application.
 * **Release name**: Name assigned to one installation, used to inspect and delete that installed application.
 
 Installation and deletion are asynchronous. A successful request starts the operation; inspect the installed application until its state changes from `installing` or `deleting` to `ready`, `error`, or until the deleted release disappears.
@@ -422,7 +422,7 @@ Installation and deletion are asynchronous. A successful request starts the oper
 {{% tab header="Sunstone"%}}
 From **Kubernetes -> K8S Clusters**, open the target K8s Cluster and select the **Applications** tab.
 
-Click **Install Application** to open the catalogue. The wizard guides you through these steps:
+Click **Install Application** to open the catalog. The wizard guides you through these steps:
 
 * **Application**: Select an application that is installable in the target K8s Cluster.
 * **Configuration**: Set the Helm release name, target namespace, and whether OneKS should create the namespace.
@@ -434,13 +434,13 @@ To remove an application, open its details, click **Uninstall**, and confirm the
 {{% /tab %}}
 
 {{% tab header="CLI"%}}
-List the public application catalogue:
+List the public application catalog:
 
 ```shell
 oneks list apps
 ```
 
-Inspect one catalogue definition by its application ID. The output includes its version, user inputs, dependencies, installation defaults, and usage information when available:
+Inspect one catalog definition by its application ID. The output includes its version, user inputs, dependencies, installation defaults, and usage information when available:
 
 ```shell
 oneks show app <APPLICATION_ID>
@@ -492,7 +492,7 @@ oneks delete app <release_name> --cluster-id <CLUSTER_ID>
 {{% /tab %}}
 
 {{% tab header="API"%}}
-List the public catalogue:
+List the public catalog:
 
 ```shell
 curl -u "$(cat /var/lib/one/.one/one_auth)" \

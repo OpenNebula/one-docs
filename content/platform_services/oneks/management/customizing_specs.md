@@ -9,7 +9,7 @@ weight: "4"
 type: docs
 ---
 
-OpenNebula Elastic Kubernetes Service (OneKS) defines Kubernetes deployment profiles exposed to users through families, flavours, dependencies, and user inputs. Administrators can customize these specs to change the capacities offered by each flavour, expose new input parameters, update supported Kubernetes versions, or tune the dependencies used during provisioning.
+OpenNebula Managed Kubernetes Service (OneKS) defines Kubernetes deployment profiles exposed to users through families, flavours, dependencies, and user inputs. Administrators can customize these specs to change the capacities offered by each flavour, expose new input parameters, update supported Kubernetes versions, or tune the dependencies used during provisioning.
 
 Profiles are used by both control-plane and node-group profiles. By default, the OneKS profile configuration files are located in the following paths:
 

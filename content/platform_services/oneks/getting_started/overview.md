@@ -9,7 +9,7 @@ weight: "1"
 type: docs
 ---
 
-OneKS provides Elastic Kubernetes as a Service on OpenNebula. It offers a structured way to create, access, operate, extend with managed applications, upgrade, recover, and deprovision Kubernetes Clusters (K8s Clusters) by combining a user-facing service layer with Cluster API-based infrastructure provisioning through CAPONE, the Cluster API provider for OpenNebula.
+OneKS provides Managed Kubernetes as a Service on OpenNebula. It offers a structured way to create, access, operate, extend with managed applications, upgrade, recover, and deprovision Kubernetes Clusters (K8s Clusters) by combining a user-facing service layer with Cluster API-based infrastructure provisioning through CAPONE, the Cluster API provider for OpenNebula.
 
 OneKS is designed for teams that need a simple and repeatable way to consume Kubernetes inside OpenNebula. Typical use cases include development and test environments, self-service Kubernetes delivery in private cloud environments, and standardized Cluster offerings for different sizes and topologies.
 
@@ -17,7 +17,9 @@ OneKS builds on CAPONE to expose a K8s Cluster-centric lifecycle model for users
 
 ## How Should I Read this Chapter
 
-If you have not used OneKS before, you should start by reading the [Basic Configuration Guide]({{% relref "platform_services/oneks/getting_started/basic_configuration/" %}}) to set up OneKS then follow the [Quick-start Guide]({{% relref "platform_services/oneks/getting_started/quick_start/" %}}) where you will learn to set up a basic K8s Cluster with OneKS. After completing the Quick-start Guide, move on to [Core Concepts]({{% relref "platform_services/oneks/getting_started/core_concepts/" %}}) to familiarize yourself with key OneKS concepts. 
+If you have not used OneKS before, you should start by reading the [Basic Configuration Guide]({{% relref "platform_services/oneks/getting_started/basic_configuration/" %}}) to set up OneKS then follow the [Quick-start Guide]({{% relref "platform_services/oneks/getting_started/quick_start/" %}}) where you will learn to set up a basic K8s Cluster with OneKS. After completing the Quick-start Guide, move on to [Core Concepts]({{% relref "platform_services/oneks/getting_started/core_concepts/" %}}) to familiarize yourself with key OneKS concepts.
+
+Once you have a K8s Cluster up and running and ready for workloads, you can then deploy applications. The [OneKS Application Catalog]({{% relref "platform_services/oneks/catalog/" %}}) provides validated Helm-based applications that can be managed through Sunstone or the CLI.
 
 After completing the introductory documentation, you can find more information about managing K8s Clusters with OneKS in the following reference documentation:
 * [K8s Cluster Lifecycle Management]({{% relref "platform_services/oneks/management/k8s_cluster_lifecycle_management/" %}})
@@ -52,12 +54,12 @@ OneKS manages K8s Clusters as top-level resources. A K8s Cluster owns or coordin
 
 * **Control Plane**: One logical control-plane group, containing one or more control-plane nodes depending on the selected control-plane flavour.  
 * **Node Groups**: Zero or more worker-capacity groups attached to the K8s Cluster.  
-* **Applications**: Managed Helm releases selected from the OneKS application catalogue, including their component dependencies and runtime state.
+* **Applications**: Managed Helm releases selected from the OneKS application catalog, including their component dependencies and runtime state.
 * **Supporting Infrastructure**: Networks, images, VM templates, temporary seed VMs, virtual routers, and related OpenNebula resources.  
 * **Lifecycle State**: The current operational state of the K8s Cluster and its groups.  
 * **Historical Events**: Lifecycle actions and state transitions.  
 * **Access Information**: kubeconfig retrieval for Kubernetes API access.  
-* **Logs:** K8s Cluster-level and group-level lifecycle logs.
+* **Logs**: K8s Cluster-level and group-level lifecycle logs.
 
 OneKS users interact primarily with the K8s Cluster, node-group, and application domains. Lower-level OpenNebula, CAPONE, Cluster API, Helm, and Kubernetes resources are orchestrated beneath those abstractions.
 
@@ -71,7 +73,7 @@ OneKS should be understood together with the following adjacent components:
 * [**OneKS API**]({{% relref "platform_services/oneks/references/oneks_api/" %}}): The programmatic interface for K8s Cluster and node-group lifecycle operations.  
 * [**Kubernetes Cloud Provider**]({{% relref "product/integration_references/kubernetes/kubernetes_cloud_provider/" %}}): The in-cluster integration layer for OpenNebula infrastructure behavior.  
 * [**OneGate**]({{% relref "product/operation_references/opennebula_services_configuration/onegate/" %}}): The OpenNebula service used by Virtual Machines to communicate with OpenNebula during bootstrap and runtime configuration. In a OneKS deployment, OneGate must be configured and reachable so the K8s Cluster bootstrap process can complete successfully.  
-* [**Transparent Proxy**]({{% relref "product/virtual_machines_operation/virtual_machines_networking/tproxy/" %}}) `tproxy`: The OpenNebula networking configuration used to expose OneGate, the XML-RPC API, and the OneKS API through the Front-end public network. OneKS deployments require TPROXY rules for ports **5030**, **2633**, and **10780**; the in-cluster monitor uses port **10780** to report to OneKS.
+* [**Transparent Proxy**]({{% relref "product/virtual_machines_operation/virtual_machines_networking/tproxy/" %}}) `tproxy`: The OpenNebula networking configuration used to expose OneGate, the XML-RPC API, and the OneKS API through the Front-end public network. OneKS deployments require TProxy rules for ports **5030**, **2633**, and **10780**; the in-cluster monitor uses port **10780** to report to OneKS.
 * [**Cluster API References**]({{% relref "product/integration_references/kubernetes/kubernetes_cluster_api/" %}}): Useful when understanding the lower-level declarative lifecycle and CAPONE integration details.
 
 ## Supported Versions

@@ -26,7 +26,7 @@ OneKS installs Longhorn, trust-manager, NVIDIA GPU Operator, Prometheus, and the
 
 All application-specific parameters are mandatory:
 
-| Parameter | Type | Sensitive | Description |
+| **Parameter** | **Type** | **Sensitive** | **Description** |
 |-----------|------|-----------|-------------|
 | `domain` | String | No | Fully qualified domain name used to access the Run:ai control plane. |
 | `adminUsername` | String | No | Username for the initial Run:ai administrator account. |
@@ -38,7 +38,7 @@ Sensitive values are used to create Kubernetes Secrets and are not displayed as 
 
 ## Usage and Configuration
 
-To install this application, follow the [Managing Applications guide]({{% relref "platform_services/oneks/management/k8s_cluster_lifecycle_management/#managing-applications" %}}) using the catalogue ID shown above and provide the application-specific parameters described in the previous section.
+To install this application, follow the [Managing Applications guide]({{% relref "platform_services/oneks/management/k8s_cluster_lifecycle_management/#managing-applications" %}}) using the catalog ID shown above and provide the application-specific parameters described in the previous section.
 
 From the OpenNebula Front-end, retrieve the kubeconfig for the target K8s Cluster:
 

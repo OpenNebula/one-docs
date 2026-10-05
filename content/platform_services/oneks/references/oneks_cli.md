@@ -21,28 +21,28 @@ Product-facing resources are:
 
 * `cluster`: OneKS K8s Cluster resource.  
 * `group`: Worker-capacity group attached to a K8s Cluster.
-* `app`: Public catalogue application. For installed applications, cluster-scoped commands use the release name.
+* `app`: Public catalog application. For installed applications, cluster-scoped commands use the release name.
 
 The CLI may also expose plural forms:
 
 * `clusters`: List or top K8s Cluster resources.  
 * `groups`: List or top node-group resources.
-* `apps`: List public application catalogue entries.
+* `apps`: List public application catalog entries.
 
 ## Common commands
 
 * `oneks list clusters`: List K8s Clusters.  
 * `oneks list groups`: List node groups.
-* `oneks list apps`: List public application catalogue entries.
+* `oneks list apps`: List public application catalog entries.
 * `oneks top clusters`: Continuously display K8s Cluster status.  
 * `oneks top groups`: Continuously display node-group status.
 * `oneks show cluster <cluster_id>`: Show detailed K8s Cluster information.  
 * `oneks show cluster <cluster_id> --app <release_name>`: Show an installed application and its managed dependencies.
 * `oneks show group <group_id>`: Show detailed node-group information.
-* `oneks show app <application_id>`: Show a complete catalogue application definition.
+* `oneks show app <application_id>`: Show a complete catalog application definition.
 * `oneks create cluster`: Create a cluster.  
 * `oneks create group --cluster-id <cluster_id>`: Create a node group.
-* `oneks install app <application_id> --cluster-id <cluster_id>`: Install a catalogue application.
+* `oneks install app <application_id> --cluster-id <cluster_id>`: Install a catalog application.
 * `oneks recover cluster <cluster_id>`: Recover a K8s Cluster from selected failure states.  
 * `oneks recover group <group_id>`: Recover a node group from selected failure states.
 * `oneks check cluster <cluster_id>`: Run the OneKS readiness check using the deployment placement from an existing K8s Cluster.

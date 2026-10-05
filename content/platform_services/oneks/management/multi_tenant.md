@@ -1,5 +1,5 @@
 ---
-title: "Multi-tenant Access to OneKS Elastic Kubernetes Clusters"
+title: "Multi-tenant Access to OneKS Managed Kubernetes Clusters"
 linkTitle: "Multi-tenant Access"
 date: "2026-09-07"
 description:
@@ -9,7 +9,7 @@ type: docs
 weight: "6"
 ---
 
-This guide describes recommended practices for providing multiple users or teams with controlled access to a shared Kubernetes Cluster deployed with **OpenNebula Elastic Kubernetes Service (OneKS)**.
+This guide describes recommended practices for providing multiple users or teams with controlled access to a shared Kubernetes Cluster deployed with **OpenNebula Managed Kubernetes Service (OneKS)**.
 
 The guidelines described in this guide assume that:
 

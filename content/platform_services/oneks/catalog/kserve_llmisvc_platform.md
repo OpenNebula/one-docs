@@ -35,7 +35,7 @@ The built-in Helm values enable `llmisvcConfigs` and disable the chart's default
 
 ## Usage and Configuration
 
-To install this application, follow the [Managing Applications Guide]({{% relref "platform_services/oneks/management/k8s_cluster_lifecycle_management/#managing-applications" %}}) using the catalogue ID shown above.
+To install this application, follow the [Managing Applications Guide]({{% relref "platform_services/oneks/management/k8s_cluster_lifecycle_management/#managing-applications" %}}) using the catalog ID shown above.
 
 From the OpenNebula Front-end, retrieve the kubeconfig for the target K8s Cluster:
 

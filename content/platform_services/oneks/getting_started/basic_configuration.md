@@ -34,7 +34,7 @@ Validate the OneGate configuration using the OpenNebula [OneGate Documentation](
 
 ## Transparent Proxy Configuration
 
-Verify that the [transparent proxy]({{% relref "product/virtual_machines_operation/virtual_machines_networking/tproxy/" %}}) is configured to expose OneGate, the OpenNebula API, and the OneKS API through the network interconnecting the Front-end and Hosts. Access to the OneKS API through TPROXY is required by the in-cluster monitor.
+Verify that the [transparent proxy]({{% relref "product/virtual_machines_operation/virtual_machines_networking/tproxy/" %}}) is configured to expose OneGate, the OpenNebula API, and the OneKS API through the network interconnecting the Front-end and Hosts. Access to the OneKS API through TProxy is required by the in-cluster monitor.
 
 The configuration is typically defined in the following location on the OpenNebula Front-end:
 

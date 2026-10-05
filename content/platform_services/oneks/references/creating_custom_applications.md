@@ -2,18 +2,18 @@
 title: "Creating Custom Applications"
 linkTitle: "Creating Custom Applications"
 date: "2026-10-01"
-description: "Create OneKS application and component definitions for Helm-based applications"
+description: "Create OneKS application and component definitions for Helm-based applications."
 categories:
 tags:
 weight: "3"
 type: docs
 ---
 
-OneKS applications are declarative YAML definitions around Helm charts. A definition supplies catalogue metadata, Helm coordinates and values, optional user inputs, dependencies, and lifecycle steps. OneKS validates all definitions when the service starts and exposes valid application definitions through its REST API.
+OneKS applications are declarative YAML definitions around Helm charts. A definition supplies catalog metadata, Helm coordinates and values, optional user inputs, dependencies, and lifecycle steps. OneKS validates all definitions when the service starts and exposes valid application definitions through its REST API.
 
 ## Catalogue Layout
 
-The installed catalogue is located under:
+The installed catalog is located under:
 
 ```default
 /var/lib/one/oneks/charts
@@ -35,7 +35,7 @@ Definitions are separated by their role:
 Every definition needs a globally unique, stable `id`. Generate a new identifier for a new definition instead of reusing the ID of another version or chart.
 
 {{< alert title="Important" type="warning" >}}
-OneKS uses the current catalogue definition to build both installation and deletion plans. Keep the root application and all of its component definitions available and compatible until every release that uses them has been uninstalled.
+OneKS uses the current catalog definition to build both installation and deletion plans. Keep the root application and all of its component definitions available and compatible until every release that uses them has been uninstalled.
 {{< /alert >}}
 
 ## Minimal Application
@@ -99,7 +99,7 @@ journalctl -u opennebula-ks.service
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `id` | Yes | Stable unique string used by the catalogue and API. A UUID is recommended. |
+| `id` | Yes | Stable unique string used by the catalog and API. A UUID is recommended. |
 | `chart` | Yes | Helm chart name, or a complete OCI chart reference such as `oci://registry.example.com/charts/my-chart`. |
 | `version` | Yes | Exact chart version to install. |
 | `repo` | No | Helm repository URL. Omit it when `chart` is a complete OCI reference. |
@@ -107,7 +107,7 @@ journalctl -u opennebula-ks.service
 | `defaultValuesContent` | No | YAML mapping passed to Helm as the release values. |
 | `installDefaults` | No for applications | Default release name, target namespace, and namespace-creation behavior. All three child fields are required when this object is present. |
 
-`defaultValuesContent` must parse as a YAML object. YAML aliases are not accepted in catalogue definitions or in the embedded values.
+`defaultValuesContent` must parse as a YAML object. YAML aliases are not accepted in catalog definitions or in the embedded values.
 
 Root applications may omit `installDefaults`; the caller must then provide the release name and target namespace. A component referenced through `dependencies` must have valid `installDefaults`, because components are installed non-interactively.
 
@@ -117,10 +117,10 @@ Release names and namespaces must be valid RFC 1123 names. Release names must al
 
 `metadata.name` is required. The standard presentation fields are:
 
-| Field | Description |
+| **Field** | **Description** |
 |-------|-------------|
-| `name` | Human-readable catalogue name. |
-| `description` | Short explanation shown in the catalogue and installed-release details. |
+| `name` | Human-readable catalog name. |
+| `description` | Short explanation shown in the catalog and installed-release details. |
 | `documentationUrl` | HTTPS link to the application's upstream documentation. |
 | `about` | One or more post-installation help sections. |
 
@@ -132,7 +132,7 @@ Metadata is presentation data; its placeholders are not used to render Helm valu
 
 Declare installation-time parameters in `userInputs`. Each item supports:
 
-| Field | Required | Description |
+| **Field** | **Required** | **Description** |
 |-------|----------|-------------|
 | `name` | Yes | Unique parameter name. It also becomes an available `${name}` placeholder. |
 | `type` | Yes | `string`, `number`, `bool`, `list`, `tuple`, `map`, or `object`. |
@@ -163,7 +163,7 @@ defaultValuesContent: |
 
 OneKS recognizes these placeholders in chart fields, values, dependencies, and lifecycle steps:
 
-| Placeholder | Value |
+| **Placeholder** | **Value** |
 |-------------|-------|
 | `${chartId}` | Stable ID of the definition being resolved. |
 | `${releaseName}` | Helm release name. |
@@ -212,7 +212,7 @@ Use `preInstall`, `postInstall`, and `preUninstall` for Kubernetes resources or 
 
 Each item requires a descriptive `name` and one operation:
 
-| Operation | Purpose |
+| **Operation** | **Purpose** |
 |-----------|---------|
 | `apply` | Apply a Kubernetes manifest. |
 | `wait` | Wait for a named resource to be created or to meet a condition. A `timeout` is required. |

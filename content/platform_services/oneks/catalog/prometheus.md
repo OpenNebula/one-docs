@@ -33,7 +33,7 @@ grafana:
 
 ## Usage and Configuration
 
-To install this application, follow the [Managing Applications guide]({{% relref "platform_services/oneks/management/k8s_cluster_lifecycle_management/#managing-applications" %}}) using the catalogue ID shown above.
+To install this application, follow the [Managing Applications guide]({{% relref "platform_services/oneks/management/k8s_cluster_lifecycle_management/#managing-applications" %}}) using the catalog ID shown above.
 
 From the OpenNebula Front-end, retrieve the kubeconfig for the target K8s Cluster:
 
