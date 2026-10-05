@@ -20,35 +20,38 @@ oneks <command> <resource> [<args>] [<options>]
 Product-facing resources are:
 
 * `cluster`: OneKS K8s Cluster resource.  
-* `nodegroup`: Worker-capacity group attached to a K8s Cluster.
+* `group`: Worker-capacity group attached to a K8s Cluster.
+* `app`: Public catalogue application. For installed applications, cluster-scoped commands use the release name.
 
 The CLI may also expose plural forms:
 
 * `clusters`: List or top K8s Cluster resources.  
-* `nodegroups`: List or top node-group resources.
-
-Important command naming note:
-
-Some builds may expose node groups through the lower-level `group` resource in CLI help. Before publication, align this section with the exact shipped CLI behavior. If the shipped CLI uses `group`, the examples must use `group` consistently. If the product-facing resource is `nodegroup`, the CLI help should expose `nodegroup` consistently.
+* `groups`: List or top node-group resources.
+* `apps`: List public application catalogue entries.
 
 ## Common commands
 
 * `oneks list clusters`: List K8s Clusters.  
-* `oneks list nodegroups`: List node groups.  
+* `oneks list groups`: List node groups.
+* `oneks list apps`: List public application catalogue entries.
 * `oneks top clusters`: Continuously display K8s Cluster status.  
-* `oneks top nodegroups`: Continuously display node-group status.  
+* `oneks top groups`: Continuously display node-group status.
 * `oneks show cluster <cluster_id>`: Show detailed K8s Cluster information.  
-* `oneks show nodegroup <nodegroup_id>`: Show detailed node-group information.  
+* `oneks show cluster <cluster_id> --app <release_name>`: Show an installed application and its managed dependencies.
+* `oneks show group <group_id>`: Show detailed node-group information.
+* `oneks show app <application_id>`: Show a complete catalogue application definition.
 * `oneks create cluster`: Create a cluster.  
-* `oneks create nodegroup --cluster-id <cluster_id>`: Create a node group.  
+* `oneks create group --cluster-id <cluster_id>`: Create a node group.
+* `oneks install app <application_id> --cluster-id <cluster_id>`: Install a catalogue application.
 * `oneks recover cluster <cluster_id>`: Recover a K8s Cluster from selected failure states.  
-* `oneks recover nodegroup <nodegroup_id>`: Recover a node group from selected failure states.  
+* `oneks recover group <group_id>`: Recover a node group from selected failure states.
 * `oneks check cluster <cluster_id>`: Run the OneKS readiness check using the deployment placement from an existing K8s Cluster.
 * `oneks delete cluster <cluster_id>`: Delete a K8s Cluster.  
-* `oneks delete nodegroup <nodegroup_id>`: Delete a node group.  
+* `oneks delete group <group_id>`: Delete a node group.
+* `oneks delete app <release_name> --cluster-id <cluster_id>`: Delete an installed application release.
 * `oneks logs cluster <cluster_id>`: Show K8s Cluster logs.  
 * `oneks upgrade cluster <cluster_id> --k8s-version <version>`: Upgrade a K8s Cluster version.  
-* `oneks scale nodegroup <nodegroup_id> --target <count>`: Scale a node group.  
+* `oneks scale group <group_id> --target <count>`: Scale a node group.
 * `oneks chgrp cluster <cluster_id> <group_id>`: Change K8s Cluster group ownership.  
 * `oneks chown cluster <cluster_id> <user_id> <group_id>`: Change K8s Cluster owner and group.  
 * `oneks chmod cluster <cluster_id> <octet>`: Change K8s Cluster permissions.
@@ -70,15 +73,15 @@ List and inspect resources:
 oneks list clusters
 oneks top clusters
 oneks show cluster 42
-oneks list nodegroups
-oneks show nodegroup 7
+oneks list groups
+oneks show group 7
 ```
 
 Manage worker capacity:
 
 ```shell
-oneks create nodegroup --cluster-id 42
-oneks scale nodegroup 7 --target 3
+oneks create group --cluster-id 42
+oneks scale group 7 --target 3
 ```
 
 Upgrade a K8s Cluster:
@@ -91,7 +94,23 @@ Recover a K8s Cluster or node group:
 
 ```shell
 oneks recover cluster 42
-oneks recover nodegroup 7
+oneks recover group 7
+```
+
+Browse and manage applications:
+
+```shell
+oneks list apps
+oneks show app <application_id>
+oneks install app <application_id> --cluster-id 42
+oneks show cluster 42 --app <release_name>
+oneks delete app <release_name> --cluster-id 42
+```
+
+For a non-interactive installation, pass a JSON file containing `release_name`, `target_namespace`, `create_namespace`, and `user_input_values`:
+
+```shell
+oneks install app <application_id> --cluster-id 42 --file install.json
 ```
 
 Run OneKS readiness checks:

@@ -9,13 +9,14 @@ weight: "1"
 type: docs
 ---
 
-This section describes the main lifecycle operations for OneKS K8s Clusters. It covers how to create, access, scale, upgrade, recover, and delete K8s Clusters.
+This section describes the main lifecycle management operations for OneKS K8s Clusters.
 
 A OneKS K8s Cluster lifecycle normally follows this sequence:
 
 * **Create a K8s Cluster**: Provision the control plane and required infrastructure.
 * **Access the K8s Cluster**: Retrieve the kubeconfig and validate Kubernetes API access.
 * **Add or Scale Worker Capacity**: Create or resize node groups.
+* **Manage Applications**: Browse the catalogue, install applications, and remove installed releases.
 * **Upgrade the K8s Cluster**: Move the K8s Cluster to a supported Kubernetes version.
 * **Recover Failed Operations**: Retry selected failed lifecycle actions.
 * **Delete the K8s Cluster**: Deprovision the K8s Cluster and associated resources.
@@ -30,7 +31,7 @@ Before creating a K8s Cluster, verify that:
 
 * **OneKS Service**: The OneKS service is configured and running.
 * **OneGate Service**: OneGate is configured and reachable.
-* **Transparent Proxy**: `tproxy` is configured for the required OneGate and OpenNebula XML-RPC ports.
+* **Transparent Proxy**: `tproxy` is configured for the required OneGate, OpenNebula XML-RPC, and OneKS API ports.
 * **OpenNebula Cluster**: The target OpenNebula Cluster ID is known.
 * **Networks**: The OpenNebula public and private Virtual Network IDs are known.
 * **Profiles**: The required family and flavour are available.
@@ -404,7 +405,138 @@ For further details about the API, see the [OneKS REST API Reference]({{% relref
 
 {{< /tabpane >}}
 
+## Managing Applications
 
+OneKS provides a catalogue of applications that can be installed as managed Helm releases in a K8s Cluster. Before installing an application, the K8s Cluster must be in the `RUNNING` state, the monitor configuration must be enabled, and at least one node group must contain a worker VM. See [Monitor Configuration]({{% relref "platform_services/oneks/management/configuration/#monitor-configuration" %}}) for instructions on enabling the monitor.
+
+The catalogue entry and the installed release have different identifiers:
+
+* **Application ID**: Stable catalogue identifier used to inspect and install an application.
+* **Release name**: Name assigned to one installation, used to inspect and delete that installed application.
+
+Installation and deletion are asynchronous. A successful request starts the operation; inspect the installed application until its state changes from `installing` or `deleting` to `ready`, `error`, or until the deleted release disappears.
+
+{{< tabpane text=true right=false >}}
+{{% tab header="**Interfaces**:" disabled=true /%}}
+
+{{% tab header="Sunstone"%}}
+From **Kubernetes -> K8S Clusters**, open the target K8s Cluster and select the **Applications** tab.
+
+Click **Install Application** to open the catalogue. The wizard guides you through these steps:
+
+* **Application**: Select an application that is installable in the target K8s Cluster.
+* **Configuration**: Set the Helm release name, target namespace, and whether OneKS should create the namespace.
+* **User Inputs**: Supply any application-specific parameters. This step is omitted when the selected application has no user inputs.
+
+Finish the wizard to start the installation. The release appears in the **Applications** table. Select it to inspect its state, dependencies, and application-specific usage information.
+
+To remove an application, open its details, click **Uninstall**, and confirm the action. OneKS removes the root release and the managed component releases that belong to it.
+{{% /tab %}}
+
+{{% tab header="CLI"%}}
+List the public application catalogue:
+
+```shell
+oneks list apps
+```
+
+Inspect one catalogue definition by its application ID. The output includes its version, user inputs, dependencies, installation defaults, and usage information when available:
+
+```shell
+oneks show app <application_id>
+```
+
+Install the application interactively:
+
+```shell
+oneks install app <application_id> --cluster-id <cluster_id>
+```
+
+The CLI prompts for missing release configuration and user inputs. You can also provide the standard installation parameters as options:
+
+```shell
+oneks install app <application_id> \
+  --cluster-id <cluster_id> \
+  --release-name <release_name> \
+  --target-namespace <namespace>
+```
+
+For a non-interactive installation, place the configuration and application parameters in a JSON file:
+
+```json
+{
+  "release_name": "my-release",
+  "target_namespace": "my-namespace",
+  "create_namespace": true,
+  "user_input_values": {}
+}
+```
+
+```shell
+oneks install app <application_id> \
+  --cluster-id <cluster_id> \
+  --file install.json
+```
+
+Inspect the installed release by its release name:
+
+```shell
+oneks show cluster <cluster_id> --app <release_name>
+```
+
+Delete the installed release:
+
+```shell
+oneks delete app <release_name> --cluster-id <cluster_id>
+```
+{{% /tab %}}
+
+{{% tab header="API"%}}
+List the public catalogue:
+
+```shell
+curl -u "$(cat /var/lib/one/.one/one_auth)" \
+  http://<oneks-server>:10780/api/v1/applications
+```
+
+Install the application:
+
+```shell
+curl -u "$(cat /var/lib/one/.one/one_auth)" \
+  -X POST http://<oneks-server>:10780/api/v1/clusters/<cluster_id>/applications \
+  -H "Content-Type: application/json" \
+  -d '{
+    "application_id": "<application_id>",
+    "release_name": "my-release",
+    "target_namespace": "my-namespace",
+    "create_namespace": true,
+    "user_input_values": {}
+  }'
+```
+
+Inspect the installed release:
+
+```shell
+curl -u "$(cat /var/lib/one/.one/one_auth)" \
+  http://<oneks-server>:10780/api/v1/clusters/<cluster_id>/applications/<release_name>
+```
+
+Delete the installed release:
+
+```shell
+curl -u "$(cat /var/lib/one/.one/one_auth)" \
+  -X DELETE \
+  http://<oneks-server>:10780/api/v1/clusters/<cluster_id>/applications/<release_name>
+```
+
+Install and delete requests return `202 Accepted` without an operation identifier. Use the installed-application endpoints to follow the release state.
+
+For further details about the API, see the [OneKS REST API Reference]({{% relref "platform_services/oneks/references/oneks_api/" %}}).
+{{% /tab %}}
+
+{{< /tabpane >}}
+
+For the applications included with OneKS, their parameters, and their post-installation instructions, see the [Application Catalog]({{% relref "platform_services/oneks/catalog/" %}}).
 
 ## Upgrading a K8s Cluster
 
