@@ -45,3 +45,13 @@ This skill distinguishes unordered references from sequential guides, verifies c
 > Read `tooling/doc-review/skills/opennebula-release-review/SKILL.md` and review `resolved_issues_741.md` for maintenance release 7.4.1 with Markdown output. Report suggestions without editing the notes.
 
 Maintenance mode uses `collect_maintenance_release.py` to collect all milestone issues and referenced issue URLs. Its report contains coverage counts and four separate match/candidate tables for fixes and backported features. GitHub Type is a hint; unresolved attribution or inclusion remains explicit.
+
+## Create Release Notes
+
+Create is an explicit operation on the release review skill, independent of major/maintenance type and the optional output report. It runs the existing comparison, then edits the requested notes without a separate apply step. Review and output-only requests remain report-only. Collectors and their CLI arguments are unchanged.
+
+> Read `tooling/doc-review/skills/opennebula-release-review/SKILL.md`. Use Create mode to complete `content/software/release_information/release_notes/whats_new.md` for 7.6 against the exact OpenNebula/one milestone `Release 7.6`, with a Markdown output report.
+
+> Read `tooling/doc-review/skills/opennebula-release-review/SKILL.md`. Use Create mode to update `content/software/release_information/release_notes/resolved_issues_741.md` for maintenance release 7.4.1 against milestone 94, with a Markdown output report.
+
+Confirm the milestone for the intended release when invoking; the examples are not a request to modify these documents now. Major creation drafts the introduction, highlights, categorized features, previous-series backports and other solved issues. Maintenance creation adds missing entries and revises existing text within its two principal sections. Unsupported additions and uncertain issue associations stay in the report pending evidence. Reports distinguish applied changes from remaining findings and assess the final document.

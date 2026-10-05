@@ -31,6 +31,8 @@ For fixes, describe the faulty behavior and when it occurred; for features, desc
 
 ## Required Report
 
+These analysis and accounting rules also apply to explicit Create. Follow [create-release-notes.md](create-release-notes.md) for authorized editing and applied/pending dispositions; the table is not an additional approval gate in that operation.
+
 Start with a short scope statement: release, repository, milestone title/number, document path/hash and Git revision when available, collection time, issue count, and collection/review status (complete, partial, or blocked). Collection completeness is separate from semantic review completeness. Account for every issue; if context limits require batches, track reviewed and remaining issue numbers and finish them before claiming completion.
 
 For a saved output report, also follow [the shared output-mode contract](../../../references/output-mode.md), including its assessment and revision priority. In that mode, add Severity to the table below; use not-applicable for keep/omit rows that do not identify a document defect.
