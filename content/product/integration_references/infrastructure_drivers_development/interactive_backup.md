@@ -567,11 +567,14 @@ Optional request body:
 
 ```json
 {
-  "MESSAGE": "Backup cancelled by an Administrator"
+  "MESSAGE": "Backup cancelled by an Administrator",
+  "FORCE": true
 }
 ```
 
 `MESSAGE` defaults to `Backup cancelled`.
+
+`FORCE` defaults to `true`. When `true`, OneBEX cancels immediately, without waiting for export preparation, active read operations, or another finalizer. Set it to `false` to wait for in-progress operations and stop exporter processes gracefully.
 
 **`200 OK`**
 
