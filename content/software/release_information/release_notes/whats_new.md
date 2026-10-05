@@ -34,3 +34,4 @@ Additionally, the following functionalities are present that were not in OpenNeb
 ## Other Issues Solved
 
 List of new issues solved in OpenNebula 7.6.
+* Fix groupadmin vm configuration file [#7766](https://github.com/OpenNebula/one/issues/7766).
