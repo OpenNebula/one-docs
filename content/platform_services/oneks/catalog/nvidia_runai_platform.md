@@ -43,7 +43,7 @@ To install this application, follow the [Managing Applications guide]({{% relref
 From the OpenNebula Front-end, retrieve the kubeconfig for the target K8s Cluster:
 
 ```shell
-oneks show cluster <cluster_id> --kubeconfig > kubeconfig
+oneks show cluster <CLUSTER_ID> --kubeconfig > kubeconfig
 ```
 
 ### Connect to the Run:ai User Interface

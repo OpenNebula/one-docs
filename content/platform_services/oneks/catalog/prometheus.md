@@ -38,7 +38,7 @@ To install this application, follow the [Managing Applications guide]({{% relref
 From the OpenNebula Front-end, retrieve the kubeconfig for the target K8s Cluster:
 
 ```shell
-oneks show cluster <cluster_id> --kubeconfig > kubeconfig
+oneks show cluster <CLUSTER_ID> --kubeconfig > kubeconfig
 ```
 
 After installation, use the K8s Cluster kubeconfig to inspect the monitoring workloads. The following example assumes that the application was installed with `prometheus` as the release name and `monitoring` as the target namespace:

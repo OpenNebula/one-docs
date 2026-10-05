@@ -82,7 +82,7 @@ For a complete Sunstone walkthrough, see the [OneKS Quick Start]({{% relref "pla
 Before creating a K8s Cluster with the CLI, identify the IDs of the OpenNebula public and private Virtual Networks:
 
 ```shell
-$ onevnet list
+onevnet list
 ID USER     GROUP    NAME         CLUSTERS   BRIDGE   STATE
  1 oneadmin oneadmin private      0          br1      rdy
  0 oneadmin oneadmin public       0          br1      rdy
@@ -91,7 +91,7 @@ ID USER     GROUP    NAME         CLUSTERS   BRIDGE   STATE
 Also identify the OpenNebula Cluster where the K8s Cluster must be deployed:
 
 ```shell
-$ onecluster list
+onecluster list
 ID NAME          HOSTS   VNETS  DATASTORES
  0 default           2       2           3
 ```
@@ -112,7 +112,7 @@ The interactive CLI flow asks for:
 * **K8s Cluster Flavour**: The control-plane flavour, such as `standalone` or `ha`.
 
 ```shell
-$ oneks create cluster
+oneks create cluster
 > Cluster name: example-oneks-cluster
 
 DEPLOYMENT PLACEMENT
@@ -236,13 +236,13 @@ Copy the kubeconfig content and save it locally as a kubeconfig file.
 Retrieve the kubeconfig with the CLI:
 
 ```shell
-oneks show cluster <cluster_id> --kubeconfig > kubeconfig
+oneks show cluster <CLUSTER_ID> --kubeconfig > kubeconfig
 ```
 
 Use the kubeconfig with standard Kubernetes commands:
 
 ```shell
-$ KUBECONFIG=./kubeconfig kubectl get nodes
+KUBECONFIG=./kubeconfig kubectl get nodes
 NAME                         STATUS   ROLES           AGE   VERSION
 test-cluster-control-plane   Ready    control-plane   3m    v1.31.4
 ```
@@ -252,7 +252,7 @@ Retrieve the kubeconfig through the API and save it locally:
 
 ```shell
 curl -u "$(cat /var/lib/one/.one/one_auth)" \
-  http://<oneks-server>:10780/api/v1/clusters/<cluster_id>/kubeconfig \
+  http://<oneks-server>:10780/api/v1/clusters/<CLUSTER_ID>/kubeconfig \
   | jq -r '.kubeconfig' > kubeconfig
 ```
 
@@ -303,7 +303,7 @@ After finishing the wizard, monitor the K8s Cluster logs until the node group re
 Create a node group:
 
 ```shell
-oneks create nodegroup --cluster-id <cluster_id>
+oneks create nodegroup --cluster-id <CLUSTER_ID>
 ```
 
 The command starts an interactive creation flow. You will be asked to provide:
@@ -313,7 +313,7 @@ The command starts an interactive creation flow. You will be asked to provide:
 * **Count**: The number of worker nodes to create.
 
 ```shell
-$ oneks create group --cluster-id 10
+oneks create group --cluster-id 10
 > Nodegroup name: example-oneks-group
 > Select a flavour for the Nodegroup:
     0: Small Worker Nodes
@@ -339,7 +339,7 @@ ID: 11
 Scale a node group by specifying its ID and the desired number of worker nodes:
 
 ```shell
-oneks scale nodegroup <nodegroup_id> --target <worker_count>
+oneks scale nodegroup <NODEGROUP_ID> --target <worker_count>
 ```
 
 Example:
@@ -351,7 +351,7 @@ oneks scale nodegroup 11 --target 3
 Validate the Kubernetes node list:
 
 ```shell
-$ KUBECONFIG=./kubeconfig kubectl get nodes
+KUBECONFIG=./kubeconfig kubectl get nodes
 NAME                         STATUS   ROLES           AGE   VERSION
 test-cluster-control-plane   Ready    control-plane   9m    v1.34.2
 test-cluster-worker-1        Ready    <none>          2m    v1.34.2
@@ -366,7 +366,7 @@ Create a node group:
 
 ```shell
 curl -u "$(cat /var/lib/one/.one/one_auth)" \
-  -X POST http://<oneks-server>:10780/api/v1/clusters/<cluster_id>/nodegroups \
+  -X POST http://<oneks-server>:10780/api/v1/clusters/<CLUSTER_ID>/nodegroups \
   -H "Content-Type: application/json" \
   -d '{
     "name": "workers",
@@ -382,7 +382,7 @@ Scale an existing node group:
 
 ```shell
 curl -u "$(cat /var/lib/one/.one/one_auth)" \
-  -X POST http://<oneks-server>:10780/api/v1/clusters/<cluster_id>/nodegroups/<nodegroup_id>/scale \
+  -X POST http://<oneks-server>:10780/api/v1/clusters/<CLUSTER_ID>/nodegroups/<NODEGROUP_ID>/scale \
   -H "Content-Type: application/json" \
   -d '{
     "target": 3
@@ -392,7 +392,7 @@ curl -u "$(cat /var/lib/one/.one/one_auth)" \
 Validate the Kubernetes node list:
 
 ```shell
-$ KUBECONFIG=./kubeconfig kubectl get nodes
+KUBECONFIG=./kubeconfig kubectl get nodes
 NAME                         STATUS   ROLES           AGE   VERSION
 test-cluster-control-plane   Ready    control-plane   9m    v1.34.2
 test-cluster-worker-1        Ready    <none>          2m    v1.34.2
@@ -443,20 +443,20 @@ oneks list apps
 Inspect one catalogue definition by its application ID. The output includes its version, user inputs, dependencies, installation defaults, and usage information when available:
 
 ```shell
-oneks show app <application_id>
+oneks show app <APPLICATION_ID>
 ```
 
 Install the application interactively:
 
 ```shell
-oneks install app <application_id> --cluster-id <cluster_id>
+oneks install app <APPLICATION_ID> --cluster-id <CLUSTER_ID>
 ```
 
 The CLI prompts for missing release configuration and user inputs. You can also provide the standard installation parameters as options:
 
 ```shell
-oneks install app <application_id> \
-  --cluster-id <cluster_id> \
+oneks install app <APPLICATION_ID> \
+  --cluster-id <CLUSTER_ID> \
   --release-name <release_name> \
   --target-namespace <namespace>
 ```
@@ -473,21 +473,21 @@ For a non-interactive installation, place the configuration and application para
 ```
 
 ```shell
-oneks install app <application_id> \
-  --cluster-id <cluster_id> \
+oneks install app <APPLICATION_ID> \
+  --cluster-id <CLUSTER_ID> \
   --file install.json
 ```
 
 Inspect the installed release by its release name:
 
 ```shell
-oneks show cluster <cluster_id> --app <release_name>
+oneks show cluster <CLUSTER_ID> --app <release_name>
 ```
 
 Delete the installed release:
 
 ```shell
-oneks delete app <release_name> --cluster-id <cluster_id>
+oneks delete app <release_name> --cluster-id <CLUSTER_ID>
 ```
 {{% /tab %}}
 
@@ -503,10 +503,10 @@ Install the application:
 
 ```shell
 curl -u "$(cat /var/lib/one/.one/one_auth)" \
-  -X POST http://<oneks-server>:10780/api/v1/clusters/<cluster_id>/applications \
+  -X POST http://<oneks-server>:10780/api/v1/clusters/<CLUSTER_ID>/applications \
   -H "Content-Type: application/json" \
   -d '{
-    "application_id": "<application_id>",
+    "application_id": "<APPLICATION_ID>",
     "release_name": "my-release",
     "target_namespace": "my-namespace",
     "create_namespace": true,
@@ -518,7 +518,7 @@ Inspect the installed release:
 
 ```shell
 curl -u "$(cat /var/lib/one/.one/one_auth)" \
-  http://<oneks-server>:10780/api/v1/clusters/<cluster_id>/applications/<release_name>
+  http://<oneks-server>:10780/api/v1/clusters/<CLUSTER_ID>/applications/<release_name>
 ```
 
 Delete the installed release:
@@ -526,7 +526,7 @@ Delete the installed release:
 ```shell
 curl -u "$(cat /var/lib/one/.one/one_auth)" \
   -X DELETE \
-  http://<oneks-server>:10780/api/v1/clusters/<cluster_id>/applications/<release_name>
+  http://<oneks-server>:10780/api/v1/clusters/<CLUSTER_ID>/applications/<release_name>
 ```
 
 Install and delete requests return `202 Accepted` without an operation identifier. Use the installed-application endpoints to follow the release state.
@@ -571,7 +571,7 @@ The selected version must be supported by the K8s Cluster profile. After startin
 Upgrade a K8s Cluster:
 
 ```shell
-oneks upgrade cluster <cluster_id> --k8s-version <version>
+oneks upgrade cluster <CLUSTER_ID> --k8s-version <version>
 ```
 
 Example:
@@ -598,7 +598,7 @@ Upgrade a K8s Cluster:
 
 ```shell
 curl -u "$(cat /var/lib/one/.one/one_auth)" \
-  -X POST http://<oneks-server>:10780/api/v1/clusters/<cluster_id>/upgrade \
+  -X POST http://<oneks-server>:10780/api/v1/clusters/<CLUSTER_ID>/upgrade \
   -H "Content-Type: application/json" \
   -d '{
     "kubernetes_version": "v1.34.2"
@@ -633,21 +633,21 @@ The recovery action retries the last failed lifecycle operation where possible. 
 Recover a K8s Cluster:
 
 ```shell
-oneks recover cluster <cluster_id>
+oneks recover cluster <CLUSTER_ID>
 ```
 
 Recover a node group:
 
 ```shell
-oneks recover nodegroup <nodegroup_id>
+oneks recover nodegroup <NODEGROUP_ID>
 ```
 
 Then verify the recovery result:
 
 ```shell
-oneks show cluster <cluster_id>
-oneks show nodegroup <nodegroup_id>
-oneks logs cluster <cluster_id>
+oneks show cluster <CLUSTER_ID>
+oneks show nodegroup <NODEGROUP_ID>
+oneks logs cluster <CLUSTER_ID>
 ```
 {{% /tab %}}
 
@@ -656,20 +656,20 @@ Recover a K8s Cluster:
 
 ```shell
 curl -u "$(cat /var/lib/one/.one/one_auth)" \
-  -X POST http://<oneks-server>:10780/api/v1/clusters/<cluster_id>/recover
+  -X POST http://<oneks-server>:10780/api/v1/clusters/<CLUSTER_ID>/recover
 ```
 
 Recover a node group:
 
 ```shell
 curl -u "$(cat /var/lib/one/.one/one_auth)" \
-  -X POST http://<oneks-server>:10780/api/v1/clusters/<cluster_id>/nodegroups/<nodegroup_id>/recover
+  -X POST http://<oneks-server>:10780/api/v1/clusters/<CLUSTER_ID>/nodegroups/<NODEGROUP_ID>/recover
 ```
 
 Then verify the recovery result:
 
 ```shell
-oneks logs cluster <cluster_id>
+oneks logs cluster <CLUSTER_ID>
 ```
 
 For further details about the API, see the [OneKS REST API Reference]({{% relref "platform_services/oneks/references/oneks_api/" %}}).
@@ -704,13 +704,13 @@ The deletion operation deprovisions the OneKS K8s Cluster and its managed resour
 Delete a K8s Cluster:
 
 ```shell
-oneks delete cluster <cluster_id>
+oneks delete cluster <CLUSTER_ID>
 ```
 
 Force deletion, if required:
 
 ```shell
-oneks delete cluster <cluster_id> --force
+oneks delete cluster <CLUSTER_ID> --force
 ```
 
 After deletion, verify that the K8s Cluster no longer appears in OneKS:
@@ -725,14 +725,14 @@ Delete a K8s Cluster:
 
 ```shell
 curl -u "$(cat /var/lib/one/.one/one_auth)" \
-  -X DELETE "http://<oneks-server>:10780/api/v1/clusters/<cluster_id>"
+  -X DELETE "http://<oneks-server>:10780/api/v1/clusters/<CLUSTER_ID>"
 ```
 
 Force deletion, if required:
 
 ```shell
 curl -u "$(cat /var/lib/one/.one/one_auth)" \
-  -X DELETE "http://<oneks-server>:10780/api/v1/clusters/<cluster_id>?force"
+  -X DELETE "http://<oneks-server>:10780/api/v1/clusters/<CLUSTER_ID>?force"
 ```
 
 For further details about the API, see the [OneKS REST API Reference]({{% relref "platform_services/oneks/references/oneks_api/" %}}).
