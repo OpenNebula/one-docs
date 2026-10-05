@@ -25,12 +25,10 @@ When a VM backup is created through an interactive backup integration, OpenNebul
 
 1. The VM backup workflow prepares the selected disks for export. Full backups and CBT incremental backups are supported.
 2. OpenNebula writes the export metadata to `interactive_exports.json` in the VM backup directory on the hypervisor.
-3. OneBEX is started on the hypervisor if it is not already running.
-4. The external backup system requests the export from OneBEX, discovers the available disk transfers, and reads disk data ranges and block extents.
+3. The Transfer Manager (TM) starts OneBEX on the hypervisor if it is not already running, then sends `POST /export` with the VM ID, datastore ID, and backup directory.
+4. The external backup system discovers the available disk transfers through `GET /status` and reads disk data ranges and block extents.
 5. The external backup system finalizes each transfer and then finishes the VM backup session.
-6. OpenNebula records the backup metadata as a backup image in the integration datastore.
-
-OneBEX stops automatically when the backup session is finished or when it remains idle for longer than the configured timeout.
+6. OneBEX publishes the VM completion result, allowing TM to complete the backup operation. OpenNebula records the backup metadata as a backup image in the integration datastore.
 
 ## Compatibility
 
@@ -78,7 +76,7 @@ $ onehost sync -f
 OneBEX logs are written on each hypervisor to `/var/log/one/onebex.log`.
 {{< /alert >}}
 
-The configuration file defines the OneBEX listen address, shutdown behavior, logging settings, and Puma web server concurrency limits.
+The configuration file defines the OneBEX listen address, logging settings, and Puma web server concurrency limits.
 
 ### Server Configuration
 
@@ -86,9 +84,6 @@ The configuration file defines the OneBEX listen address, shutdown behavior, log
 |-----------|---------------|-------------|
 | `:host:` | `0.0.0.0` | Address where OneBEX listens for HTTP requests. By default, it listens on all available interfaces. |
 | `:port:` | `13014` | TCP port where OneBEX listens for HTTP requests. |
-| `:shutdown_delay:` | `2` | Delay, in seconds, after the final `/vms/:VM_ID/finish` request before stopping OneBEX. |
-| `:idle_timeout:` | `300` | Maximum time, in seconds, without receiving any HTTP request before OneBEX stops automatically. |
-| `:onebex_timeout:` | `1800` | Maximum time, in seconds, that OpenNebula waits for an interactive export to finish after it has started. |
 
 ### Log Configuration
 
@@ -103,6 +98,8 @@ The configuration file defines the OneBEX listen address, shutdown behavior, log
 |-----------|---------------|-------------|
 | `:puma: :min_threads:` | `1` | Minimum number of Puma threads used to handle concurrent OneBEX HTTP requests. |
 | `:puma: :max_threads:` | `4` | Maximum number of Puma threads used to handle concurrent OneBEX HTTP requests. |
+
+These limits apply to HTTP requests, not to the number of VM sessions or exported disks.
 
 ## Integration Datastore
 
@@ -174,7 +171,7 @@ The OneBEX API is consumed by backup integrations. The current API is:
 | `/` | `GET` | Returns basic server information and the available API routes. | `200` |
 | `/status` | `GET` | Returns the current export status for a VM. Requires `VM_ID`. | `200`, `400` |
 | `/exporters` | `GET` | Lists the exporter backends available in OneBEX. | `200` |
-| `/export` | `POST` | Starts one or more disk exports for a VM. Requires `VM_ID`, `DS_ID`, and `BACKUP_DIR`. `DISKS` is optional. | `200`, `400`, `404`, `500` |
+| `/export` | `POST` | Starts one or more disk exports for a VM. Requires `VM_ID`, `DS_ID`, and `BACKUP_DIR`. `DISKS` is optional. | `200`, `400`, `404`, `409`, `500`, `503` |
 | `/transfers/:TRANSFER_ID/info` | `GET` | Returns size and format information for a transfer. | `200`, `404`, `500` |
 | `/images/:TRANSFER_ID` | `OPTIONS` | Returns supported image transfer features and concurrency limits. | `200` |
 | `/images/:TRANSFER_ID/extents` | `GET` | Returns block extent information for a transfer. | `200`, `404`, `500` |
@@ -182,21 +179,22 @@ The OneBEX API is consumed by backup integrations. The current API is:
 | `/images/:TRANSFER_ID` | `PUT` | Image write operation. Currently not implemented. | `501` |
 | `/images/:TRANSFER_ID` | `PATCH` | Accepts a flush operation when the request body uses `op=flush`. | `200`, `400`, `404` |
 | `/transfer/:TRANSFER_ID/finalize` | `POST` | Finalizes a transfer and releases its exporter resources. | `200`, `400`, `404` |
-| `/vms/:VM_ID/cancel` | `POST` | Cancels all active transfers for a VM. | `200`, `400` |
-| `/vms/:VM_ID/finish` | `POST` | Finishes the VM backup session after all transfers have been finalized. | `200`, `409` |
+| `/vms/:VM_ID/cancel` | `POST` | Cancels VM export preparation and active transfers, waiting for cleanup. | `200`, `400`, `500` |
+| `/vms/:VM_ID/finish` | `POST` | Publishes the VM result after preparation and all transfer cleanup have completed. | `200`, `409`, `500` |
 
 ### HTTP Status Codes
 
 | Code | Description |
 |------|-------------|
-| `200 OK` | Request completed successfully. |
+| `200 OK` | Request completed. Check `SUCCESS` in lifecycle responses for the backup result. |
 | `206 Partial Content` | Requested byte range returned successfully. |
 | `400 Bad Request` | Invalid request, missing parameters, malformed JSON, invalid range format, or unsupported operation. |
 | `404 Not Found` | Transfer, disk, export metadata, or endpoint not found. |
-| `409 Conflict` | VM backup cannot finish while transfers are still pending. |
+| `409 Conflict` | An export already exists or was cancelled/failed in the current process, or a VM cannot finish while preparation or transfer cleanup is pending. |
 | `416 Range Not Satisfiable` | Required byte range is missing or invalid. |
 | `500 Internal Server Error` | Unexpected server-side error, invalid export metadata, or exporter/backend failure. |
 | `501 Not Implemented` | Operation exists but is not implemented. |
+| `503 Service Unavailable` | OneBEX is stopping because the export was not admitted. |
 
 ### Responses
 
@@ -335,11 +333,41 @@ or:
 }
 ```
 
-**`500 Internal Server Error`**
+**`409 Conflict`**
+
+A second export cannot replace a VM's active or preparing export:
 
 ```json
 {
-  "error": "Invalid interactive_exports.json: <error>"
+  "error": "VM 123 already has an export"
+}
+```
+
+If the VM was cancelled, or its previous export failed in the current process:
+
+```json
+{
+  "error": "Backup cancelled"
+}
+```
+
+**`503 Service Unavailable`**
+
+```json
+{
+  "error": "OneBEX is stopping"
+}
+```
+
+No export was admitted for this response. TM waits up to 60 seconds for the server to stop and retries once, starting a new server if necessary.
+
+**`500 Internal Server Error`**
+
+Invalid export metadata or an unexpected preparation/exporter error returns its error message:
+
+```json
+{
+  "error": "<error message>"
 }
 ```
 
@@ -573,7 +601,7 @@ Returned when the request body contains invalid JSON.
 }
 ```
 
-If transfers are still pending:
+If export preparation or transfer cleanup is still pending:
 
 **`409 Conflict`**
 

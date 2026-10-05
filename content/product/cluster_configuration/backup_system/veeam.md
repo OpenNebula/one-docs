@@ -143,7 +143,7 @@ Add the datastore to each Cluster containing VMs that will be backed up by Veeam
 onecluster adddatastore <cluster-name> <datastore-name>
 ```
 
-For more information about the `interactive` driver internals, see [Interactive Backup Integrations]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration#interactive-backup-integration" %}}).
+For more information about the `interactive` driver internals, see [Interactive Backup Integrations]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
 
 ### 4. Install and Configure the oVirtAPI Module
 
