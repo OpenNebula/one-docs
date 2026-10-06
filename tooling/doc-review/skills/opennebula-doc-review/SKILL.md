@@ -3,7 +3,7 @@ name: opennebula-doc-review
 description: Review OpenNebula documentation files or changes for flow, clarity, completeness, and internal consistency. Use for document reviews; implementation verification and Wiki style compliance are separate review dimensions.
 ---
 
-Read [the shared review contract](../../references/review-contract.md) before reviewing.
+Read [the review contract](references/shared/review-contract.md) before reviewing.
 
 Establish the requested files or diff, intended audience, document purpose, and documented version. For a diff, read enough surrounding text and linked prerequisites to interpret the change. Include local uncommitted changes when requested; do not silently substitute HEAD for the working tree. If the base cannot be established, ask for it or clearly limit the review to named files.
 
@@ -17,7 +17,7 @@ Return the contract's Markdown report, or JSON when requested. Separate introduc
 
 ## Output Mode
 
-When the user requests output, a saved report, or a Markdown report file, follow [the shared output-mode contract](../../references/output-mode.md). Create the report with this skill's table columns and quality assessment. An output request authorizes writing the report, not applying its recommendations to the reviewed document. Without an output request, retain the usual conversational report.
+When the user requests output, a saved report, or a Markdown report file, follow [the output-mode contract](references/shared/output-mode.md). Create the report with this skill's table columns and quality assessment. An output request authorizes writing the report, not applying its recommendations to the reviewed document. Without an output request, retain the usual conversational report.
 
 ## Example Execution Restriction
 

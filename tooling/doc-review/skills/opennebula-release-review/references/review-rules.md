@@ -35,7 +35,7 @@ These analysis and accounting rules also apply to explicit Create. Follow [creat
 
 Start with a short scope statement: release, repository, milestone title/number, document path/hash and Git revision when available, collection time, issue count, and collection/review status (complete, partial, or blocked). Collection completeness is separate from semantic review completeness. Account for every issue; if context limits require batches, track reviewed and remaining issue numbers and finish them before claiming completion.
 
-For a saved output report, also follow [the shared output-mode contract](../../../references/output-mode.md), including its assessment and revision priority. In that mode, add Severity to the table below; use not-applicable for keep/omit rows that do not identify a document defect.
+For a saved output report, also follow [the output-mode contract](shared/output-mode.md), including its assessment and revision priority. In that mode, add Severity to the table below; use not-applicable for keep/omit rows that do not identify a document defect.
 
 Then report suggestions in this table:
 

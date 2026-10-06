@@ -5,7 +5,7 @@ description: Review OpenNebula technical references, tutorials, and how-to guide
 
 ## Establish the Technical Context
 
-Read [the technical checks](references/technical-checks.md) and [the shared report contract](../../references/output-mode.md). Identify the target files, source revision or content hash, and whether this is a whole-document or diff review. In a diff review, examine surrounding prerequisites and examples and distinguish introduced from pre-existing defects.
+Read [the technical checks](references/technical-checks.md) and [the report contract](references/shared/output-mode.md). Identify the target files, source revision or content hash, and whether this is a whole-document or diff review. In a diff review, examine surrounding prerequisites and examples and distinguish introduced from pre-existing defects.
 
 First classify the document as an **unordered technical reference** or a **step-by-step tutorial/how-to**. For a mixed document, classify its sections separately. Check procedures for execution order and state dependencies; do not impose a sequential workflow on independent reference entries.
 
@@ -27,7 +27,7 @@ Inspect syntax and behavior against the relevant language specification, configu
 
 ## Report and Output Mode
 
-Always return a technical report using the introduction, Quality Assessment text, summary table, priority criteria, and technical findings table in [the shared report contract](../../references/output-mode.md). Use **Major findings**, **Minor findings**, and **Suggestions** consistently; the first two represent confirmed technical errors, while suggestions are optional technical improvements. Include all findings, concrete recommended corrections, evidence, and a separate unresolved-question table. Count findings separately from occurrences and uncertainties.
+Always return a technical report using the introduction, Quality Assessment text, summary table, priority criteria, and technical findings table in [the report contract](references/shared/output-mode.md). Use **Major findings**, **Minor findings**, and **Suggestions** consistently; the first two represent confirmed technical errors, while suggestions are optional technical improvements. Include all findings, concrete recommended corrections, evidence, and a separate unresolved-question table. Count findings separately from occurrences and uncertainties.
 
 State technical coverage and review completion separately. If missing version or implementation evidence prevents requested checks, label the review partial or blocked and its priority provisional. Do not call untested behavior verified; a completed source review can explicitly exclude runtime execution.
 

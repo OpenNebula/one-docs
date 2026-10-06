@@ -52,7 +52,7 @@ Only after the user instructs you to apply suggestions, edit the approved rows. 
 
 ## Output Mode
 
-When the user requests output, a saved report, or a Markdown report file, follow [the shared output-mode contract](../../references/output-mode.md). Create the report with this skill's table columns and quality assessment. An output request alone authorizes writing the report, not applying its recommendations to the reviewed document. When combined with explicit Create, it also requests a report of the creation changes and remaining questions, as defined in the create reference. Without an output request, retain the usual conversational report.
+When the user requests output, a saved report, or a Markdown report file, follow [the output-mode contract](references/shared/output-mode.md). Create the report with this skill's table columns and quality assessment. An output request alone authorizes writing the report, not applying its recommendations to the reviewed document. When combined with explicit Create, it also requests a report of the creation changes and remaining questions, as defined in the create reference. Without an output request, retain the usual conversational report.
 
 ## Example Execution Restriction
 
