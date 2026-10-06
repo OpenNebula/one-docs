@@ -15,6 +15,7 @@ Include a high level description and a link to the documentation explaining the 
 * Add per-VM live migration options through [`MIGRATE_AUTO_CONVERGE` and `MIGRATE_COMPRESSED`]({{% relref "/product/operation_references/configuration_references/template#template-features" %}}) VM template attributes. Administrators can now tune auto-convergence and memory compression only for selected KVM VMs, improving migration reliability and bandwidth usage without changing global driver defaults.
 -->
 
+* Add an option to [cancel an ongoing Virtual Machine backup from Sunstone]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations#cancel-backup" %}}) [#8069](https://github.com/OpenNebula/one/issues/8069).
 * Added a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
 * Add support for Ceph VM backups through the [interactive backup integration]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
 * Allow overriding `CLUSTER_IDS` when instantiating Virtual Network Templates [#8065](https://github.com/OpenNebula/one/issues/8065).
@@ -66,6 +67,20 @@ The following issues have been solved in 7.4.2:
 After upgrading to 7.4.2, check the following settings to enable the new Sunstone functionality in the intended views. All paths below are relative to `/etc/one/fireedge/` on the OpenNebula Front-end Host.
 
 Merge these settings into the existing YAML sections, preserving other settings and actions. Do not create duplicate `info-tabs` or `filters` keys.
+
+### Enable VM backup cancellation in Sunstone [#8069](https://github.com/OpenNebula/one/issues/8069)
+
+In `sunstone/views/admin/vm-tab.yaml`, `sunstone/views/groupadmin/vm-tab.yaml` and `sunstone/views/user/vm-tab.yaml`, add `backup-cancel: true` under `info-tabs.backup.actions`:
+
+```yaml
+info-tabs:
+  backup:
+    enabled: true
+    actions:
+      backup-cancel: true
+```
+
+The `admin` view already has an `actions` section for backups; add the new entry alongside its existing actions. In the `groupadmin` and `user` views, create the `actions` section under `backup` if it does not already exist. Restart FireEdge for the configuration changes to take effect.
 
 ### Update any item without having permissions to create it on yaml FireEdge views [#6416](https://github.com/OpenNebula/one/issues/6416)
 
