@@ -15,9 +15,12 @@ Include a high level description and a link to the documentation explaining the 
 * Add per-VM live migration options through [`MIGRATE_AUTO_CONVERGE` and `MIGRATE_COMPRESSED`]({{% relref "/product/operation_references/configuration_references/template#template-features" %}}) VM template attributes. Administrators can now tune auto-convergence and memory compression only for selected KVM VMs, improving migration reliability and bandwidth usage without changing global driver defaults.
 -->
 
+* Add an option to [cancel an ongoing Virtual Machine backup from Sunstone]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations#cancel-backup" %}}) [#8069](https://github.com/OpenNebula/one/issues/8069).
 * Added a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
 * Add support for Ceph VM backups through the [interactive backup integration]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
 * Allow overriding `CLUSTER_IDS` when instantiating Virtual Network Templates [#8065](https://github.com/OpenNebula/one/issues/8065).
+* Improve OneBEX performance by allowing concurrent reads when exposing disk data and remove OneBEX timeouts [#7961](https://github.com/OpenNebula/one/issues/7961).
+* Add a [log warning when a driver's action queue is larger than its number of threads]({{% relref "product/operation_references/opennebula_services_configuration/oned.md#action-queue-warning" %}}).
 
 ## Resolved Issues
 
@@ -36,6 +39,7 @@ The following issues have been solved in 7.4.2:
 * Fix service template updates in Sunstone [#7193](https://github.com/OpenNebula/one/issues/7193).
 * Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
 * Fix Zendesk support ticket comments by preventing replies to closed tickets and displaying errors when comment delivery fails [#7280](https://github.com/OpenNebula/one/issues/7280).
+* Fix Disable restricted capacity modification fields for non-admins [#7516](https://github.com/OpenNebula/one/issues/7516).
 * Fix Force option missing when removing address range in Sunstone [#8070](https://github.com/OpenNebula/one/issues/8070).
 * Fix FireEdge failing to connect when VNC `LISTEN` is set to a DNS name [#6976](https://github.com/OpenNebula/one/issues/6976).
 * Fix OneBEX interactive exports when backup datastores use non-default paths by passing the backup directory in the export request [#8093](https://github.com/OpenNebula/one/issues/8093).
@@ -51,8 +55,11 @@ The following issues have been solved in 7.4.2:
 * Fix search field missing in Service Template Edit screen [#8097](https://github.com/OpenNebula/one/issues/8097).
 * Fix `oneimage` and `onevm` commands to not truncate IDs greater than 999 [#8108](https://github.com/OpenNebula/one/issues/8108)
 * Fix multiple security groups issues [#8126](https://github.com/OpenNebula/one/issues/8126).
-* Fix VM Template custom attributes not being removed when edited in FireEdge. [#8098](https://github.com/OpenNebula/one/issues/8098).
-* Fix NetApp Datastore Creation Values Incorrect. [#8035](https://github.com/OpenNebula/one/issues/8035).
+* Fix VM Template custom attributes not being removed when edited in FireEdge [#8098](https://github.com/OpenNebula/one/issues/8098).
+* Fix NetApp Datastore values in creation tab [#8035](https://github.com/OpenNebula/one/issues/8035).
+* Fix missing CPU Model field in VM Update Configuration [#8034](https://github.com/OpenNebula/one/issues/8034).
+* Fix missing `IOTHREADS` in VM `OS & CPU Features` configuration tab [#7585](https://github.com/OpenNebula/one/issues/7585).
+* Fix OneGate service role scaling from inside VMs, which could fail due to the request body being consumed before processing [#7954](https://github.com/OpenNebula/one/issues/7954).
 
 ---
 
@@ -61,6 +68,20 @@ The following issues have been solved in 7.4.2:
 After upgrading to 7.4.2, check the following settings to enable the new Sunstone functionality in the intended views. All paths below are relative to `/etc/one/fireedge/` on the OpenNebula Front-end Host.
 
 Merge these settings into the existing YAML sections, preserving other settings and actions. Do not create duplicate `info-tabs` or `filters` keys.
+
+### Enable VM backup cancellation in Sunstone [#8069](https://github.com/OpenNebula/one/issues/8069)
+
+In `sunstone/views/admin/vm-tab.yaml`, `sunstone/views/groupadmin/vm-tab.yaml` and `sunstone/views/user/vm-tab.yaml`, add `backup-cancel: true` under `info-tabs.backup.actions`:
+
+```yaml
+info-tabs:
+  backup:
+    enabled: true
+    actions:
+      backup-cancel: true
+```
+
+The `admin` view already has an `actions` section for backups; add the new entry alongside its existing actions. In the `groupadmin` and `user` views, create the `actions` section under `backup` if it does not already exist. Restart FireEdge for the configuration changes to take effect.
 
 ### Update any item without having permissions to create it on yaml FireEdge views [#6416](https://github.com/OpenNebula/one/issues/6416)
 
