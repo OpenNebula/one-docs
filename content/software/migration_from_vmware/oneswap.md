@@ -658,12 +658,14 @@ OneSwap injects the [OpenNebula context packages]({{% relref "kvm_contextualizat
 
 For Enterprise Linux 8, 9 and 10 guests, OneSwap installs the local context RPM directly with `dnf` and does not bootstrap EPEL. Repository access may still be used by `dnf` to resolve package dependencies, but unavailable repositories are skipped with short timeouts to avoid unnecessarily delaying context injection.
 
+The `qemu-guest-agent` package is not required by `one-context` itself. It is used by OpenNebula for guest-agent-based functionality such as filesystem freeze, VM execution and guest monitoring. During `one-context` installation, OneSwap suppresses recommended/weak dependencies so that `qemu-guest-agent` is not installed as a side effect of contextualization. Use `--qemu-ga` to explicitly request installation of the QEMU Guest Agent in a migrated Linux guest.
+
 Additional guest software can be injected during the conversion:
 
 - `--virtio /path/to/iso`: full path of the VirtIO driver ISO used to inject storage and network drivers into Windows guests. Configure this option when Windows disks use the `vd` device prefix; otherwise the converted VM may fail to boot if the drivers are not already installed.
 - `--virt-tools /path/to/virt-tools`: path to the directory containing `rhsrvany.exe`, defaults to `/usr/local/share/virt-tools` (see [Required software for migrating Windows Virtual Machines](#required-software-for-migrating-windows-virtual-machines)).
 - `--win-qemu-ga /path/to/iso`: install the QEMU Guest Agent into a Windows guest.
-- `--qemu-ga`: install the `qemu-guest-agent` package into a Linux guest, useful with `--custom` or `--fallback`.
+- `--qemu-ga`: explicitly install the `qemu-guest-agent` package into a Linux guest.
 - `--remove-vmtools`: inject a firstboot script that removes VMware Tools from the guest on its first boot in OpenNebula (supported for both Linux and Windows guests, including Windows Server 2025).
 
 {{< alert type="info" >}}
