@@ -6,6 +6,7 @@ ACOD
 ACPI
 ADDITONAL
 AddressRange
+addport
 Airgapped
 Alertmanager
 AllInstances
@@ -81,6 +82,7 @@ DDDEBUG
 DDEBUG
 DDR
 Deault
+delport
 DevOps
 Devuan
 DHCPv
@@ -105,6 +107,7 @@ efi
 Entrypoint
 ENV
 EPEL
+ERSPAN
 Equinix
 ESX
 ESXi
@@ -136,6 +139,7 @@ Golang
 GPG
 GPUs
 Grafana
+GRE
 Guacd
 Gurobi
 HAproxy
@@ -335,6 +339,7 @@ RHEL
 ROMs
 RPCCaller
 RPCs
+RSPAN
 Rsync
 RSync
 RTC

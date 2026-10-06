@@ -17,6 +17,8 @@ This guide describes how to use the [Open vSwitch](http://openvswitch.org/) netw
 
 The VLAN ID will be the same for every interface in a given network, calculated automatically by OpenNebula. It may also be forced by specifying an `VLAN_ID` parameter in the [Virtual Network template]({{% relref "../../operation_references/configuration_references/vnet_template#vnet-template" %}}).
 
+These drivers support [Port Mirroring]({{% relref "port_mirroring" %}}) for copying selected VM traffic to a local or remote collector.
+
 {{< alert title="Warning" type="warning" >}}
 This driver doesn’t support Security Groups.{{< /alert >}}
 
