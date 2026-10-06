@@ -112,31 +112,36 @@ This creates an image and a VM template, both called **Open OnDemand**.
 
 ### Step 3. Fill in the User Inputs
 
-The wizard has three tabs.
+The wizard has three tabs, **LDAP**, **Home** and **Slurm**.
 
-| Tab | Field | Example |
-|-----|-------|---------|
-| LDAP | LDAP URL | `ldap://10.0.0.20` |
-| LDAP | LDAP domain or base DN | `slurm.local` (default) |
-| Home | NFS export for `/home` | `10.0.0.10:/export/home` |
-| Slurm | Slurm clusters, one per line | `cpu:10.0.0.20` |
+#### LDAP Tab
+
+* In **LDAP URL**, enter the LDAP server of the clusters, for example `ldap://10.0.0.20`.
+* In **LDAP domain or base DN**, keep `slurm.local`, the default of OneSlurm, or enter the domain of your LDAP server.
 
 {{< image path="/images/slurm/open_ondemand/ood_wizard_ldap.png"
-alt="LDAP tab of the Open OnDemand wizard" align="center" width="90%" mb="20px" >}}
+alt="LDAP tab of the Open OnDemand wizard" align="center" width="100%" mb="30px" >}}
+
+#### Home Tab
+
+* In **NFS export for /home**, enter the export with the homes of the users, for example `10.0.0.10:/export/home`.
 
 {{< image path="/images/slurm/open_ondemand/ood_wizard_home.png"
-alt="Home tab of the Open OnDemand wizard" align="center" width="90%" mb="20px" >}}
+alt="Home tab of the Open OnDemand wizard" align="center" width="100%" mb="30px" >}}
 
-Each line of the **Slurm** tab is `name:IP`, with the IP address of the controller.
+#### Slurm Tab
 
-* The name is what users see in the portal.
-* The name starts with a letter or a digit. It has up to 63 characters, with letters, digits, `-` and `_`.
-* Each name is used only once.
-* The IP address is IPv4.
-* Every cluster uses the same LDAP server and the same `/home` as the portal.
+* In **Slurm clusters**, enter one line for each cluster, as `name:IP` with the IP address of the controller, for example `cpu:10.0.0.20`.
 
 {{< image path="/images/slurm/open_ondemand/ood_wizard_slurm.png"
-alt="Slurm tab of the Open OnDemand wizard" align="center" width="90%" mb="20px" >}}
+alt="Slurm tab of the Open OnDemand wizard" align="center" width="100%" mb="30px" >}}
+
+Rules for each line:
+
+* The name is what users see in the portal. Use up to 63 letters, digits, `-` and `_`, and start with a letter or a digit.
+* Use each name only once.
+* Use an IPv4 address.
+* Every cluster uses the same LDAP server and the same `/home` as the portal.
 
 ### Step 4. Attach the Network of the Clusters
 
@@ -146,7 +151,7 @@ alt="Slurm tab of the Open OnDemand wizard" align="center" width="90%" mb="20px"
 4. Click **Finish**.
 
 {{< image path="/images/slurm/open_ondemand/ood_wizard_network.png"
-alt="Network tab of the Open OnDemand wizard with the NIC of the clusters" align="center" width="90%" mb="20px" >}}
+alt="Network tab of the Open OnDemand wizard with the NIC of the clusters" align="center" width="100%" mb="30px" >}}
 
 The portal uses the IPv4 address of the first NIC. Users must reach that address with their web browser.
 
