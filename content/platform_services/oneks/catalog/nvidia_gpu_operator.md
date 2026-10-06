@@ -13,7 +13,7 @@ type: docs
 
 The [**NVIDIA GPU Operator**](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/) deploys the NVIDIA GPU software stack required to expose and manage NVIDIA GPUs in Kubernetes. Use it on K8s Clusters with NVIDIA GPU worker nodes so workloads can request GPU resources through Kubernetes.
 
-| Attribute | Value |
+| **Attribute** | **Value** |
 |-----------|-------|
 | Application ID | `8cb0d29e-4521-4bcb-a977-786df097d162` |
 | Helm repository | `https://helm.ngc.nvidia.com/nvidia` |

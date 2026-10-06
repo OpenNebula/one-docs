@@ -13,7 +13,7 @@ type: docs
 
 The [**Prometheus**](https://prometheus.io/docs/introduction/overview/) application installs the `kube-prometheus-stack` chart to collect Kubernetes metrics and store them as time-series data. Use it to monitor K8s Cluster components and workloads and to provide a metrics source for observability integrations.
 
-| Attribute | Value |
+| **Attribute** | **Value** |
 |-----------|-------|
 | Application ID | `d511b694-d868-4e40-8224-fdf6a0ca3383` |
 | Helm repository | `https://prometheus-community.github.io/helm-charts` |

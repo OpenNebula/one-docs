@@ -13,7 +13,7 @@ type: docs
 
 The [**NVIDIA Run:ai Platform**](https://docs.nvidia.com/run-ai/self-hosted/index.html) installs the Run:ai control plane with managed ingress, GPU, monitoring, storage, certificate, and CA-distribution components. Use it to provide centralized Run:ai scheduling and administration services for AI workloads.
 
-| Attribute | Value |
+| **Attribute** | **Value** |
 |-----------|-------|
 | Application ID | `905abc6e-7cea-4a0a-bc84-ad215a3fc1fe` |
 | Helm repository | `https://helm.ngc.nvidia.com/nvidia/runai` |
