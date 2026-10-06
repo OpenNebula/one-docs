@@ -79,7 +79,6 @@ To ensure a compatible integration between OpenNebula and Veeam Backup, the foll
 | Veeam Workers | OpenNebula Hosts     | TCP/13014     | OneBEX backup and restore transfers                |
 | Veeam Server  | OpenNebula Hosts     | TCP/13015     | OneBEX SSL image transfers (optional)              |
 | Veeam Workers | OpenNebula Hosts     | TCP/13015     | OneBEX SSL backup and restore transfers (optional) |
-| Veeam Workers | OpenNebula Hosts     | TCP/3500–4500 | Interactive restore transfers                      |
 
 The required connections are initiated by the Veeam components. Therefore, the firewall must allow traffic from the Veeam Server and Veeam Workers to the corresponding destination ports on the OpenNebula Front-end and Hosts.
 
