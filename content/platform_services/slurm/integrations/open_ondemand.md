@@ -2,7 +2,7 @@
 title: "Open OnDemand"
 linkTitle: "Open OnDemand"
 date: "2026-10-06"
-description: "Give the users of your Slurm clusters a web portal to manage files, submit jobs and open a terminal."
+description: ""
 categories:
 tags:
 type: docs
