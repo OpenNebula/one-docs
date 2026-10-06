@@ -55,6 +55,7 @@ The following issues have been solved in 7.4.2:
 * Fix `oneimage` and `onevm` commands to not truncate IDs greater than 999 [#8108](https://github.com/OpenNebula/one/issues/8108)
 * Fix multiple security groups issues [#8126](https://github.com/OpenNebula/one/issues/8126).
 * Fix VM Template custom attributes not being removed when edited in FireEdge. [#8098](https://github.com/OpenNebula/one/issues/8098).
+* Fix missing `IOTHREADS` in VM `OS & CPU Features` configuration tab [#7585](https://github.com/OpenNebula/one/issues/7585).
 * Fix OneGate service role scaling from inside VMs, which could fail due to the request body being consumed before processing.[#7954](https://github.com/OpenNebula/one/issues/7954).
 
 ---
