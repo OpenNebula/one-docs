@@ -99,20 +99,38 @@ If using High Availability, any changes to ``/var/lib/one/remotes/etc/onebex/one
 
 ### 2. Enable VM Guest Agent Monitoring
 
-The integration needs VM Guest Agent monitoring to be enabled. To do so set ``:enabled`` to ``true`` on the following file in the frontend: 
+For Veeam to discover guest IP addresses on the correct NIC, enable the QEMU Guest Agent communication channel in each VM template with `FEATURES = [ GUEST_AGENT = "YES" ]`, and install and start the QEMU Guest Agent inside the guest. See [Enabling QEMU Guest Agent]({{% relref "product/operation_references/hypervisor_configuration/kvm_driver#enabling-qemu-guest-agent" %}}) for details.
+
+On the Front-end, edit:
 
 ```default
 /var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf
 ```
 
-Then, in the same frontend server execute the following command to propagate the remote into the KVM hosts: 
+Set `:enabled` to `true` and add `:vm_guest_interfaces_b64` under the existing `:commands` section:
+
+```yaml
+:enabled: true
+:commands:
+  :vm_qemu_ping: one-$vm_id '{"execute":"guest-ping"}' --timeout 5
+  :vm_guest_interfaces_b64: >-
+    one-$vm_id '{"execute":"guest-network-get-interfaces"}' --timeout 10 |
+    ruby -rjson -rbase64 -e 'puts JSON.generate("return" =>
+    Base64.strict_encode64(JSON.parse(STDIN.read).fetch("return").to_json))'
+```
+
+Keep any other commands already configured. This command stores the guest interface list as Base64-encoded JSON in `MONITORING/VM_GUEST_INTERFACES_B64`. The list includes each interface's MAC address and IP addresses, allowing oVirtAPI to associate guest IPv4 addresses with the right VM NIC. The default `GUEST_IP_ADDRESSES` value does not include that association.
+
+Then synchronize the configuration to the KVM hosts from the Front-end:
 
 ```shell
 onehost sync --force
 ```
 
+After the next VM monitoring cycle, check `onevm show <vm-id> --json` for `MONITORING/VM_GUEST_INTERFACES_B64` on a running VM with a working guest agent.
+
 {{< alert title="High Availability" type="info" >}}
-If using High Availability, any changes to ``/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf`` need to be performed on all frontends.
+If using High Availability, make the same change to `/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf` on all Front-ends.
 {{< /alert >}}
 
 ### 3. Create the Veeam Backup Datastore
