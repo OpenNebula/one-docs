@@ -25,12 +25,10 @@ When a VM backup is created through an interactive backup integration, OpenNebul
 
 1. The VM backup workflow prepares the selected disks for export. Full backups and CBT incremental backups are supported.
 2. OpenNebula writes the export metadata to `interactive_exports.json` in the VM backup directory on the hypervisor.
-3. OneBEX is started on the hypervisor if it is not already running.
-4. The external backup system requests the export from OneBEX, discovers the available disk transfers, and reads disk data ranges and block extents.
+3. The Transfer Manager (TM) starts OneBEX on the hypervisor if it is not already running, then sends `POST /export` with the VM ID, datastore ID, and backup directory.
+4. The external backup system discovers the available disk transfers through `GET /status` and reads disk data ranges and block extents.
 5. The external backup system finalizes each transfer and then finishes the VM backup session.
-6. OpenNebula records the backup metadata as a backup image in the integration datastore.
-
-OneBEX stops automatically when the backup session is finished or when it remains idle for longer than the configured timeout.
+6. OneBEX publishes the VM completion result, allowing TM to complete the backup operation. OpenNebula records the backup metadata as a backup image in the integration datastore.
 
 ## Compatibility
 
@@ -39,11 +37,11 @@ The current interactive backup implementation supports the following configurati
 | Component | Support |
 |-----------|---------|
 | Hypervisor | KVM |
-| VM disk storage | File-based `qcow2` disks and disks on LVM datastores |
+| VM disk storage | File-based `qcow2` disks, disks on LVM datastores, and Ceph RBD disks |
 | Backup types | Full and incremental |
 | Incremental mode | CBT only (`INCREMENT_MODE="CBT"`) |
 | VM state | Running and powered off VMs |
-| OneBEX exporter | NBD, LVM |
+| OneBEX exporter | NBD, LVM, RBD |
 
 {{< alert title="Important" type="info" >}}
 Interactive incremental backups do not support the `SNAPSHOT` increment mode. OpenNebula rejects this combination when the backup configuration is updated.
@@ -78,7 +76,7 @@ $ onehost sync -f
 OneBEX logs are written on each hypervisor to `/var/log/one/onebex.log`.
 {{< /alert >}}
 
-The configuration file defines the OneBEX listen address, shutdown behavior, logging settings, and Puma web server concurrency limits.
+The configuration file defines the OneBEX listen address, logging settings, and Puma web server concurrency limits.
 
 ### Server Configuration
 
@@ -86,9 +84,6 @@ The configuration file defines the OneBEX listen address, shutdown behavior, log
 |-----------|---------------|-------------|
 | `:host:` | `0.0.0.0` | Address where OneBEX listens for HTTP requests. By default, it listens on all available interfaces. |
 | `:port:` | `13014` | TCP port where OneBEX listens for HTTP requests. |
-| `:shutdown_delay:` | `2` | Delay, in seconds, after the final `/vms/:VM_ID/finish` request before stopping OneBEX. |
-| `:idle_timeout:` | `300` | Maximum time, in seconds, without receiving any HTTP request before OneBEX stops automatically. |
-| `:onebex_timeout:` | `1800` | Maximum time, in seconds, that OpenNebula waits for an interactive export to finish after it has started. |
 
 ### Log Configuration
 
@@ -103,6 +98,8 @@ The configuration file defines the OneBEX listen address, shutdown behavior, log
 |-----------|---------------|-------------|
 | `:puma: :min_threads:` | `1` | Minimum number of Puma threads used to handle concurrent OneBEX HTTP requests. |
 | `:puma: :max_threads:` | `4` | Maximum number of Puma threads used to handle concurrent OneBEX HTTP requests. |
+
+These limits apply to HTTP requests, not to the number of VM sessions or exported disks.
 
 ## Integration Datastore
 
@@ -138,15 +135,28 @@ onebex://<IMAGE_DS_ID>:<PORT_ID>
 
 `IMAGE_DS_ID` is the destination Image Datastore ID where the restored disk image will be created. `PORT_ID` is the restore transfer port allocated for the interactive restore session.
 
+The writer accepts one frame per TCP connection. Each frame starts with a one-byte type:
+
+| Type | Name | Payload |
+|------|------|---------|
+| `0x00` | `DATA` | Three unsigned 64-bit big-endian integers containing the start byte, payload size, and total image size, followed by the image data. |
+| `0x01` | `FINISH` | No payload. Stops the writer and lets OpenNebula finalize the restore transfer. |
+
+After sending all the image data, the integration must open one final connection to the restore transfer port and send the `FINISH` frame. The integration must also send this frame when a restore is cancelled or fails. Do not send more data after the `FINISH` frame.
+
 If a restore fails, the restored Image remains in `LOCKED` state and should be removed manually:
 
-{{< alert title="Important" type="info" >}}
-Get the restore transfer port from the Image `PATH` attribute, which has the form `onebex://<IMAGE_DS_ID>:<PORT_ID>`, and terminate the writer process associated with that port:
+{{< alert title="Note" type="info" >}}
+Get the restore transfer port from the Image `PATH` attribute and send the `FINISH` frame to the writer. This stops the writer gracefully and allows OpenNebula to complete the transfer cleanup. Use a Front-end address that is reachable from the system where you run the command. If you run it directly on the Front-end, you can use `127.0.0.1`. The restore transfer port must be allowed by any intervening firewall:
 
 ```shell
-PORT=<PORT_ID>
-pgrep -f "onebex_writer.rb .* ${PORT} " | xargs -r kill -TERM
-oneimage delete --force <IMAGE_ID>
+python3 -c 'import socket, sys; s = socket.create_connection((sys.argv[1], int(sys.argv[2]))); s.sendall(b"\x01"); s.close()' <FRONTEND_ADDRESS> <PORT_ID>
+```
+
+After the writer finishes, delete the incomplete Image:
+
+```shell
+oneimage delete <IMAGE_ID>
 ```
 {{< /alert >}}
 
@@ -161,7 +171,7 @@ The OneBEX API is consumed by backup integrations. The current API is:
 | `/` | `GET` | Returns basic server information and the available API routes. | `200` |
 | `/status` | `GET` | Returns the current export status for a VM. Requires `VM_ID`. | `200`, `400` |
 | `/exporters` | `GET` | Lists the exporter backends available in OneBEX. | `200` |
-| `/export` | `POST` | Starts one or more disk exports for a VM. Requires `VM_ID` and `DS_ID`. `DISKS` is optional. | `200`, `400`, `404`, `500` |
+| `/export` | `POST` | Starts one or more disk exports for a VM. Requires `VM_ID`, `DS_ID`, and `BACKUP_DIR`. `DISKS` is optional. | `200`, `400`, `404`, `409`, `500`, `503` |
 | `/transfers/:TRANSFER_ID/info` | `GET` | Returns size and format information for a transfer. | `200`, `404`, `500` |
 | `/images/:TRANSFER_ID` | `OPTIONS` | Returns supported image transfer features and concurrency limits. | `200` |
 | `/images/:TRANSFER_ID/extents` | `GET` | Returns block extent information for a transfer. | `200`, `404`, `500` |
@@ -169,21 +179,22 @@ The OneBEX API is consumed by backup integrations. The current API is:
 | `/images/:TRANSFER_ID` | `PUT` | Image write operation. Currently not implemented. | `501` |
 | `/images/:TRANSFER_ID` | `PATCH` | Accepts a flush operation when the request body uses `op=flush`. | `200`, `400`, `404` |
 | `/transfer/:TRANSFER_ID/finalize` | `POST` | Finalizes a transfer and releases its exporter resources. | `200`, `400`, `404` |
-| `/vms/:VM_ID/cancel` | `POST` | Cancels all active transfers for a VM. | `200`, `400` |
-| `/vms/:VM_ID/finish` | `POST` | Finishes the VM backup session after all transfers have been finalized. | `200`, `409` |
+| `/vms/:VM_ID/cancel` | `POST` | Cancels VM export preparation and active transfers, waiting for cleanup. | `200`, `400`, `500` |
+| `/vms/:VM_ID/finish` | `POST` | Publishes the VM result after preparation and all transfer cleanup have completed. | `200`, `409`, `500` |
 
 ### HTTP Status Codes
 
 | Code | Description |
 |------|-------------|
-| `200 OK` | Request completed successfully. |
+| `200 OK` | Request completed. Check `SUCCESS` in lifecycle responses for the backup result. |
 | `206 Partial Content` | Requested byte range returned successfully. |
 | `400 Bad Request` | Invalid request, missing parameters, malformed JSON, invalid range format, or unsupported operation. |
 | `404 Not Found` | Transfer, disk, export metadata, or endpoint not found. |
-| `409 Conflict` | VM backup cannot finish while transfers are still pending. |
+| `409 Conflict` | An export already exists or was cancelled/failed in the current process, or a VM cannot finish while preparation or transfer cleanup is pending. |
 | `416 Range Not Satisfiable` | Required byte range is missing or invalid. |
 | `500 Internal Server Error` | Unexpected server-side error, invalid export metadata, or exporter/backend failure. |
 | `501 Not Implemented` | Operation exists but is not implemented. |
+| `503 Service Unavailable` | OneBEX is stopping because the export was not admitted. |
 
 ### Responses
 
@@ -249,12 +260,28 @@ The OneBEX API is consumed by backup integrations. The current API is:
 {
   "EXPORTERS": [
     "nbd",
-    "lvm"
+    "lvm",
+    "rbd"
   ]
 }
 ```
 
 #### `POST /export`
+
+Request:
+
+```json
+{
+  "VM_ID": 123,
+  "DS_ID": 100,
+  "BACKUP_DIR": "/var/lib/one/datastores/100/123/backup",
+  "DISKS": [
+    0
+  ]
+}
+```
+
+`BACKUP_DIR` is the VM backup directory that contains `interactive_exports.json`. When `DISKS` is omitted, OneBEX starts exports for all disks listed in `interactive_exports.json`.
 
 **`200 OK`**
 
@@ -278,7 +305,7 @@ The OneBEX API is consumed by backup integrations. The current API is:
 
 ```json
 {
-  "error": "Missing VM_ID or DS_ID"
+  "error": "Missing VM_ID, DS_ID or BACKUP_DIR"
 }
 ```
 
@@ -306,11 +333,41 @@ or:
 }
 ```
 
-**`500 Internal Server Error`**
+**`409 Conflict`**
+
+A second export cannot replace a VM's active or preparing export:
 
 ```json
 {
-  "error": "Invalid interactive_exports.json: <error>"
+  "error": "VM 123 already has an export"
+}
+```
+
+If the VM was cancelled, or its previous export failed in the current process:
+
+```json
+{
+  "error": "Backup cancelled"
+}
+```
+
+**`503 Service Unavailable`**
+
+```json
+{
+  "error": "OneBEX is stopping"
+}
+```
+
+No export was admitted for this response. TM waits up to 60 seconds for the server to stop and retries once, starting a new server if necessary.
+
+**`500 Internal Server Error`**
+
+Invalid export metadata or an unexpected preparation/exporter error returns its error message:
+
+```json
+{
+  "error": "<error message>"
 }
 ```
 
@@ -510,11 +567,14 @@ Optional request body:
 
 ```json
 {
-  "MESSAGE": "Backup cancelled by an Administrator"
+  "MESSAGE": "Backup cancelled by an Administrator",
+  "FORCE": true
 }
 ```
 
 `MESSAGE` defaults to `Backup cancelled`.
+
+`FORCE` defaults to `true`. When `true`, OneBEX cancels immediately, without waiting for export preparation, active read operations, or another finalizer. Set it to `false` to wait for in-progress operations and stop exporter processes gracefully.
 
 **`200 OK`**
 
@@ -544,7 +604,7 @@ Returned when the request body contains invalid JSON.
 }
 ```
 
-If transfers are still pending:
+If export preparation or transfer cleanup is still pending:
 
 **`409 Conflict`**
 
@@ -601,6 +661,7 @@ OneBEX uses exporters to expose VM disk data to external backup systems.
 |----------|-----------------|-----------|-------------|
 | `nbd` | File-based `qcow2` disks | Network Block Device | Exposes the backup disk through NBD. OneBEX starts a read-only `qemu-nbd` process and serves the disk export through a Unix socket. |
 | `lvm` | Disks on LVM datastores | Direct block-device reads | Exposes the prepared LVM block device directly. Full backups return the full device extent. Incremental backups use `thin_delta` to return changed extents from LVM thin metadata. |
+| `rbd` | Ceph RBD disks | Direct RBD reads | Exposes the prepared Ceph RBD snapshot directly. Full backups return the full image extent, while incremental backups return the changed extents between RBD snapshots. |
 
 {{< alert title="Note" type="info" >}}
 The `nbd` exporter reads disk data with the `nbdsh` tool from the `python3-libnbd` package. This package is installed automatically as a dependency of `opennebula-node-kvm` on all supported platforms except SLES 15, where it is not available in the SUSE repositories. To use the `nbd` exporter on SLES 15 hosts, install `python3-libnbd` manually, for example from the openSUSE Leap 15.6 repositories, together with the matching `libnbd0` package. {{< /alert >}}

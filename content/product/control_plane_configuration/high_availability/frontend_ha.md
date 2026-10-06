@@ -382,11 +382,15 @@ Individual files:
 
 - `/etc/one/monitord.conf`
 - `/etc/one/oneflow-server.conf`
+- `/etc/one/oneform-server.conf` (optional)
 - `/etc/one/onegate-server.conf`
+- `/etc/one/oneks-server.conf` (optional)
+- `/etc/one/fireedge-server.conf` (optional)
+
+Optional files are synchronized only when they exist on both the local and remote Front-ends. If an optional file is missing on either side, the command reports it and continues. Missing required files, connection errors, and permission or transfer errors still cause the command to fail.
 
 Folders:
 
-- `/etc/one/fireedge`
 - `/etc/one/auth`
 - `/etc/one/hm`
 - `/etc/one/schedulers`
