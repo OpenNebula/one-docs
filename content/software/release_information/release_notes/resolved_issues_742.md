@@ -31,7 +31,8 @@ The following issues have been solved in 7.4.2:
 * Fix Restic Datastore - the password filed is not masking the password [#7444](https://github.com/OpenNebula/one/issues/7444).
 * Fix missing theme colors in Sunstone quota panels and improve quota usage readability with per-metric values and progress bars [#6869](https://github.com/OpenNebula/one/issues/6869).
 * Fix unable to flush offline host in Sunstone [#7407](https://github.com/OpenNebula/one/issues/7407).
-- Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
+* Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
+* Fix missing service template instantiation dialog [#8037](https://github.com/OpenNebula/one/issues/8037).
 * Fix missing VRouter NIC attach/detach action [#7708](https://github.com/OpenNebula/one/issues/7708).
 * Fix VNC console reliability for LXC virtual machines by increasing Guacamole tunnel timeouts and preventing premature disconnections due to svncterm inactivity [#8095](https://github.com/OpenNebula/one/issues/8095).
 * Fix SPICE support in Sunstone [#7667](https://github.com/OpenNebula/one/issues/7667).
