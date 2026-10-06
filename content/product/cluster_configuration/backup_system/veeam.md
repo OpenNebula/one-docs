@@ -30,11 +30,11 @@ The following table summarizes the supported backup modes for each storage syste
 |--------------|------|-------------|
 | File (qcow2) | Yes  | Yes         |
 | File (raw)   | No†  | No†         |
-| Ceph         | No†  | No†         |
+| Ceph (RBD)   | Yes  | Yes         |
 | LVM          | Yes  | Yes         |
 | NetApp       | No†  | No†         |
 
-<sup>†</sup> These backup modes were supported in previous OpenNebula versions, such as 7.0 and 7.2. In OpenNebula version 7.4, they are not supported by the current OneBEX-based integration, but are planned to be supported in a future maintenance releases.
+<sup>†</sup> File (raw) and NetApp backup modes were supported in previous OpenNebula versions, such as 7.0 and 7.2. In OpenNebula version 7.4, they are not supported by the current OneBEX-based integration, but are planned to be supported in future maintenance releases.
 
 ### Volatile Disk Backups
 
@@ -71,6 +71,19 @@ To ensure a compatible integration between OpenNebula and Veeam Backup, the foll
 
 {{< image path="/images/veeam/interactive_backup_veeam_architecture.svg" alt="Architecture of the OpenNebula-Veeam Backup Integration" align="center" width="90%" mb="20px" border="false" >}}
 
+### Firewall Configuration
+
+| Source        | Destination          | Port          | Service / Purpose                                  |
+|---------------|----------------------|---------------|----------------------------------------------------|
+| Veeam Server  | OpenNebula Front-end | TCP/443       | oVirtAPI (HTTPS)                                   |
+| Veeam Workers | OpenNebula Front-end | TCP/443       | oVirtAPI (HTTPS)                                   |
+| Veeam Server  | OpenNebula Hosts     | TCP/13014     | OneBEX image transfers                             |
+| Veeam Workers | OpenNebula Hosts     | TCP/13014     | OneBEX backup and restore transfers                |
+| Veeam Server  | OpenNebula Hosts     | TCP/13015     | OneBEX SSL image transfers (optional)              |
+| Veeam Workers | OpenNebula Hosts     | TCP/13015     | OneBEX SSL backup and restore transfers (optional) |
+
+The required connections are initiated by the Veeam components. Therefore, the firewall must allow traffic from the Veeam Server and Veeam Workers to the corresponding destination ports on the OpenNebula Front-end and Hosts.
+
 ## Installation and Configuration
 
 ### 1. Configure OneBEX
@@ -99,20 +112,38 @@ If using High Availability, any changes to ``/var/lib/one/remotes/etc/onebex/one
 
 ### 2. Enable VM Guest Agent Monitoring
 
-The integration needs VM Guest Agent monitoring to be enabled. To do so set ``:enabled`` to ``true`` on the following file in the frontend: 
+For Veeam to discover guest IP addresses on the correct NIC, enable the QEMU Guest Agent communication channel in each VM template with `FEATURES = [ GUEST_AGENT = "YES" ]`, and install and start the QEMU Guest Agent inside the guest. See [Enabling QEMU Guest Agent]({{% relref "product/operation_references/hypervisor_configuration/kvm_driver#enabling-qemu-guest-agent" %}}) for details.
+
+On the Front-end, edit:
 
 ```default
 /var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf
 ```
 
-Then, in the same frontend server execute the following command to propagate the remote into the KVM hosts: 
+Set `:enabled` to `true` and add `:vm_guest_interfaces_b64` under the existing `:commands` section:
+
+```yaml
+:enabled: true
+:commands:
+  :vm_qemu_ping: one-$vm_id '{"execute":"guest-ping"}' --timeout 5
+  :vm_guest_interfaces_b64: >-
+    one-$vm_id '{"execute":"guest-network-get-interfaces"}' --timeout 10 |
+    ruby -rjson -rbase64 -e 'puts JSON.generate("return" =>
+    Base64.strict_encode64(JSON.parse(STDIN.read).fetch("return").to_json))'
+```
+
+Keep any other commands already configured. This command stores the guest interface list as Base64-encoded JSON in `MONITORING/VM_GUEST_INTERFACES_B64`. The list includes each interface's MAC address and IP addresses, allowing oVirtAPI to associate guest IPv4 addresses with the right VM NIC. The default `GUEST_IP_ADDRESSES` value does not include that association.
+
+Then synchronize the configuration to the KVM hosts from the Front-end:
 
 ```shell
 onehost sync --force
 ```
 
+After the next VM monitoring cycle, check `onevm show <vm-id> --json` for `MONITORING/VM_GUEST_INTERFACES_B64` on a running VM with a working guest agent.
+
 {{< alert title="High Availability" type="info" >}}
-If using High Availability, any changes to ``/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf`` need to be performed on all frontends.
+If using High Availability, make the same change to `/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf` on all Front-ends.
 {{< /alert >}}
 
 ### 3. Create the Veeam Backup Datastore
@@ -143,7 +174,7 @@ Add the datastore to each Cluster containing VMs that will be backed up by Veeam
 onecluster adddatastore <cluster-name> <datastore-name>
 ```
 
-For more information about the `interactive` driver internals, see [Interactive Backup Integrations]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration#interactive-backup-integration" %}}).
+For more information about the `interactive` driver internals, see [Interactive Backup Integrations]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
 
 ### 4. Install and Configure the oVirtAPI Module
 
@@ -287,13 +318,17 @@ Successful restores and restores cancelled from Veeam complete the cleanup lifec
 
 However, if a restore fails, Veeam reports the error and the incomplete OpenNebula Image remains in `LOCKED` state. In that case, remove the incomplete Image manually from OpenNebula:
 
-{{< alert title="Important" type="info" >}}
-Get the restore transfer port from the Image `PATH` attribute, which has the form `onebex://<IMAGE_DS_ID>:<PORT_ID>`, and terminate the writer process associated with that port:
+{{< alert title="Note" type="info" >}}
+Get the restore transfer port from the Image `PATH` attribute, which has the form `onebex://<IMAGE_DS_ID>:<PORT_ID>`. Send the `FINISH` frame (`0x01`) to the writer listening on that port. This stops the writer gracefully and allows OpenNebula to complete the transfer cleanup. Use a Front-end address that is reachable from the system where you run the command. If you run it directly on the Front-end, you can use `127.0.0.1`. The restore transfer port must be allowed by any intervening firewall:
 
 ```shell
-PORT=<PORT_ID>
-pgrep -f "onebex_writer.rb .* ${PORT} " | xargs -r kill -TERM
-oneimage delete --force <IMAGE_ID>
+python3 -c 'import socket, sys; s = socket.create_connection((sys.argv[1], int(sys.argv[2]))); s.sendall(b"\x01"); s.close()' <FRONTEND_ADDRESS> <PORT_ID>
+```
+
+After the writer finishes, delete the incomplete Image:
+
+```shell
+oneimage delete <IMAGE_ID>
 ```
 
 {{< /alert >}}

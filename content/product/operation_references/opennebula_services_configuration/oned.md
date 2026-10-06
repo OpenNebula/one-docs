@@ -476,7 +476,7 @@ Drivers to manage different Marketplaces, specialized for the storage backend.
 - `ARGUMENTS`: for the driver executable:
   - `-t` number of threads, i.e., number of simultaneous repo operations
   - `-m` Marketplace mads separated by commas
-  - `--proxy` proxy URI, if required to access the internet. For example `--proxy http://1.2.3.4:5678`
+  - `--proxy` proxy URI, if required to access the internet. For example `--proxy http://username:password@proxy.example.com:8080`. For the `one` monitor, this overrides the `HTTP_PROXY` environment variable.
   - `-w` timeout in seconds to execute external commands (default unlimited)
 
 Sample configuration:
@@ -862,6 +862,17 @@ Other logs are also available in Journald, use the following command to show the
 ```default
 # journalctl -u opennebula.service
 ```
+
+### Action Queue Warning
+
+OpenNebula drivers log a warning when the number of pending actions is greater than the number of threads available to process them. For example:
+
+```default
+Action queue size (4) is greater than the number of threads (1)
+Action queue size (5) is greater than the number of threads (1)
+```
+
+This warning indicates that actions are waiting in the driver queue. It does not mean that they have failed.If the warning is emitted continuously or the queue keeps growing, check the affected driver and its underlying service for slow operations. If the Front-end and the managed infrastructure have enough capacity, you can also increase the driver's thread count with the `-t` option in the corresponding `*_MAD` `ARGUMENTS` attribute in `/etc/one/oned.conf`. Restart the OpenNebula Daemon after changing the configuration.
 
 {{< alert title="Important" type="info" >}}
 See [Troubleshooting]({{% relref "troubleshooting#troubleshoot-additional" %}}) guide to learn about the logging of individual OpenNebula Daemon subsystems and drivers.{{< /alert >}}

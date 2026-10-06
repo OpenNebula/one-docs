@@ -964,7 +964,7 @@ At the libvirt level, live datastore migration uses the `virsh blockcopy` comman
 There are some limitations to keep in mind when performing live datastore migration:
 
 * You **cannot change both the Host and the datastore simultaneously**. For that case, you need to perform each of those operations in order.
-* **Disk snapshots** are only preserved with qcow2-based drivers (`qcow2`, `ssh`, `local`); they are lost with other drivers (LVM, raw disks, shared NFS).
+* **VMs with qcow2 disks containing internal snapshots cannot be migrated live to another datastore**. OpenNebula rejects the operation to prevent disk data loss. Use cold datastore migration to preserve the snapshots.
 
 <a id="vm-charter"></a>
 

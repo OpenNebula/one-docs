@@ -27,7 +27,7 @@ cp /var/lib/one/backups/config/<timestamp>-v<previous version>/var/lib/one/remot
    /var/lib/one/remotes/hooks/ft/fence_host.sh
 ```
 
-## Live Storage Migration with NVRAM VMs Failure
+## Live Storage Migration with NVRAM VMs Failure (Fixed 7.4.1)
 
 During Live Storage Migration the virtual machine goes through a series of commands in virsh: dumpxml, define, undefine. If the virtual machine has NVRAM there is a [silent uncaught failure](https://github.com/OpenNebula/one/issues/7770):
 
@@ -35,7 +35,7 @@ During Live Storage Migration the virtual machine goes through a series of comma
 error: Requested operation is not valid: cannot undefine domain with nvram
 ```
 
-The migrate pattern should be aware of NVRAM existence and properly use --keep-nvram during the undefine operation. Fix will be made availabe in OpenNebula 7.4.1.
+The migrate pattern should be aware of NVRAM existence and properly use --keep-nvram during the undefine operation.
 
 ## Frontend HA
 
@@ -43,7 +43,7 @@ The migrate pattern should be aware of NVRAM existence and properly use --keep-n
 
 ## Veeam Backups
 
-### Worker creation
+### Worker Creation
 
 Worker creation and restores [will fail](https://github.com/OpenNebula/one/issues/7949) if the VM with ID 0 doesn't exist in the database.
 
@@ -89,4 +89,78 @@ After modifying `/etc/one/oned.conf`, restart OpenNebula:
 
 ```shell
 systemctl restart opennebula
+```
+
+## Sunstone
+
+### OneForm User Inputs Form Malfunction
+
+When provisioning a Cluster with OneForm through Sunstone, fields in the **User Inputs** step cannot be entered normally because a user interface bug causes the form content to be re-rendered after each change.
+
+As a workaround, enter the values into a notepad or code editor then copy and paste each complete value into each field in a single operation.
+
+### VM Actions Missing in the Group Admin View
+
+Some VM actions are not displayed in the **Group Admin** view because the config file `/etc/one/fireedge/sunstone/views/groupadmin/vm-tab.yaml` uses legacy action names.
+
+As a workaround, edit the file and substitute the legacy action names as follows, preserving all other existing entries:
+
+```diff
+ actions:
+-  migrate_live: true
++  live-migrate: true
+
+ info-tabs:
+   info:
+     capacity_panel:
+       actions:
+-        resize_capacity: true
++        resize: true
+   storage:
+     actions:
+-      attach_disk:
+-        enabled: true
++      disk-attach-image: true
++      disk-attach-volatile: true
+       disk-detach: true
+-      snapshot_disk_create: true
+-      snapshot_disk_rename: true
+-      snapshot_disk_revert: true
+-      snapshot_disk_delete: true
+-      resize_disk: true
+-      disk_saveas:
+-        enabled: true
++      disk-snapshot-create: true
++      disk-snapshot-rename: true
++      disk-snapshot-revert: true
++      disk-snapshot-delete: true
++      disk-resize: true
++      disk-saveas: true
+   network:
+     actions:
+-      attach_nic: true
+-      detach_nic: true
+-      update_nic: true
+-      attach_secgroup: true
+-      detach_secgroup: true
++      nic-attach: true
++      nic-detach: true
++      nic-update: true
++      sg-attach: true
++      sg-detach: true
+   sched_actions:
+     actions:
+-      sched_action_create: true
+-      sched_action_update: true
+-      sched_action_delete: true
++      sched-add: true
++      sched-update: true
++      sched-delete: true
+       charter_create: true
+```
+
+After updating and saving the file, restart the FireEdge service:
+
+```shell
+systemctl restart opennebula-fireedge
 ```
