@@ -131,17 +131,10 @@ alt="Home tab of the Open OnDemand wizard" align="center" width="100%" mb="30px"
 
 #### Slurm Tab
 
-* In **Slurm clusters**, enter one line for each cluster, as `name:IP` with the IP address of the controller, for example `cpu:10.0.0.20`.
+* In **Slurm clusters**, enter one line for each cluster as `name:IP`, for example `cpu:10.0.0.20`. The name is what users see in the portal and must be unique. The IP is the IPv4 address of the controller. Every cluster must use the same LDAP server and the same `/home` as the portal.
 
 {{< image path="/images/slurm/open_ondemand/ood_wizard_slurm.png"
 alt="Slurm tab of the Open OnDemand wizard" align="center" width="100%" mb="30px" >}}
-
-Rules for each line:
-
-* The name is what users see in the portal. Use up to 63 letters, digits, `-` and `_`, and start with a letter or a digit.
-* Use each name only once.
-* Use an IPv4 address.
-* Every cluster uses the same LDAP server and the same `/home` as the portal.
 
 ### Step 4. Attach the Network of the Clusters
 
