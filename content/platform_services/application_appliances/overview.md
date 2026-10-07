@@ -12,6 +12,6 @@ You can browse available Marketplace Appliances in the dedicated [OpenNebula Mar
 * [**Harbor Container Registry**](https://github.com/OpenNebula/one-apps/wiki/harbor_intro): Deploy a secure, self-managed image repository.
 * [**MinIO**](https://github.com/OpenNebula/one-apps/wiki/minio_intro): Object storage solution with an AWS S3-compatible API.
 * [**vLLM AI**](https://github.com/OpenNebula/one-apps/wiki/vllm_intro): Deploy high-performance LLM inferencing.
-* [**Slurm**](https://github.com/OpenNebula/one-apps/wiki/slurm_intro): Fault-tolerant, highly scalable Cluster management and job scheduling system for HPC.
+* [**Slurm**]({{% relref "platform_services/slurm/getting_started/overview" %}}): Fault-tolerant, highly scalable Cluster management and job scheduling system for HPC.
 * [**NVIDIA NIM Service**](https://github.com/OpenNebula/one-apps/wiki/nim_intro): GPU-accelerated inference microservices for pre-trained and customized AI models.
 * [**Rancher CAPI**](https://github.com/OpenNebula/one-apps/wiki/capi_intro): Out-of-the-box solution for managing Kubernetes Clusters using Rancher and OpenNebula.

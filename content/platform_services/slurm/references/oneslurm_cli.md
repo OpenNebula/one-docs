@@ -1,5 +1,5 @@
 ---
-title: "CLI"
+title: "OneSlurm CLI"
 linkTitle: "CLI"
 date: "2026-10-07"
 description: ""
