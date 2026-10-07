@@ -12,12 +12,12 @@ weight: "3"
 
 <!--# Clusters -->
 
-Clusters group together Hosts, datastores, and virtual networks that are configured to work together. A Cluster is used to:
+Clusters group together Hosts, datastores, and Virtual Networks that are configured to work together. A Cluster is used to:
 
 > * Ensure that VMs use resources that are compatible.
 > * Assign resources to user groups by creating Virtual Private Clouds.
 
-Clusters should contain homogeneous resources. Note that some operations like live migrations are restricted to Hosts in the same Cluster.
+Clusters should generally contain homogeneous resources. Virtual Machines can also be migrated between compatible Hosts in different Clusters, provided that the required resources, including the System Datastore and Virtual Networks, are available to the destination Cluster.
 
 The requirements for live migrating VMs between Hosts of the same Cluster are that no differences occur in the following areas of the hypervisors:
 
@@ -91,7 +91,7 @@ DATASTORES
 
 ### Add Resources to Clusters
 
-Datastores and virtual networks can be added to multiple Clusters. This means that any Host in those Clusters is properly configured to run VMs using images from those datastores, or is using leases from those virtual networks.
+Datastores and Virtual Networks can be added to multiple Clusters. This means that any Host in those Clusters is properly configured to run VMs using images from those datastores, or is using leases from those Virtual Networks. Associating a datastore or Virtual Network with multiple Clusters allows Hosts in those Clusters to use the same resource. This can also allow Virtual Machines to be migrated between Clusters when all of the VM's required resources are available to the destination Host and Cluster.
 
 For instance, if you have several Hosts configured to use a given Open vSwitch network, you would group them in the same Cluster. The [Scheduler]({{% relref "product/cloud_system_administration/scheduler" %}}) will know that VMs using these resources can be deployed in any of the Hosts of the Cluster.
 
