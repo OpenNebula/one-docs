@@ -1,6 +1,6 @@
 ---
 title: "NVIDIA Run:ai Platform"
-linkTitle: "NVIDIA Run:ai Platform"
+linkTitle: "Run:ai"
 date: "2026-10-01"
 description: "NVIDIA Run:ai control-plane application distributed with OneKS."
 categories:
