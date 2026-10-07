@@ -45,15 +45,7 @@ In Sunstone, go to **Templates > Service Templates**, select **Service OneSlurm*
 
 1. **General**. Keep the name or type your own, then click **Next**.
 
-   {{< image path="/images/slurm/oneslurm/light/oneslurm_wizard_general.png"
-   pathDark="/images/slurm/oneslurm/dark/oneslurm_wizard_general.png"
-   alt="General step of the OneSlurm wizard" align="center" width="90%" mb="30px" >}}
-
 2. **Networks**. Keep **Existing** and select your Virtual Network in the table, then click **Next**.
-
-   {{< image path="/images/slurm/oneslurm/light/oneslurm_wizard_network.png"
-   pathDark="/images/slurm/oneslurm/dark/oneslurm_wizard_network.png"
-   alt="Networks step of the OneSlurm wizard with a network selected" align="center" width="90%" mb="30px" >}}
 
 3. **Service Inputs**. Click **Next** to keep the defaults. LDAP, InfiniBand and NFS stay disabled.
 4. **Charter**. Click **Finish**.
