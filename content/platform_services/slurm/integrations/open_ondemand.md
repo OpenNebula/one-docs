@@ -112,7 +112,7 @@ This creates an image and a VM template, both called **Open OnDemand**.
 
 ### Step 3. Fill in the User Inputs
 
-The wizard has three tabs, **LDAP**, **Home** and **Slurm**. Fill in all three, or leave the LDAP URL, the NFS export and the clusters empty to [start the portal without clusters](#start-without-clusters).
+The wizard has three tabs, **LDAP**, **Home** and **Slurm**.
 
 #### LDAP Tab
 
@@ -166,7 +166,6 @@ Open the VM in Sunstone and go to **Info > Attributes**. With the CLI, run `onev
 | `READY` = `YES` | The portal is ready. |
 | `OOD_URL` | The address of the portal, for example `https://10.0.0.50/`. |
 | `OOD_ERROR` | The configuration failed. The value says why, and the portal stays closed. |
-| `OOD_WARNING` | The portal runs without clusters, so nobody can sign in yet. |
 
 Examples of `OOD_ERROR`:
 
@@ -177,23 +176,6 @@ Examples of `OOD_ERROR`:
 |--------------------|---------------|
 | A service was down | Fix the service and reboot the VM. |
 | A value was wrong | Change it as shown in [Change the Clusters](#change-the-clusters), then reboot the VM so that OneGate shows the new result. |
-
-### Start Without Clusters
-
-The portal can start with no LDAP server, no NFS export and no clusters, for example to test the appliance alone or to add the clusters later. Leave the three fields empty.
-
-* The portal publishes `READY=YES` and `OOD_URL`, and its login page works.
-* Nobody can sign in, because there are no users. The VM shows `OOD_WARNING`.
-* `/home` stays on the disk of the VM.
-
-With the CLI, give the three inputs a blank value, because the CLI asks for any input that is missing.
-
-```shell
-$ onetemplate instantiate "Open OnDemand" --name open-ondemand --nic <network> \
-    --user-inputs "ONEAPP_LDAP_SERVER_URL= ,ONEAPP_HOME_NFS_EXPORT= ,ONEAPP_SLURM_CLUSTERS_LIST= ,ONEAPP_LDAP_SERVER_DOMAIN=slurm.local"
-```
-
-To connect it to your clusters, set the LDAP URL, the NFS export and the clusters together, as shown in [Change the Clusters](#change-the-clusters). If you fill in only some of the three, the configuration stops with `OOD_ERROR`.
 
 ## Use the Portal
 
