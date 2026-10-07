@@ -161,7 +161,7 @@ Comprehensive isolation, quota management, and access controls ensure secure mul
 
 Enterprise-grade Kubernetes management and orchestration through built-in add-ons.
 
-* OpenNebula Kubernetes Service (OneKS): Provides elastic Kubernetes-as-a-Service on OpenNebula, enabling users to create, access, operate, upgrade, recover, and deprovision Kubernetes clusters in a simple and repeatable way.
+* OpenNebula Kubernetes Service (OneKS): Provides Managed Kubernetes-as-a-Service on OpenNebula, enabling users to create, access, operate, upgrade, recover, and deprovision Kubernetes clusters in a simple and repeatable way.
 * Cluster API / CAPONE: Native support for Cluster API Provider for OpenNebula to automate Kubernetes infrastructure provisioning and lifecycle management.
 * Cloud Provider Interface (CPI): Direct integration between Kubernetes and OpenNebula-managed compute, networking, and infrastructure resources.
 * Container Storage Interface (CSI): Persistent volume provisioning from OpenNebula storage backends.

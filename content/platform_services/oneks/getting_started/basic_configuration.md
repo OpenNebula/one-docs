@@ -34,7 +34,7 @@ Validate the OneGate configuration using the OpenNebula [OneGate Documentation](
 
 ## Transparent Proxy Configuration
 
-Verify that the [transparent proxy]({{% relref "product/virtual_machines_operation/virtual_machines_networking/tproxy/" %}}) is configured to expose OneGate and the OpenNebula API through the network interconnecting the Front-end and Hosts.
+Verify that the [transparent proxy]({{% relref "product/virtual_machines_operation/virtual_machines_networking/tproxy/" %}}) is configured to expose OneGate, the OpenNebula API, and the OneKS API through the network interconnecting the Front-end and Hosts. Access to the OneKS API through TProxy is required by the in-cluster monitor.
 
 The configuration is typically defined in the following location on the OpenNebula Front-end:
 
@@ -58,9 +58,12 @@ Example configuration:
   - :remote_addr: 192.168.150.1 # Front-end IP
     :remote_port: 2633
     :service_port: 2633
+  - :remote_addr: 192.168.150.1 # Front-end IP
+    :remote_port: 10780
+    :service_port: 10780
 ```
 
-Replace `192.168.150.1` with the Front-end IP address used to connect to the Hosts and save the file. On Front-end command line, as the oneadmin system user, sync the OpenNebulaNetwork.conf file with the hypervisor Hosts, by running `onehost sync -f`.
+The entries expose OneGate on port `5030`, OpenNebula XML-RPC on port `2633`, and the OneKS API on port `10780`. Replace `192.168.150.1` with the Front-end IP address used to connect to the Hosts and save the file. When the monitor is enabled, configure `:server` / `:bind` in `oneks-server.conf` with this Front-end address, or with `0.0.0.0`, so OneKS accepts the forwarded connections. On the Front-end command line, as the `oneadmin` system user, sync the `OpenNebulaNetwork.conf` file with the hypervisor Hosts by running `onehost sync -f`.
 
 ## Start the OneKS Service
 
