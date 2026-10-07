@@ -1,6 +1,6 @@
 ---
 title: "KServe LLMInferenceService Platform"
-linkTitle: "KServe LLMInferenceService"
+linkTitle: "KServe"
 date: "2026-10-01"
 description: "KServe platform for deploying LLMInferenceService workloads with managed routing and model caching."
 categories:

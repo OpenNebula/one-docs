@@ -1,6 +1,6 @@
 ---
 title: "NVIDIA GPU Operator"
-linkTitle: "NVIDIA GPU Operator"
+linkTitle: "GPU Operator"
 date: "2026-10-01"
 description: "NVIDIA GPU Operator application distributed with OneKS."
 categories:
