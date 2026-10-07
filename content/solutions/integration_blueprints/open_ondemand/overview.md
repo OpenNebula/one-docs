@@ -61,7 +61,7 @@ The service uses Slurm 23.11 as its job scheduler. A job is a request for cores,
 * [**Open OnDemand**](https://osc.github.io/ood-documentation/latest/): The portal software, from the Ohio Supercomputer Center. The service uses its `slurm` adapter for its own Cluster and for an optional second Slurm Cluster.
 * [**Slurm**](https://slurm.schedmd.com/): The workload manager, version 23.11 from Ubuntu 24.04. The portal runs the controller and the accounting daemon. Every worker joins as a dynamic node. Every session is a job, and cgroup v2 limits it to its cores and memory.
 * [**EESSI**](https://www.eessi.io/docs/): A shared scientific software catalogue distributed over CernVM-FS. The image ships the CernVM-FS client and a site cache. The software itself is fetched on demand.
-* [**Elastic Slurm**]({{% relref "platform_services/slurm/" %}}): The OneSlurm service is optional. The Open OnDemand Service does not use it. A site that already runs one can attach it as a second Cluster for batch jobs, with the same users and home directory, as described in [Configuration]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/#an-external-slurm-cluster" %}}).
+* [**Managed Slurm**]({{% relref "platform_services/slurm/" %}}): The OneSlurm service is optional. The Open OnDemand Service does not use it. A site that already runs one can attach it as a second Cluster for batch jobs, with the same users and home directory, as described in [Configuration]({{% relref "solutions/integration_blueprints/open_ondemand/configuration/#an-external-slurm-cluster" %}}).
 
 ## Supported Versions
 
