@@ -117,7 +117,7 @@ The wizard has three tabs, **LDAP**, **Home** and **Slurm**.
 #### LDAP Tab
 
 * In **LDAP URL**, enter the LDAP server of the clusters, for example `ldap://10.0.0.20`.
-* In **LDAP domain or base DN**, keep `slurm.local`, the default of OneSlurm, or enter the domain of your LDAP server.
+* In **LDAP domain or base DN**, keep `slurm.local`, the default of OneSlurm, or enter the domain of your LDAP server. The base DN is the root of the directory. A domain such as `slurm.local` becomes the base DN `dc=slurm,dc=local`, and the portal looks for users under `ou=People` of that base DN.
 
 {{< image path="/images/slurm/open_ondemand/ood_wizard_ldap.png"
 alt="LDAP tab of the Open OnDemand wizard" align="center" width="100%" mb="30px" >}}
