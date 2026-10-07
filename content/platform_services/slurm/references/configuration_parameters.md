@@ -17,23 +17,45 @@ weight: "2"
 
 ## Service Inputs
 
-All the inputs are optional. They are set when you create the service, and OneFlow passes them to the roles shown in the table.
+All the inputs are optional. You set them when you create the service.
 
-| Parameter | Default | Roles | Description | Guide |
-|---|---|---|---|---|
-| `ONEAPP_LDAP_ENABLE` | `NO` | Controller | `YES` installs a local LDAP server on the controller | [Identity]({{% relref "platform_services/slurm/management/identity_management" %}}) |
-| `ONEAPP_LDAP_DOMAIN` | `slurm.local` | Controller | LDAP domain or base DN | [Identity]({{% relref "platform_services/slurm/management/identity_management" %}}) |
-| `ONEAPP_LDAP_ADMIN_USER` | empty, the appliance uses `admin` | Controller | Admin of the local LDAP, as a name or a DN | [Identity]({{% relref "platform_services/slurm/management/identity_management" %}}) |
-| `ONEAPP_LDAP_ADMIN_PASSWORD` | empty | Controller | Password of the local LDAP admin | [Identity]({{% relref "platform_services/slurm/management/identity_management" %}}) |
-| `ONEAPP_LDAP_URL` | empty | Controller | URL of an external LDAP server. Ignored when `ONEAPP_LDAP_ENABLE=YES` | [Identity]({{% relref "platform_services/slurm/management/identity_management" %}}) |
-| `ONEAPP_LDAP_BIND_USER` | empty | Controller | User to read the external LDAP, as a name or a DN | [Identity]({{% relref "platform_services/slurm/management/identity_management" %}}) |
-| `ONEAPP_LDAP_BIND_PASSWORD` | empty | Controller | Password of the bind user | [Identity]({{% relref "platform_services/slurm/management/identity_management" %}}) |
-| `ONEAPP_SLURM_NFS_HOME` | empty | Controller, workers | NFS export mounted at `/home`, as `host:/export` | [Shared Storage]({{% relref "platform_services/slurm/management/shared_storage" %}}) |
-| `ONEAPP_SLURM_NFS_SCRATCH` | empty | Controller, workers | NFS export mounted at `/scratch`, as `host:/export` | [Shared Storage]({{% relref "platform_services/slurm/management/shared_storage" %}}) |
-| `ONEAPP_SLURM_INFINIBAND_ENABLE` | `NO` | Controller, workers | `YES` configures IPoIB and MPI settings | [InfiniBand]({{% relref "platform_services/slurm/management/infiniband" %}}) |
-| `ONEAPP_SLURM_IPOIB_SUBNET` | empty | Workers | IPoIB subnet, `/8`, `/16` or `/24`. Required with InfiniBand | [InfiniBand]({{% relref "platform_services/slurm/management/infiniband" %}}) |
+### LDAP
 
-The workers get the LDAP settings from the controller through OneGate, not from these inputs.
+Used by the controller. The workers get the LDAP settings from the controller through OneGate. See [Identity Management]({{% relref "platform_services/slurm/management/identity_management" %}}).
+
+| Parameter | Default | Description |
+|---|---|---|
+| `ONEAPP_LDAP_ENABLE` | `NO` | `YES` installs a local LDAP server on the controller |
+| `ONEAPP_LDAP_DOMAIN` | `slurm.local` | LDAP domain or base DN |
+| `ONEAPP_LDAP_ADMIN_USER` | `admin` | Admin of the local LDAP, as a name or a DN |
+| `ONEAPP_LDAP_ADMIN_PASSWORD` | empty | Password of the local LDAP admin |
+| `ONEAPP_LDAP_URL` | empty | URL of an external LDAP server. Ignored with local LDAP |
+| `ONEAPP_LDAP_BIND_USER` | empty | User to read the external LDAP, as a name or a DN |
+| `ONEAPP_LDAP_BIND_PASSWORD` | empty | Password of the bind user |
+
+The admin user input is empty in the service. When it stays empty, the appliance uses `admin`.
+
+### NFS
+
+Used by the controller and the workers. See [Shared Storage]({{% relref "platform_services/slurm/management/shared_storage" %}}).
+
+| Parameter | Default | Description |
+|---|---|---|
+| `ONEAPP_SLURM_NFS_HOME` | empty | NFS export mounted at `/home` |
+| `ONEAPP_SLURM_NFS_SCRATCH` | empty | NFS export mounted at `/scratch` |
+
+Both use the format `host:/export`.
+
+### InfiniBand
+
+See [InfiniBand and High-Performance Networking]({{% relref "platform_services/slurm/management/infiniband" %}}).
+
+| Parameter | Default | Used by | Description |
+|---|---|---|---|
+| `ONEAPP_SLURM_INFINIBAND_ENABLE` | `NO` | Controller, workers | `YES` configures IPoIB and the MPI settings |
+| `ONEAPP_SLURM_IPOIB_SUBNET` | empty | Workers | IPoIB subnet. Required when InfiniBand is enabled |
+
+The IPoIB subnet must use a `/8`, `/16` or `/24` prefix.
 
 ## Image Build Variables
 
