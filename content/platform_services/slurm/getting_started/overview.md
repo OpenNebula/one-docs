@@ -55,15 +55,7 @@ An **OpenNebula Cluster** groups Hosts, datastores and Virtual Networks. A **Slu
 
 ## Release Notes
 
-| Item | Value |
-|---|---|
-| Appliance version | `7.4.0-1-20260807` |
-| Guest OS | Ubuntu 26.04 LTS |
-| Architectures | `x86_64` and `aarch64` |
-| Slurm | 25.11, from the Ubuntu packages |
-| OpenNebula | 7.0, 7.2 and 7.4 |
-
-The [one-apps release page](https://github.com/OpenNebula/one-apps/releases) lists the changes of each version.
+The [Service OneSlurm](https://marketplace.opennebula.io/appliance/8ce164d5-3cce-42a7-b9a7-0e8133ef92c6) page of the Marketplace shows the current version, the guest OS and the supported OpenNebula versions. The [one-apps release page](https://github.com/OpenNebula/one-apps/releases) lists the changes of each version.
 
 ## Known Limitations
 

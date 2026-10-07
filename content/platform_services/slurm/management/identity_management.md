@@ -39,14 +39,17 @@ The controller decides the mode. It publishes the LDAP settings in OneGate, and 
 
 ### Domain and Base DN
 
-The base DN is the top entry of the directory. Under it, OneSlurm looks for users in `ou=People` and for groups in `ou=Groups`.
+The base DN is the top entry of the directory. OneSlurm builds it from `ONEAPP_LDAP_DOMAIN`.
 
-| `ONEAPP_LDAP_DOMAIN` | Base DN | Users | Groups |
-|---|---|---|---|
-| `slurm.local` | `dc=slurm,dc=local` | `ou=People,dc=slurm,dc=local` | `ou=Groups,dc=slurm,dc=local` |
-| `dc=example,dc=org` | `dc=example,dc=org` | `ou=People,dc=example,dc=org` | `ou=Groups,dc=example,dc=org` |
+| Domain input | Base DN |
+|---|---|
+| `slurm.local` | `dc=slurm,dc=local` |
+| `dc=example,dc=org` | `dc=example,dc=org` |
 
-A value with `=` is used as the base DN without changes. A name without `=`, such as `admin`, becomes `cn=admin,<base DN>`.
+* A domain such as `slurm.local` becomes one `dc=` part for each word.
+* A value with `=` is already a base DN and is used without changes.
+* Users must be in `ou=People,<base DN>` and groups in `ou=Groups,<base DN>`.
+* A user name without `=`, such as `admin`, becomes `cn=admin,<base DN>`.
 
 ## Local LDAP
 
