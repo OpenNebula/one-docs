@@ -8,11 +8,11 @@ type: docs
 weight: 4
 ---
 
-[OneKS]({{% relref "platform_services/oneks/" %}}) is OpenNebula's Elastic Kubernetes service. It offers a structured way to create, access, operate, upgrade, recover, and deprovision Kubernetes Clusters. OneKS enables you to manage a Kubernetes Cluster simply and intuitively through the Sunstone interface or using the command line on your OpenNebula Front-end. This guide demonstrates how to launch a new Kubernetes Cluster on the hypervisor node installed with your miniONE installation and deploy a simple application. 
+[OneKS]({{% relref "platform_services/oneks/" %}}) is OpenNebula's Managed Kubernetes service. It offers a structured way to create, access, operate, upgrade, recover, and deprovision Kubernetes Clusters. OneKS enables you to manage a Kubernetes Cluster simply and intuitively through the Sunstone interface or using the command line on your OpenNebula Front-end. This guide demonstrates how to launch a new Kubernetes Cluster on the hypervisor node installed with your miniONE installation and deploy a simple application. 
 
 ## Before Starting
 
-This guide assumes that you are evaluating OneKS using a standard miniONE deployment of OpenNebula, having followed the miniONE installation guides in the [Getting Started]({{% relref "/getting_started/install_opennebula/evaluation/oneks_quickstart.md" %}}) section of the OpenNebula documentation, with the Front-end and a KVM hypervisor node installed on a single Host. If you are using an existing OpenNebula installation deployed by other means (e.g. manual installation or using OneDeploy), or you are using hypervisor nodes installed on separate Hosts, we recommend that you follow the guides in the [Elastic Kubernetes]({{% relref "platform_services/oneks/" %}}) documentation since additional configuration is required. 
+This guide assumes that you are evaluating OneKS using a standard miniONE deployment of OpenNebula, having followed the miniONE installation guides in the [Getting Started]({{% relref "/getting_started/install_opennebula/evaluation/oneks_quickstart.md" %}}) section of the OpenNebula documentation, with the Front-end and a KVM hypervisor node installed on a single Host. If you are using an existing OpenNebula installation deployed by other means (e.g. manual installation or using OneDeploy), or you are using hypervisor nodes installed on separate Hosts, we recommend that you follow the guides in the [Managed Kubernetes]({{% relref "platform_services/oneks/" %}}) documentation since additional configuration is required. 
 
 ### Install miniONE
 
@@ -295,7 +295,7 @@ id	date	destination
 
 ## Next Steps
 
-Now that you have learned how to deploy a K8s Cluster with OneKS, refer to the dedicated [Elastic Kubernetes documentation section]({{% relref "platform_services/oneks/" %}}) to learn more about how to manage, scale, recover and deprovision K8s Clusters and how to configure OneKS. 
+Now that you have learned how to deploy a K8s Cluster with OneKS, refer to the dedicated [Managed Kubernetes documentation section]({{% relref "platform_services/oneks/" %}}) to learn more about how to manage, scale, recover and deprovision K8s Clusters and how to configure OneKS. 
 
 
 
