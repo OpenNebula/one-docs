@@ -9,7 +9,7 @@ type: docs
 weight: "3"
 ---
 
-This guide deploys a Slurm cluster with one controller and one worker from the CLI, then runs a first job. Check the [Requirements]({{% relref "platform_services/slurm/getting_started/requirements" %}}) first.
+This guide deploys a Slurm cluster with one controller and one worker, then runs a first job. You can create the service from Sunstone or from the CLI. Check the [Requirements]({{% relref "platform_services/slurm/getting_started/requirements" %}}) first.
 
 ## Step 1. Import the Appliance
 
@@ -41,13 +41,30 @@ $ oneflow-template update 'Service OneSlurm'
 
 ## Step 3. Create the Service
 
+In Sunstone, go to **Templates > Service Templates**, select **Service OneSlurm** and click the **Instantiate** button (the play icon). The wizard has four steps.
+
+1. **General**. Keep the name or type your own, then click **Next**.
+
+   {{< image path="/images/slurm/oneslurm/oneslurm_wizard_general.png"
+   alt="General step of the OneSlurm wizard" align="center" width="100%" mb="30px" >}}
+
+2. **Networks**. Keep **Existing** and select your Virtual Network in the table, then click **Next**.
+
+   {{< image path="/images/slurm/oneslurm/oneslurm_wizard_network.png"
+   alt="Networks step of the OneSlurm wizard with a network selected" align="center" width="100%" mb="30px" >}}
+
+3. **Service Inputs**. Click **Next** to keep the defaults. LDAP, InfiniBand and NFS stay disabled.
+4. **Charter**. Click **Finish**.
+
+### From the CLI
+
 ```shell
 $ oneflow-template instantiate 'Service OneSlurm'
 ```
 
 The command asks for the inputs, then for the network.
 
-1. Press Enter on every input to keep the defaults. LDAP, InfiniBand and NFS stay disabled.
+1. Press Enter on every input to keep the defaults.
 2. For `Service`, choose `1` (existing network), then give the ID of your Virtual Network.
 
 ```shell
@@ -61,15 +78,19 @@ The command prints the ID of the new service.
 
 ## Step 4. Wait for the Service
 
+OneFlow creates the controller first. It creates the worker only when the controller reports that it is ready, so the service needs a few minutes to reach `RUNNING`.
+
+In Sunstone, go to **Instances > Services** and open the service. The **Roles** tab shows the controller and the worker. Select both roles to see their VMs.
+
+{{< image path="/images/slurm/oneslurm/oneslurm_service_roles.png"
+alt="Roles tab of a running OneSlurm service with the controller and the worker" align="center" width="100%" mb="30px" >}}
+
+From the CLI.
+
 ```shell
 $ oneflow list
   ID USER     GROUP    NAME                  STARTTIME STAT
  233 oneadmin oneadmin Service OneSlurm  10/07 14:42:30 RUNNING
-```
-
-OneFlow creates the controller first. It creates the worker only when the controller reports that it is ready, so the service needs a few minutes to reach `RUNNING`.
-
-```shell
 $ onevm list -f NAME~'service_233' -l NAME,STAT
 NAME                          STAT
 worker_0_(service_233)        runn
@@ -78,26 +99,17 @@ controller_0_(service_233)    runn
 
 ## Step 5. Run a First Job
 
-Connect to the controller.
+1. Connect to the controller.
 
-```shell
-$ onevm ssh <controller_vm_id>
-```
+   ```shell
+   $ onevm ssh <controller_vm_id>
+   ```
 
-Check that the worker is in the cluster. Its state must be `idle`.
+2. Run `sinfo`. The worker must be in state `idle`.
+3. Run a job on the worker with `srun -N1 hostname`. It prints the name of the worker.
 
-```shell
-$ sinfo
-PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
-all*         up   infinite      1   idle worker-0--service-233
-```
-
-Run a job on the worker.
-
-```shell
-$ srun -N1 hostname
-worker-0--service-233
-```
+{{< image path="/images/slurm/oneslurm/oneslurm_first_job.png"
+alt="Terminal on the controller with the output of sinfo and srun" align="center" width="100%" mb="30px" >}}
 
 ## Next Steps
 
