@@ -20,7 +20,13 @@ The [**NVIDIA Run:ai Platform**](https://docs.nvidia.com/run-ai/self-hosted/inde
 | Helm chart | `control-plane` |
 | Version | `v2.25` |
 
-OneKS installs Longhorn, trust-manager, NVIDIA GPU Operator, Prometheus, and the HAProxy Kubernetes Ingress Controller as managed component dependencies.
+As internal dependencies, OneKS also installs and fully manages the following components. They are not exposed as standalone applications, but appear inside the Kubernetes cluster among the resources created by this application:
+
+- **Longhorn**: Persistent storage.
+- **trust-manager**: Certificate trust distribution.
+- **NVIDIA GPU Operator**: GPU management.
+- **Prometheus**: Monitoring and metrics.
+- **HAProxy Kubernetes Ingress Controller**: Ingress and service access.
 
 ## Parameters
 
