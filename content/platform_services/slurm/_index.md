@@ -1,6 +1,6 @@
 ---
-title: "Elastic Slurm"
-linkTitle: "Elastic Slurm"
+title: "Managed Slurm"
+linkTitle: "Managed Slurm"
 date: "2026-05-12"
 description: ""
 categories:

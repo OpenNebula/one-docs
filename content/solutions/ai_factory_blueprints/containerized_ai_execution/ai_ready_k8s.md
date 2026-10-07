@@ -11,7 +11,7 @@ Kubernetes embraces multi-tenancy, supporting different isolated namespaces wher
 
 Additionally, running Kubernetes Clusters on top of OpenNebula-provisioned Virtual Machines (VMs) provides several advantages, such as hardware-level isolation, physically secure multi-tenancy. This also provides an additional layer of resource isolation for performance-sensitive workloads, multi-cloud architectures, flexibility as well as lifecycle management, and resource efficiency. 
 
-[OneKS]({{% relref "platform_services/oneks/" %}}), the OpenNebula Elastic Kubernetes Service, enables straightforward deployment of AI-ready Kubernetes Clusters on OpenNebula-managed infrastructure.
+[OneKS]({{% relref "platform_services/oneks/" %}}), the OpenNebula Managed Kubernetes Service, enables straightforward deployment of AI-ready Kubernetes Clusters on OpenNebula-managed infrastructure.
 
 In this guide you will learn how to provision a secure, robust and scalable containerized solution for AI workloads using OpenNebula's powerful Kubernetes capabilities.
 

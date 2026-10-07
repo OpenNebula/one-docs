@@ -15,7 +15,7 @@ The Open OnDemand Service has three roles and uses two Virtual Networks. Each us
 
 | **Role** | **Cardinality** | **What it runs** |
 |---|---|---|
-| `storage` | 1 | NFS server for the shared home directories, the state of the Slurm controller and the shared software directory. Squid cache for the EESSI catalogue, unless the service uses a proxy of the site |
+| `storage` | 1 | NFS server for the shared home directories, the state of the Slurm controller and the shared software directory. Squid cache for the EESSI catalog, unless the service uses a proxy of the site |
 | `portal` | 1 | Open OnDemand, its LDAP directory, Dex, the Slurm controller `slurmctld`, the accounting daemon `slurmdbd` with MariaDB, the Prometheus metrics exporter |
 | `worker` | 1 to 6, elastic | `slurmd`, joined to the Cluster as a dynamic node, and the user sessions as Slurm jobs |
 {.w-100}
@@ -29,7 +29,7 @@ OneFlow starts `storage` first. It starts `portal` when the storage role is read
 
 Every VM has two network interfaces:
 
-* **Management network**: Facilitates communication with OneGate and the Internet. The portal publishes its web interface here, and the storage role downloads the software catalogue through it.
+* **Management network**: Facilitates communication with OneGate and the Internet. The portal publishes its web interface here, and the storage role downloads the software catalog through it.
 * **Compute network**: Reserved for the service. It carries NFS, LDAP, the Slurm traffic between the controller and the nodes, along with the proxied sessions and the software cache.
 
 No address is fixed in advance. OneFlow provides each role the compute addresses of the roles it depends on. The storage role queries OneGate which VM is the portal.
@@ -42,7 +42,7 @@ The portal uses the whole `/24` subnet containing its compute address as the wor
 
 1. The user signs in. Dex checks the credentials against the LDAP directory, or against an external OpenID Connect provider. Open OnDemand then starts a web server for that user, running as their Unix account.
 2. The user launches an application and picks cores, memory and session hours. Cores and memory are limited to the capacity of the largest worker. The portal submits the session script with `sbatch` as the user. It requests one node, the cores and memory chosen, and GPUs if the pool has any.
-3. Slurm starts the script on a worker with sufficient cores and memory free. If no adequate worker is available, the job remains in the queue and the card shows it as queued until a worker becomes available or OneFlow adds one. The job runs as the user under `slurmd`, with the home directory and the EESSI catalogue mounted. Slurm uses cgroup v2 to limit the job to the cores and memory it requested. No other session shares its cores, and any process that uses more memory than requested is terminated.
+3. Slurm starts the script on a worker with sufficient cores and memory free. If no adequate worker is available, the job remains in the queue and the card shows it as queued until a worker becomes available or OneFlow adds one. The job runs as the user under `slurmd`, with the home directory and the EESSI catalog mounted. Slurm uses cgroup v2 to limit the job to the cores and memory it requested. No other session shares its cores, and any process that uses more memory than requested is terminated.
 4. The application listens on a specific port of the worker and publishes the compute address of the worker. The portal proxies the browser to it. Desktops run under a TurboVNC server on the worker and reach the browser through noVNC on the portal.
 5. Deleting the session cancels the job. Reaching the session hours ends it. In both cases Slurm stops every process of the job, so no trace of the session stays on the worker.
 
@@ -59,7 +59,7 @@ Every worker publishes the following attributes to OneGate every 30 seconds:
 | `IDLE_SECONDS` | Seconds since the last job on this worker ended |
 | `OLDEST_IDLE` | `1` when the oldest worker of the role is drained and empty, so OneFlow may remove it |
 | `SLURM_IDLE_NODES`, `SLURM_ALLOC_NODES` | Nodes of the Cluster without a job, and nodes with one |
-| `HEALTHY` | `1` when the home mount, the software catalogue, munge and `slurmd` are all ready |
+| `HEALTHY` | `1` when the home mount, the software catalog, munge and `slurmd` are all ready |
 | `SESSION_USERS` | The user and the start time of each job on this worker |
 | `SLURM_NODENAME` | The node name of this worker, published once at boot. The reconciler on the portal matches it against the Cluster |
 {.w-100}
@@ -94,4 +94,4 @@ On the testbed a scale down removed exactly the drained VM, and the job on the o
 
 Munge is how the portal and the workers manage credentials. Every Slurm message carries a token signed with one secret key that all VMs share. The portal creates the key at first boot (1024 random bytes) and keeps it on the storage export, so a replaced portal uses the same key. It also publishes the key, base64 encoded, as `SLURM_MUNGE_KEY` in the user template of the portal VM through OneGate, and every worker reads it from there at boot.
 
-Anyone who can read the template of the portal VM in OpenNebula can read the key, and with the key they can interact with the Cluster as if they were any given user. The Elastic Slurm service has the same exposure. Therefore it is important to restrict who can inspect the VMs of the service. Inside the VMs the key and the OneGate token are readable by root only. Therefore a session user cannot read them.
+Anyone who can read the template of the portal VM in OpenNebula can read the key, and with the key they can interact with the Cluster as if they were any given user. The Managed Slurm service has the same exposure. Therefore it is important to restrict who can inspect the VMs of the service. Inside the VMs the key and the OneGate token are readable by root only. Therefore a session user cannot read them.
