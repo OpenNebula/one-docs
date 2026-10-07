@@ -45,7 +45,7 @@ Then use the Management pages for daily operation.
 * [InfiniBand and High-Performance Networking]({{% relref "platform_services/slurm/management/infiniband" %}})
 * [Monitoring and Troubleshooting]({{% relref "platform_services/slurm/management/monitoring_and_troubleshooting" %}})
 
-The References pages list the [Service Architecture]({{% relref "platform_services/slurm/references/service_architecture" %}}), every [Configuration Parameter]({{% relref "platform_services/slurm/references/configuration_parameters" %}}) and the [CLI]({{% relref "platform_services/slurm/references/oneslurm_cli" %}}) commands.
+The References pages list the [Service Architecture]({{% relref "platform_services/slurm/references/service_architecture" %}}), every [Configuration Parameter]({{% relref "platform_services/slurm/references/configuration_parameters" %}}) the [CLI]({{% relref "platform_services/slurm/references/oneslurm_cli" %}}) commands and the [API]({{% relref "platform_services/slurm/references/oneslurm_api" %}}) calls.
 
 There is also a [OneSlurm tutorial]({{% relref "solutions/ai_factory_blueprints/direct_ai_execution/nvidia_slurm/" %}}) with NVIDIA GPUs in the AI Factory Blueprints.
 
