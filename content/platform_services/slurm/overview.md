@@ -1,11 +1,11 @@
 ---
-title: "Elastic Slurm Overview"
+title: "Managed Slurm Overview"
 linkTitle: "Overview"
 weight: 2
 type: docs
 ---
 
-The OpenNebula Elastic Slurm Service enables the deployment of scalable Slurm Clusters using preconfigured OpenNebula appliances and OneFlow.
+The OpenNebula Managed Slurm Service enables the deployment of scalable Slurm Clusters using preconfigured OpenNebula appliances and OneFlow.
 
 Slurm is an open source, fault-tolerant, and highly scalable workload manager and job scheduling system for executing AI and HPC workloads on Linux Clusters. It allocates compute resources to workloads, starts and monitors jobs on the assigned nodes, and manages pending jobs through scheduling queues. Slurm operates without kernel modifications and is largely self-contained.
 
