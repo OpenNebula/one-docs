@@ -45,13 +45,15 @@ In Sunstone, go to **Templates > Service Templates**, select **Service OneSlurm*
 
 1. **General**. Keep the name or type your own, then click **Next**.
 
-   {{< image path="/images/slurm/oneslurm/oneslurm_wizard_general.png"
-   alt="General step of the OneSlurm wizard" align="center" width="100%" mb="30px" >}}
+   {{< image path="/images/slurm/oneslurm/light/oneslurm_wizard_general.png"
+   pathDark="/images/slurm/oneslurm/dark/oneslurm_wizard_general.png"
+   alt="General step of the OneSlurm wizard" align="center" width="90%" mb="30px" >}}
 
 2. **Networks**. Keep **Existing** and select your Virtual Network in the table, then click **Next**.
 
-   {{< image path="/images/slurm/oneslurm/oneslurm_wizard_network.png"
-   alt="Networks step of the OneSlurm wizard with a network selected" align="center" width="100%" mb="30px" >}}
+   {{< image path="/images/slurm/oneslurm/light/oneslurm_wizard_network.png"
+   pathDark="/images/slurm/oneslurm/dark/oneslurm_wizard_network.png"
+   alt="Networks step of the OneSlurm wizard with a network selected" align="center" width="90%" mb="30px" >}}
 
 3. **Service Inputs**. Click **Next** to keep the defaults. LDAP, InfiniBand and NFS stay disabled.
 4. **Charter**. Click **Finish**.
@@ -82,8 +84,9 @@ OneFlow creates the controller first. It creates the worker only when the contro
 
 In Sunstone, go to **Instances > Services** and open the service. The **Roles** tab shows the controller and the worker. Select both roles to see their VMs.
 
-{{< image path="/images/slurm/oneslurm/oneslurm_service_roles.png"
-alt="Roles tab of a running OneSlurm service with the controller and the worker" align="center" width="100%" mb="30px" >}}
+{{< image path="/images/slurm/oneslurm/light/oneslurm_service_roles.png"
+   pathDark="/images/slurm/oneslurm/dark/oneslurm_service_roles.png"
+alt="Roles tab of a running OneSlurm service with the controller and the worker" align="center" width="90%" mb="30px" >}}
 
 From the CLI.
 
@@ -108,8 +111,9 @@ controller_0_(service_233)    runn
 2. Run `sinfo`. The worker must be in state `idle`.
 3. Run a job on the worker with `srun -N1 hostname`. It prints the name of the worker.
 
-{{< image path="/images/slurm/oneslurm/oneslurm_first_job.png"
-alt="Terminal on the controller with the output of sinfo and srun" align="center" width="100%" mb="30px" >}}
+{{< image path="/images/slurm/oneslurm/light/oneslurm_first_job.png"
+   pathDark="/images/slurm/oneslurm/dark/oneslurm_first_job.png"
+alt="Terminal on the controller with the output of sinfo and srun" align="center" width="70%" mb="30px" >}}
 
 ## Next Steps
 
