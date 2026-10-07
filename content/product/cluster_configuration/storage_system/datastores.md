@@ -140,8 +140,6 @@ Note the differences in this case:
 
 A System Datastore can be associated with multiple Clusters when the underlying storage is accessible from the Hosts in each Cluster. A shared System Datastore between Clusters can be used to support VM migration between Hosts belonging to those Clusters. Live migration between Clusters requires the VM's System Datastore to be available to both the source and destination Clusters.
 
-Live migration between Clusters requires the VM's System Datastore to be available to both the source and destination Clusters.
-
 ## Basic Configuration
 
 Configuring a datastore usually requires you to add some specific attributes that depend on the storage driver and your infrastructure. Check the [Open Cloud Storage Guide]({{% relref "overview#storage" %}}) for specific details.

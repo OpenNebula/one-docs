@@ -966,15 +966,15 @@ There are some limitations to keep in mind when performing live datastore migrat
 * You **cannot change both the Host and the datastore simultaneously**. For that case, you need to perform each of those operations in order.
 * **VMs with qcow2 disks containing internal snapshots cannot be migrated live to another datastore**. OpenNebula rejects the operation to prevent disk data loss. Use cold datastore migration to preserve the snapshots.
 
-### Intra-Cluster VM Migration 
+Migration Between Clusters
 
-Migration between Hosts in different Clusters is supported provided that the resources used by the VM are also available to the destination Cluster. In particular:
+Virtual Machines can be migrated between Hosts in different Clusters provided that the resources used by the VM are also available to the destination Cluster. In particular:
 
 * Every Image Datastore used by the VM's disks must belong to the destination Cluster.
-* Every Virtual Network used by the VM must belong to the destination Cluster, including networks attached through PCI NICs. NICs using `NETWORK_MODE="DUMMY"` are excluded from this requirement.
+* Every Virtual Network used by the VM must belong to the destination Cluster, including networks attached through PCI NICs. NICs using NETWORK_MODE="DUMMY" are excluded from this requirement.
 * If the VM kernel or initrd is provided by an OpenNebula File Datastore, that datastore must also belong to the destination Cluster.
-* The system datastore used after the migration must be available to the destination Cluster. If the current system datastore is retained, it must include the destination Cluster. If a different system datastore is selected, it must also use the same transfer driver (`TM_MAD`) and support datastore migration and any existing disk snapshots.
-* Live migration between Clusters requires the VM's System Datastore to be available to both the source and destination Clusters.
+* The system datastore used after the migration must be available to the destination Cluster. If the current system datastore is retained, it must include the destination Cluster. If a different system datastore is selected, it must use the same transfer driver (TM_MAD) and support datastore migration and any existing disk snapshots.
+* Live migration between Clusters requires the VM's current System Datastore to be available to both the source and destination Clusters. The Host and System Datastore cannot both be changed in the same live migration operation.
 
 A system datastore with no Cluster associations is considered available to all Clusters for these checks.
 

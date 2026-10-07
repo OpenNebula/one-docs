@@ -19,7 +19,7 @@ Clusters group together Hosts, datastores, and Virtual Networks that are configu
 
 Clusters should generally contain homogeneous resources. Virtual Machines can also be migrated between compatible Hosts in different Clusters, provided that the required resources, including the System Datastore and Virtual Networks, are available to the destination Cluster.
 
-The requirements for live migrating VMs between Hosts of the same Cluster are that no differences occur in the following areas of the hypervisors:
+The requirements for live migrating VMs between compatible Hosts are that no differences occur in the following areas of the hypervisors:
 
 * CPU model
 * Firmware settings
