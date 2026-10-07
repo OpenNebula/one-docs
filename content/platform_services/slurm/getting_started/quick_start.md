@@ -44,9 +44,7 @@ $ oneflow-template update 'Service OneSlurm'
 In Sunstone, go to **Templates > Service Templates**, select **Service OneSlurm** and click the **Instantiate** button (the play icon). The wizard has four steps.
 
 1. **General**. Keep the name or type your own, then click **Next**.
-
 2. **Networks**. Keep **Existing** and select your Virtual Network in the table, then click **Next**.
-
 3. **Service Inputs**. Click **Next** to keep the defaults. LDAP, InfiniBand and NFS stay disabled.
 4. **Charter**. Click **Finish**.
 
