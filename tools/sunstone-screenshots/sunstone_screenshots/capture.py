@@ -206,6 +206,10 @@ def _load_recipe(path: Path) -> dict[str, Any]:
 
 def _run_step(page: Any, step: dict[str, Any], variables: dict[str, str]) -> Any:
     action = step.get("action")
+    if action == "guestCommand":
+        from .workflow import run_guest
+        run_guest(step)
+        return page
     if not action:
         raise CaptureError(f"Recipe step is missing action: {step}")
 

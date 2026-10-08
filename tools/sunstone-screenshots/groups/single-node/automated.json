@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/manifest.schema.json",
+  "version": 1,
+  "group": "group.json",
+  "hooks": {
+    "setup": [{"command": "su - oneadmin -c 'oneuser show 0 >/dev/null'", "timeout": 30}],
+    "teardown": []
+  },
+  "screenshots": [
+    {
+      "id": "automated.login",
+      "doc": "content/software/installation_process/frontend_installation/automated.md",
+      "image": "assets/images/quickstart/light/sunstone_login_page.png",
+      "recipe": "recipes/login.json",
+      "capture": "login",
+      "status": "draft"
+    }
+  ]
+}

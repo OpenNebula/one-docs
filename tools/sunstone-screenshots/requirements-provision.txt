@@ -1,0 +1,2 @@
+-r requirements.txt
+pyone>=6.10

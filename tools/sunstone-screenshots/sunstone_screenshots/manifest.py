@@ -28,6 +28,19 @@ def validate_manifest(manifest: dict[str, Any], repo_root: Path, manifest_path: 
     errors: list[str] = []
     seen_ids: set[str] = set()
     manifest_dir = manifest_path.resolve().parent
+    from .workflow import validate_commands
+    hooks = manifest.get('hooks', {})
+    if not isinstance(hooks, dict) or set(hooks) - {'setup', 'teardown'}:
+        errors.append('hooks: expected setup/teardown command lists')
+    else:
+        for commands in hooks.values():
+            try:
+                validate_commands(commands)
+            except ManifestError as exc:
+                errors.append(str(exc))
+    group = manifest.get('group')
+    if group is not None and (not isinstance(group, str) or not (manifest_dir / group).is_file()):
+        errors.append('group: must reference an existing group JSON file')
 
     for index, screenshot in enumerate(manifest.get("screenshots", []), start=1):
         prefix = f"screenshots[{index}]"
@@ -56,6 +69,18 @@ def validate_manifest(manifest: dict[str, Any], repo_root: Path, manifest_path: 
         recipe = screenshot.get("recipe")
         if recipe and not (manifest_dir / recipe).exists():
             errors.append(f"{prefix}: recipe does not exist: {recipe}")
+        elif recipe:
+            try:
+                data = json.loads((manifest_dir / recipe).read_text())
+                captures = data.get('captures', [])
+                if screenshot.get('capture') not in [c.get('id') for c in captures]:
+                    errors.append(f'{prefix}: capture not found in recipe')
+                steps = list(data.get('setup', []))
+                for capture in captures:
+                    steps.extend(capture.get('steps', []))
+                validate_commands([s for s in steps if s.get('action') == 'guestCommand'])
+            except (ValueError, TypeError, AttributeError) as exc:
+                errors.append(f'{prefix}: invalid recipe: {exc}')
 
     environments = manifest.get("environments", {})
     if environments and not isinstance(environments, dict):

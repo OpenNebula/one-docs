@@ -8,10 +8,9 @@ the OpenNebula documentation. It is intentionally split into small layers:
 - Playwright recipes that drive Sunstone and save replacement screenshots
 - a static visual QA report for current-vs-replacement review
 
-The VM provisioning piece is represented in the manifest as an environment hook.
-That lets us start using the inventory, recipe, capture, and QA workflow locally
-while the OpenNebula VM template and nightly-build installation commands are
-settled.
+The provisioning backend creates a single VM on a local OpenNebula installation,
+installs miniONE over SSH, and supplies the resulting Sunstone connection to the
+capture runner. See VM Provisioning below.
 
 ## Directory Layout
 
@@ -478,24 +477,254 @@ zero-based page `index`:
 
 ## VM Provisioning Path
 
-The intended provisioning layer is:
+Install `requirements-provision.txt` in your Python environment:
 
-1. Launch an OpenNebula VM from a named template.
-2. Wait for network reachability and SSH.
-3. Connect to internal repositories, for example with the local `sshuttle`
-   profile.
-4. Install the requested nightly or specific OpenNebula build.
-5. Seed deterministic test data for the recipe group.
-6. Export `SUNSTONE_URL`, `SUNSTONE_USER`, and `SUNSTONE_PASSWORD`.
-7. Run the Playwright capture command.
-8. Tear down or snapshot the VM.
+```bash
+python3 -m pip install -r tools/sunstone-screenshots/requirements-provision.txt
+```
 
-The manifest already has `environment.provisionCommand` and
-`environment.teardownCommand` fields so this can become a pluggable backend
-without changing recipe files. In CI/CD, that same hook can be replaced by a
-runner-specific setup job.
+Configure `provision.example.json` for the outer (local) OpenNebula installation:
+
+- `endpoint` and `auth_file`: outer XML-RPC endpoint and credential file.
+- `template_id`: replace `null` with a clean supported OS template ID. Its network,
+  disk, CPU and memory configuration are used unchanged; start with 4 vCPUs,
+  8 GiB RAM and 40 GiB disk for a small lab, adjusting for workloads.
+- The template must already contextualize SSH access for `ssh_user`/`ssh_key`.
+  Non-root users need passwordless sudo. The runner requires local OpenSSH.
+  By default, `ssh_key` is a private key readable by your local runner account, not
+  necessarily the OpenNebula service account's key in `/var/lib/one/.ssh`.
+  Configure the matching public key in the VM template's SSH contextualization
+  for the guest user named by `ssh_user`. Setting a private-key path here does
+  not inject its public key into the guest. The outer API credential in
+  `auth_file` is separate from SSH authentication.
+- The example uses `ssh_local_user: "oneadmin"` to run only the local SSH
+  subprocess through `sudo -n -H -u oneadmin -- ssh`. The guest login remains
+  `ssh_user: "root"`; API access, downloads and output files still belong to the
+  runner. In this mode `ssh_key` and `ssh_known_hosts` must be absolute paths
+  accessible to `oneadmin`. The known-hosts file's parent directory must exist
+  and be writable by that account. Configuration checks key readability via
+  `sudo -n -H -u oneadmin -- test -r /var/lib/one/.ssh/id_rsa` before allocation.
+  Sudo must authorize both commands without prompting: for local interactive
+  use, run `sudo -v` in the same terminal before provisioning or capture.
+  A long installation can outlast cached authorization; unattended runs need
+  administrator-configured sudo policy. Do not grant unrestricted passwordless
+  sudo merely for this tool. Remove `ssh_local_user` to use your own key instead.
+- Enable nested virtualization on the outer host and expose it to the VM.
+  Installation fails if `/dev/kvm` is absent; miniONE's emulation fallback is
+  not the intended environment for these KVM workflows.
+- `management_nic_id`: NIC whose IPv4 address is reachable from the runner.
+- `minione_script`: HTTP(S) URL or local path to a miniONE script, preferably
+  from a pinned release/commit. For example:
+  `https://github.com/OpenNebula/minione/releases/download/v7.4.0/minione`.
+  URL downloads follow redirects and are saved as `minione` in the run directory
+  before allocating a VM. The source URL and downloaded SHA-256 are recorded in
+  state; installation transfers that exact copy over SSH. Download failures stop
+  provisioning before allocation. `--check` validates configuration locally and
+  does not download or verify URL availability. Local file paths resolve relative
+  to the configuration file; `~` works.
+- `opennebula_version`: release to install. Optional `repo_base` is passed to
+  miniONE's `--repo-base`; internal repository layout must match that installer.
+  The example uses the tested Ubuntu 24.04 nightly base
+  `http://172.20.0.1/build/7.5-nightly/ubuntu2404/repo`. miniONE appends
+  `/Ubuntu/24.04` and, in the pinned installer, derives the version from the
+  URL's `build/7.5` component, overriding `--version`.
+- `minione_force`: boolean, default `false`. Passes miniONE's `--force` to
+  override its supported-version guard for nightly builds. This also affects
+  other overridable checks and is not a guarantee of package compatibility.
+  For released packages, set `repo_base` to `null`, `minione_force` to `false`
+  and `opennebula_version` to the desired supported release.
+- `minione_password`: optional password for the guest's `oneadmin` Sunstone
+  account. Omit it or use `null` to let miniONE generate a random password.
+  For an isolated disposable debugging lab, set `"minione_password": "opennebula"`
+  and log in as `oneadmin`. Do not use this simple password on exposed systems.
+  The password is stored in the configuration and private `state.json`, may
+  appear in miniONE's private `install.log`, and is passed in miniONE's guest
+  process arguments. Keep real passwords out of version control and restrict
+  local configuration permissions (for example, `chmod 600 <config-file>`).
+- `sunstone_port`: HTTP port miniONE configures (default 80).
+
+The guest needs access to package repositories and the miniONE Marketplace
+dependencies. A runner-side sshuttle connection alone does not provide guest
+access; arrange routing/proxy access separately. Keep inner and outer network
+ranges distinct. Configuration files and recipes are trusted executable inputs.
+
+Validate local settings, then provision into a new run directory:
+
+```bash
+tools/sunstone-screenshots/bin/sunstone-screenshots provision \
+  tools/sunstone-screenshots/provision.example.json \
+  --run-dir .sunstone-screenshots/labs/minione-01 --check
+
+tools/sunstone-screenshots/bin/sunstone-screenshots provision \
+  tools/sunstone-screenshots/provision.example.json \
+  --run-dir .sunstone-screenshots/labs/minione-01
+```
+
+Provisioning records the VM ID immediately, waits for running state and SSH,
+installs miniONE, then checks the inner API, a monitored KVM host and HTTP access
+to Sunstone. It retains the lab after success or failure. `state.json` records
+progress/configuration; `install.log` includes installer output and the installed
+package inventory. Both are private files: miniONE output can include passwords.
+By default each run uses a dedicated SSH known-hosts file. With `ssh_local_user`,
+the configured `ssh_known_hosts` file is shared across runs instead. New runs
+record a unique `host_key_alias` based on the VM name, so recycled IP addresses
+do not collide with previous labs. SSH accepts the first key for that alias and
+checks it on later connections; changed keys within a run are still rejected.
+Older runs without an alias retain their existing IP-based checks. Do not remove
+an old key without independently verifying the replacement VM's identity.
+
+Inspect, capture, and destroy that run explicitly:
+
+```bash
+tools/sunstone-screenshots/bin/sunstone-screenshots status \
+  --run-dir .sunstone-screenshots/labs/minione-01
+
+tools/sunstone-screenshots/bin/sunstone-screenshots capture \
+  tools/sunstone-screenshots/manifest.minione.json \
+  --run-dir .sunstone-screenshots/labs/minione-01 \
+  --output-root .sunstone-screenshots/labs/minione-01/screenshots --debug
+
+tools/sunstone-screenshots/bin/sunstone-screenshots destroy \
+  --run-dir .sunstone-screenshots/labs/minione-01
+```
+
+Capture reads the inner oneadmin credentials over SSH and sets the three
+`SUNSTONE_*` variables for the capture invocation. Outer credentials stay local.
+Destroy checks the recorded VM name and ID, requests hard termination of that VM
+(including its nested guests), and waits for DONE. Logs and screenshots remain.
+Existing run directories cannot be provisioned again: after investigating a
+failure, destroy the lab and start a fresh run. An interrupted allocation may
+require finding the unique recorded VM name in the outer cloud if no ID was saved.
+An SSH installation timeout does not guarantee guest processes have stopped.
+
+### Troubleshooting SSH Readiness
+
+`Timed out waiting for SSH and sudo` means the guest readiness check failed,
+before miniONE installation started. The timeout includes the last SSH error,
+also retained as `ssh_error` in `state.json`.
+
+- `Permission denied (publickey)`: check that `ssh_user` is the guest account
+  receiving the public key corresponding to `ssh_key`. Setting `ssh_key` only
+  chooses the local private key; it does not inject its public key into the VM.
+  In the source template's Context section, include your `.pub` file's contents
+  in `SSH_PUBLIC_KEY`, preserving existing keys that are still needed. The guest
+  image must support OpenNebula contextualization. Template changes apply to
+  newly instantiated VMs, not automatically to the retained VM.
+- Connection timeout or refusal: check the selected management NIC, routing,
+  guest boot progress, firewall and SSH service.
+- A sudo password or permission error: the configured non-root guest account
+  needs passwordless sudo; SSH authentication alone is not sufficient.
+
+Do not make the OpenNebula service account's private key broadly readable or
+run the entire automation with sudo to bypass a local key permission problem.
+After correcting the template, clean up the failed lab with `destroy` when no
+longer needed and provision with a new run directory.
+
+This first backend supports one VM and miniONE. Multi-host installation, automatic
+repository tunnels, custom seeding and installation resume are not implemented.
+The older manifest `provisionCommand`/`teardownCommand` fields remain descriptive;
+the CLI commands above perform provisioning explicitly.
 
 ## Authoring Guidelines
+
+### Page Manifests and Shared Labs
+
+`inventory.csv` is the master page inventory imported from the release spreadsheet.
+It preserves the source URL, assignment, priority, manual status, comments and
+reported UI issues. `automation_status` is separate from the historical `Merged`
+status: `pending` means no recipe yet, `draft` means incomplete/unverified,
+`needs-path` means the page could not be resolved, and `external` means it is
+outside this repository. Paths in `doc` are repository-relative; `group` and
+`manifest` are relative to `tools/sunstone-screenshots`. Blank mappings are not
+executable workflows. Section records are retained as labels on page rows.
+
+The starter `groups/single-node/` contains a group, a one-page manifest and a
+recipe. It captures only the login image for the automated installation page,
+not all that page's screenshots. Extend it after validating the workflow.
+
+```text
+groups/single-node/
+  group.json
+  automated.json
+  recipes/login.json
+```
+
+`group.json` names one provisioning configuration and an explicit ordered list
+of page manifests. Paths are relative to the group file. You can move the
+provisioning configuration into the group folder and change `provision` to
+`provision.json`; keep private configurations out of version control.
+Each page manifest links back using `"group": "group.json"`. Each grouped
+manifest must refer to exactly one document. Duplicate output image paths are
+rejected to prevent one page from silently replacing another page's captures.
+
+```bash
+tools/sunstone-screenshots/bin/sunstone-screenshots run-group \
+  tools/sunstone-screenshots/groups/single-node/group.json \
+  --run-dir .sunstone-screenshots/labs/pages-01 --check
+
+sudo -v
+tools/sunstone-screenshots/bin/sunstone-screenshots run-group \
+  tools/sunstone-screenshots/groups/single-node/group.json \
+  --run-dir .sunstone-screenshots/labs/pages-01 --debug
+```
+
+`--check` validates group/manifest/recipe references without SSH or provisioning;
+it does not validate live selectors, package access or resource cleanup.
+The runner provisions once, injects guest Sunstone credentials, executes pages
+in order, and generates numbered visual QA reports in `<run-dir>/qa/`.
+Replacements go to `<run-dir>/screenshots/`, never directly into tracked assets.
+`workflow.json` records page results and report paths. The VM is retained for
+inspection on success or failure; use the existing `destroy` command explicitly.
+`--reuse` opts into an existing ready lab with matching provisioning settings.
+A previous failed/interrupted group run blocks reuse because cleanliness is
+unknown. Group execution stops at the first failure.
+
+### Guest Setup and Cleanup
+
+Page manifests accept hooks executed once per page, not per screenshot/theme:
+
+```json
+"hooks": {
+  "setup": [{"command": "su - oneadmin -c 'onehost list'", "timeout": 60}],
+  "teardown": []
+}
+```
+
+For changes between screenshots, insert a recipe step:
+
+```json
+{ "action": "guestCommand", "command": "su - oneadmin -c 'onevm list'", "timeout": 60 }
+```
+
+These examples only inspect resources. Replace them with page-specific creation,
+modification and cleanup commands. Commands run as root inside the provisioned
+guest via the existing SSH transport, never on the laptop or outer OpenNebula.
+Use `su - oneadmin -c '...'` for inner-cloud CLI commands. Each command starts a
+new shell; persist resource IDs in guest files when later commands need them.
+No screenshot-variable interpolation is applied to shell commands.
+
+Commands are trusted executable input. Only run reviewed manifests/recipes.
+Their output is appended to private `<run-dir>/guest-commands.log`; avoid printing
+secrets. Timeout defaults to 120 seconds, and timeout does not guarantee remote
+process termination. Teardown is attempted after setup or capture failures, and
+all teardown commands are attempted even if an earlier cleanup fails. Hard
+process termination cannot guarantee cleanup. Use idempotent teardown and delete
+only resources created by that page; the runner cannot prove a clean guest.
+
+Standalone `capture MANIFEST --run-dir LAB` also runs hooks and guest steps.
+Without `--run-dir`, browser-only recipes still work, but guest commands fail.
+Screenshot filtering does not skip intermediate workflow steps or page hooks.
+
+To import a future spreadsheet into a new CSV for manual reconciliation:
+
+```bash
+PYTHONPATH=tools/sunstone-screenshots python3 -m sunstone_screenshots.inventory \
+  /path/to/export.csv /tmp/new-inventory.csv
+```
+
+The importer refuses to overwrite an existing CSV so curated mappings are not
+lost. External pages and malformed/missing URLs remain explicitly unresolved;
+spreadsheet comments are data, never shell instructions.
 
 - Keep one recipe per documentation workflow, not one recipe per image.
 - Use deterministic resource names and reset them during recipe setup.

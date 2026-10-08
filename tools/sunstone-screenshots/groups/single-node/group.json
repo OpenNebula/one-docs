@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "provision": "../../provision.example.json",
+  "manifests": ["automated.json"]
+}

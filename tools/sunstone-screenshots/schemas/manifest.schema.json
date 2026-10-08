@@ -6,6 +6,15 @@
   "required": ["version", "screenshots"],
   "additionalProperties": false,
   "properties": {
+    "group": {"type": "string", "description": "Group JSON path relative to this manifest."},
+    "hooks": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "setup": {"type": "array", "items": {"$ref": "#/$defs/guestCommand"}},
+        "teardown": {"type": "array", "items": {"$ref": "#/$defs/guestCommand"}}
+      }
+    },
     "$schema": {
       "type": "string"
     },
@@ -57,6 +66,14 @@
     }
   },
   "$defs": {
+    "guestCommand": {
+      "type": "object",
+      "required": ["command"],
+      "properties": {
+        "command": {"type": "string", "minLength": 1},
+        "timeout": {"type": "integer", "minimum": 1}
+      }
+    },
     "environment": {
       "type": "object",
       "required": ["kind"],

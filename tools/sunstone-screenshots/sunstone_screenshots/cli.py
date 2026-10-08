@@ -3,13 +3,17 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import sys
+from contextlib import nullcontext
 from pathlib import Path
 
 from .capture import CaptureError, capture_screenshots
 from .docs_scan import ImageReference, scan_content
 from .manifest import ManifestError, load_manifest, validate_manifest
 from .qa_report import write_qa_report
+from . import provision as lab
+from . import workflow
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -19,6 +23,14 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--repo-root", default=".", help="Repository root. Defaults to the current directory.")
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    provision_parser = subparsers.add_parser("provision", help="Create a single-VM miniONE lab.")
+    provision_parser.add_argument("config", help="Provisioning JSON configuration.")
+    provision_parser.add_argument("--run-dir", required=True, help="New directory for state and logs.")
+    provision_parser.add_argument("--check", action="store_true", help="Validate local configuration without allocating a VM.")
+    for command in ("status", "destroy"):
+        lab_parser = subparsers.add_parser(command, help=f"{command.title()} a provisioned lab run.")
+        lab_parser.add_argument("--run-dir", required=True)
 
     scan_parser = subparsers.add_parser("scan", help="Scan markdown files for image references.")
     scan_parser.add_argument("--content-dir", default="content", help="Content directory relative to the repo root.")
@@ -40,6 +52,7 @@ def main(argv: list[str] | None = None) -> int:
 
     capture_parser = subparsers.add_parser("capture", help="Run Playwright recipes and store replacement screenshots.")
     capture_parser.add_argument("manifest", help="Path to manifest JSON.")
+    capture_parser.add_argument("--run-dir", help="Use Sunstone and credentials from a ready provisioned run.")
     capture_parser.add_argument("--output-root", default=".sunstone-screenshots/runs/local")
     capture_parser.add_argument("--id", action="append", dest="ids", help="Screenshot id to capture. Can be repeated.")
     capture_parser.add_argument("--tag", action="append", dest="tags", help="Capture screenshots with this tag. Can be repeated.")
@@ -51,10 +64,31 @@ def main(argv: list[str] | None = None) -> int:
     capture_parser.add_argument("--pause-after-step", action="store_true", help="Pause in Playwright Inspector after every recipe step.")
     capture_parser.add_argument("--keep-open-on-failure", action="store_true", help="Leave the browser open if a recipe step fails.")
 
+    group_parser = subparsers.add_parser('run-group', help='Provision once and capture an ordered group of pages.')
+    group_parser.add_argument('group')
+    group_parser.add_argument('--run-dir', required=True)
+    group_parser.add_argument('--reuse', action='store_true', help='Explicitly reuse a ready lab with matching configuration.')
+    group_parser.add_argument('--check', action='store_true', help='Validate group files without provisioning or SSH.')
+    group_parser.add_argument('--debug', action='store_true')
+    group_parser.set_defaults(ids=None, tags=None, headed=False, browser='chromium', slow_mo=0,
+                              pause_before_step=False, pause_after_step=False, keep_open_on_failure=False)
+
     args = parser.parse_args(argv)
     repo_root = Path(args.repo_root).resolve()
 
     try:
+        if args.command == 'run-group':
+            return _run_group(args, repo_root)
+        if args.command == "provision":
+            if args.check:
+                lab.configuration(args.config)
+                print("Local provisioning configuration OK; no infrastructure contacted.")
+            else:
+                lab.provision(args.config, args.run_dir)
+            return 0
+        if args.command in ("status", "destroy"):
+            getattr(lab, args.command)(args.run_dir)
+            return 0
         if args.command == "scan":
             return _scan(args, repo_root)
         if args.command == "validate":
@@ -63,7 +97,7 @@ def main(argv: list[str] | None = None) -> int:
             return _qa_report(args, repo_root)
         if args.command == "capture":
             return _capture(args, repo_root)
-    except (ManifestError, CaptureError, OSError) as exc:
+    except (ManifestError, CaptureError, lab.ProvisionError, OSError, ValueError, KeyError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 
@@ -123,6 +157,66 @@ def _capture(args: argparse.Namespace, repo_root: Path) -> int:
             print(error, file=sys.stderr)
         return 1
 
+    previous = {}
+    if args.run_dir:
+        environment = lab.capture_environment(args.run_dir)
+        previous = {key: os.environ.get(key) for key in environment}
+        os.environ.update(environment)
+    try:
+        with workflow.guest_session(args.run_dir) if args.run_dir else nullcontext():
+            workflow.capture_with_hooks(manifest, lambda: _run_capture(args, repo_root, manifest_path, manifest))
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+    return 0
+
+
+def _run_group(args, repo_root):
+    config, manifests = workflow.load_group(args.group, repo_root)
+    if args.check:
+        print(f'Group OK: {len(manifests)} page manifests; no infrastructure contacted.')
+        return 0
+    run_dir = Path(args.run_dir).resolve()
+    if args.reuse:
+        previous_workflow = run_dir / 'workflow.json'
+        if previous_workflow.exists() and any(p.get('status') != 'complete' for p in lab.load(previous_workflow).get('pages', [])):
+            raise lab.ProvisionError('Previous workflow did not complete; use a fresh lab to avoid carrying dirty state.')
+        state = lab.load(run_dir / 'state.json')
+        expected = lab.configuration(config)
+        actual = dict(state['config'])
+        actual['minione_script'] = actual.get('installer_url', actual['minione_script'])
+        if state.get('phase') != 'ready' or any(actual.get(k) != v for k, v in expected.items()):
+            raise lab.ProvisionError('Reused lab must be ready and match the group provisioning configuration.')
+    else:
+        lab.provision(config, run_dir)
+    output = run_dir / 'screenshots'
+    summary = {'group': str(Path(args.group).resolve()), 'pages': []}
+    try:
+        for index, path in enumerate(manifests, 1):
+            entry = {'manifest': str(path), 'status': 'running'}
+            summary['pages'].append(entry)
+            lab.save(run_dir / 'workflow.json', summary)
+            args.manifest = str(path)
+            args.output_root = str(output)
+            try:
+                if _capture(args, repo_root):
+                    raise ManifestError(f'Capture validation failed: {path}')
+                report = run_dir / 'qa' / f'{index:03d}.html'
+                write_qa_report(load_manifest(path), repo_root, output, report)
+                entry.update(status='complete', report=str(report))
+            except BaseException:
+                entry['status'] = 'failed'
+                raise
+    finally:
+        lab.save(run_dir / 'workflow.json', summary)
+        print(f'Lab retained; workflow results: {run_dir / "workflow.json"}')
+    return 0
+
+
+def _run_capture(args, repo_root, manifest_path, manifest):
     capture_screenshots(
         manifest=manifest,
         manifest_path=manifest_path,
@@ -138,7 +232,6 @@ def _capture(args: argparse.Namespace, repo_root: Path) -> int:
         pause_after_step=args.pause_after_step,
         keep_open_on_failure=args.keep_open_on_failure,
     )
-    return 0
 
 
 def _reference_to_dict(reference: ImageReference) -> dict[str, object]:

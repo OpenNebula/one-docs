@@ -61,7 +61,7 @@ Example configuration:
     :service_port: 2633
 ```
 
-Replace `192.168.150.1` with the Front-end IP address used to connect to the Hosts and save the file. On Front-end command line, as the oneadmin system user, sync the OpenNebulaNetwork.conf file with the hypervisor Hosts, by running `onehost sync -f`.
+Replace `192.168.150.1` with the Front-end IP address used to connect to the Hosts and save the file. On the Front-end command line, as the `oneadmin` system user, sync the `OpenNebulaNetwork.conf` file with the hypervisor Hosts by running `onehost sync -f`. Power-cycle any guests that are already running so they use the updated transparent proxy configuration.
 
 ## Public and Private Virtual Networks
 

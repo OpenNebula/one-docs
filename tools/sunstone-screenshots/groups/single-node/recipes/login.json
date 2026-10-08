@@ -1,0 +1,12 @@
+{
+  "setup": [{"action": "goto", "url": "${SUNSTONE_URL}"}],
+  "captures": [
+    {
+      "id": "login",
+      "steps": [
+        {"action": "guestCommand", "command": "su - oneadmin -c 'onehost list >/dev/null'", "timeout": 30},
+        {"action": "waitForSelector", "selector": "input[type=password]"}
+      ]
+    }
+  ]
+}
