@@ -915,7 +915,7 @@ Datastore migration allows the transfer of a VM's disk images and associated fil
 
 Depending on the state of the VM and the capabilities of the underlying storage drivers, OpenNebula supports two primary methods:
 
-* **Cold Storage Migration**: Performed when the VM is in a `POWEROFF` or `UNDEPLOYED` state. The VM disks are transferred to the destination system datastore before the VM is resumed.
+* **Cold Storage Migration**: Performed when the VM is in a POWEROFF or SUSPENDED state. The disks are moved physically between datastores before the VM is resumed.
 
 * **Live Storage Migration**: Performed while the VM is `RUNNING`. OpenNebula coordinates with the hypervisor to migrate the VM storage while the workload continues running.
 
