@@ -79,8 +79,10 @@ Configure OneBEX on every OpenNebula hypervisor that can run VMs backed up by Ve
 
 The Veeam Server and Veeam Backup Appliance must be able to connect to the configured OneBEX address and port on each hypervisor.
 
-{{< alert title="Network Security" type="warning" >}}
-By default, OneBEX uses HTTP on port `13014`. To encrypt OneBEX traffic, configure TLS as described in [Configuring SSL in the Hosts](#41-configuring-ssl-in-the-hosts). Restrict the OneBEX ports with firewall rules so they are reachable only from the OpenNebula Front-end and the Veeam Server and Workers. These ports carry raw VM disk data while a backup is running.
+{{< alert title="Network Security Risk" type="warning" >}}
+By default, OneBEX uses unauthenticated HTTP on port `13014`. This creates a security risk that VM disk data could be intercepted by a malicious 3rd-party during backup. **Therefore it is recommended to encrypt OneBEX traffic**.
+
+To encrypt OneBEX traffic, configure TLS as described in [Configuring SSL in the Hosts]({{% relref "product/cluster_configuration/backup_system/veeam/#41-configuring-ssl-in-the-hosts" %}}). Restrict the OneBEX ports with firewall rules so they are reachable only from the OpenNebula Front-end and the Veeam Server and Workers. These ports carry raw VM disk data while a backup is running.
 
 During interactive restores, the restore writer listens on all interfaces (`0.0.0.0`) by default. Set the `ONE_BEX_WRITER_ADDR` environment variable in the Front-end to bind it to a specific address. Restrict the restore port range configured by `port_min` and `port_max` to the Front-end nodes that relay restore data because these ports accept raw image data without authentication or encryption.
 {{< /alert >}}

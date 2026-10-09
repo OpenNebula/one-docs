@@ -1,6 +1,6 @@
 ---
 title: "Resolved Issues in 7.4.2 (EE)"
-date: "2026-11-01"
+date: "2026-09-01"
 ---
 
 A complete list of solved issues for 7.4.2 are listed in the [project development portal](https://github.com/OpenNebula/one/milestone/95).
@@ -51,7 +51,7 @@ The following issues have been solved in 7.4.2:
 * Fix OneSwap context injection running the RHEL-specific `subscription-manager` command on RHEL-compatible distributions [#8111](https://github.com/OpenNebula/one/issues/8111).
 * Fix search field missing in Service Template Edit screen [#8097](https://github.com/OpenNebula/one/issues/8097).
 * Fix `oneimage` and `onevm` commands to not truncate IDs greater than 999 [#8108](https://github.com/OpenNebula/one/issues/8108)
-* Fix missing network security documentation for interactive backups and restores [#8061](https://github.com/OpenNebula/one/issues/8061).
+* Fix missing network security risk warnings in documentation for interactive backups and restores [#8061](https://github.com/OpenNebula/one/issues/8061).
 * Fix multiple security groups issues [#8126](https://github.com/OpenNebula/one/issues/8126).
 * Fix VM Template custom attributes not being removed when edited in FireEdge. [#8098](https://github.com/OpenNebula/one/issues/8098).
 * Fix OneGate service role scaling from inside VMs, which could fail due to the request body being consumed before processing.[#7954](https://github.com/OpenNebula/one/issues/7954).
