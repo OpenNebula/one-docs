@@ -1,6 +1,6 @@
 ---
 title: "Resolved Issues in 7.4.2 (EE)"
-date: "2026-11-01"
+date: "2026-09-01"
 ---
 
 A complete list of solved issues for 7.4.2 are listed in the [project development portal](https://github.com/OpenNebula/one/milestone/95).
@@ -15,6 +15,7 @@ Include a high level description and a link to the documentation explaining the 
 * Add per-VM live migration options through [`MIGRATE_AUTO_CONVERGE` and `MIGRATE_COMPRESSED`]({{% relref "/product/operation_references/configuration_references/template#template-features" %}}) VM template attributes. Administrators can now tune auto-convergence and memory compression only for selected KVM VMs, improving migration reliability and bandwidth usage without changing global driver defaults.
 -->
 
+* Add a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
 * Add an option to [cancel an ongoing Virtual Machine backup from Sunstone]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations#cancel-backup" %}}) [#8069](https://github.com/OpenNebula/one/issues/8069).
 * Added a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
 * Add support for Ceph VM backups through the [interactive backup integration]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
@@ -58,6 +59,7 @@ The following issues have been solved in 7.4.2:
 * Fix OneSwap context injection running the RHEL-specific `subscription-manager` command on RHEL-compatible distributions [#8111](https://github.com/OpenNebula/one/issues/8111).
 * Fix search field missing in Service Template Edit screen [#8097](https://github.com/OpenNebula/one/issues/8097).
 * Fix `oneimage` and `onevm` commands to not truncate IDs greater than 999 [#8108](https://github.com/OpenNebula/one/issues/8108)
+* Fix missing network security risk warnings in documentation for interactive backups and restores [#8061](https://github.com/OpenNebula/one/issues/8061).
 * Fix multiple security groups issues [#8126](https://github.com/OpenNebula/one/issues/8126).
 * Fix VM Template custom attributes not being removed when edited in FireEdge [#8098](https://github.com/OpenNebula/one/issues/8098).
 * Fix NetApp Datastore values in creation tab [#8035](https://github.com/OpenNebula/one/issues/8035).
