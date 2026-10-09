@@ -138,6 +138,8 @@ Note the differences in this case:
   * For the datastore of this example, there are no overall usage figures. The `local` driver uses the local storage area of each Host. To check the available space in a specific Host you need to check the Host details with `onehost show` command. Note that this behavior may be different for other drivers.
   * Images cannot be registered in System Datastores.
 
+A System Datastore can be associated with multiple Clusters when the underlying storage is accessible from the Hosts in each Cluster. A System Datastore available to multiple Clusters can support VM migration between Hosts belonging to those Clusters. Live migration between Clusters requires the VM's System Datastore to be available to both the source and destination Clusters.
+
 ## Basic Configuration
 
 Configuring a datastore usually requires you to add some specific attributes that depend on the storage driver and your infrastructure. Check the [Open Cloud Storage Guide]({{% relref "overview#storage" %}}) for specific details.

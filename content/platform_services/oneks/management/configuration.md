@@ -38,13 +38,13 @@ systemctl restart opennebula-ks.service
 
 These options define how OneKS reaches OpenNebula and how the OneKS API listens for client requests.
 
-| Attribute                     | Default                              | Description |
+| **Attribute**                     | **Default**                              | **Description** |
 |-------------------------------|--------------------------------------|-------------|
 | `:one_xmlrpc`                 | `http://localhost:2633/RPC2`         | OpenNebula XML-RPC endpoint used by the OneKS server to talk to the OpenNebula daemon. Change it when OneKS runs outside the Front-end Host or when OpenNebula uses a non-default endpoint. |
-| `:one_xmlrpc_tproxy`          | `http://169.254.16.9:2633/RPC2`      | XML-RPC endpoint exposed through the transparent proxy network. Workloads that need to reach OpenNebula through the K8s Cluster router use this address. The matching TPROXY rule must exist in `VAR_LOCATION/remotes/etc/vnm/OpenNebulaNetwork.conf`. |
+| `:one_xmlrpc_tproxy`          | `http://169.254.16.9:2633/RPC2`      | XML-RPC endpoint exposed through the transparent proxy network. Workloads that need to reach OpenNebula through the K8s Cluster router use this address. The matching TProxy rule must exist in `VAR_LOCATION/remotes/etc/vnm/OpenNebulaNetwork.conf`. |
 | `:server`                     | See nested values                    | API listener configuration for the OneKS server. |
 | `:server` / `:environment`    | `production`                         | Runtime environment used by the service. Production deployments should keep `production`. |
-| `:server` / `:bind`           | `127.0.0.1`                          | IP address where the OneKS API listens. Keep it local when only local CLI or Sunstone access is required. Use a reachable address only when the API must be exposed remotely. |
+| `:server` / `:bind`           | `127.0.0.1`                          | IP address where the OneKS API listens. Keep it local when only local CLI or Sunstone access is required. When the monitor is enabled, use the Front-end address configured as the TProxy `:remote_addr`, or `0.0.0.0`, so the in-cluster monitor can reach the API. |
 | `:server` / `:port`           | `10780`                              | TCP port where the OneKS API listens. The default local API endpoint is `http://127.0.0.1:10780/api/v1`. |
 | `:subscriber_endpoint`        | `tcp://localhost:2101`               | OpenNebula event subscription endpoint. It must match the event publisher endpoint configured in `oned.conf`. |
 | `:subscriber_timeout`         | `10`                                 | Receive timeout, in seconds, for OpenNebula event subscribers. Increase it only if event processing is timing out in a slow or overloaded environment. |
@@ -53,18 +53,39 @@ These options define how OneKS reaches OpenNebula and how the OneKS API listens 
 
 These options are used when OneKS runs Kubernetes commands from the Front-end Host.
 
-| Attribute            | Default                                  | Description |
+| **Attribute**            | **Default**                                  | **Description** |
 |----------------------|------------------------------------------|-------------|
 | `:kubectl_path`      | `/var/lib/rancher/rke2/bin/kubectl`      | Path to the `kubectl` binary used by OneKS. Change it if `kubectl` is installed in a different location. |
 | `:kubeconfig_path`   | `/etc/rancher/rke2/rke2.yaml`            | Kubeconfig file used by `kubectl` operations executed by the service. The file must be readable by the service user. |
 | `:k8s_timeout`       | `15`                                     | Timeout, in seconds, while waiting for Kubernetes command execution results. Increase it for slow API servers or busy management Clusters. |
+
+## Monitor Configuration
+
+The `:monitor` section enables the in-cluster OneKS monitor. For each new K8s Cluster created while this section is enabled, OneKS deploys the monitor Helm chart in the `kube-system` namespace. The monitor reports node and pod state, configured Kubernetes resource observations, and managed application status to the OneKS API. The monitor must be enabled for monitor-backed operations, including application installation and management.
+
+| **Attribute**                    | **Default**   | **Description** |
+|------------------------------|-----------|-------------|
+| `:monitor` / `:endpoint`     | Not set   | OneKS API URL reachable from inside the K8s Cluster. With the standard transparent proxy configuration, use `http://169.254.16.9:10780/api/v1`. |
+| `:monitor` / `:chart_repo`   | Not set   | Helm repository containing the OneKS monitor chart. |
+| `:monitor` / `:chart_version`| Not set   | Version of the OneKS monitor chart to deploy. |
+
+Add the following block to `/etc/one/oneks-server.conf`:
+
+```yaml
+:monitor:
+  :endpoint: 'http://169.254.16.9:10780/api/v1'
+  :chart_repo: 'https://opennebula.github.io/cluster-api-provider-opennebula/charts/'
+  :chart_version: '0.1.0'
+```
+
+The `:endpoint` above uses the TProxy link-local address. Configure TProxy to forward port `10780` to the OneKS API on the Front-end before enabling the monitor; see [Transparent Proxy Configuration]({{% relref "platform_services/oneks/getting_started/basic_configuration/#transparent-proxy-configuration" %}}). The OneKS API listener must bind to the Front-end address configured by that TProxy rule, or to `0.0.0.0`, instead of only to the default loopback address.
 
 ## Appliance Configuration
 
 OneKS uses an appliance image and its VM Template to create Kubernetes Clusters. The appliance is available through the OpenNebula Marketplace and must be available in an image datastore accessible to the target OpenNebula
 Cluster.
 
-| Attribute                | Default | Description |
+| **Attribute**                | **Default** | **Description** |
 |--------------------------|---------|-------------|
 | `:appliance_auto_import` | `true`  | If `true`, OneKS imports the appliance from the OpenNebula Marketplace when the service starts. Disable this option in air-gapped environments. |
 
@@ -100,7 +121,7 @@ The readiness check uses the OneKS appliance dependency defined by the selected 
 
 Comment out the full `:readiness` section to disable the readiness check service.
 
-| Attribute                         | Default                                 | Description |
+| **Attribute**                         | **Default**                                 | **Description** |
 |-----------------------------------|-----------------------------------------|-------------|
 | `:readiness` / `:external_url`    | `https://get.rke2.io`                   | Public URL used by the probe VM to validate DNS resolution and outbound internet access. |
 | `:readiness` / `:timeout`         | `60`                                    | Maximum time, in seconds, to wait for the probe VM and each readiness check step. |
@@ -109,7 +130,7 @@ Comment out the full `:readiness` section to disable the readiness check service
 
 These values control retry behavior, concurrency, cooldowns, and generated resource names.
 
-| Attribute             | Default | Description |
+| **Attribute**             | **Default** | **Description** |
 |-----------------------|---------|-------------|
 | `:retries`            | `5`     | Number of retries for operations that can be retried after an aborted call. |
 | `:default_cooldown`   | `300`   | Cooldown period, in seconds, after a scale operation. This prevents immediate repeated scale actions. |
@@ -120,7 +141,7 @@ These values control retry behavior, concurrency, cooldowns, and generated resou
 
 These options define how the OneKS API authenticates requests and how it authenticates against OpenNebula core.
 
-| Attribute         | Default      | Description |
+| **Attribute**         | **Default**      | **Description** |
 |-------------------|--------------|-------------|
 | `:auth`           | `opennebula` | Authentication driver for incoming OneKS API requests. With `opennebula`, credentials are validated against OpenNebula. |
 | `:core_auth`      | `cipher`     | Authentication driver used to communicate with OpenNebula core. Supported values are `cipher` for symmetric token encryption and `x509` for X.509 certificate based token encryption. |
@@ -130,7 +151,7 @@ These options define how the OneKS API authenticates requests and how it authent
 
 These values configure the OneKS service logging behavior and are defined under the `:log` section of the configuration file.
 
-| Attribute            | Default | Description |
+| **Attribute**            | **Default** | **Description** |
 |----------------------|---------|-------------|
 | `:log` / `:level`    | `3`     | Log verbosity. Values are `0` for ERROR, `1` for WARNING, `2` for INFO, and `3` for DEBUG. Use `3` for troubleshooting and reduce it in normal production operation if logs are too verbose. |
 | `:log` / `:system`   | `file`  | Log destination. Supported values are `file` and `syslog`. |
@@ -194,11 +215,12 @@ journalctl -u opennebula-ks.service
 
 OneKS relies on several OpenNebula services and network endpoints:
 
-| Area                 | What to Check |
+| **Area**                 | **What to Check** |
 |----------------------|---------------|
 | OneGate              | OneGate must be reachable by the Seed VM during provisioning. |
 | OpenNebula XML-RPC   | `:one_xmlrpc` must point to the OpenNebula daemon endpoint used by the OneKS server. |
-| TPROXY               | `:one_xmlrpc_tproxy` must match the XML-RPC endpoint exposed through the transparent proxy network. |
+| TProxy               | `:one_xmlrpc_tproxy` must match the XML-RPC endpoint exposed through the transparent proxy network. When the monitor is enabled, TProxy must also forward port `10780` to the OneKS API. |
+| OneKS monitor        | The `:monitor` endpoint must be reachable from the K8s Cluster, and the configured Helm repository must provide the selected chart version. |
 | OpenNebula events    | `:subscriber_endpoint` must match the event endpoint configured in `oned.conf`. |
 | Service logs         | Use service logs for daemon issues and per-cluster logs for provisioning, scaling, upgrade, and deletion workflows. |
 
@@ -214,7 +236,7 @@ OneKS relies on several OpenNebula services and network endpoints:
 
 :server:
   :environment: production
-  :bind: 127.0.0.1
+  :bind: 0.0.0.0
   :port: 10780
 
 :subscriber_endpoint: 'tcp://localhost:2101'
@@ -227,6 +249,15 @@ OneKS relies on several OpenNebula services and network endpoints:
 :kubectl_path: '/var/lib/rancher/rke2/bin/kubectl'
 :kubeconfig_path: '/etc/rancher/rke2/rke2.yaml'
 :k8s_timeout: 15
+
+################################################################################
+# Monitor Configuration
+################################################################################
+
+:monitor:
+  :endpoint: 'http://169.254.16.9:10780/api/v1'
+  :chart_repo: 'https://opennebula.github.io/cluster-api-provider-opennebula/charts/'
+  :chart_version: '0.1.0'
 
 ################################################################################
 # Cluster Readiness Check

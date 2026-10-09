@@ -911,16 +911,16 @@ Note that this is a simplified version. If you are a developer you may want to t
 
 ## Virtual Machine Datastore Migration
 
-Datastore Migration allows the transfer of a VM's disk images and associated files from one system datastore to another. This is a critical operation for storage maintenance, balancing disk I/O load across different storage tiers, or evacuating hardware for decommissioning.
+Datastore migration allows the transfer of a VM's disk images and associated files from one system datastore to another. It can be used for storage maintenance, balancing disk I/O across different storage tiers, evacuating hardware for decommissioning, or moving a VM to a Host in another Cluster.
 
-Depending on the state of the VM and the underlying storage drivers, OpenNebula supports two primary methods:
+Depending on the state of the VM and the capabilities of the underlying storage drivers, OpenNebula supports two primary methods:
 
-* **Cold Storage Migration**: Performed when the VM is in a POWEROFF or UNDEPLOYED state. The disks are moved physically between datastores before the VM is resumed.
+* **Cold Storage Migration**: Performed when the VM is in a POWEROFF or SUSPENDED state. The disks are moved physically between datastores before the VM is resumed.
 
-* **Live Storage Migration**: Performed while the VM is RUNNING. OpenNebula coordinates with the hypervisor to mirror disk writes to the new destination in real-time, ensuring zero downtime for the workload.
+* **Live Storage Migration**: Performed while the VM is `RUNNING`. OpenNebula coordinates with the hypervisor to migrate the VM storage while the workload continues running.
 
 {{< alert title="Note" type="info" >}}
-Not all storage drivers support both methods. Check the "Storage migration" column in the [storage portfolio]({{% relref "product/cluster_configuration/storage_system/overview/#storage-portfolio" %}}) table for updated compatibility info.
+Not all storage drivers support both cold and live datastore migration. Check the "Storage migration" column in the [storage portfolio]({{% relref "product/cluster_configuration/storage_system/overview/#storage-portfolio" %}}) table for current compatibility information.
 {{< /alert >}}
 
 ### Basic Syntax
@@ -965,6 +965,18 @@ There are some limitations to keep in mind when performing live datastore migrat
 
 * You **cannot change both the Host and the datastore simultaneously**. For that case, you need to perform each of those operations in order.
 * **VMs with qcow2 disks containing internal snapshots cannot be migrated live to another datastore**. OpenNebula rejects the operation to prevent disk data loss. Use cold datastore migration to preserve the snapshots.
+
+### Migration Between Clusters
+
+Virtual Machines can be migrated between Hosts in different Clusters provided that the resources used by the VM are also available to the destination Cluster. In particular:
+
+* Every Image Datastore used by the VM's disks must belong to the destination Cluster.
+* Every Virtual Network used by the VM must belong to the destination Cluster, including networks attached through PCI NICs. NICs using `NETWORK_MODE="DUMMY"` are excluded from this requirement.
+* If the VM kernel or initrd is provided by an OpenNebula File Datastore, that datastore must also belong to the destination Cluster.
+* The system datastore used after the migration must be available to the destination Cluster. If the current system datastore is retained, it must include the destination Cluster. If a different system datastore is selected, it must use the same transfer driver (`TM_MAD`) and support datastore migration and any existing disk snapshots.
+* Live migration between Clusters requires the VM's current System Datastore to be available to both the source and destination Clusters. The Host and System Datastore cannot both be changed in the same live migration operation.
+
+A system datastore with no Cluster associations is considered available to all Clusters for these checks.
 
 <a id="vm-charter"></a>
 
