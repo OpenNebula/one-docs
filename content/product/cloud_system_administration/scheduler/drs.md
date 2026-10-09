@@ -273,3 +273,29 @@ To prevent migrations for a specific VM in Sunstone, go to **Instances > VMs** a
 
 {{< image path="/images/cloud_administration/scheduler/onedrs_blocked-vm.png"
     alt="Prevent OneDRS migrations for a VM" align="center" width="90%" mb="20px" >}}
+
+## Using DRS from the CLI
+
+To start Cluster workload optimization and create an optimization plan for the Cluster, run the following command, replacing `<cluster_id>` with the ID of the Cluster:
+
+```shell
+onecluster optimize <cluster_id>
+```
+
+The generated plan can be displayed together with the other Cluster information with:
+
+```shell
+onecluster show <cluster_id>
+```
+
+To start applying the optimization plan, i.e. migration recommendations, run:
+
+```shell
+onecluster planexecute <cluster_id>
+```
+
+Only the last obtained plan for a Cluster is saved. To delete it, run:
+
+```shell
+onecluster plandelete <cluster_id>
+```
