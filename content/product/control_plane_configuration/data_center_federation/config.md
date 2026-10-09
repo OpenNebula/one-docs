@@ -101,6 +101,7 @@ one_auth
 oneflow_auth
 onegate_auth
 sunstone_auth
+fireedge_key
 ```
 
 - **Slave**: Update `/etc/one/oned.conf` to change the mode to **slave**, set the *master’s* URL and the `ZONE_ID` obtained when the Zone was created on *master*:
