@@ -34,7 +34,7 @@ When a VM backup is created through an interactive backup integration, OpenNebul
 
 The current interactive backup implementation supports the following configuration:
 
-| Component | Support |
+| **Component** | **Support** |
 |-----------|---------|
 | Hypervisor | KVM |
 | VM disk storage | File-based `qcow2` disks, disks on LVM datastores, and Ceph RBD disks |
@@ -58,6 +58,14 @@ Make sure that:
 - OpenNebula remotes are synchronized after changing the OneBEX configuration.
 - The standard OpenNebula Front-end to Host connectivity is working.
 
+{{< alert title="Network Security Risk" type="warning" >}}
+OneBEX uses unauthenticated HTTP by default and transfers VM disk data during backups. Unencrypted traffic can be intercepted, and reachable endpoints can be queried during active exports.
+
+Enable TLS using the integration's supported proxy or equivalent on each hypervisor; OneBEX does not terminate TLS. For an example with Veeam, see [Configuring SSL in the Hosts]({{% relref "product/cluster_configuration/backup_system/veeam.md#41-configuring-ssl-in-the-hosts" %}}).
+
+Restrict access to OneBEX and proxy ports to the Front-end and required backup components on every eligible hypervisor. If TLS terminates at a local proxy, keep its HTTP connection to OneBEX local to the Host.
+{{< /alert >}}
+
 ## Configuring OneBEX
 
 OneBEX is configured from the OpenNebula remotes directory on the Front-end:
@@ -80,21 +88,21 @@ The configuration file defines the OneBEX listen address, logging settings, and 
 
 ### Server Configuration
 
-| Parameter | Default value | Description |
+| **Parameter** | **Default value** | **Description** |
 |-----------|---------------|-------------|
 | `:host:` | `0.0.0.0` | Address where OneBEX listens for HTTP requests. By default, it listens on all available interfaces. |
 | `:port:` | `13014` | TCP port where OneBEX listens for HTTP requests. |
 
 ### Log Configuration
 
-| Parameter | Default value | Description |
+| **Parameter** | **Default value** | **Description** |
 |-----------|---------------|-------------|
 | `:log: :level:` | `2` | Log verbosity level. Supported values are `0` for `ERROR`, `1` for `WARNING`, `2` for `INFO`, and `3` for `DEBUG`. |
 | `:log: :system:` | `file` | Logging backend used by OneBEX. Supported values are `file` and `syslog`. |
 
 ### Puma Configuration
 
-| Parameter | Default value | Description |
+| **Parameter** | **Default value** | **Description** |
 |-----------|---------------|-------------|
 | `:puma: :min_threads:` | `1` | Minimum number of Puma threads used to handle concurrent OneBEX HTTP requests. |
 | `:puma: :max_threads:` | `4` | Maximum number of Puma threads used to handle concurrent OneBEX HTTP requests. |
@@ -135,9 +143,13 @@ onebex://<IMAGE_DS_ID>:<PORT_ID>
 
 `IMAGE_DS_ID` is the destination Image Datastore ID where the restored disk image will be created. `PORT_ID` is the restore transfer port allocated for the interactive restore session.
 
+{{< alert title="Network Security" type="warning" >}}
+By default, the restore writer listens on all interfaces (`0.0.0.0`). Set the `ONE_BEX_WRITER_ADDR` environment variable in the Front-end to make it listen on a specific address. Restrict the restore transfer ports at the firewall to the integration components that send restore data because the writer accepts raw image data without authentication or encryption.
+{{< /alert >}}
+
 The writer accepts one frame per TCP connection. Each frame starts with a one-byte type:
 
-| Type | Name | Payload |
+| **Type** | **Name** | **Payload** |
 |------|------|---------|
 | `0x00` | `DATA` | Three unsigned 64-bit big-endian integers containing the start byte, payload size, and total image size, followed by the image data. |
 | `0x01` | `FINISH` | No payload. Stops the writer and lets OpenNebula finalize the restore transfer. |
@@ -166,7 +178,7 @@ The OneBEX API is consumed by backup integrations. The current API is:
 
 ### API Endpoints
 
-| Endpoint | Method | Purpose | HTTP Status Code |
+| **Endpoint** | **Method** | **Purpose** | **HTTP Status Code** |
 |----------|--------|---------|------------------|
 | `/` | `GET` | Returns basic server information and the available API routes. | `200` |
 | `/status` | `GET` | Returns the current export status for a VM. Requires `VM_ID`. | `200`, `400` |
@@ -184,7 +196,7 @@ The OneBEX API is consumed by backup integrations. The current API is:
 
 ### HTTP Status Codes
 
-| Code | Description |
+| **Code** | **Description** |
 |------|-------------|
 | `200 OK` | Request completed. Check `SUCCESS` in lifecycle responses for the backup result. |
 | `206 Partial Content` | Requested byte range returned successfully. |
