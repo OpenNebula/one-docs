@@ -9,25 +9,25 @@ type: docs
 weight: "4"
 ---
 
-OneSlurm has no API of its own. A OneSlurm cluster is a OneFlow service, so you create, scale and delete it with the [OneFlow Server API]({{% relref "product/integration_references/system_interfaces/appflow_api" %}}). This page shows the calls for OneSlurm.
+OneSlurm has no API of its own. A OneSlurm cluster is a OneFlow service, so you create, scale and delete it with the [OneFlow Server API]({{% relref "product/integration_references/system_interfaces/appflow_api" %}}). This page shows the calls relevant to OneSlurm.
 
-| Item | Value |
+| **Item** | **Value** |
 |---|---|
-| Endpoint | `http://<front-end>:2474` |
+| Endpoint | `http://<FRONT_END_IP>:2474` |
 | Authentication | HTTP Basic, with an OpenNebula user and password |
 | Format | JSON |
 
 The examples use these variables.
 
 ```shell
-$ FLOW=http://localhost:2474
-$ AUTH='oneadmin:<password>'
+FLOW=http://localhost:2474
+AUTH='oneadmin:<password>'
 ```
 
 ## Find the Service Template
 
 ```shell
-$ curl -s -u "$AUTH" $FLOW/service_template
+curl -s -u "$AUTH" $FLOW/service_template
 ```
 
 The response lists the service templates in `DOCUMENT_POOL.DOCUMENT`. Take the `ID` of the one named `Service OneSlurm`.
@@ -35,7 +35,7 @@ The response lists the service templates in `DOCUMENT_POOL.DOCUMENT`. Take the `
 ## Create a Cluster
 
 ```shell
-$ curl -s -u "$AUTH" -X POST -H 'Content-Type: application/json' \
+curl -s -u "$AUTH" -X POST -H 'Content-Type: application/json' \
     $FLOW/service_template/<template_id>/action -d '{
   "action": {
     "perform": "instantiate",
@@ -66,17 +66,17 @@ $ curl -s -u "$AUTH" -X POST -H 'Content-Type: application/json' \
 * `user_inputs_values` must contain **all** the service inputs, also the empty ones. Otherwise the API answers `Verify that every User Input have its corresponding value defined`.
 * The response is the new service. Its ID is in `DOCUMENT.ID`.
 
-[Configuration Parameters]({{% relref "platform_services/slurm/references/configuration_parameters" %}}) describes each input.
+Refer to [Configuration Parameters]({{% relref "platform_services/slurm/references/configuration_parameters" %}}) for a description of each input.
 
 ## Check the Cluster
 
 ```shell
-$ curl -s -u "$AUTH" $FLOW/service/<service_id>
+curl -s -u "$AUTH" $FLOW/service/<service_id>
 ```
 
 The state of the service is in `DOCUMENT.TEMPLATE.BODY.state`, and the roles with their VMs in `DOCUMENT.TEMPLATE.BODY.roles`.
 
-| `state` | Meaning |
+| `state` | **Meaning** |
 |---|---|
 | `1` | Deploying |
 | `2` | Running |
@@ -87,7 +87,7 @@ The state of the service is in `DOCUMENT.TEMPLATE.BODY.state`, and the roles wit
 
 ```shell
 $ curl -s -u "$AUTH" -X POST -H 'Content-Type: application/json' \
-    $FLOW/service/<service_id>/scale \
+    $FLOW/service/<SERVICE_ID>/scale \
     -d '{ "role_name": "worker", "cardinality": 2, "force": false }'
 ```
 
@@ -98,7 +98,7 @@ $ curl -s -u "$AUTH" -X POST -H 'Content-Type: application/json' \
 ## Delete the Cluster
 
 ```shell
-$ curl -s -u "$AUTH" -X DELETE $FLOW/service/<service_id>
+curl -s -u "$AUTH" -X DELETE $FLOW/service/<SERVICE_ID>
 ```
 
 The API answers `204`. You cannot delete the service during the cooldown after a scale operation.

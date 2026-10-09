@@ -2,7 +2,7 @@
 title: "Slurm Cluster Management"
 linkTitle: "Management"
 date: "2026-10-07"
-description: "Scale, configure, connect and troubleshoot your OneSlurm clusters."
+description: "Scale, configure, connect and troubleshoot your OneSlurm Clusters."
 categories:
 pageintoc: "13"
 tags:

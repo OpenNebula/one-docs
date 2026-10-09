@@ -11,13 +11,13 @@ weight: "7"
 
 ## Check the Cluster
 
-Connect to the controller and use the Slurm commands.
+Connect to the controller and use the Slurm commands on the command line:
 
 ```shell
-$ onevm ssh <controller_vm_id>
+onevm ssh <CONTROLLER_VM_ID>
 ```
 
-| Command | Shows |
+| **Command** | **Shows** |
 |---|---|
 | `sinfo` | Partitions and the state of each node |
 | `scontrol show nodes` | CPUs, memory, GPUs and state of each node |
@@ -29,9 +29,9 @@ On a worker, `systemctl status slurmd` shows the Slurm node daemon.
 
 ## Appliance Logs and Status
 
-Every VM of the service writes the same files.
+Every VM of the service writes the same files:
 
-| File | Content |
+| **File** | **Content** |
 |---|---|
 | `/etc/one-appliance/status` | `bootstrap_success` when the appliance finished without errors |
 | `/var/log/one-appliance/configure.log` | Log of the configuration at each boot |
@@ -41,12 +41,12 @@ Every VM of the service writes the same files.
 The reconciler of the controller writes to the journal.
 
 ```shell
-$ journalctl -u oneslurm-reconcile
+journalctl -u oneslurm-reconcile
 ```
 
 ## Common Problems
 
-| Symptom | Cause | Fix |
+| **Symptom** | **Likely cause** | **Fix** |
 |---|---|---|
 | The service stays in `DEPLOYING` and no worker appears | The controller did not publish `READY=YES` | Read `configure.log` on the controller |
 | `onegate service show` prints `Service <id> not found` | OneGate cannot reach OneFlow | Set `:oneflow_server:` in `/etc/one/onegate-server.conf` |
@@ -59,7 +59,7 @@ $ journalctl -u oneslurm-reconcile
 
 ## Check the Optional Features
 
-| Feature | Command on the controller |
+| **Feature** | **Command on the controller** |
 |---|---|
 | LDAP users | `getent passwd <user>`, `getent group <group>` and `srun -N1 -n1 getent passwd <user>` |
 | NFS | `findmnt /home` and `srun -N1 -n1 findmnt /home` |

@@ -11,23 +11,23 @@ weight: "3"
 
 ## OpenNebula Commands
 
-Run these on the OpenNebula front-end.
+Run these on the OpenNebula Front-end.
 
-| Command | Purpose |
+| **Command** | **Purpose** |
 |---|---|
 | `onemarketapp export 'Service OneSlurm' 'Service OneSlurm' --datastore default` | Import the appliance from the Marketplace |
-| `onetemplate update <template_id>` | Change a controller or worker VM template |
-| `oneflow-template update <service_template_id>` | Change the service template |
-| `oneflow-template instantiate 'Service OneSlurm'` | Create a cluster |
-| `oneflow list` | List the clusters |
-| `oneflow show <service_id>` | Show the roles and VMs of a cluster |
-| `oneflow scale <service_id> worker <number>` | Change the number of workers |
-| `oneflow delete <service_id>` | Delete a cluster |
-| `onevm ssh <vm_id>` | Connect to a VM of the cluster |
+| `onetemplate update <TEMPLATE_ID>` | Change a controller or worker VM template |
+| `oneflow-template update <SERVICE_TEMPLATE_ID>` | Change the service template |
+| `oneflow-template instantiate 'Service OneSlurm'` | Create a Cluster |
+| `oneflow list` | List the Clusters |
+| `oneflow show <SERVICE_ID>` | Show the roles and VMs of a Cluster |
+| `oneflow scale <SERVICE_ID> worker <NUMBER>` | Change the number of workers |
+| `oneflow delete <SERVICE_ID>` | Delete a Cluster |
+| `onevm ssh <VM_ID>` | Connect to a VM of the Cluster |
 
 ## Commands Inside the VMs
 
-| Command | Where | Purpose |
+| **Command** | **Where** | **Purpose** |
 |---|---|---|
 | `sinfo` | Controller | Partitions and node states |
 | `scontrol show nodes` | Controller | Details of each node |

@@ -9,50 +9,50 @@ type: docs
 weight: "1"
 ---
 
-A OneSlurm cluster is a OneFlow service. You create, scale and delete it with the `oneflow` commands.
+A OneSlurm Cluster is a OneFlow service. You create, scale and delete it with the `oneflow` commands.
 
-| Task | Command |
+| **Task** | **Command** |
 |---|---|
-| Create a cluster | `oneflow-template instantiate 'Service OneSlurm'` |
-| List clusters | `oneflow list` |
-| Show the VMs of a cluster | `oneflow show <service_id>` |
-| Change the number of workers | `oneflow scale <service_id> worker <number>` |
-| Delete a cluster | `oneflow delete <service_id>` |
+| Create a Cluster | `oneflow-template instantiate 'Service OneSlurm'` |
+| List Clusters | `oneflow list` |
+| Show the VMs of a Cluster | `oneflow show <SERVICE_ID>` |
+| Change the number of workers | `oneflow scale <SERVICE_ID> worker <NUMBER>` |
+| Delete a Cluster | `oneflow delete <SERVICE_ID>` |
 
-The [Quick Start]({{% relref "platform_services/slurm/getting_started/quick_start" %}}) shows how to create a cluster.
+The [Quick Start Guide]({{% relref "platform_services/slurm/getting_started/quick_start" %}}) demonstrates how to create a Cluster.
 
 ## Add Workers
 
 ```shell
-$ oneflow scale <service_id> worker 4
+oneflow scale <SERVICE_ID> worker 4
 ```
 
-OneFlow creates the new VMs. Each new worker reads the cluster data from OneGate and joins Slurm as a dynamic node, as described in [Core Concepts]({{% relref "platform_services/slurm/getting_started/core_concepts" %}}). Check the new nodes from the controller.
+OneFlow creates the new worker VMs. Each new worker reads the Cluster data from OneGate and joins Slurm as a dynamic node, as described in [Core Concepts]({{% relref "platform_services/slurm/getting_started/core_concepts" %}}). Check the new nodes from the controller.
 
 ```shell
-$ sinfo
+sinfo
 ```
 
-| Limit | Value |
+| **Limit** | **Value** |
 |---|---|
-| Recommended minimum of workers | 1 |
+| Recommended minimum number of workers | 1 |
 | Maximum number of nodes in Slurm | 100 (`MaxNodeCount` in `slurm.conf`) |
 | Cooldown after a scale operation | 30 seconds. During the cooldown you cannot scale or delete the service |
 
 ## Remove Workers
 
 ```shell
-$ oneflow scale <service_id> worker 1
+oneflow scale <SERVICE_ID> worker 1
 ```
 
 OneFlow deletes the extra worker VMs. Two mechanisms then remove the nodes from Slurm.
 
-| Mechanism | Where it runs | When | What it does |
+| **Mechanism** | **Where it runs** | **When** | **What it does** |
 |---|---|---|---|
 | Self-drain | Each worker, `oneslurm-self-drain.service` | When the VM shuts down normally | Sets the node `DOWN` and deletes it from Slurm |
 | Reconciler | Controller, `oneslurm-reconcile.timer` | 2 minutes after boot, then every 60 seconds | Removes nodes that have no VM anymore |
 
-The reconciler is a safety net for VMs that stop without a normal shutdown. It acts on a node only when all three conditions are true.
+The reconciler is a safety net for VMs that stop without a normal shutdown. It acts on a node only when all three following conditions are true:
 
 1. The node is registered in Slurm.
 2. No worker VM of the service publishes this node name in OneGate.
@@ -69,7 +69,7 @@ Scaling down deletes worker VMs even when they run jobs. Drain the nodes you wan
 ## Delete the Cluster
 
 ```shell
-$ oneflow delete <service_id>
+oneflow delete <SERVICE_ID>
 ```
 
-This deletes all the VMs of the cluster. Data stored inside the VMs is lost, including the users of the local LDAP on the controller. Data on external NFS exports stays.
+This deletes all VMs of the Cluster. Data stored inside the VMs is lost, including the users of the local LDAP on the controller. Data on external NFS exports persists.

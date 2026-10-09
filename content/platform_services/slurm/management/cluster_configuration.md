@@ -13,7 +13,7 @@ The controller writes the Slurm configuration. The workers download it from the 
 
 ## Files on the Controller
 
-| File | Content |
+| **File** | **Content** |
 |---|---|
 | `/etc/slurm/slurm.conf` | Cluster, scheduler, plugins and partition |
 | `/etc/slurm/gres.conf` | `AutoDetect=nvidia`, to find NVIDIA GPUs |
@@ -21,9 +21,9 @@ The controller writes the Slurm configuration. The workers download it from the 
 
 ## Default `slurm.conf`
 
-| Setting | Value | Meaning |
+| **Setting** | **Value** | **Meaning** |
 |---|---|---|
-| `ClusterName` | `one` | Name of the Slurm cluster |
+| `ClusterName` | `one` | Name of the Slurm Cluster |
 | `SlurmctldHost` | `slurm-one-controller` | Hostname of the controller |
 | `AuthType` | `auth/munge` | Munge authentication |
 | `SchedulerType` | `sched/backfill` | Backfill scheduling |
@@ -36,17 +36,17 @@ The controller writes the Slurm configuration. The workers download it from the 
 | `Nodeset` | `one Feature=one` | Groups all the workers |
 | `PartitionName` | `all Nodes=ALL Default=yes` | One partition with all the nodes |
 
-With InfiniBand enabled, the controller also adds `MpiDefault=pmix` and `PropagateResourceLimitsExcept=MEMLOCK`. See [InfiniBand]({{% relref "platform_services/slurm/management/infiniband" %}}).
+With InfiniBand enabled, the controller also adds `MpiDefault=pmix` and `PropagateResourceLimitsExcept=MEMLOCK`. Refer to the [InfiniBand Documentation]({{% relref "platform_services/slurm/management/infiniband" %}}).
 
 ## Changes to the Configuration
 
 {{< alert title="Important" type="warning" >}}
-The controller writes `slurm.conf`, `gres.conf` and `cgroup.conf` again every time it boots. Changes that you make by hand in these files are lost after a reboot of the controller.
+The controller rewrites `slurm.conf`, `gres.conf` and `cgroup.conf` every time it boots. Changes that you make by hand in these files are lost after a reboot of the controller.
 {{< /alert >}}
 
-To change the cluster, use the service inputs when you create it. The [Configuration Parameters]({{% relref "platform_services/slurm/references/configuration_parameters" %}}) page lists them all.
+To change the Cluster, use the service inputs when you create it. The [Configuration Parameters]({{% relref "platform_services/slurm/references/configuration_parameters" %}}) page lists them all.
 
-| You want | How |
+| **You want** | **How** |
 |---|---|
 | Shared users | LDAP inputs, see [Identity Management]({{% relref "platform_services/slurm/management/identity_management" %}}) |
 | Shared `/home` and `/scratch` | NFS inputs, see [Shared Storage]({{% relref "platform_services/slurm/management/shared_storage" %}}) |

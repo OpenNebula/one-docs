@@ -11,19 +11,19 @@ weight: "1"
 
 ## Components
 
-| Component | Where | Role |
+| **Component** | **Where** | **Role** |
 |---|---|---|
-| OneFlow service `OneSlurm` | OpenNebula front-end | Creates the roles in order and scales the workers |
+| OneFlow service `OneSlurm` | OpenNebula Front-end | Creates the roles in order and scales the workers |
 | `controller` role | 1 VM | `slurmctld`, Munge, optional OpenLDAP, reconciler |
 | `worker` role | 1 or more VMs, child of `controller` | `slurmd`, Munge, self-drain hook |
-| OneGate | OpenNebula front-end | Shares data between the VMs of the service |
+| OneGate | OpenNebula Front-end | Shares data between the VMs of the service |
 | Service network | Virtual Network | Connects all the VMs. Chosen when the service is created |
 
 The service uses `deployment: straight` and `ready_status_gate: true`. OneFlow creates the controller first and the workers only after the controller reports `READY=YES`.
 
 ## Data in OneGate
 
-| Attribute | Published by | Read by | Content |
+| **Attribute** | **Published by** | **Read by** | **Content** |
 |---|---|---|---|
 | `READY` | Controller | OneFlow, workers | `YES` when the controller is configured |
 | `SLURM_MUNGE_KEY` | Controller | Workers | Munge key in base64 |
@@ -34,13 +34,13 @@ The service uses `deployment: straight` and `ready_status_gate: true`. OneFlow c
 | `LDAP_BIND_PASSWORD` | Controller | Workers | LDAP bind password, when set |
 | `SLURM_NODENAME` | Each worker | Controller reconciler | Name of the Slurm node of this VM |
 
-With local LDAP, `LDAP_URL` is `ldap://<controller IP>`.
+With local LDAP, `LDAP_URL` is `ldap://<CONTROLLER_IP>`.
 
 ## Network Ports
 
-The table shows the default ports of each service.
+The following table shows the default ports of each service.
 
-| Port | Service | From | To |
+| **Port** | **Service** | **From** | **To** |
 |---|---|---|---|
 | 6817/TCP | `slurmctld` and configless configuration | Workers | Controller |
 | 389/TCP | LDAP | All VMs | Local LDAP on the controller, or the external LDAP |
@@ -49,7 +49,7 @@ The table shows the default ports of each service.
 
 ## Files and Units
 
-| Item | VM | Purpose |
+| **Item** | **VM** | **Purpose** |
 |---|---|---|
 | `/etc/slurm/slurm.conf`, `gres.conf`, `cgroup.conf` | Controller | Slurm configuration, written at each boot |
 | `/etc/munge/munge.key` | All | Munge key |
@@ -76,7 +76,7 @@ In every VM, the NFS exports are mounted first, while the network is configured.
 ### Worker
 
 1. Waits until the controller publishes `READY=YES`, then reads its IP, the Munge key and the LDAP data.
-2. Sets its hostname. The Marketplace template uses the VM name. Without `SET_HOSTNAME`, the hostname is `slurm-one-worker-<VM ID>`.
+2. Sets its hostname. The Marketplace template uses the VM name. Without `SET_HOSTNAME`, the hostname is `slurm-one-worker-<VM_ID>`.
 3. Checks that port 6817 of the controller answers.
 4. Maps `slurm-one-controller` to the controller IP in `/etc/hosts`.
 5. Configures IPoIB, when InfiniBand is enabled.

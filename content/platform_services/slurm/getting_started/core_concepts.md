@@ -11,12 +11,12 @@ weight: "4"
 
 ## Controller and Workers
 
-| | Controller | Worker |
+| | **Controller** | **Worker** |
 |---|---|---|
 | Slurm daemon | `slurmctld` | `slurmd` |
-| Number of VMs | 1 | 1 or more, you choose |
+| Number of VMs | 1 | 1 or more |
 | Hostname | `slurm-one-controller` | The VM name, for example `worker-0--service-233` |
-| Role in the cluster | Schedules jobs, keeps the configuration, hosts the optional local LDAP | Runs jobs |
+| Role in the Cluster | Schedules jobs, keeps the configuration, hosts the optional local LDAP | Runs jobs |
 
 Users connect to the controller to compile code and submit jobs with `srun` or `sbatch`.
 
@@ -28,11 +28,11 @@ The controller is the only VM that has the Slurm configuration files. The worker
 
 Workers join Slurm as dynamic nodes (`slurmd -Z`). Each worker reports to the controller what it has.
 
-* Its CPUs, from `nproc`.
-* Its memory, from `/proc/meminfo`.
-* Its NVIDIA GPUs, from `nvidia-smi`, as the `gpu` GRES.
+* Its CPUs, from `nproc`
+* Its memory, from `/proc/meminfo`
+* Its NVIDIA GPUs, from `nvidia-smi`, as the `gpu` GRES
 
-So you do not list the nodes in `slurm.conf`.
+The nodes are not listed in `slurm.conf`.
 
 ## OneGate Coordination
 
@@ -44,21 +44,21 @@ The controller and the workers share their data through OneGate, which keeps dat
 4. Each worker checks that port 6817 of the controller answers, then starts `slurmd`.
 5. Each worker publishes its Slurm node name as `SLURM_NODENAME`.
 
-[Service Architecture]({{% relref "platform_services/slurm/references/service_architecture" %}}) lists every attribute that the VMs publish.
+Refer to [Service Architecture]({{% relref "platform_services/slurm/references/service_architecture" %}}) for a list of every attribute that the VMs publish.
 
 ## Munge Key
 
-Slurm uses [Munge](https://dun.github.io/munge/) to authenticate the messages between the daemons. All the VMs of a cluster need the same key.
+Slurm uses [Munge](https://dun.github.io/munge/) to authenticate the messages between the daemons. All the VMs of a Cluster need the same key.
 
 * The controller creates the key at its first boot and keeps it.
 * It publishes the key in base64 to OneGate as `SLURM_MUNGE_KEY`.
 * Each worker installs the key and checks that Munge works before it starts `slurmd`.
 
-## Scaling and Clean-Up
+## Scaling and Cleanup
 
 When you remove workers, two mechanisms remove them from Slurm.
 
 * Each worker deletes its own node from Slurm when it shuts down normally.
 * The controller checks every 60 seconds, starting 2 minutes after boot, for nodes that have no VM anymore and that Slurm sees as down. It deletes them, or drains them if they still have running jobs.
 
-[Cluster Lifecycle Management]({{% relref "platform_services/slurm/management/cluster_lifecycle_management" %}}) gives the details.
+Refer to [Cluster Lifecycle Management]({{% relref "platform_services/slurm/management/cluster_lifecycle_management" %}}) for more details.

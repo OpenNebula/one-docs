@@ -15,7 +15,7 @@ A user needs the same account, with the same UID and GID, on the controller and 
 
 Choose one mode when you create the service.
 
-| Mode | Inputs | What the appliance does |
+| **Mode** | **Inputs** | **What the appliance does** |
 |---|---|---|
 | Disabled (default) | Leave the LDAP inputs empty | No LDAP. SSSD is stopped. Only local Linux users exist |
 | Local LDAP | `ONEAPP_LDAP_ENABLE=YES` | Installs OpenLDAP on the controller and connects the controller and the workers to it |
@@ -27,7 +27,7 @@ The controller decides the mode. It publishes the LDAP settings in OneGate, and 
 
 ## LDAP Inputs
 
-| Parameter | Default | Description |
+| **Parameter** | **Default** | **Description** |
 |---|---|---|
 | `ONEAPP_LDAP_ENABLE` | `NO` | `YES` installs a local LDAP server on the controller |
 | `ONEAPP_LDAP_DOMAIN` | `slurm.local` | LDAP domain or base DN |
@@ -41,7 +41,7 @@ The controller decides the mode. It publishes the LDAP settings in OneGate, and 
 
 The base DN is the top entry of the directory. OneSlurm builds it from `ONEAPP_LDAP_DOMAIN`.
 
-| Domain input | Base DN |
+| **Domain input** | **s** |
 |---|---|
 | `slurm.local` | `dc=slurm,dc=local` |
 | `dc=example,dc=org` | `dc=example,dc=org` |
@@ -79,21 +79,21 @@ userPassword: $(slappasswd -s '<password>')
 EOF
 ```
 
-Check the user on the controller and on a worker.
+Check the user on the controller and on a worker:
 
 ```shell
-$ getent passwd alice
-$ srun -N1 -n1 getent passwd alice
+getent passwd alice
+srun -N1 -n1 getent passwd alice
 ```
 
 If `/home` is an NFS export, create the home directory once, on the NFS server, owned by the user. With the default `root_squash` export option, root on the controller cannot create it.
 
 ```shell
-$ install -d -m 700 -o 10001 -g 10001 /srv/nfs/slurm/home/alice    # on the NFS server
+install -d -m 700 -o 10001 -g 10001 /srv/nfs/slurm/home/alice    # on the NFS server
 ```
 
 {{< alert title="Important" type="warning" >}}
-The local LDAP lives inside the controller VM. Deleting the service deletes all its users. For production, use an external LDAP.
+The local LDAP lives inside the controller VM. Deleting the service deletes all its users. For production, it is recommended to use an external LDAP.
 {{< /alert >}}
 
 ## External LDAP
@@ -104,7 +104,7 @@ If the directory does not allow anonymous reads, also set `ONEAPP_LDAP_BIND_USER
 
 ## Security
 
-| Topic | Behavior |
+| **Topic** | **Behavior** |
 |---|---|
 | Encryption | SSSD connects with plain `ldap://`, without StartTLS, and does not check certificates. Keep the LDAP traffic on a private network |
 | Bind password | The controller publishes `LDAP_BIND_PASSWORD` in OneGate, so the workers can read it. Any VM of the service can read it too |
