@@ -77,6 +77,7 @@ The Load Balancing policy can combine multiple performance indicators:
 - **CPU Usage**: Load distribution based on actual CPU utilization of the VM.
 - **CPU Capacity**: Allocation based on requested CPU (the VM template attribute).
 - **Memory Usage**: Balancing based on requested memory.
+- **Storage Space**: Balancing based on the storage space of the datastores.
 - **Disk I/O**: Consideration of read/write operations.
 - **Network Traffic**: Optimization based on network throughput.
 
@@ -89,8 +90,11 @@ ONE_DRS=[
   DISK_WEIGHT="0.5",
   MEMORY_WEIGHT="0",
   NET_WEIGHT="0",
+  STORAGE_WEIGHT="0",
   ... ]
 ```
+
+**Note:** Storage space balancing assumes that each datastore represents an independent storage capacity. Datastores sharing the same underlying storage resource report the same total, used, and free space. Therefore, they should be avoided. For accurate balancing, configure datastores so that each one maps to a distinct storage capacity resource.
 
 ### Predictive DRS
 
