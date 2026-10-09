@@ -422,7 +422,19 @@ Installation and deletion are asynchronous. A successful request starts the oper
 {{% tab header="Sunstone"%}}
 From **Kubernetes -> K8S Clusters**, open the target K8s Cluster and select the **Applications** tab.
 
+{{< image
+  path="/images/oneks/light/installed_applications.png"
+  pathDark="/images/oneks/dark/installed_applications.png"
+  alt="OneKS installed applications" align="center" width="90%" mb="20px"
+>}}
+
 Click **Install Application** to open the catalog. The wizard guides you through these steps:
+
+{{< image
+  path="/images/oneks/light/application_catalog.png"
+  pathDark="/images/oneks/dark/application_catalog.png"
+  alt="OneKS application catalog" align="center" width="90%" mb="20px"
+>}}
 
 * **Application**: Select an application that is installable in the target K8s Cluster.
 * **Configuration**: Set the Helm release name, target namespace, and whether OneKS should create the namespace.
