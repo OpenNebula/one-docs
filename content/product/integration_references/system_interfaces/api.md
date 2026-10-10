@@ -246,6 +246,11 @@ onehost sync is not performed by the core, it is done by the ruby command onehos
 | lock                 | one.vn.lock      | NET:MANAGE                                             |
 | unlock               | one.vn.unlock    | NET:MANAGE                                             |
 | recover              | one.vn.recover   | NET:MANAGE                                             |
+| mirror-create        | one.vn.mirror_create  | NET:ADMIN, VM:ADMIN                               |
+| mirror-update        | one.vn.mirror_update  | NET:ADMIN, VM:ADMIN                               |
+| mirror-addport       | one.vn.mirror_addport | NET:ADMIN, VM:ADMIN                               |
+| mirror-delport       | one.vn.mirror_delport | NET:ADMIN, VM:ADMIN                               |
+| mirror-delete        | one.vn.mirror_delete  | NET:ADMIN                                         |
 
 ### oneuser
 
@@ -2276,6 +2281,90 @@ The third parameter must be an OpenNebula ATTRIBUTE=VALUE template, with these v
 | OUT    | Int/String  | The resource ID / The error string.                               |
 | OUT    | Int         | Error code.                                                       |
 | OUT    | Int         | ID of the VNet that caused the error.                             |
+
+### one.vn.mirror_create
+
+- **Description**: Creates a mirror on Virtual Network. The template must contain exactly one `MIRROR` vector.
+- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the selected source VMs and the SPAN destination VM. VLAN-only capture requires a cloud administrator.
+- **Parameters**
+
+| Type | Data Type  | Description                                            |
+|------|------------|--------------------------------------------------------|
+| IN   | String     | The session string.                                    |
+| IN   | Int        | The Virtual Network ID.                                |
+| IN   | String     | Mirror template in OpenNebula attribute syntax or XML. |
+| OUT  | Boolean    | Whether the operation succeeded.                       |
+| OUT  | Int/String | The mirror ID on success / the error string on failure.|
+| OUT  | Int        | Error code.                                            |
+| OUT  | Int        | ID of the object that caused the error.                |
+
+### one.vn.mirror_update
+
+- **Description**: Updates a mirror. Source membership is preserved; use the port methods to change it.
+- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the selected source VMs and the SPAN destination VM. VLAN-only capture requires a cloud administrator.
+- **Parameters**
+
+| Type | Data Type  | Description                                                                           |
+|------|------------|---------------------------------------------------------------------------------------|
+| IN   | String     | The session string.                                                                   |
+| IN   | Int        | The Virtual Network ID.                                                               |
+| IN   | Int        | Mirror ID within the Virtual Network.                                                 |
+| IN   | String     | Template containing exactly one `MIRROR` vector.                                      |
+| IN   | Int        | Optional update type: `0` replaces the configuration (default); `1` merges attributes.|
+| OUT  | Boolean    | Whether the operation succeeded.                                                      |
+| OUT  | Int/String | The mirror ID on success / the error string on failure.                               |
+| OUT  | Int        | Error code.                                                                           |
+| OUT  | Int        | ID of the object that caused the error.                                               |
+
+### one.vn.mirror_addport
+
+- **Description**: Adds source VM NICs to a mirror.
+- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the selected source VMs and the SPAN destination VM.
+- **Parameters**
+
+| Type | Data Type  | Description                                             |
+|------|------------|---------------------------------------------------------|
+| IN   | String     | The session string.                                     |
+| IN   | Int        | The Virtual Network ID.                                 |
+| IN   | Int        | Mirror ID within the Virtual Network.                   |
+| IN   | String     | Comma-separated source ports in `VM_ID:NIC_ID` format.  |
+| OUT  | Boolean    | Whether the operation succeeded.                        |
+| OUT  | Int/String | The mirror ID on success / the error string on failure. |
+| OUT  | Int        | Error code.                                             |
+| OUT  | Int        | ID of the object that caused the error.                 |
+
+### one.vn.mirror_delport
+
+- **Description**: Removes source VM NICs from a mirror. If no ports remain but the VLAN filter is nonempty, the mirror becomes VLAN-only rather than inactive.
+- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the remaining source VMs and the SPAN destination VM. VLAN-only capture requires a cloud administrator.
+- **Parameters**
+
+| Type | Data Type  | Description                                             |
+|------|------------|---------------------------------------------------------|
+| IN   | String     | The session string.                                     |
+| IN   | Int        | The Virtual Network ID.                                 |
+| IN   | Int        | Mirror ID within the Virtual Network.                   |
+| IN   | String     | Comma-separated source ports in `VM_ID:NIC_ID` format.  |
+| OUT  | Boolean    | Whether the operation succeeded.                        |
+| OUT  | Int/String | The mirror ID on success / the error string on failure. |
+| OUT  | Int        | Error code.                                             |
+| OUT  | Int        | ID of the object that caused the error.                 |
+
+### one.vn.mirror_delete
+
+- **Description**: Deletes a mirror and propagates removal of its capture configuration.
+- **Authorization**: `NET:ADMIN`.
+- **Parameters**
+
+| Type | Data Type  | Description                                             |
+|------|------------|---------------------------------------------------------|
+| IN   | String     | The session string.                                     |
+| IN   | Int        | The Virtual Network ID.                                 |
+| IN   | Int        | Mirror ID within the Virtual Network.                   |
+| OUT  | Boolean    | Whether the operation succeeded.                        |
+| OUT  | Int/String | The mirror ID on success / the error string on failure. |
+| OUT  | Int        | Error code.                                             |
+| OUT  | Int        | ID of the object that caused the error.                 |
 
 ### one.vn.update
 
