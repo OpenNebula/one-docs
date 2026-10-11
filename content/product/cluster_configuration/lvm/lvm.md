@@ -223,3 +223,65 @@ well as its snapshots (if any).
 This model makes over-provisioning easy, by having pools smaller than the sum of its LVs. The current version of this driver does not allow such cases to happen though, as the pool grows dynamically to be always able to fit all of its Thin LVs even if they were full.{{< /alert >}}
 
 For more details about the inner workings of LVM Thin Provisioning, please refer to the [lvmthin(7)](https://man7.org/linux/man-pages/man7/lvmthin.7.html) man page.
+
+## Recover an Interrupted Image Persistency Change
+
+Changing an LVM Image between persistent and non-persistent layouts is asynchronous. If OpenNebula
+or its Datastore driver stops before processing the operation callback, the Image can remain in the
+`LOCKED` state even after the LVM operation has stopped.
+
+{{< alert title="Warning" type="danger" >}}
+Only use this procedure after confirming that the original Datastore operation is no longer running.
+Unlocking the Image while the original operation is active can run two conversions concurrently and
+damage the Image. Make a database backup before changing the Image body. If you cannot confirm that
+the operation has stopped, contact OpenNebula support.
+{{< /alert >}}
+
+First, inspect the Image and note the value of `TARGET_PERSISTENT`. It must be `0` or `1`:
+
+```default
+$ oneimage show -x <image_id>
+```
+
+Create a database backup:
+
+```default
+$ onedb backup /tmp/opennebula-backup.db
+```
+
+Preview the removal of the pending target from the Image body:
+
+```default
+$ onedb change-body image --id <image_id> \
+    '/IMAGE/TARGET_PERSISTENT' --delete --dry
+```
+
+Check that the output contains the expected Image, then repeat the command without `--dry`:
+
+```default
+$ onedb change-body image --id <image_id> \
+    '/IMAGE/TARGET_PERSISTENT' --delete
+```
+
+Preview and apply the transition back to the `READY` state (`1`):
+
+```default
+$ onedb change-body image --id <image_id> '/IMAGE/STATE' 1 --dry
+$ onedb change-body image --id <image_id> '/IMAGE/STATE' 1
+```
+
+Do not modify `PERSISTENT`; it represents the last conversion completed and acknowledged by
+OpenNebula. Repeat the interrupted operation using the value previously found in
+`TARGET_PERSISTENT`:
+
+```default
+# TARGET_PERSISTENT was 1
+$ oneimage persistent <image_id>
+
+# TARGET_PERSISTENT was 0
+$ oneimage nonpersistent <image_id>
+```
+
+The Datastore driver inspects the existing LVs and resumes the conversion from the last completed
+step. After it finishes, verify that the Image is `READY` and has the requested `PERSISTENT` value.
+Do not rename or remove the temporary `-new` or `-old` LVs manually.
