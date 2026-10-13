@@ -49,6 +49,15 @@ The AI-ready Kubernetes deployment in the guides in this section was tested with
 | GPU | 1 NVIDIA L40S |
 | Disk | 1 3.5 TiB NVMe | 
 
+## Architecture
+
+The diagram below depicts the top-level architecture of the NVIDIA Dynamo framework setup in an OpenNebula deployment. The OpenNebula Front-end Host contains one or two NVIDIA L40S GPU PCI cards which operate as the Host server for the K8s Cluster VMs. For this reference setup, the VMs share a simple bridged network.
+
+{{< image
+  path="images/ai_factories/oneks_ai_k8s_architecture_opennebula.svg"
+  alt="AI-ready K8s Architecture" align="center" width="90%" mb="20px"
+>}}
+
 ## Step 1: Configure the OneKS NodeGroup Template to Use the GPU
 
 For OneKS worker nodes to access the GPU, it is necessary to adjust the default node group template with the details of the GPU. Firstly, on the command line of the OpenNebula Front-end, run the following command to retrieve the GPU parameters:
