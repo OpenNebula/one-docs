@@ -26,6 +26,8 @@ There is not an easily automatic way to perform this operation, so much of this 
 
 A Veeam server at each site, with a backup copy job moving restore points from Site A to Site B. Site B runs an independent Veeam server that owns the copy target repository. The following diagram shows the general structure of the workflow.
 
+![><](/images/solutions/disaster_recovery/veeam_dr.png)
+
 ### Per-site Components
 
 Both sites need the full OpenNebula and Veeam stack. Site B is a second managed environment, not a storage target. 
