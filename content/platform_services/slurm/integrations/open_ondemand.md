@@ -119,22 +119,25 @@ The wizard has three tabs, **LDAP**, **Home** and **Slurm**.
 * In **LDAP URL**, enter the LDAP server of the Clusters, for example `ldap://10.0.0.20`.
 * In **LDAP domain or base DN**, keep `slurm.local`, the default of OneSlurm, or enter the domain of your LDAP server. The base DN is the root of the directory. A domain such as `slurm.local` becomes the base DN `dc=slurm,dc=local`, and the portal looks for users under `ou=People` of that base DN.
 
-{{< image path="/images/slurm/open_ondemand/ood_wizard_ldap.png"
-alt="LDAP tab of the Open OnDemand wizard" align="center" width="100%" mb="30px" >}}
+{{< image path="/images/slurm/open_ondemand/light/ood_wizard_ldap.png"
+   pathDark="/images/slurm/open_ondemand/dark/ood_wizard_ldap.png"
+alt="LDAP tab of the Open OnDemand wizard" align="center" width="90%" mb="30px" >}}
 
 #### Home Tab
 
 * In **NFS export for /home**, enter the export with the home directory of the users, for example `10.0.0.10:/export/home`.
 
-{{< image path="/images/slurm/open_ondemand/ood_wizard_home.png"
-alt="Home tab of the Open OnDemand wizard" align="center" width="100%" mb="30px" >}}
+{{< image path="/images/slurm/open_ondemand/light/ood_wizard_home.png"
+   pathDark="/images/slurm/open_ondemand/dark/ood_wizard_home.png"
+alt="Home tab of the Open OnDemand wizard" align="center" width="90%" mb="30px" >}}
 
 #### Slurm Tab
 
 * In **Slurm Clusters**, enter one line for each Cluster as `name:IP`, for example `cpu:10.0.0.20`. The name is what users see in the portal and must be unique. The IP is the IPv4 address of the controller. Every Cluster must use the same LDAP server and the same `/home` as the portal.
 
-{{< image path="/images/slurm/open_ondemand/ood_wizard_slurm.png"
-alt="Slurm tab of the Open OnDemand wizard" align="center" width="100%" mb="30px" >}}
+{{< image path="/images/slurm/open_ondemand/light/ood_wizard_slurm.png"
+   pathDark="/images/slurm/open_ondemand/dark/ood_wizard_slurm.png"
+alt="Slurm tab of the Open OnDemand wizard" align="center" width="90%" mb="30px" >}}
 
 ### Step 4. Attach the Network of the Clusters
 
@@ -143,8 +146,9 @@ alt="Slurm tab of the Open OnDemand wizard" align="center" width="100%" mb="30px
 3. Click **Attach NIC** and select the Virtual Network of the Clusters.
 4. Click **Finish**.
 
-{{< image path="/images/slurm/open_ondemand/ood_wizard_network.png"
-alt="Network tab of the Open OnDemand wizard with the NIC of the Clusters" align="center" width="100%" mb="30px" >}}
+{{< image path="/images/slurm/open_ondemand/light/ood_wizard_network.png"
+   pathDark="/images/slurm/open_ondemand/dark/ood_wizard_network.png"
+alt="Network tab of the Open OnDemand wizard with the NIC of the Clusters" align="center" width="90%" mb="30px" >}}
 
 The portal uses the IPv4 address of the first NIC. Users must be able to reach that address with their web browser.
 
