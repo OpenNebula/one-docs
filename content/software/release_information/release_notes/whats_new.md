@@ -32,6 +32,8 @@ Additionally, the following functionalities are present that were not in OpenNeb
 - OpenNebula packages for [SUSE Linux Enterprise Server 16]({{% relref "software/installation_process/frontend_installation/opennebula_repository_configuration_ce/#suse" %}}), which replaces SUSE Linux Enterprise Server 15 as a supported platform (see [Platform Notes]({{% relref "platform_notes" %}})).
 - Add a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
 
+- Add the OneSwap [`--machine` and `--cpu-features`]({{% relref "software/migration_from_vmware/oneswap.md#customizing-the-created-vm-template" %}}) options to set the KVM machine type and CPU model features per migration profile, allowing migration projects to use their own target hardware settings. This feature was backported to 7.4.2; `--cpu-features` requires `--cpu-model` [#8112](https://github.com/OpenNebula/one/issues/8112).
+
 ## Other Issues Solved
 
 List of new issues solved in OpenNebula 7.6.
