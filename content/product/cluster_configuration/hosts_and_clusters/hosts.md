@@ -304,17 +304,33 @@ Each PCI device reported by the monitor contains the following attributes:
 | `DOMAIN`        | String  | Always              | PCI domain number (e.g., `0000`)                                                                               |
 | `FUNCTION`      | String  | Always              | PCI function number (e.g., `1`)                                                                                |
 | `NUMA_NODE`     | String  | Always              | NUMA node where the PCI device is attached (`-` if undetermined)                                               |
-| `SHORT_ADDRESS` | String  | Always              | Short PCI address without domain (e.g., `81:02:1`)                                                             |
+| `SHORT_ADDRESS` | String  | Always              | Short PCI address without domain (e.g., `81:02.1`)                                                             |
 | `SLOT`          | String  | Always              | PCI slot name (e.g., `02`)                                                                                     |
 | `TYPE`          | String  | Always              | PCI device type (`VENDOR:DEVICE:CLASS`)                                                                        |
 | `VENDOR`        | String  | Always              | PCI vendor ID (e.g., `10de` for NVIDIA)                                                                        |
 | `VENDOR_NAME`   | String  | Always              | Human-readable vendor name (e.g., "NVIDIA Corporation")                                                        |
 | `VMID`          | Integer | Always              | ID of the Virtual Machine currently using this PCI device (`-1` if unassigned)                                 |
 | `IFNAME`        | String  | Always              | Network interface name bound to the PCI device (e.g., `eth0`, `ens1f0`). For non-network devices, this is `-`. |
-| `SRIOV`         | String  | Always              | SR-IOV role: `pf` (Physical Function), `vf` (Virtual Function), or `-` (neither)                               |
-| `SRIOV_NUM`     | String  | SRIOV NIC  only     | Available Virtual Functions within a given Physical Function                                                   |
+| `SRIOV`         | String  | Always              | SR-IOV role: `pf` (Physical Function), `vf` (Virtual Function), or `no` (neither)                              |
+| `SRIOV_NUM`     | String  | Physical Functions  | Number of enabled Virtual Functions on the PF, including those already assigned to VMs.                       |
+| `PF_ADDRESS`    | String  | VF, if parent found | Full monitored `ADDRESS` of the parent PF (e.g., `0000:81:00:0`).                                               |
+| `PF_IFNAME`     | String  | Network VF, if parent found | Interface name of the parent PF (e.g., `pf0`).                                                         |
+| `PASSTHROUGH`   | String  | Always              | Eligibility for PCI passthrough: `YES` or `NO`. A PF with enabled VFs has `NO`.                                 |
+| `ESWITCH_MODE`  | String  | Network PF, if available | PF e-switch mode, such as `legacy` or `switchdev`. Omitted if the probe cannot retrieve it through `devlink`. |
 | `PROFILES`      | String  | NVIDIA vGPU VF only | Available hardware profile(s), comma-separated (e.g., `1145 (NVIDIA L40S-1B),1146 (NVIDIA L40S-2B)`)           |
 | `UUID`          | String  | NVIDIA vGPU VF only | Deterministic SHA1-based identifier derived from the PCI address                                               |
+
+#### PF and VF Monitoring
+
+To inspect the PF/VF relationship and passthrough eligibility, display the full Host XML:
+
+```shell
+onehost show <host> -x
+```
+
+Each VF's `PF_ADDRESS` refers to its parent PF's `ADDRESS`. For network VFs, `PF_IFNAME` also identifies the parent interface. Network PFs with enabled VFs remain in the monitored inventory, with `PASSTHROUGH="NO"`; their VFs can still be assigned individually. `SRIOV_NUM` counts enabled VFs, while each VF's `VMID` shows whether it is already assigned.
+
+You can use this relationship to [select VFs from a particular PF]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#selecting-virtual-functions-by-physical-function" %}}). Ensure that the monitoring filters expose both the parent PF and its VFs.
 
 #### IFNAME Resolution
 

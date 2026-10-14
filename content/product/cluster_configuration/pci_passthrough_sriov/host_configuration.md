@@ -337,6 +337,8 @@ device_name:
   - "Virtual Function"
 ```
 
+This example monitors only VFs. To [select VFs by their parent PF]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#selecting-virtual-functions-by-physical-function" %}}), adjust the filters to include both the PF and its VFs. A network PF with enabled VFs remains visible for monitoring but is not eligible for whole-device passthrough.
+
 ### Override Monitoring at Cluster or Host Level
 
 The system-wide configuration can be overridden for individual clusters or hosts using the corresponding template attributes:
@@ -350,7 +352,7 @@ The system-wide configuration can be overridden for individual clusters or hosts
 This allows different clusters to expose different classes of PCI devices while sharing the same frontend configuration.
 
 {{< alert title="Recommendation" type="primary" >}}
-Configure the narrowest possible filters to expose only devices intended for passthrough.{{< /alert >}}
+Configure the narrowest possible filters to expose the required passthrough devices and any parent PFs needed for VF selection.{{< /alert >}}
 
 ### Synchronize the Monitoring Probes
 
