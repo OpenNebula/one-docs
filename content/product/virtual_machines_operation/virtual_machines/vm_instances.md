@@ -200,13 +200,13 @@ Hotplugging might not be available for every supported hypervisor. Please check 
 
 ### Disk Hot-plugging
 
-New disks can be hot-plugged to running VMs with the `onevm`, `disk-attach`, and `disk-detach` commands. For example, to attach the Image named **storage** to a running VM:
+Disks can be attached to and detached from VMs in the `RUNNING`, `POWEROFF`, and `HOLD` states with the `onevm disk-attach` and `onevm disk-detach` commands. For example, to attach the Image named **storage** to a VM:
 
 ```shell
 onevm disk-attach one-5 --image storage
 ```
 
-To detach a disk from a running VM, find the disk ID of the Image you want to detach using the `onevm show` command, and then simply execute `onevm detach vm_id disk_id`:
+To detach a disk from a VM, find the disk ID of the Image you want to detach using the `onevm show` command, and then execute `onevm disk-detach vm_id disk_id`:
 
 ```shell
 onevm show one-5
@@ -1323,8 +1323,8 @@ The `onevm` command manages OpenNebula Virtual Machines. The general structure o
 | `create-chart vmid`             | Adds a charter to the VM; these are some consecutive scheduled actions. You can configure the actions in `onevm.yaml` |
 | `delete-chart vmid sched_id`    | Deletes a charter from the VM. Deprecated, use `sched-delete` instead. |
 | `deploy range\|vmid_list hostid [datastoreid]` | <ul><li>Deploys the given VM in the specified Host. This command forces the deployment, in a standard installation the Scheduler is in charge of this decision.</li><li>A template can be passed as a file with or the content via STDIN. Bash symbols must be escaped on STDIN passing.</li><li>States: PENDING, HOLD, STOPPED, UNDEPLOYED</li><li>Valid options: enforce, file</li></ul>|
-| `disk-attach vmid`              | <ul><li>Attaches a disk to a running VM.</li><li>A template can be passed as a file with or the content via STDIN. Bash symbols must be escaped on STDIN passing. When using a template add only one DISK instance.</li><li>States: RUNNING, POWEROFF</li><li>Valid options: cache, discard, file, image, prefix, target</li> |
-| `disk-detach vmid diskid`       | Detaches a disk from a running VM. States: RUNNING, POWEROFF
+| `disk-attach vmid`              | <ul><li>Attaches a disk to a VM.</li><li>A template can be passed as a file with or the content via STDIN. Bash symbols must be escaped on STDIN passing. When using a template add only one DISK instance.</li><li>States: RUNNING, POWEROFF, HOLD</li><li>Valid options: cache, discard, file, image, prefix, target</li> |
+| `disk-detach vmid diskid`       | Detaches a disk from a VM. States: RUNNING, POWEROFF, HOLD
 | `disk-resize vmid diskid size`  | <ul><li>Resizes a VM disk. The new size should be larger than the old one.</li><li>The valid units are: T (TiB), G (GiB), and M (MiB). By default it is MiB.</li><li>States: RUNNING, POWEROFF</li></ul>|
 | `disk-saveas vmid diskid img_name` | <ul><li>Saves the specified VM disk as a new Image. The Image is created immediately, and the contents of the VM disk will be saved to it.</li><li>States: ANY</li><li>Valid options: snapshot, type</li></ul> |
 | `disk-snapshot-create vmid diskid name` | <ul><li>Takes a new snapshot of the given disk. This operation needs support from the Datastore drivers: QCOW2 or Ceph.</li><li>States: RUNNING, POWEROFF, SUSPENDED</li><li> Valid options: end, hourly, monthly, schedule, weekly, yearly</li></ul>|
