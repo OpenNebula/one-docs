@@ -294,7 +294,7 @@ Only `root` can open an SSH session on the portal VM, with the key of the OpenNe
 | Files | Uploads are limited to 256 MiB. | Copy bigger files with `scp` or `rsync` to a Cluster controller, which has the same home. |
 | Terminal | The terminal closes when the page reloads. | Run long work under `tmux` or `screen` on the controller. |
 | Job Composer | If the first visit is a direct link to `/pun/sys/myjobs/`, it creates an empty database and shows error 500 from then on. | Open it the first time from the **Jobs** menu. To fix it, delete `~/ondemand/data/sys/myjobs/production.sqlite3` of that user (only if the file has no tables) and open the Job Composer from the menu. |
-| Job Composer | **New Job-> From Template** creates a job without a script. | Open **Job Options**, select the script and click **Save**. |
+| Job Composer | **New Job -> From Template** creates a job without a script. | Open **Job Options**, select the script and click **Save**. |
 | Job states | OneSlurm has no Slurm accounting, so a cancelled job shows `Completed` in Active Jobs and `Failed` in the Job Composer. | Check the real state with `scontrol show job <ID>` or in the output file of the job. |
 | Project Manager | Deleting a project only removes it from the list. The files stay. | Delete the files in **Files**. |
 | Two portals | With two portals on the same homes, the Job Composer fails with error 500 when a user opens it on both at the same time. | Use one portal for each NFS home export. |
