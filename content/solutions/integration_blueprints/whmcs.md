@@ -1,18 +1,45 @@
 ---
 title: "WHMCS Integration (EE)"
+linkTitle: "WHMCS"
 date: "2025-02-17"
 description: "Use a dedicated OpenNebula module to implement the WHMCS web host billing automation solution"
 categories:
-pageintoc: "142"
 tags:
-weight: "2"
+weight: "1"
+aliases:
+  - /product/integration_references/billing_extensions/
+  - /product/integration_references/billing_extensions/overview/
+  - /product/integration_references/billing_extensions/whmcs/
 ---
 
 <a id="whmcs-tenants"></a>
 
 <a id="whmcs-tenants-index"></a>
 
-<!--# WHMCS Tenants Module (EE) -->
+<a id="whmcs-tenants-overview"></a>
+
+## Overview
+
+**WHMCS** is a web Host billing automation platform which can be configured for many uses.  We provide a module for WHMCS which allows you to automate the creation and management of users, groups, and their Access Control Lists in OpenNebula, as well as providing billing based on their usage metrics.
+
+You will be able to define these resource packages to control the usage and cost of your OpenNebula resources.
+
+When an order is accepted in WHMCS, the setup is performed: a user and a group are created for the service.  This group will then be assigned a Usage Quota which you will define during the package configuration.
+
+## How Should I Read This Guide
+
+Before reading this guide you should be aware of the [WHMCS Documentation](https://docs.whmcs.com/Documentation_Home) and have it installed on a server which can access your OpenNebula install.  You should also be familiar with OpenNebula’s [Manage Users]({{% relref "product/cloud_system_administration/multitenancy/manage_users#manage-users" %}}), [Manage Groups]({{% relref "product/cloud_system_administration/multitenancy/manage_groups#manage-groups" %}}), [Usage Quotas]({{% relref "product/cloud_system_administration/capacity_planning/quotas#quota-auth" %}}), and [Managing Permissions]({{% relref "product/cloud_system_administration/multitenancy/chmod#chmod" %}}) features.
+
+This guide is divided into three parts for this module:
+
+* [Install/Configure](#whmcs-tenants-instcfg)
+* [Admin Usage](#whmcs-tenants-admin)
+* [User Guide](#whmcs-tenants-user)
+
+## Hypervisor Compatibility
+
+This guide is compatible with all hypervisors.
+
 <a id="whmcs-tenants-instcfg"></a>
 
 ## WHMCS Tenants Module Install/Update
@@ -33,7 +60,7 @@ Make sure you download the updated package from the EE repository before doing e
 
 ## WHMCS Tenants Module Configuration
 
-In this Chapter we will go over adding a server, creating the group for it, and configuring a product.
+In this section we will go over adding a server and creating the group for it. Configuring a product is covered in [WHMCS Admin Usage](#whmcs-tenants-admin).
 
 ### Adding a Server
 
@@ -57,11 +84,9 @@ After the server is added it should return you to the list of servers. Here you 
 
 Fill in the **Name** of your Server Group, then highlight your OpenNebula Server and click **Add** to add it to your new group.  Once this is done, click **Save Changes**.
 
-
 <a id="whmcs-tenants-admin"></a>
 
 ## WHMCS Admin Usage
-
 
 ### Creating a Product Group
 
@@ -71,7 +96,7 @@ Before creating products you should create groups to better organize your offeri
 
 Navigate to **System Settings** -> **Products/Services**.
 
-From the Products/Services page, click on **Create a New Product**.  Select the **Product Type**, **Product Group**, and a **Product Name**.  The **Module** should be **OpenNebula Tenants**.  Once this is call done, click the **Continue** button.
+From the Products/Services page, click on **Create a New Product**.  Select the **Product Type**, **Product Group**, and a **Product Name**.  The **Module** should be **OpenNebula Tenants**.  Once this is all done, click the **Continue** button.
 
 ![image](/images/whmcs_tenants_new_product.png)
 
@@ -133,4 +158,3 @@ To upgrade a product, navigate to the product’s page.  On the left side there 
 ### Managing Services
 
 When viewing a Product/Service, there should be an action **Login** which should redirect users to the OpenNebula interface where they should be able to manage their Virtual Machines within the limits that the product allows.
-
