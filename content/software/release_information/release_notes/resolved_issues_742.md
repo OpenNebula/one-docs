@@ -26,6 +26,8 @@ Include a high level description and a link to the documentation explaining the 
 
 * Enable [OneDRS balancing by storage space]({{% relref "product/cloud_system_administration/scheduler/drs#load-balancing-objectives" %}}) through the `STORAGE_WEIGHT` Cluster attribute, configurable in Sunstone. Administrators can combine datastore space utilization with other balancing objectives, such as disk I/O, to optimize storage distribution across the Cluster [#7930](https://github.com/OpenNebula/one/issues/7930).
 
+* Add the OneSwap [`--machine` and `--cpu-features`]({{% relref "software/migration_from_vmware/oneswap.md#customizing-the-created-vm-template" %}}) options to set the KVM machine type and CPU model features for a migration profile. Configure them in `/etc/one/oneswap.yaml` or on the command line; `--cpu-features` requires `--cpu-model` [#8112](https://github.com/OpenNebula/one/issues/8112).
+
 ## Resolved Issues
 
 The following issues have been solved in 7.4.2:
