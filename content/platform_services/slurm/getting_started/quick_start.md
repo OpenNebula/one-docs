@@ -72,7 +72,7 @@ The command prints the ID of the new service.
 
 OneFlow creates the controller first. It creates the worker only when the controller reports that it is ready, so the service needs a few minutes to reach `RUNNING`.
 
-In Sunstone, go to **Instances -> Services** and open the ONeSlurm service. The **Roles** tab shows the controller and the worker. Select both roles to see their VMs:
+In Sunstone, go to **Instances -> Services** and open the OneSlurm service. The **Roles** tab shows the controller and the worker. Select both roles to see their VMs:
 
 {{< image path="/images/slurm/oneslurm/light/oneslurm_service_roles.png"
    pathDark="/images/slurm/oneslurm/dark/oneslurm_service_roles.png"
