@@ -42,13 +42,17 @@ Virtual Functions are typically used for cloud and NFV deployments because they 
 OpenNebula supports **Legacy** and **Switchdev** operating modes on the PF eswitch. In each mode, the PF is configured according to the following parameters
 
 * `MAC`: Administrative MAC address assigned to the VF.
-* `MTU`: Maximum MTU cap for all the VFs. The PF kernel driver might allow the Guest to overcome this cap.
+* `MTU`: Requested MTU, applied according to the eswitch mode as described below.
 * `TRUST`: Allows the VF within the Guest to operate in promiscuous mode.
 * `SPOOFCHK`: MAC spoofing filter for the administrative MAC. Separate from the virtual switching spoofing.
+
+A PF can be shared by VMs from multiple Virtual Networks. MTU is raised when the requested value is higher, but never lowers it, preserving capacity for other VFs. To reset the MTU of a PF, at an administrative level, you can run the command `ip link set <PF> mtu <value>` on the hypervisor host where the PF exists.
 
 #### Legacy Mode
 
 In Legacy mode, VLAN filtering can only be done with access vlans using the `VLAN_ID` parameter.
+
+The PF MTU provides a shared cap for all its VFs. A lower requested MTU does not lower this cap, and different per-VM caps cannot be enforced on the same PF.
 
 #### Switchdev mode
 
@@ -59,6 +63,7 @@ In Switchdev mode, VF parameters are controlled by Host-side representor interfa
 * `CVLANS`
 * `QINQ_TYPE`
 
+The VF representor MTU is also set to the requested VM NIC MTU, allowing each VF's cap to be raised or lowered independently while retaining the shared PF higher MTU.
 
 Note that `TRUST` and `SPOOFCHK` might fail depending on the kernel driver controlling the PF, even if setting them to the state they are currently already at. If the attribute is unsupported (refer to the SmartNIC documentation) then it should be ommited from the Virtual Network configuration, otherwise the whole configuration fails.
 
