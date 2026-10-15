@@ -5,8 +5,11 @@
   },
   "remoteUser": "node",
   "init": true,
-  "postCreateCommand": "npm ci --include=dev",
-  "waitFor": "postCreateCommand",
+  "containerEnv": {
+    "HUGO_MODULE_PROXY": "https://proxy.golang.org,direct"
+  },
+  "updateContentCommand": ["bash", ".devcontainer/prepare.sh"],
+  "waitFor": "updateContentCommand",
   "postStartCommand": ["bash", ".devcontainer/start-preview.sh"],
   "postAttachCommand": ["bash", ".devcontainer/start-preview.sh"],
   "forwardPorts": [1313],
