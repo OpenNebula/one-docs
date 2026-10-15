@@ -13,6 +13,8 @@ weight: "1"
 This page will contain the list of new features in OpenNebula 7.6.0.
 
 ## OpenNebula Core
+
+- [Port Mirroring]({{% relref "port_mirroring" %}}) on Open vSwitch networks supports SPAN, RSPAN, GRE, and ERSPAN destinations, source NIC selection, VLAN filtering, and live updates through dedicated API and CLI operations.
 - Restricted-attribute configuration can now [protect a complete vector attribute]({{% relref "oned#oned-conf-restricted-attributes-configuration" %}}), such as `DISK`, `NIC`, or `PCI`, without listing each attribute within the vector separately.
 
 ## API and CLI
