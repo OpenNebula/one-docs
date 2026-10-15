@@ -8,10 +8,6 @@ tags:
 weight: "2"
 ---
 
-<a id="hosts"></a>
-
-<a id="hosts-guide"></a>
-
 In order to use a physical or virtual server as a Host, you must first prepare the server with a hypervisor and configure it to be added to OpenNebula as a Host, refer to the guides to prepare a [KVM node]({{% relref "software/installation_process/cluster_installation/kvm_node_installation/" %}}) or an [LXC node]({{% relref "software/installation_process/cluster_installation/lxc_node_installation/" %}}).
 
 Once you have prepared your physical or virtual nodes, you can add them to OpenNebula as Hosts. To add a Host only its hostname and type is needed.
@@ -141,8 +137,6 @@ onehost list
 
 The above information can be also displayed in XML, JSON, or CSV format using `-x` or `-j` or `-c`, respectively.
 
-<a id="host-lifecycle"></a>
-
 ## Host States
 
 In order to manage the life cycle of a Host it can be set to different operation modes: enabled (`on`), disabled (`dsbl`), and offline (`off`). The different operation status for each mode is described in the following table:
@@ -238,11 +232,9 @@ The `flush` command will migrate all the active VMs in the specified Host to ano
   - :flush: delete-recreate
 ```
 
-<a id="host-guide-information"></a>
-
 ### Custom Host Attributes
 
-You can add custom attributes either by [creating a probe in the host]({{% relref "../../../product/integration_references/infrastructure_drivers_development/devel-im#devel-im" %}}) or by updating the Host information with: `onehost update`.
+You can add custom attributes either by [creating a probe in the Host]({{% relref "../../../product/integration_references/infrastructure_drivers_development/devel-im#devel-im" %}}) or by updating the Host information with: `onehost update`.
 
 For example, to label a Host as *production* we can add a custom tag *TYPE*:
 
@@ -293,7 +285,7 @@ The monitoring information for a Host includes details about all PCI devices det
 
 Each PCI device reported by the monitor contains the following attributes:
 
-| Attribute       | Type    | Present             | Description                                                                                                    |
+| **Attribute**   | **Type** | **Present**             | **Description**                                                                                                    |
 | ---             | ---     | ---                 | ---                                                                                                            |
 | `ADDRESS`       | String  | Always              | Full PCI address including domain (e.g., `0000:81:02:1`)                                                       |
 | `BUS`           | String  | Always              | PCI bus number (e.g., `81`)                                                                                    |

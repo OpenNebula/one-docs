@@ -13,7 +13,7 @@ This guide describes how to use PCI network devices as OpenNebula network interf
 
 OpenNebula extends the generic PCI passthrough mechanism by integrating PCI network devices with the Virtual Network subsystem. This allows virtual machines to benefit from the performance of direct device assignment while preserving the OpenNebula networking workflow, including IP address management, MAC address allocation, scheduling, and contextualization.
 
-General host preparation, including IOMMU, VFIO, Huge Pages, SR-IOV configuration, and PCI monitoring, is described in the [Host Configuration]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration" %}}) guide.
+General Host preparation, including IOMMU, VFIO, Huge Pages, SR-IOV configuration, and PCI monitoring, is described in the [Host Configuration]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration" %}}) guide.
 
 ## Overview
 
@@ -158,7 +158,7 @@ PCI = [
 ]
 ```
 
-The scheduler automatically selects an available PCI device satisfying the specified constraints. Automatic selection improves workload portability across hosts.
+The scheduler automatically selects an available PCI device satisfying the specified constraints. Automatic selection improves workload portability across Hosts.
 
 ### Explicit Device Selection
 
@@ -180,8 +180,8 @@ PCI = [
 
 To allocate an available VF from a particular PF, set one of the following attributes in the VM Template's `PCI` entry:
 
-| Attribute | Description |
-|-----------|-------------|
+| **Attribute** | **Description** |
+|-------------|-------------------|
 | `PF_IFNAME` | Interface name of the parent PF on the Host, for example `pf0`. Copy the PF's `IFNAME` or the VF's monitored `PF_IFNAME`. |
 | `PF_ADDRESS` | Full monitored `ADDRESS` of the parent PF, for example `0000:81:00:0`. Copy this value from the Host PCI inventory; it uses a colon before the function number. |
 
@@ -323,4 +323,4 @@ The interface should appear as a native PCI network adapter and be configured au
 
 ## Next Steps
 
-If you have not yet configured the host for PCI passthrough, complete the [Host Configuration Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/" %}}). For NVIDIA GPUs, continue with the [NVIDIA GPU Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough/" %}}).
+If you have not yet configured the Host for PCI passthrough, complete the [Host Configuration Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/" %}}). For NVIDIA GPUs, continue with the [NVIDIA GPU Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough/" %}}).
