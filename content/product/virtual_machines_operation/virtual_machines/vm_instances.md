@@ -486,7 +486,13 @@ In FreeBSD the resize of the root filesystem inside the guest OS is not performe
 
 ## Updating the Virtual Machine Configuration
 
-Some of the VM configuration attributes defined in the VM template can be updated after the VM is created. The `onevm updateconf` command will allow you to change the following attributes:
+Some of the VM configuration attributes defined in the VM template can be updated after the VM is created using `onevm updateconf`. To edit the current configuration, run:
+
+```shell
+onevm updateconf <VM_ID>
+```
+
+The command opens an editor with the current values of the supported configuration attributes. Modify the values you want to change, then save and close the editor to apply the update. The following attributes are supported:
 
 | Attribute       | Sub-attributes                                                                                                           |
 |-----------------|--------------------------------------------------------------------------------------------------------------------------|
@@ -502,8 +508,26 @@ Some of the VM configuration attributes defined in the VM template can be update
 
 Visit the [Virtual Machine Template reference]({{% relref "product/operation_references/configuration_references/template#template" %}}) for a complete description of each attribute. Visit the [VM Update Methods Reference]({{% relref "product/operation_references/configuration_references/vm_update_methods/" %}}) for additional details on all available VM configuration update methods.
 
+To supply a partial update instead of editing the current configuration, use `onevm updateconf --append <VM_ID> [file]`. Provide the attributes to add or change in a file or through standard input. Attributes omitted from the update are preserved.
+
 {{< alert title="Warning" type="warning" >}}
-This action might not be supported for `RUNNING` VMs depending on the hypervisor. Please check the limitation section of the specific virtualization driver.{{< /alert >}} 
+This action might not be supported for `RUNNING` VMs depending on the hypervisor. Please check the limitation section of the specific virtualization driver.{{< /alert >}}
+
+{{< alert title="Note" type="info" >}}
+The `--append` option replaces the entire value of each existing attribute supplied in the update. It does not concatenate values or append entries within a value.
+
+For example, to add a third SSH key while keeping the two existing keys, supply all three in `SSH_PUBLIC_KEY`. Other `CONTEXT` attributes are preserved. Replace the placeholders below with the complete public keys:
+
+```text
+onevm updateconf --append 25 <<'EOT'
+CONTEXT = [
+  SSH_PUBLIC_KEY="<existing-public-key-1>
+                  <existing-public-key-2>
+                  <new-public-key>"
+]
+EOT
+```
+{{< /alert >}}
 
 {{< alert title="Note" type="info" >}}
 In running state only changes in CONTEXT take effect immediately, other values may need a VM restart. Also, the action may fail and the context will not be changed if the VM is running. You can try to manually trigger the action again.{{< /alert >}} 
