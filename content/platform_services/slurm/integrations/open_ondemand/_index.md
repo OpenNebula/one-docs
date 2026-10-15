@@ -6,7 +6,6 @@ description: "Give your OneSlurm users a web portal to manage files, submit jobs
 categories:
 pageintoc: "13"
 tags:
-type: docs
 weight: "1"
 aliases:
   - /solutions/integration_blueprints/open_ondemand/
