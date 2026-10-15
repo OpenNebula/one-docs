@@ -25,7 +25,7 @@ To build the documentation, follow the [documentation build instructions](https:
 
 For quick edits from a browser, including on a phone or tablet:
 
-1. Open the repository or your fork on GitHub and select the branch you want to edit.
+1. Open the repository or your fork on GitHub and select the branch you want to edit. **Do not edit master or one-X.Y, create a new branch**.
 2. Select **Code → Codespaces → Create codespace**.
 3. Wait for the container setup and dependency installation to finish. Hugo starts automatically in the background while the editor opens. Once Hugo finishes its first build, view the documentation on port **1313** using **Open in Browser** in the **Ports** tab. If the preview opens earlier and returns **502**, wait for the build to finish and refresh it.
 4. Edit files under `content/` and save them. The preview reloads automatically. Use the **Source Control** panel to commit and push your changes.
