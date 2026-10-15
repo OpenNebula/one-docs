@@ -27,12 +27,14 @@ For quick edits from a browser, including on a phone or tablet:
 
 1. Open the repository or your fork on GitHub and select the branch you want to edit.
 2. Select **Code → Codespaces → Create codespace**.
-3. Wait for the container setup and dependency installation to finish. The Hugo live server starts automatically, and Codespaces opens the documentation preview when port **1313** is ready. If it does not open, use **Open in Browser** for that port in the **Ports** tab.
+3. Wait for the container setup, dependency installation, and first Hugo build to finish. The startup hook launches Hugo in the background and checks that the preview responds before setup completes. Codespaces opens the documentation preview on port **1313**. If it does not open, use **Open in Browser** for that port in the **Ports** tab.
 4. Edit files under `content/` and save them. The preview reloads automatically. Use the **Source Control** panel to commit and push your changes.
 
 The container includes Hugo Extended 0.155.3, Go, Node.js 22, Dart Sass, and the repository's PostCSS dependencies. The first preview may take longer while Hugo downloads its modules.
 
-To inspect server output, run `tail -f /tmp/opennebula-docs-preview.log` in the terminal. If the server stops, restart it with `bash .devcontainer/serve.sh`. It also starts automatically when you resume the Codespace.
+To inspect server output, run `tail -f /tmp/opennebula-docs-preview.log` in the terminal. Hugo starts automatically when you resume the Codespace; reconnecting also checks the preview and starts it if necessary. To launch it manually in the background, run `bash .devcontainer/start-preview.sh`. To run it in the foreground and see its output directly, use `bash .devcontainer/serve.sh`.
+
+If you add or change `.devcontainer/devcontainer.json` in an existing Codespace, including by switching branches, run **Codespaces: Rebuild Container → Rebuild** from the Command Palette to apply it. This is required once for changed lifecycle hooks; normal resumes reuse the existing container. If the preview log is missing, inspect **Codespaces: View Creation Log** for setup failures. A failed dependency installation prevents the startup hook from running.
 
 You can use the same environment locally with Docker and the VS Code **Dev Containers** extension: open the repository and run **Dev Containers: Reopen in Container**. Open the forwarded port **1313** to view the preview.
 
