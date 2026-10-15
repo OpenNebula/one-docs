@@ -62,6 +62,8 @@ In Switchdev mode, VF parameters are controlled by Host-side representor interfa
 
 Note that `TRUST` and `SPOOFCHK` might fail depending on the kernel driver controlling the PF, even if setting them to the state they are currently already at. If the attribute is unsupported (refer to the SmartNIC documentation) then it should be ommited from the Virtual Network configuration, otherwise the whole configuration fails.
 
+Additionally, PFs in switchdev mode need to have an exclusive bridge. To avoid creating multiple vnets for each PF in the cluster, you can autogenerate this bridge name by setting the Virtual Network parameter `BRIDGE=PF`. When attaching a VF from a PF, it will autogenerate a bridge with the name `"$PF_NAME"br` and add the PF and the required representors as a port. If the bridge exists it will be re-used. Note that this means that the PF name must be maxium, 13 characters long, due to a kernel limitation.
+
 
 ## Host Configuration
 
