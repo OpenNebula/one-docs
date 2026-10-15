@@ -27,10 +27,10 @@ For quick edits from a browser, including on a phone or tablet:
 
 1. Open the repository or your fork on GitHub and select the branch you want to edit.
 2. Select **Code → Codespaces → Create codespace**.
-3. Wait for the container setup, dependency installation, and first Hugo build to finish. The startup hook launches Hugo in the background and checks that the preview responds before setup completes. Codespaces opens the documentation preview on port **1313**. If it does not open, use **Open in Browser** for that port in the **Ports** tab.
+3. Wait for the container setup and dependency installation to finish. Hugo starts automatically in the background while the editor opens. Once Hugo finishes its first build, view the documentation on port **1313** using **Open in Browser** in the **Ports** tab. If the preview opens earlier and returns **502**, wait for the build to finish and refresh it.
 4. Edit files under `content/` and save them. The preview reloads automatically. Use the **Source Control** panel to commit and push your changes.
 
-The container includes Hugo Extended 0.155.3, Go, Node.js 22, Dart Sass, and the repository's PostCSS dependencies. The first preview may take longer while Hugo downloads its modules.
+The container includes Hugo Extended 0.155.3, Go, Node.js 22, Dart Sass, and the repository's PostCSS dependencies. The first preview can take several minutes while Hugo downloads its modules and builds the site. A slow preview build continues in the background without blocking container setup.
 
 To inspect server output, run `tail -f /tmp/opennebula-docs-preview.log` in the terminal. Hugo starts automatically when you resume the Codespace; reconnecting also checks the preview and starts it if necessary. To launch it manually in the background, run `bash .devcontainer/start-preview.sh`. To run it in the foreground and see its output directly, use `bash .devcontainer/serve.sh`.
 

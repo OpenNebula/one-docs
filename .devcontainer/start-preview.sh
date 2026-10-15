@@ -26,7 +26,7 @@ echo "Starting the documentation preview. The first build may take several minut
 echo "Hugo output: $log_file"
 nohup bash .devcontainer/serve.sh >> "$log_file" 2>&1 < /dev/null &
 server_pid=$!
-deadline=$((SECONDS + 300))
+deadline=$((SECONDS + 30))
 
 until preview_ready; do
     if [[ -n "$server_pid" ]] && ! kill -0 "$server_pid" 2>/dev/null; then
@@ -39,8 +39,10 @@ until preview_ready; do
         fi
     fi
     if (( SECONDS >= deadline )); then
-        show_error "The documentation preview is still not responding after five minutes."
-        exit 1
+        echo "Hugo is still starting in the background. The editor is ready to use."
+        echo "Follow progress with: tail -f $log_file"
+        echo "Open or refresh port 1313 after the first build finishes."
+        exit 0
     fi
     sleep 1
 done
