@@ -2,7 +2,6 @@
 title: "Quick Start"
 linkTitle: "Quick Start"
 date: "2026-10-14"
-description: "Import the appliance, fill in the wizard and open the portal."
 categories:
 tags:
 type: docs
@@ -43,7 +42,7 @@ This imports an image and a VM template, both called **Open OnDemand**.
 
 ## Step 3: Fill in the User Inputs
 
-The wizard has three tabs, **LDAP**, **Home** and **Slurm**.
+The wizard has three tabs: **LDAP**, **Home** and **Slurm**.
 
 ### LDAP Tab
 

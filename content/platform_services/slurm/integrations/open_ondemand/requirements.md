@@ -2,7 +2,6 @@
 title: "Requirements"
 linkTitle: "Requirements"
 date: "2026-10-14"
-description: "Check the Clusters, services, network and ports that the portal needs."
 categories:
 tags:
 type: docs

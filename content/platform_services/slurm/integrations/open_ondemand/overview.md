@@ -2,7 +2,6 @@
 title: "Overview"
 linkTitle: "Overview"
 date: "2026-10-14"
-description: "Learn what the Open OnDemand appliance does and how it works with OneSlurm."
 categories:
 tags:
 type: docs

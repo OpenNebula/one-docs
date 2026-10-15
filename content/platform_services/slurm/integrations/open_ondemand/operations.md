@@ -2,7 +2,6 @@
 title: "Operations"
 linkTitle: "Operations"
 date: "2026-10-14"
-description: "Use the portal, add users, change the Clusters and keep the portal secure."
 categories:
 tags:
 type: docs

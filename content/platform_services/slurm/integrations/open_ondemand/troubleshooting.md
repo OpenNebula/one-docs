@@ -2,7 +2,6 @@
 title: "Troubleshooting and Limitations"
 linkTitle: "Troubleshooting"
 date: "2026-10-14"
-description: "Solve common problems of the portal and learn its known limitations."
 categories:
 tags:
 type: docs
