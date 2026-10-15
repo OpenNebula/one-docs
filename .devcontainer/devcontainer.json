@@ -1,0 +1,19 @@
+{
+  "name": "OpenNebula documentation",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "node",
+  "init": true,
+  "postCreateCommand": "npm ci --include=dev",
+  "waitFor": "postCreateCommand",
+  "postStartCommand": "nohup bash .devcontainer/serve.sh >> /tmp/opennebula-docs-preview.log 2>&1 < /dev/null &",
+  "forwardPorts": [1313],
+  "portsAttributes": {
+    "1313": {
+      "label": "Documentation preview",
+      "onAutoForward": "openBrowser",
+      "protocol": "http"
+    }
+  }
+}

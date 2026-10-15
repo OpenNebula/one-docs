@@ -21,4 +21,19 @@ If you find a problem in the documentation, or find something that needs updatin
 
 To build the documentation, follow the [documentation build instructions](https://github.com/OpenNebula/one-docs/wiki/Build) in the Wiki. Details about how to contribute to the documentation, including style and structure guidance, can be found in the [Wiki for this repository](https://github.com/OpenNebula/one-docs/wiki).
 
+### Edit in GitHub Codespaces
+
+For quick edits from a browser, including on a phone or tablet:
+
+1. Open the repository or your fork on GitHub and select the branch you want to edit.
+2. Select **Code → Codespaces → Create codespace**.
+3. Wait for the container setup and dependency installation to finish. The Hugo live server starts automatically, and Codespaces opens the documentation preview when port **1313** is ready. If it does not open, use **Open in Browser** for that port in the **Ports** tab.
+4. Edit files under `content/` and save them. The preview reloads automatically. Use the **Source Control** panel to commit and push your changes.
+
+The container includes Hugo Extended 0.155.3, Go, Node.js 22, Dart Sass, and the repository's PostCSS dependencies. The first preview may take longer while Hugo downloads its modules.
+
+To inspect server output, run `tail -f /tmp/opennebula-docs-preview.log` in the terminal. If the server stops, restart it with `bash .devcontainer/serve.sh`. It also starts automatically when you resume the Codespace.
+
+You can use the same environment locally with Docker and the VS Code **Dev Containers** extension: open the repository and run **Dev Containers: Reopen in Container**. Open the forwarded port **1313** to view the preview.
+
 
