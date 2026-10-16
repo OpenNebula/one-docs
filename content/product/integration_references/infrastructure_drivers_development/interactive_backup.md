@@ -21,14 +21,40 @@ Interactive backups use the OpenNebula Backup Exporter (OneBEX). OneBEX is start
 
 ## How It Works
 
-When a VM backup is created through an interactive backup integration, OpenNebula performs the following actions:
+From OpenNebula's point of view, an interactive backup has **three phases**:
 
-1. The VM backup workflow prepares the selected disks for export. Full backups and CBT incremental backups are supported.
-2. OpenNebula writes the export metadata to `interactive_exports.json` in the VM backup directory on the hypervisor.
-3. The Transfer Manager (TM) starts OneBEX on the hypervisor if it is not already running, then sends `POST /export` with the VM ID, datastore ID, and backup directory.
-4. The external backup system discovers the available disk transfers through `GET /status` and reads disk data ranges and block extents.
-5. The external backup system finalizes each transfer and then finishes the VM backup session.
-6. OneBEX publishes the VM completion result, allowing TM to complete the backup operation. OpenNebula records the backup metadata as a backup image in the integration datastore.
+1. **Pre-backup (Transfer Manager / TM driver).** The TM driver prepares the VM disks for export. Depending on the storage backend, it may create snapshots or temporary devices to provide a consistent source. It writes an `interactive_exports.json` file describing each prepared disk and starts OneBEX on the hypervisor. The export session is initialized through `POST /export`.
+2. **Backup (Datastore / DS driver).** After the external backup application has retrieved the disk data and completed the export session, the DS driver creates a backup image containing the metadata OpenNebula needs to identify and restore that backup. The actual disk data remains in the external application's repository.
+3. **Post-backup (TM driver).** The TM driver removes the temporary snapshots, devices, and files created during pre-backup. These storage resources are distinct from any sockets, processes, or connections managed by a OneBEX exporter.
+
+**Between Step 1 and Step 2**, OneBEX serves the prepared disks over HTTP. The external backup application checks the VM status, obtains each transfer's disk information and block extents, and requests the byte ranges it needs. It then finalizes each disk transfer and finishes the VM export session. OneBEX releases exporter-owned resources and stops when there are no remaining transfers.
+
+### Export Description and Exporter Selection
+
+During pre-backup, the TM driver writes `<backup_dir>/interactive_exports.json`. The file contains a JSON object indexed by VM disk ID. Each disk entry tells OneBEX which exporter can read the prepared source and provides the information needed by that exporter.
+
+For example:
+
+```json
+{
+  "0": {
+    "exporter": "nbd",
+    "source": "/var/lib/one/datastores/100/123/disk.0",
+    "format": "qcow2"
+  },
+  "1": {
+    "exporter": "lvm",
+    "source": "/dev/vg-one/lv-one-123-1",
+    "format": "raw"
+  }
+}
+```
+
+The `exporter` selects one of the OneBEX available [exporters](#exporters), `source` identifies the prepared image or device, and `format` describes its disk format. The file can also include exporter-specific fields, for example snapshot identifiers or an incremental block map.
+
+When OneBEX receives `POST /export`, it reads this file from the supplied `BACKUP_DIR`, selects the requested disks (or all disks when `DISKS` is omitted), and looks up the `exporter` name in its registry. OneBEX creates a separate transfer and exporter instance for each disk. The backup application then accesses those transfers through the HTTP API described [below](#onebex-api-reference).
+
+To add a new storage backend, the corresponding TM driver must prepare its disk source and describe it in this file. A custom OneBEX exporter then implements the storage-specific reads. See [Developing OneBEX Exporters]({{% relref "onebex-exporter#onebex-exporter-development" %}}) for the Ruby interface, example implementation, installation, and testing instructions.
 
 ## Compatibility
 
@@ -667,7 +693,9 @@ Unexpected server errors and exporter/backend failures return **`500 Internal Se
 
 ## Exporters
 
-OneBEX uses exporters to expose VM disk data to external backup systems.
+OneBEX selects a storage-specific exporter for each prepared disk, as described in [Export Description and Exporter Selection](#export-description-and-exporter-selection). The built-in implementations are listed below.
+
+To implement and register another storage backend, see [Developing OneBEX Exporters]({{% relref "onebex-exporter#onebex-exporter-development" %}}).
 
 | **Exporter** | **VM disk storage** | **Transport** | **Description** |
 |----------|-----------------|-----------|-------------|
