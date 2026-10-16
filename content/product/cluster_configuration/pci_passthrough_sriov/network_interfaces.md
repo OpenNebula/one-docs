@@ -13,7 +13,7 @@ This guide describes how to use PCI network devices as OpenNebula network interf
 
 OpenNebula extends the generic PCI passthrough mechanism by integrating PCI network devices with the Virtual Network subsystem. This allows virtual machines to benefit from the performance of direct device assignment while preserving the OpenNebula networking workflow, including IP address management, MAC address allocation, scheduling, and contextualization.
 
-General host preparation, including IOMMU, VFIO, Huge Pages, SR-IOV configuration, and PCI monitoring, is described in the [Host Configuration]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration" %}}) guide.
+General Host preparation, including IOMMU, VFIO, Huge Pages, SR-IOV configuration, and PCI monitoring, is described in the [Host Configuration]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration" %}}) guide.
 
 ## Overview
 
@@ -158,7 +158,7 @@ PCI = [
 ]
 ```
 
-The scheduler automatically selects an available PCI device satisfying the specified constraints. Automatic selection improves workload portability across hosts.
+The scheduler automatically selects an available PCI device satisfying the specified constraints. Automatic selection improves workload portability across Hosts.
 
 ### Explicit Device Selection
 
@@ -175,6 +175,69 @@ PCI = [
 ```
 
 `SHORT_ADDRESS` selects the physical PCI function, while `NETWORK` selects the OpenNebula Virtual Network that provides its network configuration and leases. Explicit device selection should generally be reserved for deployments that require a particular physical interface because of its PCI topology, interconnection, or NUMA locality.
+
+### Selecting Virtual Functions by Physical Function
+
+To allocate an available VF from a particular PF, set one of the following attributes in the VM Template's `PCI` entry:
+
+| **Attribute** | **Description** |
+|-------------|-------------------|
+| `PF_IFNAME` | Interface name of the parent PF on the Host, for example `pf0`. Copy the PF's `IFNAME` or the VF's monitored `PF_IFNAME`. |
+| `PF_ADDRESS` | Full monitored `ADDRESS` of the parent PF, for example `0000:81:00:0`. Copy this value from the Host PCI inventory; it uses a colon before the function number. |
+
+OpenNebula selects a free VF belonging to that PF. You choose the parent PF, and OpenNebula chooses the individual VF.
+
+Before using this selection:
+
+* Enable enough VFs on each required PF, as described in [Host Configuration](#host-configuration).
+* Configure the [PCI monitoring filters]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration.md#step-4-configure-pci-monitoring" %}}) to include both the PF and its VFs. A filter matching only `Virtual Function` excludes the PF and prevents selection by parent PF. Host and Cluster filters must also include the required functions.
+* Check the [Host PCI inventory]({{% relref "product/cluster_configuration/hosts_and_clusters/hosts.md#host-pci-devices" %}}). The parent must have `SRIOV="pf"`, and its VFs must report the corresponding `PF_ADDRESS`.
+
+Set only one PF selector per `PCI` entry. Neither `PF_IFNAME` nor `PF_ADDRESS` can be combined with `SHORT_ADDRESS`, `VENDOR`, `DEVICE`, or `CLASS` in the same entry.
+
+The following examples assume an existing Virtual Network named `SRIOV-NET` and monitored PFs named `pf0` and `pf1`. Replace these names with those in your environment.
+
+#### Affinity: VFs on the Same PF
+
+To place two VFs on the same PF, use the same selector in both entries. The PF must have at least two free VFs:
+
+```text
+PCI = [
+  TYPE = "NIC",
+  NETWORK = "SRIOV-NET",
+  PF_IFNAME = "pf0"
+]
+PCI = [
+  TYPE = "NIC",
+  NETWORK = "SRIOV-NET",
+  PF_IFNAME = "pf0"
+]
+```
+
+OpenNebula allocates two distinct VFs from `pf0` to the VM.
+
+#### Anti-affinity: VFs on Different PFs
+
+To spread the VFs across two PFs, select a different PF for each entry. Each PF must have at least one free VF:
+
+```text
+PCI = [
+  TYPE = "NIC",
+  NETWORK = "SRIOV-NET",
+  PF_IFNAME = "pf0"
+]
+PCI = [
+  TYPE = "NIC",
+  NETWORK = "SRIOV-NET",
+  PF_IFNAME = "pf1"
+]
+```
+
+You can instead use `PF_ADDRESS` in each entry, for example `0000:81:00:0` and `0000:81:00:1`. Use the PF's full monitored address rather than a VF's address or `SHORT_ADDRESS`.
+
+These selectors apply on each candidate Host. Use consistent PF names or addresses across eligible Hosts, or restrict VM placement to Hosts with the required PFs. A Host cannot satisfy the request if it lacks a selected PF or enough free VFs.
+
+Affinity and anti-affinity apply at PF level. If you need separate adapter cards or NUMA nodes, select PFs whose hardware topology provides that separation.
 
 ## Virtual Network Integration
 
@@ -215,6 +278,8 @@ Common PCI attributes include:
 * `SHORT_ADDRESS`
 * `TYPE`
 
+For SR-IOV VFs, `PF_IFNAME` or `PF_ADDRESS` can select the parent PF, as described in [Selecting Virtual Functions by Physical Function](#selecting-virtual-functions-by-physical-function).
+
 Network-specific attributes include:
 
 * `NETWORK`
@@ -251,11 +316,11 @@ The interface should appear as a native PCI network adapter and be configured au
 * Prefer automatic PCI device selection whenever possible.
 * Use Virtual Functions instead of Physical Functions for cloud deployments.
 * Reserve Physical Functions for workloads requiring exclusive device ownership.
-* Configure PCI monitoring to expose only passthrough devices.
+* Configure PCI monitoring to expose the required passthrough devices and any parent PFs needed for VF selection.
 * Install the OpenNebula Context package in guest operating systems.
 * Use NUMA-aware placement for latency-sensitive workloads.
 * Prefer Switchdev mode when integrating with Open vSwitch.
 
 ## Next Steps
 
-If you have not yet configured the host for PCI passthrough, complete the [Host Configuration Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/" %}}). For NVIDIA GPUs, continue with the [NVIDIA GPU Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough/" %}}).
+If you have not yet configured the Host for PCI passthrough, complete the [Host Configuration Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration/" %}}). For NVIDIA GPUs, continue with the [NVIDIA GPU Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough/" %}}).
