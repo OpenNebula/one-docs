@@ -26,7 +26,7 @@ There is not an easy automatic way to perform this operation, so much of this mu
 
 A Veeam server at each site, with a backup copy job moving restore points from Site A to Site B. Site B runs an independent Veeam server that owns the copy target repository. The following diagram shows the general structure of the workflow.
 {{< image
-  path="/images/solutions/disaster_recovery/veeam_dr.png"
+  path="/images/solutions/disaster_recovery/veeam_dr.svg"
   alt="Disaster Recovery Architecture"
   align="center" width="90%" mb="20px" border="false" shadow="false"
 >}}
