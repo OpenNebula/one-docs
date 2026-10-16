@@ -68,7 +68,7 @@ The available Sunstone sections and their tabs are described in the following su
 
 ### Networks
 
-- **Virtual Networks Tab**: Users can see all their Virtual Networks and perform managing operations such as updating, reserving, changing permissions, and more. Also, users can create a new Virtual Network from this tab.
+- **Virtual Networks Tab**: Users can see all their Virtual Networks and perform managing operations such as updating, reserving, changing permissions, and more. Also, users can create a new Virtual Network from this tab. For existing Open vSwitch networks, the [Port Mirroring tab]({{% relref "../../cluster_configuration/networking_system/manage_vnets#port-mirroring-in-sunstone" %}}) allows users to inspect and manage mirrors.
 - **Virtual Networks Template Tab**: Users can see all their Virtual Networks Templates and perform updates. From this tab, users can also instantiate a Virtual Network from a template. Also, users can perform some managing operations over the templates, such as: change permissions, lock and unlock, and more.
 - **Security Groups Tab**: Users can see all their Security Groups and perform managing operations such as updating, cloning, committing, changing permissions, and more. Also, users can create a new Security Group from this tab.
 
@@ -331,6 +331,11 @@ The available actions in the info tabs are described in the following table.
 | `exec-cancel`          | Users will be able to cancel a command execution.                     |
 | `exec-retry`           | Users will be able to re-run the last command.                        |
 | `hold_lease`           | Users will be able to hold a lease.                                   |
+| `mirror_create`        | Users will be able to create Virtual Network mirrors.                |
+| `mirror_update`        | Users will be able to edit mirror settings.                          |
+| `mirror_addport`       | Users will be able to add source interfaces to mirrors.              |
+| `mirror_delport`       | Users will be able to remove source interfaces from mirrors.         |
+| `mirror_delete`        | Users will be able to delete mirrors.                                |
 | `release_lease`        | Users will be able to release a lease.                                |
 | `rename`               | Users will be able to rename the resource.                            |
 | `resize_capacity`      | Users will be able to perform capacity resize.                        |
