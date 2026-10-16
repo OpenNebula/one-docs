@@ -4,10 +4,6 @@ linkTitle: "Veeam"
 weight: 4
 ---
 
-{{< alert title="Work In Progress" type="primary" >}}
-This document is a work in progress.
-{{< /alert >}} 
-
 ## Outline
 
 This document will go over a recommended two-site disaster recovery design for OpenNebula protected by [Veeam Backup & Replication](https://www.veeam.com/products/veeam-data-platform/backup-recovery.html), with procedures for failover and failback. This design assumes an active production site (Site A) and a recovery site (Site B), each running its own OpenNebula installation. Single-site high availability is out of scope for this document.
