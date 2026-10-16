@@ -17,6 +17,7 @@ Include a high level description and a link to the documentation explaining the 
 
 * Add a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
 * Add an option to [cancel an ongoing Virtual Machine backup from Sunstone]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations#cancel-backup" %}}) [#8069](https://github.com/OpenNebula/one/issues/8069).
+* Add [Port Mirroring management in Sunstone]({{% relref "product/cluster_configuration/networking_system/manage_vnets#port-mirroring-in-sunstone" %}}) for existing Open vSwitch networks, supporting RSPAN, GRE, and ERSPAN II/III. Users can create, inspect, edit, and delete mirrors, select source VM interfaces, and configure traffic direction and source VLAN filters. Enable the tab and form routes using the configuration instructions below [#8149](https://github.com/OpenNebula/one/issues/8149).
 * Added a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
 * Add support for Ceph VM backups through the [interactive backup integration]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
 * Allow overriding `CLUSTER_IDS` when instantiating Virtual Network Templates [#8065](https://github.com/OpenNebula/one/issues/8065).
@@ -78,6 +79,56 @@ The following issues have been solved in 7.4.2:
 After upgrading to 7.4.2, check the following settings to enable the new Sunstone functionality in the intended views. All paths below are relative to `/etc/one/fireedge/` on the OpenNebula Front-end Host.
 
 Merge these settings into the existing YAML sections, preserving other settings and actions. Do not create duplicate `info-tabs` or `filters` keys.
+
+### Enable Port Mirroring in Sunstone [#8149](https://github.com/OpenNebula/one/issues/8149)
+
+The Port Mirroring tab and its form routes must be enabled manually after upgrading to 7.4.2. Apply both changes below; enabling the tab alone does not register the creation and editing forms.
+
+In `sunstone/tabs/40-networks-tab.yaml`, add the **Create mirror** and **Edit mirror** entries to the existing `routes` list, immediately before the `/virtual-network/:id` detail route. The existing detail route is included below to show the placement; do not add it a second time:
+
+```yaml
+    - title: Create mirror
+      path: /virtual-network/:id/mirror/create
+      Component: CreateVirtualNetworkMirror
+    - title: Edit mirror
+      path: /virtual-network/:id/mirror/:mirrorId/update
+      Component: CreateVirtualNetworkMirror
+    - title: Virtual networks
+      path: /virtual-network/:id
+      Component: VirtualNetworkDetail
+```
+
+In `sunstone/views/admin/vnet-tab.yaml` and `sunstone/views/user/vnet-tab.yaml`, add the following block under the existing `info-tabs` key:
+
+```yaml
+info-tabs:
+  port_mirroring:
+    enabled: true
+    actions:
+      mirror_create: true
+      mirror_update: true
+      mirror_addport: true
+      mirror_delport: true
+      mirror_delete: true
+```
+
+In `sunstone/views/groupadmin/vnet-tab.yaml`, enable the tab with management actions disabled:
+
+```yaml
+info-tabs:
+  port_mirroring:
+    enabled: true
+    actions:
+      mirror_create: false
+      mirror_update: false
+      mirror_addport: false
+      mirror_delport: false
+      mirror_delete: false
+```
+
+For custom views that expose Virtual Networks, add the `port_mirroring` block to their `vnet-tab.yaml` files and enable only the intended actions. These flags control the UI and do not grant OpenNebula permissions.
+
+Restart FireEdge and reload Sunstone in the browser after applying the changes:
 
 ### Enable VM backup cancellation in Sunstone [#8069](https://github.com/OpenNebula/one/issues/8069)
 
