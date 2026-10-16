@@ -34,7 +34,7 @@ Each site contains an OpenNebula Front-end, three KVM compute nodes, and an inde
 The following diagram shows a basic state of before and after of a Disaster Recovery scenario where a failover has been performed:
 
 {{< image
-  path="/images/solutions/disaster_recovery/netapp_snapmirror_dr.png"
+  path="/images/solutions/disaster_recovery/netapp_snapmirror_dr.svg"
   alt="Disaster Recovery Architecture" 
   align="center" width="90%" mb="20px" border="false" shadow="false"
 >}}
