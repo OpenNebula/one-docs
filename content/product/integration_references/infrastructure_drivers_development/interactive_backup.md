@@ -54,7 +54,7 @@ The `exporter` selects one of the OneBEX available [exporters](#exporters), `sou
 
 When OneBEX receives `POST /export`, it reads this file from the supplied `BACKUP_DIR`, selects the requested disks (or all disks when `DISKS` is omitted), and looks up the `exporter` name in its registry. OneBEX creates a separate transfer and exporter instance for each disk. The backup application then accesses those transfers through the HTTP API described [below](#onebex-api-reference).
 
-To add a new storage backend, the corresponding TM driver must prepare its disk source and describe it in this file. A custom OneBEX exporter then implements the storage-specific reads. See [Developing OneBEX Exporters]({{% relref "onebex-exporter#onebex-exporter-development" %}}) for the Ruby interface, example implementation, installation, and testing instructions.
+To add a new storage backend, the corresponding TM driver must prepare its disk source and describe it in this file. A custom OneBEX exporter then implements the storage-specific reads. See [Developing OneBEX Exporters]({{% relref "onebex_exporter#onebex-exporter-development" %}}) for the Ruby interface, example implementation, installation, and testing instructions.
 
 ## Compatibility
 
@@ -695,7 +695,7 @@ Unexpected server errors and exporter/backend failures return **`500 Internal Se
 
 OneBEX selects a storage-specific exporter for each prepared disk, as described in [Export Description and Exporter Selection](#export-description-and-exporter-selection). The built-in implementations are listed below.
 
-To implement and register another storage backend, see [Developing OneBEX Exporters]({{% relref "onebex-exporter#onebex-exporter-development" %}}).
+To implement and register another storage backend, see [Developing OneBEX Exporters]({{% relref "onebex_exporter#onebex-exporter-development" %}}).
 
 | **Exporter** | **VM disk storage** | **Transport** | **Description** |
 |----------|-----------------|-----------|-------------|

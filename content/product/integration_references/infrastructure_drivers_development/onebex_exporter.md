@@ -2,7 +2,6 @@
 title: "Developing OneBEX Exporters"
 linkTitle: "OneBEX Exporters"
 date: "2026-10-16"
-description: "Implementing, installing, and testing a custom OneBEX disk exporter."
 categories:
 pageintoc: "300"
 tags:
@@ -15,21 +14,21 @@ weight: "10"
 
 A **OneBEX exporter** is a Ruby class that lets OneBEX read a VM disk from a particular storage backend. The disk is prepared by the Transfer Manager (TM) driver and described in `interactive_exports.json`. OneBEX selects the exporter named in that file, manages the HTTP requests and transfer lifecycle, and delegates storage-specific operations to the exporter.
 
-Create an exporter when adding a storage backend that is not handled by the OneBEx built-in [exporters]({{% relref "interactive_backup#exporters" %}}). The exporter must be able to report the virtual disk size, describe the relevant extents, read arbitrary byte ranges, and release any resources it opens. **It does not implement HTTP endpoints, create the backup image, or store the backup payload.**
+Create an exporter when adding a storage backend that is not handled by the OneBEX built-in [exporters]({{% relref "interactive_backup.md#exporters" %}}). The exporter must be able to report the virtual disk size, describe the relevant extents, read arbitrary byte ranges, and release any resources it opens. *It does not implement HTTP endpoints, create the backup image, or store the backup payload.*
 
-For the three-phase backup workflow, the meaning of `interactive_exports.json`, supported configurations, and the complete HTTP API, see [Interactive Backup Integrations]({{% relref "interactive_backup#interactive-backup-integration" %}}).
+For the three-phase backup workflow, the meaning of `interactive_exports.json`, supported configurations, and the complete HTTP API, refer to [Interactive Backup Integrations]({{% relref "interactive_backup.md#interactive-backup-integration" %}}).
 
 {{< alert title="Important" type="info" >}}
 A new exporter by itself is not sufficient for a storage integration. The matching TM driver must prepare a stable disk source, describe it in `interactive_exports.json`, and clean up backend snapshots or temporary devices after the backup. The exporter is responsible only for the resources that it opens or starts.
 {{< /alert >}}
 
-## OneBEX exporter interface
+## OneBEX Exporter Interface
 
 An exporter is a Ruby class under `OneBEX::Exporters`. OneBEX creates an instance for each disk transfer and calls its methods to open the prepared source, describe it, read data from it, and release resources when the transfer ends.
 
 Each exporter must provide these six methods:
 
-| Method | Responsibility | Expected result |
+| **Method** | **Responsibility** | **Expected result** |
 | --- | --- | --- |
 | `initialize(config:, logger:)` | Receive the OneBEX configuration and logger. | Initializes the Ruby object. |
 | `start(transfer)` | Validate the disk source, open or start its export, and retain any state needed later. | `true` when ready; raise on failure. |
@@ -38,11 +37,11 @@ Each exporter must provide these six methods:
 | `data(transfer, range)` | Read bytes from the exposed disk at the requested offset. | A binary String containing exactly the requested number of bytes. |
 | `finish(transfer, force: false)` | Close the export and release exporter-owned resources. | Conventionally `true`; raise on a cleanup failure. |
 
-### Exporter lifecycle and HTTP requests
+### Exporter Lifecycle and HTTP Requests
 
 For each disk, OneBEX starts the transfer and calls the exporter as the external backup application requests data. The relevant routes are:
 
-| Request | What OneBEX does |
+| **Request** | **What OneBEX does** |
 | --- | --- |
 | `POST /export` | Creates the selected disk transfers and starts their exporters. |
 | `GET /transfers/:transfer_id/info` | Calls `info(transfer)`. |
@@ -56,11 +55,11 @@ The exporter must also be ready for repeated calls to `info`, `blocks`, and `dat
 
 The API shown here is for reading disk data. In the current OneBEX routes, `PUT /images/:transfer_id` returns `501` (not implemented), and the supported `PATCH` flush operation returns success without invoking an exporter method. A read-only exporter therefore does not need to implement write or flush methods.
 
-### The transfer Hash
+### The Transfer Hash
 
-OneBEX passes a `transfer` Hash to each exporter method. The `/export` route constructs it from `interactive_exports.json` and the export request:
+OneBEX passes a transfer Hash to each exporter method. The `/export` route constructs it from `interactive_exports.json` and the export request:
 
-| Key | Description |
+| **Key** | **Description** |
 | --- | --- |
 | `transfer[:transfer_id]` | Unique identifier for this disk transfer, such as `one-123-0-a1b2c3d4`. |
 | `transfer[:disk_id]` | VM disk ID. |
@@ -69,7 +68,7 @@ OneBEX passes a `transfer` Hash to each exporter method. The `/export` route con
 | `transfer[:source]` | The disk entry's `source` field. |
 | `transfer[:format]` | The disk entry's `format` field. |
 | `transfer[:map]` | Optional block-map field, used by exporters that support it. |
-| `transfer[:disk]` | Complete disk entry from `interactive_exports.json`, with **String** keys. |
+| `transfer[:disk]` | Complete disk entry from `interactive_exports.json`, with `String` keys. |
 | `transfer[:exporter]` | The exporter instance assigned by OneBEX. Do not overwrite it. |
 
 For example, a custom entry with some additional attributes:
@@ -93,7 +92,7 @@ transfer[:my_exporter_handle] = handle
 transfer[:my_exporter_size]   = size_bytes
 ```
 
-### Implementing the operations
+### Implementing the Operations
 
 #### `start(transfer)`
 
@@ -105,7 +104,7 @@ If startup fails after allocating resources, clean up those resources before re-
 
 #### `info(transfer)`
 
-Return the **virtual disk size in MiB** and the disk format:
+Return the *virtual disk size in MiB* and the disk format:
 
 ```ruby
 {
@@ -165,15 +164,15 @@ OneBEX validates the header format and passes the exporter:
 }
 ```
 
-The endpoints are **inclusive**: `length = finish - start + 1`. Return a binary Ruby String of exactly `range[:length]` bytes, beginning at `range[:start]`. A short read is a failure, not a successful partial response. The exporter should also reject reads beyond the virtual disk's actual size.
+The endpoints are *inclusive*: `length = finish - start + 1`. Return a binary Ruby String of exactly `range[:length]` bytes, beginning at `range[:start]`. A short read is a failure, not a successful partial response. The exporter should also reject reads beyond the virtual disk's actual size.
 
 #### `finish(transfer, force: false)`
 
 Release whatever `start` allocated: open handles, child processes, sockets, or exporter-created temporary files. Implement cleanup so it is safe even if a handle or process is already gone. If `force` is `true`, avoid long graceful waits where the backend permits immediate termination.
 
-## Example: a minimal exporter
+## Example: A Minimal Exporter
 
-The following implementation is a complete **full-backup example for an already prepared raw, regular file**. It demonstrates the six exporter methods without introducing backend-specific libraries or processes. It does **not** read `qcow2` directly, implement changed-block tracking, or create a consistent VM snapshot. Those responsibilities require an appropriate storage integration and TM driver.
+The following implementation is a complete *full-backup example for an already prepared raw, regular file*. It demonstrates the six exporter methods without introducing backend-specific libraries or processes. It does *not* read `qcow2` directly, implement changed-block tracking, or create a consistent VM snapshot. Those responsibilities require an appropriate storage integration and TM driver.
 
 ```ruby
 module OneBEX
@@ -253,7 +252,7 @@ end
 
 This example uses a full-disk extent because it has no incremental block map. For a real integration, replace file access and extent discovery with operations appropriate for the backend.
 
-## Installing and registering an exporter
+## Installing and Registering an Exporter
 
 Perform these changes on the **OpenNebula Front-end**, then synchronize the remotes so the exporter is available on the hypervisors.
 
@@ -277,7 +276,7 @@ Perform these changes on the **OpenNebula Front-end**, then synchronize the remo
 
    This name must match the value of `"exporter"` in the disk's `interactive_exports.json` entry.
 
-4. **Synchronize the remotes** to the hypervisors:
+4. **Synchronize the remotes** to the hypervisors (as oneadmin user):
 
    ```bash
    onehost sync --force
@@ -287,7 +286,7 @@ Perform these changes on the **OpenNebula Front-end**, then synchronize the remo
 
 If your OpenNebula deployment has multiple Front-ends with separate remotes trees, apply the changes to each relevant Front-end. Keep these modifications under configuration management, since package or remote updates may replace locally modified files.
 
-## Testing an exporter
+## Testing an Exporter
 
 Before connecting a backup application, test the exporter with a prepared disk source:
 
