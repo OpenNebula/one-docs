@@ -76,6 +76,60 @@ OpenNebula discovers the parent PF of the selected VF on the deployment host, so
 The host must already have SR-IOV configured, the PF operating in switchdev mode, and the VF representor available. Setting `BRIDGE=switchdev` does not enable these hardware features. PF interface names must contain at most 13 characters because the generated bridge name is limited to 15 characters. The PF must be unattached to an OVS bridge or already belong to its generated bridge; configuration fails if it belongs to another bridge.
 
 
+##### Example: One Virtual Network Across Two PFs
+
+Consider a host with two switchdev PFs and the following VF mapping. PCI addresses and interface names are examples; replace them with those from your host.
+
+| VF PCI address | Parent PF interface | VF representor | Generated bridge |
+| --- | --- | --- | --- |
+| `81:00.2` | `pf0` | `eth8` | `pf0br` |
+| `81:02.1` | `pf1` | `eth7` | `pf1br` |
+
+Create a Virtual Network with the following template. Adjust the address range and VLANs to match your network:
+
+```text
+NAME = "sriov-switchdev"
+VN_MAD = "ovswitch"
+BRIDGE = "switchdev"
+VLAN_TAGGED_ID = "727,728,729"
+AR = [ TYPE = "IP4", IP = "192.0.2.10", SIZE = "10" ]
+```
+
+Add both VFs to a VM template, referencing the same Virtual Network:
+
+```text
+PCI = [
+  TYPE = "NIC",
+  NETWORK = "sriov-switchdev",
+  SHORT_ADDRESS = "81:00.2"
+]
+PCI = [
+  TYPE = "NIC",
+  NETWORK = "sriov-switchdev",
+  SHORT_ADDRESS = "81:02.1"
+]
+```
+
+After deploying the VM, run `sudo ovs-vsctl show` on its host. The relevant parts of the output should look like:
+
+```text
+Bridge pf0br
+    Port pf0
+        Interface pf0
+    Port eth8
+        trunks: [727, 728, 729]
+        Interface eth8
+Bridge pf1br
+    Port pf1
+        Interface pf1
+    Port eth7
+        trunks: [727, 728, 729]
+        Interface eth7
+```
+
+Both VFs receive their network configuration from `sriov-switchdev`, while each PF and its VF representor use a separate bridge. Additional VFs from `pf0` reuse `pf0br`; additional VFs from `pf1` reuse `pf1br`.
+
+
 ## Host Configuration
 
 If the PCI device supports Single Root I/O Virtualization (SR-IOV), Virtual Functions (VFs) can be created and assigned independently to virtual machines. Determine the maximum number of supported Virtual Functions:
