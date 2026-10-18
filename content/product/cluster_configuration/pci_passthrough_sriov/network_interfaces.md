@@ -62,7 +62,18 @@ In Switchdev mode, VF parameters are controlled by Host-side representor interfa
 
 Note that `TRUST` and `SPOOFCHK` might fail depending on the kernel driver controlling the PF, even if setting them to the state they are currently already at. If the attribute is unsupported (refer to the SmartNIC documentation) then it should be ommited from the Virtual Network configuration, otherwise the whole configuration fails.
 
-Additionally, PFs in switchdev mode need to have an exclusive bridge. To avoid creating multiple vnets for each PF in the cluster, you can autogenerate this bridge name by setting the Virtual Network parameter `BRIDGE=PF`. When attaching a VF from a PF, it will autogenerate a bridge with the name `"$PF_NAME"br` and add the PF and the required representors as a port. If the bridge exists it will be re-used. Note that this means that the PF name must be maxium, 13 characters long, due to a kernel limitation.
+To use one Virtual Network across multiple switchdev PFs, configure the Virtual Network with:
+
+```text
+VN_MAD = "ovswitch"
+BRIDGE = "switchdev"
+```
+
+Include the usual address ranges and VLAN settings for your network. In the VM template, reference this Virtual Network from a `PCI` device with `TYPE="NIC"`, as shown under [Virtual Machine Template](#virtual-machine-template). Ordinary virtual NICs and direct PF passthrough are not supported with `BRIDGE=switchdev`.
+
+OpenNebula discovers the parent PF of the selected VF on the deployment host, so you do not need to specify `PHYDEV`. It creates an Open vSwitch bridge named `<PF-interface-name>br` and adds the PF and the selected VF's representor as ports. For example, PF interface `ens1f0` uses bridge `ens1f0br`. Additional VFs from the same PF reuse that bridge; VFs from other PFs use separate bridges. VLAN settings are applied to each VF's representor.
+
+The host must already have SR-IOV configured, the PF operating in switchdev mode, and the VF representor available. Setting `BRIDGE=switchdev` does not enable these hardware features. PF interface names must contain at most 13 characters because the generated bridge name is limited to 15 characters. The PF must be unattached to an OVS bridge or already belong to its generated bridge; configuration fails if it belongs to another bridge.
 
 
 ## Host Configuration
