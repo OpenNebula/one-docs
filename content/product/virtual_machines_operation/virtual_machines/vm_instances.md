@@ -486,15 +486,15 @@ In FreeBSD the resize of the root filesystem inside the guest OS is not performe
 
 ## Updating the Virtual Machine Configuration
 
-Some of the VM configuration attributes defined in the VM template can be updated after the VM is created using `onevm updateconf`. To edit the current configuration, run:
+A subset of the VM configuration attributes defined in the VM template can be updated after the VM is created using `onevm updateconf`. To edit the current configuration of an instantiated VM with ID `VM_ID`, run:
 
 ```shell
 onevm updateconf <VM_ID>
 ```
 
-The command opens an editor with the current values of the supported configuration attributes. Modify the values you want to change, then save and close the editor to apply the update. The following attributes are supported:
+The above command opens an editor with the current values of the supported configuration attributes. Modify the values you want to change, then save and close the editor to apply the update. The following attributes are supported:
 
-| Attribute       | Sub-attributes                                                                                                           |
+| **Attribute**   | **Sub-attributes**                                                                                                       |
 |-----------------|--------------------------------------------------------------------------------------------------------------------------|
 | `OS`            | `ARCH`, `MACHINE`, `KERNEL`, `INITRD`, `BOOTLOADER`, `BOOT`,<br/>`KERNEL_CMD`, `ROOT`, `SD_DISK_BUS`, `UUID`, `FIRMWARE`, `FIRMWARE_FORMAT` |
 | `FEATURES`      | `ACPI`, `PAE`, `APIC`, `LOCALTIME`, `HYPERV`, `GUEST_AGENT`,<br/>`VIRTIO_SCSI_QUEUES`, `VIRTIO_BLK_QUEUES`, `IOTHREADS`  |
@@ -504,11 +504,11 @@ The command opens an editor with the current values of the supported configurati
 | `RAW`           | `DATA`, `DATA_VMX`, `TYPE`, `VALIDATE`                                                                                   |
 | `CPU_MODEL`     | `MODEL`, `FEATURES`                                                                                                      |
 | `BACKUP_CONFIG` | `FS_FREEZE`, `KEEP_LAST`, `BACKUP_VOLATILE`, `MODE`,<br/>`INCREMENT_MODE`, `DISK_IDS`                                    |
-| `CONTEXT`       | Any value, except `ETH*`. **Variable substitution will be made**                                                         |
+| `CONTEXT`       | Any value, except `ETH*`. **Variable substitution is performed**.                                                        |
 
 Visit the [Virtual Machine Template reference]({{% relref "product/operation_references/configuration_references/template#template" %}}) for a complete description of each attribute. Visit the [VM Update Methods Reference]({{% relref "product/operation_references/configuration_references/vm_update_methods/" %}}) for additional details on all available VM configuration update methods.
 
-To supply a partial update instead of editing the current configuration, use `onevm updateconf --append <VM_ID> [file]`. Provide the attributes to add or change in a file or through standard input. Attributes omitted from the update are preserved.
+To supply a partial update instead of editing the current configuration, use `onevm updateconf --append <VM_ID> [file]` (if the `file` argument is omitted the VM configuration will be opened in an editor). Define the attributes to add or modify in a file or through standard input. Attributes omitted from the update are preserved.
 
 {{< alert title="Warning" type="warning" >}}
 This action might not be supported for `RUNNING` VMs depending on the hypervisor. Please check the limitation section of the specific virtualization driver.{{< /alert >}}
@@ -530,7 +530,7 @@ EOT
 {{< /alert >}}
 
 {{< alert title="Note" type="info" >}}
-In running state only changes in CONTEXT take effect immediately, other values may need a VM restart. Also, the action may fail and the context will not be changed if the VM is running. You can try to manually trigger the action again.{{< /alert >}} 
+In the running state only changes in CONTEXT take effect immediately, other values may require a VM restart. The action may also fail and the context will not be changed if the VM is running. You can try to manually retrigger the action.{{< /alert >}} 
 
 <a id="vm-guide2-clone-vm"></a>
 
