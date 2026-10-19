@@ -21,14 +21,40 @@ Interactive backups use the OpenNebula Backup Exporter (OneBEX). OneBEX is start
 
 ## How It Works
 
-When a VM backup is created through an interactive backup integration, OpenNebula performs the following actions:
+From OpenNebula's point of view, an interactive backup has **three phases**:
 
-1. The VM backup workflow prepares the selected disks for export. Full backups and CBT incremental backups are supported.
-2. OpenNebula writes the export metadata to `interactive_exports.json` in the VM backup directory on the hypervisor.
-3. The Transfer Manager (TM) starts OneBEX on the hypervisor if it is not already running, then sends `POST /export` with the VM ID, datastore ID, and backup directory.
-4. The external backup system discovers the available disk transfers through `GET /status` and reads disk data ranges and block extents.
-5. The external backup system finalizes each transfer and then finishes the VM backup session.
-6. OneBEX publishes the VM completion result, allowing TM to complete the backup operation. OpenNebula records the backup metadata as a backup image in the integration datastore.
+1. **Pre-backup (Transfer Manager / TM driver)**: The TM driver prepares the VM disks for export. Depending on the storage backend, it may create snapshots or temporary devices to provide a consistent source. It writes an `interactive_exports.json` file describing each prepared disk and starts OneBEX on the hypervisor. The export session is initialized through `POST /export`.
+2. **Backup (Datastore / DS driver)**: After the external backup application has retrieved the disk data and completed the export session, the DS driver creates a backup image containing the metadata OpenNebula needs to identify and restore that backup. The actual disk data remains in the external application's repository.
+3. **Post-backup (TM driver)**: The TM driver removes the temporary snapshots, devices, and files created during pre-backup. These storage resources are distinct from any sockets, processes, or connections managed by a OneBEX exporter.
+
+**Between Step 1 and Step 2**, OneBEX serves the prepared disks over HTTP. The external backup application checks the VM status, obtains each transfer's disk information and block extents, and requests the byte ranges it needs. It then finalizes each disk transfer and finishes the VM export session. OneBEX releases exporter-owned resources and stops when there are no remaining transfers.
+
+### Export Description and Exporter Selection
+
+During pre-backup, the TM driver writes `<backup_dir>/interactive_exports.json`. The file contains a JSON object indexed by VM disk ID. Each disk entry tells OneBEX which exporter can read the prepared source and provides the information needed by that exporter.
+
+For example:
+
+```json
+{
+  "0": {
+    "exporter": "nbd",
+    "source": "/var/lib/one/datastores/100/123/disk.0",
+    "format": "qcow2"
+  },
+  "1": {
+    "exporter": "lvm",
+    "source": "/dev/vg-one/lv-one-123-1",
+    "format": "raw"
+  }
+}
+```
+
+The `exporter` selects one of the OneBEX available [exporters](#exporters), `source` identifies the prepared image or device, and `format` describes its disk format. The file can also include exporter-specific fields, for example snapshot identifiers or an incremental block map.
+
+When OneBEX receives `POST /export`, it reads this file from the supplied `BACKUP_DIR`, selects the requested disks (or all disks when `DISKS` is omitted), and looks up the `exporter` name in its registry. OneBEX creates a separate transfer and exporter instance for each disk. The backup application then accesses those transfers through the HTTP API described [below](#onebex-api-reference).
+
+To add a new storage backend, the corresponding TM driver must prepare its disk source and describe it in this file. A custom OneBEX exporter then implements the storage-specific reads. See [Developing OneBEX Exporters]({{% relref "onebex_exporter#onebex-exporter-development" %}}) for the Ruby interface, example implementation, installation, and testing instructions.
 
 ## Compatibility
 
@@ -143,8 +169,8 @@ onebex://<IMAGE_DS_ID>:<PORT_ID>
 
 `IMAGE_DS_ID` is the destination Image Datastore ID where the restored disk image will be created. `PORT_ID` is the restore transfer port allocated for the interactive restore session.
 
-{{< alert title="Network Security" type="warning" >}}
-By default, the restore writer listens on all interfaces (`0.0.0.0`). Set the `ONE_BEX_WRITER_ADDR` environment variable in the Front-end to make it listen on a specific address. Restrict the restore transfer ports at the firewall to the integration components that send restore data because the writer accepts raw image data without authentication or encryption.
+{{< alert title="Network Security Risk" type="warning" >}}
+By default, the restore writer listens on all interfaces (`0.0.0.0`). Set the `ONE_BEX_WRITER_ADDR` environment variable in the Front-end to constrain it to listen on a specific address. Since the writer accepts raw image data without authentication or encryption, restrict the restore transfer ports at the firewall to the integration components that send restore data.
 {{< /alert >}}
 
 The writer accepts one frame per TCP connection. Each frame starts with a one-byte type:
@@ -667,9 +693,11 @@ Unexpected server errors and exporter/backend failures return **`500 Internal Se
 
 ## Exporters
 
-OneBEX uses exporters to expose VM disk data to external backup systems.
+OneBEX selects a storage-specific exporter for each prepared disk, as described in [Export Description and Exporter Selection](#export-description-and-exporter-selection). The built-in implementations are listed below.
 
-| Exporter | VM disk storage | Transport | Description |
+To implement and register another storage backend, see [Developing OneBEX Exporters]({{% relref "onebex_exporter#onebex-exporter-development" %}}).
+
+| **Exporter** | **VM disk storage** | **Transport** | **Description** |
 |----------|-----------------|-----------|-------------|
 | `nbd` | File-based `qcow2` disks | Network Block Device | Exposes the backup disk through NBD. OneBEX starts a read-only `qemu-nbd` process and serves the disk export through a Unix socket. |
 | `lvm` | Disks on LVM datastores | Direct block-device reads | Exposes the prepared LVM block device directly. Full backups return the full device extent. Incremental backups use `thin_delta` to return changed extents from LVM thin metadata. |
@@ -677,3 +705,219 @@ OneBEX uses exporters to expose VM disk data to external backup systems.
 
 {{< alert title="Note" type="info" >}}
 The `nbd` exporter reads disk data with the `nbdsh` tool from the `python3-libnbd` package. This package is installed automatically as a dependency of `opennebula-node-kvm` on all supported platforms except SLES 15, where it is not available in the SUSE repositories. To use the `nbd` exporter on SLES 15 hosts, install `python3-libnbd` manually, for example from the openSUSE Leap 15.6 repositories, together with the matching `libnbd0` package. {{< /alert >}}
+
+## Example: Backing Up and Restoring a VM with OneBEX
+
+This example shows how an external backup application can retrieve **full or incremental backups** of VM `132` and restore a disk to an OpenNebula Image. Replace the example IDs, hostnames, and ports with those in your environment. OneBEX runs on the hypervisor at `http://host:13014`. The restore writer runs on the **Front-end**.
+
+### Retrieving a Backup (Full or Incremental)
+
+For additional configuration details, see the [OpenNebula VM Backup Operations]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations/" %}}) guide.
+
+1. **Configure the VM backup.** Set `BACKUP_CONFIG` in the VM Template, or update an existing VM with `onevm updateconf 132`.
+
+    For a **full backup**:
+
+    ```text
+    BACKUP_CONFIG = [
+        INTERACTIVE = "YES",
+        MODE        = "FULL",
+        DISK_IDS    = "0"
+    ]
+    ```
+
+    For **incremental backups** (CBT):
+
+    ```text
+    BACKUP_CONFIG = [
+        INTERACTIVE    = "YES",
+        MODE           = "INCREMENT",
+        INCREMENT_MODE = "CBT",
+        DISK_IDS       = "0"
+    ]
+    ```
+
+    `DISK_IDS` is optional: omit it to back up all eligible disks, or provide a comma-separated list such as `"0,2"`. Select disks here, **not through `POST /export`**. The first backup of an incremental chain is a full base backup. Later backups contain changes **only since the latest successful backup/increment in that chain**. You cannot choose an older increment as the source for the next incremental backup. Changing the selected disk set resets the chain and requires a new full base. Interactive incrementals support CBT, not `SNAPSHOT`.
+
+2. **Use an interactive Backup Datastore.** The target Backup Datastore must have `TYPE="BACKUP_DS"` and `DS_MAD="interactive"` and be available to the VM's cluster. It stores backup metadata; the external backup application stores the disk data. See [Integration Datastore](#integration-datastore).
+
+3. **Start a VM backup** through the integration's OpenNebula API workflow. An equivalent CLI example is:
+
+    ```shell
+    onevm backup --schedule now -d 100 132
+    ```
+
+    The Transfer Manager (TM) prepares the disks and calls `POST /export` automatically. **The external backup application must not call `/export` again.**
+
+4. **Discover the ready transfer** on the hypervisor:
+
+    ```shell
+    curl -sS 'http://host:13014/status?VM_ID=132' | jq
+    ```
+
+    ```json
+    {
+      "VM_ID": 132,
+      "STATUS": "executing",
+      "SUCCESS": true,
+      "TRANSFERS": [
+        {
+          "TRANSFER_ID": "one-132-0-0bbaeb42",
+          "DISK_ID": 0,
+          "EXPORTER": "nbd",
+          "STATUS": "ready",
+          "RC": true
+        }
+      ]
+    }
+    ```
+
+    Each disk has its own `TRANSFER_ID`, and each backup run generates new transfer IDs.
+
+
+5. **Retrieve disk information and extents.** Once the transfer is ready, retrieve the disk size, format, and extent map:
+
+    ```shell
+    curl -sS 'http://host:13014/transfers/one-132-0-0bbaeb42/info' | jq
+    curl -sS 'http://host:13014/images/one-132-0-0bbaeb42/extents' | jq
+    ```
+
+    The `info` endpoint returns the virtual disk size in MiB and its format. For example, a 7 GiB disk returns:
+
+    ```json
+    {
+      "TRANSFER_ID": "one-132-0-0bbaeb42",
+      "SIZE": 7168,
+      "FORMAT": "qcow2"
+    }
+    ```
+
+    The `extents` endpoint returns the disk regions to process. Its response depends on the backup type:
+
+    - **Full backup:** The extent map describes the disk regions required for a complete backup. For example, a single extent covering the entire 7 GiB disk:
+
+      ```json
+      [
+        {
+          "start": 0,
+          "length": 7516192768,
+          "dirty": true,
+          "zero": false,
+          "hole": false
+        }
+      ]
+      ```
+
+      In this example, the complete disk must be read, starting at byte `0` for a total of `7516192768` bytes. Depending on the storage backend, the extent map may contain multiple regions, including zeroed or unallocated areas.
+
+    - **Incremental backup:** The extent map identifies only the disk regions changed since the previous backup in the incremental chain. For example:
+
+      ```json
+      [
+        {
+          "start": 1048576,
+          "length": 2097152,
+          "dirty": true,
+          "zero": false,
+          "hole": false
+        }
+      ]
+      ```
+
+      In this example, only 2 MiB of the 7 GiB disk has changed, starting at offset 1 MiB. The backup solution only needs to retrieve the changed data rather than reading the entire disk.
+
+    All offsets and lengths are expressed in **bytes**. The `dirty`, `zero`, and `hole` flags indicate whether a region has changed, contains zeroes, or is unallocated, respectively.
+
+
+6. **Read the required extents** with `GET /images/:TRANSFER_ID` and an inclusive `Range` header. For the incremental extent above:
+
+    ```shell
+    curl -sS --fail \
+      -H 'Range: bytes=1048576-3145727' \
+      'http://host:13014/images/one-132-0-0bbaeb42' \
+      --output changed-blocks.bin
+    ```
+
+    The response is `206 Partial Content` with raw virtual-disk bytes. Repeat for all required extents, splitting large ranges into manageable requests. Save each extent **at its original disk offset**, preserving zero/hole information. A full backup needs the entire required extent map; an incremental backup needs the changed extents and a reference to its preceding backup. Keep the complete chain in the external repository for restores.
+
+
+7. **Finalize each disk transfer.** After storing all required data for a disk, notify OneBEX that the transfer completed successfully:
+
+   ```shell
+   curl -sS -X POST 'http://host:13014/transfer/one-132-0-0bbaeb42/finalize' \
+     -H 'Content-Type: application/json' \
+     -d '{"SUCCESS":true}' | jq
+   ```
+
+   **Every disk transfer must be finalized individually.** Repeat this request for each `TRANSFER_ID` returned by `GET /status`.
+
+   If a disk backup fails, finalize its transfer with `SUCCESS=false`:
+
+   ```shell
+   curl -sS -X POST 'http://host:13014/transfer/one-132-0-0bbaeb42/finalize' \
+     -H 'Content-Type: application/json' \
+     -d '{"SUCCESS":false,"MESSAGE":"Failed to store disk data"}' | jq
+   ```
+
+   If one disk fails, the remaining transfers must still be finalized. Do not report success until the external backup application has safely stored all required data.
+
+8. **Finish the VM backup.** Once **all disk transfers have been finalized**, notify OneBEX that the VM backup session is complete:
+
+    ```shell
+    curl -sS -X POST 'http://host:13014/vms/132/finish' | jq
+    ```
+
+    If all transfers succeeded, the response is:
+
+    ```json
+    {
+      "VM_ID": 132,
+      "STATUS": "finished",
+      "SUCCESS": true,
+      "PENDING_TRANSFERS": []
+    }
+    ```
+
+    If any transfer failed, the VM backup result reflects that failure. If transfers are still pending, the endpoint returns `409 Conflict` with `STATUS="executing"` instead of completing the session.
+
+    **Cancellation:** Alternatively, to cancel the entire VM backup and clean up its transfers, use:
+
+    ```shell
+    curl -sS -X POST 'http://host:13014/vms/132/cancel' \
+      -H 'Content-Type: application/json' \
+      -d '{"FORCE":true}' | jq
+    ```
+
+    Cancellation handles the transfer cleanup and completes the cancelled VM session. There is no need to call the VM finish endpoint afterwards.
+
+
+### Restoring a Disk with OneBEX
+
+1. **Create an Image** in the destination Image Datastore using the OneBEX restore URL as its `PATH`:
+
+    ```text
+    onebex://<IMAGE_DS_ID>:<PORT_ID>
+    ```
+
+    For example, using an available restore port `49001` and Image Datastore `1`:
+
+    ```shell
+    oneimage create --datastore 1 --name restored-vm132-disk0 \
+      --type OS --path 'onebex://1:49001'
+    ```
+
+    The port must be available and assigned to this restore session. Inspect the newly created Image with `oneimage show <IMAGE_ID>` to confirm its `PATH` and restore port. OpenNebula starts a TCP restore writer on the **Front-end**; the Image remains `LOCKED` while data is being received.
+
+2. **Send the restored virtual-disk contents** to `<FRONTEND_ADDRESS>:<PORT_ID>`. The external application reconstructs the requested restore point from its full/incremental chain, then sends the disk data as **DATA frames**, one TCP connection per frame:
+
+    | Field | Size | Value |
+    |---|---|---|
+    | Frame type | 1 byte | `0x00` (`DATA`) |
+    | Start offset | 8 bytes | Unsigned 64-bit, big-endian |
+    | Payload length | 8 bytes | Unsigned 64-bit, big-endian |
+    | Total disk size | 8 bytes | Unsigned 64-bit, big-endian |
+    | Data | Payload length | Raw virtual-disk bytes |
+
+    Send each block at its correct offset. This is a **TCP protocol**, not a OneBEX HTTP endpoint.
+
+3. **Finish the restore.** After all data has been sent, open one final TCP connection to the same Front-end port and send the single byte **`0x01` (`FINISH`)**, with no payload. The writer stops and OpenNebula can finalize the Image. Send `FINISH` even if the restore is cancelled or fails, to release the writer. Do not send data after it. If the restore fails and the Image remains `LOCKED`, clean up the incomplete Image as described in [Restoring Interactive Backups](#restoring-interactive-backups).
