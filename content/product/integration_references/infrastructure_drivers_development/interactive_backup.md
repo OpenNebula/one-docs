@@ -54,7 +54,7 @@ The `exporter` selects one of the OneBEX available [exporters](#exporters), `sou
 
 When OneBEX receives `POST /export`, it reads this file from the supplied `BACKUP_DIR`, selects the requested disks (or all disks when `DISKS` is omitted), and looks up the `exporter` name in its registry. OneBEX creates a separate transfer and exporter instance for each disk. The backup application then accesses those transfers through the HTTP API described [below](#onebex-api-reference).
 
-To add a new storage backend, the corresponding TM driver must prepare its disk source and describe it in this file. A custom OneBEX exporter then implements the storage-specific reads. See [Developing OneBEX Exporters]({{% relref "onebex-exporter#onebex-exporter-development" %}}) for the Ruby interface, example implementation, installation, and testing instructions.
+To add a new storage backend, the corresponding TM driver must prepare its disk source and describe it in this file. A custom OneBEX exporter then implements the storage-specific reads. See [Developing OneBEX Exporters]({{% relref "onebex_exporter#onebex-exporter-development" %}}) for the Ruby interface, example implementation, installation, and testing instructions.
 
 ## Compatibility
 
@@ -89,7 +89,7 @@ OneBEX uses unauthenticated HTTP by default and transfers VM disk data during ba
 
 Enable TLS using the integration's supported proxy or equivalent on each hypervisor; OneBEX does not terminate TLS. For an example with Veeam, see [Configuring SSL in the Hosts]({{% relref "product/cluster_configuration/backup_system/veeam.md#41-configuring-ssl-in-the-hosts" %}}).
 
-Restrict access to OneBEX and proxy ports to the Front-end and required backup components on every eligible hypervisor. If TLS terminates at a local proxy, keep its HTTP connection to OneBEX local to the host.
+Restrict access to OneBEX and proxy ports to the Front-end and required backup components on every eligible hypervisor. If TLS terminates at a local proxy, keep its HTTP connection to OneBEX local to the Host.
 {{< /alert >}}
 
 ## Configuring OneBEX
@@ -175,7 +175,7 @@ By default, the restore writer listens on all interfaces (`0.0.0.0`). Set the `O
 
 The writer accepts one frame per TCP connection. Each frame starts with a one-byte type:
 
-| Type | Name | Payload |
+| **Type** | **Name** | **Payload** |
 |------|------|---------|
 | `0x00` | `DATA` | Three unsigned 64-bit big-endian integers containing the start byte, payload size, and total image size, followed by the image data. |
 | `0x01` | `FINISH` | No payload. Stops the writer and lets OpenNebula finalize the restore transfer. |
@@ -695,7 +695,7 @@ Unexpected server errors and exporter/backend failures return **`500 Internal Se
 
 OneBEX selects a storage-specific exporter for each prepared disk, as described in [Export Description and Exporter Selection](#export-description-and-exporter-selection). The built-in implementations are listed below.
 
-To implement and register another storage backend, see [Developing OneBEX Exporters]({{% relref "onebex-exporter#onebex-exporter-development" %}}).
+To implement and register another storage backend, see [Developing OneBEX Exporters]({{% relref "onebex_exporter#onebex-exporter-development" %}}).
 
 | **Exporter** | **VM disk storage** | **Transport** | **Description** |
 |----------|-----------------|-----------|-------------|
@@ -712,7 +712,7 @@ This example shows how an external backup application can retrieve **full or inc
 
 ### Retrieving a Backup (Full or Incremental)
 
-For additional configuration details, see the [OpenNebula VM Backup Operations](https://docs.opennebula.io/7.4/product/virtual_machines_operation/virtual_machine_backups/operations/) guide.
+For additional configuration details, see the [OpenNebula VM Backup Operations]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations/" %}}) guide.
 
 1. **Configure the VM backup.** Set `BACKUP_CONFIG` in the VM Template, or update an existing VM with `onevm updateconf 132`.
 

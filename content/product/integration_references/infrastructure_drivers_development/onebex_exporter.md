@@ -38,7 +38,7 @@ Each exporter must provide these six methods:
 | `data(transfer, range)` | Read bytes from the exposed disk at the requested offset. | A binary String containing exactly the requested number of bytes. |
 | `finish(transfer, force: false)` | Close the export and release exporter-owned resources. | Conventionally `true`; raise on a cleanup failure. |
 
-### Exporter lifecycle and HTTP requests
+### Exporter Lifecycle and HTTP Requests
 
 For each disk, OneBEX starts the transfer and calls the exporter as the external backup application requests data. The relevant routes are:
 
@@ -56,7 +56,7 @@ The exporter must also be ready for repeated calls to `info`, `blocks`, and `dat
 
 The API shown here is for reading disk data. In the current OneBEX routes, `PUT /images/:transfer_id` returns `501` (not implemented), and the supported `PATCH` flush operation returns success without invoking an exporter method. A read-only exporter therefore does not need to implement write or flush methods.
 
-### The transfer Hash
+### The Transfer Hash
 
 OneBEX passes a `transfer` Hash to each exporter method. The `/export` route constructs it from `interactive_exports.json` and the export request:
 
@@ -93,7 +93,7 @@ transfer[:my_exporter_handle] = handle
 transfer[:my_exporter_size]   = size_bytes
 ```
 
-### Implementing the operations
+### Implementing the Operations
 
 #### `start(transfer)`
 
@@ -171,7 +171,7 @@ The endpoints are **inclusive**: `length = finish - start + 1`. Return a binary 
 
 Release whatever `start` allocated: open handles, child processes, sockets, or exporter-created temporary files. Implement cleanup so it is safe even if a handle or process is already gone. If `force` is `true`, avoid long graceful waits where the backend permits immediate termination.
 
-## Example: a minimal exporter
+## Example: A Minimal Exporter
 
 The following implementation is a complete **full-backup example for an already prepared raw, regular file**. It demonstrates the six exporter methods without introducing backend-specific libraries or processes. It does **not** read `qcow2` directly, implement changed-block tracking, or create a consistent VM snapshot. Those responsibilities require an appropriate storage integration and TM driver.
 
@@ -253,7 +253,7 @@ end
 
 This example uses a full-disk extent because it has no incremental block map. For a real integration, replace file access and extent discovery with operations appropriate for the backend.
 
-## Installing and registering an exporter
+## Installing and Registering an Exporter
 
 Perform these changes on the **OpenNebula Front-end**, then synchronize the remotes so the exporter is available on the hypervisors.
 
@@ -287,7 +287,7 @@ Perform these changes on the **OpenNebula Front-end**, then synchronize the remo
 
 If your OpenNebula deployment has multiple Front-ends with separate remotes trees, apply the changes to each relevant Front-end. Keep these modifications under configuration management, since package or remote updates may replace locally modified files.
 
-## Testing an exporter
+## Testing an Exporter
 
 Before connecting a backup application, test the exporter with a prepared disk source:
 
