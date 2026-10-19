@@ -95,7 +95,7 @@ The `admin` view already has an `actions` section for backups; add the new entry
 
 ### Update any item without having permissions to create it on yaml FireEdge views [#6416](https://github.com/OpenNebula/one/issues/6416)
 
-In `sunstone/tabs/40-networks-tab.yaml`, as part of `routes` attributes after the entry:
+In `sunstone/tab-manifest.yaml`, locate the entry with title: Networks. Within its `routes` section, after the following entry:
 
 ```yaml
     - title: Create Virtual Network
@@ -127,7 +127,7 @@ Add the following content
       Component: CreateSecurityGroup
 ```
 
-In `sunstone/tabs/60-systems-tab.yaml`, as part of `routes` attributes after the entry:
+In `sunstone/tab-manifest.yaml`, locate the entry with title: System. Within its `routes` section, after the following entry:
 
 ```yaml
     - title: Groups
