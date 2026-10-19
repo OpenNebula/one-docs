@@ -389,7 +389,7 @@ booting the VM from a rescue CD and fixing grub may be necessary.
 - If the guest uses NTFS system compression, see [Windows CompactOS Support](#windows-compactos-support).
 - When the converted guest is detected as Windows, OneSwap automatically tunes the resulting OpenNebula VM Template following KVM best practices for Windows:
   - Enables Hyper-V enlightenments (`HYPERV=YES` plus the corresponding Hyper-V clock and feature flags in `RAW`), along with ACPI, APIC, PAE and LOCALTIME features.
-  - Sets the CPU model to `host-passthrough` (unless `--cpu-model` was specified), the machine type to `q35` (unless `--machine` was specified), and the architecture to `x86_64`.
+  - Sets the CPU model to `host-passthrough` unless a CPU model was specified, the machine type to `q35` unless a machine type was specified, and the architecture to `x86_64`.
   - Configures a `virtio` video device, a USB tablet input device for proper mouse handling, SCSI disk bus and automatic virtio multi-queue.
   - Adds `REPORT_READY` and `TOKEN` to the context section, and sets `GUEST_AGENT=YES` if `--win-qemu-ga` was used.
 
@@ -656,6 +656,8 @@ OneSwap injects the [OpenNebula context packages]({{% relref "kvm_contextualizat
 - `--context-timeout SECONDS`: maximum time allowed for each context injection command before it is aborted. Set to `0` to disable. Default: `600`.
 - `--disable-contextualization`: remove the default contextualization options in the OpenNebula template (by default Network and SSH contextualization are enabled).
 
+For Enterprise Linux 8, 9 and 10 guests, OneSwap installs the local context RPM directly with `dnf` and does not bootstrap EPEL. Repository access may still be used by `dnf` to resolve package dependencies, but unavailable repositories are skipped with short timeouts to avoid unnecessarily delaying context injection.
+
 Additional guest software can be injected during the conversion:
 
 - `--virtio /path/to/iso`: full path of the VirtIO driver ISO used to inject storage and network drivers into Windows guests. Configure this option when Windows disks use the `vd` device prefix; otherwise the converted VM may fail to boot if the drivers are not already installed.
@@ -685,7 +687,7 @@ The capacity and devices of the created VM Template default to the values read f
 - `--cpu cpus` / `--vcpu vcpus`: physical CPU / vCPU values to set in OpenNebula. Default is to match the CPU cores in vCenter.
 - `--memory-max memorymb` / `--vcpu-max vcpumax`: maximum memory (MB) and vCPU values for hot resize. Memory/CPU Hot Add must be enabled in VMware (when enabled in vCenter, hot resize is configured automatically in the template).
 - `--cpu-model model_type`: set a specific CPU model in OpenNebula. Default is none (for Windows guests, `host-passthrough` is set automatically).
-- `--cpu-features features`: comma-separated or array/string CPU model features to add to `CPU_MODEL/FEATURES`. Requires `--cpu-model`.
+- `--cpu-features features`: comma-separated list of CPU model features to set in `CPU_MODEL/FEATURES`. Requires a nonempty CPU model configured with `--cpu-model` or `:cpu_model` in the configuration file, including for Windows guests.
 - `--machine machine_type`: set the KVM machine type in `OS/MACHINE`, for example `q35`.
 - `--dev-prefix prefix`: the dev prefix to use on the disks in OpenNebula (e.g. `sd`, `hd`, `vd`, `xvd`). Default is none (Windows disks default to `vd`).
 - `--persistent-img`: make the created images persistent in OpenNebula.
@@ -694,7 +696,9 @@ The capacity and devices of the created VM Template default to the values read f
 - `--uefi-path /path/to/uefi` / `--uefi-sec-path /path/to/uefi.secboot`: paths to the UEFI (Secure Boot) firmware files to be configured in the VM template for UEFI guests.
 - `--root option`: choose the root filesystem to be converted when the guest has several (`ask`, `single`, `first` or `/dev/sdX`). Default: `first`.
 
-The same options can be configured in `/etc/one/oneswap.yaml`. For example:
+An explicit machine type takes precedence over the automatic `q35` selection for UEFI and Windows guests. Without an explicit value, OneSwap sets `OS/MACHINE` to `q35` for UEFI or Windows guests and leaves it unset for BIOS Linux guests.
+
+You can also configure these options in `/etc/one/oneswap.yaml`. Command-line values override the corresponding YAML settings. For example, to define a target hardware profile:
 
 ```yaml
 :cpu_model: 'Skylake-Server-noTSX-IBRS'
@@ -706,7 +710,13 @@ The same options can be configured in `/etc/one/oneswap.yaml`. For example:
 :machine: 'q35'
 ```
 
-`cpu_features` can be provided either as a YAML array or as a comma-separated string.
+`:cpu_features` accepts a YAML array, as shown above, or a comma-separated string. The equivalent command-line options are:
+
+```shell
+oneswap convert <vm_name> --machine q35 \
+    --cpu-model Skylake-Server-noTSX-IBRS \
+    --cpu-features arch-capabilities,ssbd,stibp,md-clear
+```
 
 ### Migrating with NetApp Shift
 
