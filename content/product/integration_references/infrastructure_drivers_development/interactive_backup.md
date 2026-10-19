@@ -23,9 +23,9 @@ Interactive backups use the OpenNebula Backup Exporter (OneBEX). OneBEX is start
 
 From OpenNebula's point of view, an interactive backup has **three phases**:
 
-1. **Pre-backup (Transfer Manager / TM driver).** The TM driver prepares the VM disks for export. Depending on the storage backend, it may create snapshots or temporary devices to provide a consistent source. It writes an `interactive_exports.json` file describing each prepared disk and starts OneBEX on the hypervisor. The export session is initialized through `POST /export`.
-2. **Backup (Datastore / DS driver).** After the external backup application has retrieved the disk data and completed the export session, the DS driver creates a backup image containing the metadata OpenNebula needs to identify and restore that backup. The actual disk data remains in the external application's repository.
-3. **Post-backup (TM driver).** The TM driver removes the temporary snapshots, devices, and files created during pre-backup. These storage resources are distinct from any sockets, processes, or connections managed by a OneBEX exporter.
+1. **Pre-backup (Transfer Manager / TM driver)**: The TM driver prepares the VM disks for export. Depending on the storage backend, it may create snapshots or temporary devices to provide a consistent source. It writes an `interactive_exports.json` file describing each prepared disk and starts OneBEX on the hypervisor. The export session is initialized through `POST /export`.
+2. **Backup (Datastore / DS driver)**: After the external backup application has retrieved the disk data and completed the export session, the DS driver creates a backup image containing the metadata OpenNebula needs to identify and restore that backup. The actual disk data remains in the external application's repository.
+3. **Post-backup (TM driver)**: The TM driver removes the temporary snapshots, devices, and files created during pre-backup. These storage resources are distinct from any sockets, processes, or connections managed by a OneBEX exporter.
 
 **Between Step 1 and Step 2**, OneBEX serves the prepared disks over HTTP. The external backup application checks the VM status, obtains each transfer's disk information and block extents, and requests the byte ranges it needs. It then finalizes each disk transfer and finishes the VM export session. OneBEX releases exporter-owned resources and stops when there are no remaining transfers.
 

@@ -29,7 +29,7 @@ An exporter is a Ruby class under `OneBEX::Exporters`. OneBEX creates an instanc
 
 Each exporter must provide these six methods:
 
-| Method | Responsibility | Expected result |
+| **Method** | **Responsibility** | **Expected result** |
 | --- | --- | --- |
 | `initialize(config:, logger:)` | Receive the OneBEX configuration and logger. | Initializes the Ruby object. |
 | `start(transfer)` | Validate the disk source, open or start its export, and retain any state needed later. | `true` when ready; raise on failure. |
@@ -42,7 +42,7 @@ Each exporter must provide these six methods:
 
 For each disk, OneBEX starts the transfer and calls the exporter as the external backup application requests data. The relevant routes are:
 
-| Request | What OneBEX does |
+| **Request** | **What OneBEX does** |
 | --- | --- |
 | `POST /export` | Creates the selected disk transfers and starts their exporters. |
 | `GET /transfers/:transfer_id/info` | Calls `info(transfer)`. |
@@ -60,7 +60,7 @@ The API shown here is for reading disk data. In the current OneBEX routes, `PUT 
 
 OneBEX passes a `transfer` Hash to each exporter method. The `/export` route constructs it from `interactive_exports.json` and the export request:
 
-| Key | Description |
+| **Key** | **Description** |
 | --- | --- |
 | `transfer[:transfer_id]` | Unique identifier for this disk transfer, such as `one-123-0-a1b2c3d4`. |
 | `transfer[:disk_id]` | VM disk ID. |
