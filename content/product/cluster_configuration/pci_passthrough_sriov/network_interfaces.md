@@ -102,12 +102,15 @@ Additional SR-IOV configuration for network adapters is described in the **Netwo
 
 ### Sunstone
 
-When creating or editing a Virtual Machine Template, open **Advanced options** and select the **Network** tab. Under **Hardware**, select **PCI Passthrough** as the device type. Then select one of the following scheduling modes:
+When creating or editing a Virtual Machine Template, open **Advanced options** and select the **Network** tab. In the network interface's **Hardware** section, set **Device Type** to **SR-IOV** for a VF or **PCI Passthrough** for a physical device. Then choose a **Scheduling mode**:
 
-* **Automatic**: the scheduler selects an available PCI network function matching the configured constraints.
+* **Automatic**: the scheduler selects an available PCI network function matching the selected device characteristics.
 * **Manual**: you select the exact PCI address to assign.
+* **Physical function** (SR-IOV only): select or enter the parent PF's interface name. OpenNebula allocates an available VF from that PF on the scheduled Host.
 
-Select the Virtual Network and configure the remaining interface attributes as required.
+The **Physical function** list shows the PF interface names, Hosts, PCI addresses, available/total monitored VF counts, and e-switch modes when available. Entries with the same interface name are grouped across Hosts, and their counts are summed. Selecting an entry stores `PF_IFNAME`; it does not pin the VM to a Host shown in the list. For the monitoring requirements and placement examples, see [Selecting Virtual Functions by Physical Function](#selecting-virtual-functions-by-physical-function).
+
+Select the Virtual Network and configure the remaining interface attributes as required. The same hardware options are available when attaching a network interface to a VM.
 
 {{< image
   pathDark="/images/host/dark/host_vm_nic_passthrough.png"
@@ -185,7 +188,7 @@ To allocate an available VF from a particular PF, set one of the following attri
 | `PF_IFNAME` | Interface name of the parent PF on the Host, for example `pf0`. Copy the PF's `IFNAME` or the VF's monitored `PF_IFNAME`. |
 | `PF_ADDRESS` | Full monitored `ADDRESS` of the parent PF, for example `0000:81:00:0`. Copy this value from the Host PCI inventory; it uses a colon before the function number. |
 
-OpenNebula selects a free VF belonging to that PF. You choose the parent PF, and OpenNebula chooses the individual VF.
+OpenNebula selects a free VF belonging to that PF. You choose the parent PF, and OpenNebula chooses the individual VF. Sunstone's **Physical function** scheduling mode uses `PF_IFNAME`; to select by `PF_ADDRESS`, define the selector in the VM Template text.
 
 Before using this selection:
 

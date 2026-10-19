@@ -314,7 +314,15 @@ Each PCI device reported by the monitor contains the following attributes:
 
 #### PF and VF Monitoring
 
-To inspect the PF/VF relationship and passthrough eligibility, display the full Host XML:
+In Sunstone, open **Infrastructure**, **Hosts**, select the Host, and open the **PCI** tab. The table shows each device's **SR-IOV role**, the parent **Physical function** interface for VFs, and the PF's **eSwitch mode** when available. For PFs, **Available Functions** shows free VFs out of the total monitored VFs. These counts reflect the monitored inventory and can differ from `SRIOV_NUM` if monitoring filters exclude some VFs.
+
+From the CLI, list the Host's PCI devices:
+
+```shell
+onehost show <host>
+```
+
+The **PCI DEVICES** table shows device addresses, types, names, and VM assignments. To inspect all PCI attributes, including `PF_ADDRESS`, `PF_IFNAME`, and `PASSTHROUGH`, use the XML output:
 
 ```shell
 onehost show <host> -x
@@ -332,7 +340,7 @@ The `IFNAME` attribute is resolved using multiple methods, following this preced
 2. **File cache** — consults `/var/tmp/one_db/pci_net_names/<PCI_ADDRESS>`, where each file (named as the PCI address) contains the interface name. Created automatically on first resolution.
 3. **Direct sysfs lookup** — reads the directory `/sys/bus/pci/devices/<PCI_ADDRESS>/net/` to find the kernel interface name.
 
-The cache is cleared when the monitoring daemon restarts.
+The cache is cleared when the monitoring daemon restarts. After renaming an interface, run `onehost forceupdate <host>` to restart monitoring and refresh the cached names.
 
 <a id="import-wild-vms"></a>
 
