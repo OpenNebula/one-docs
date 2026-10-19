@@ -143,3 +143,21 @@ In `sunstone/views/admin/vm-tab.yaml`, `sunstone/views/cloud/vm-tab.yaml`, `suns
 ```yaml
     - spice: true
 ```
+
+### Service template instantiate missing selection dialog [#8037](https://github.com/OpenNebula/one/issues/8037)
+
+In `sunstone/tab-manifest.yaml`, locate the entry with title: Instances. Under Instances entry, locate the entry with title: Instantiate Service Template and replace the content:
+
+```yaml
+    - title: Instantiate Service Template
+      path: /service/instantiate/
+      Component: InstantiateServiceTemplate
+```
+
+With the following content:
+
+```yaml
+    - title: Instantiate Service Template
+      path: /service/instantiate/
+      Component: CreateService
+```
