@@ -21,10 +21,14 @@ The goal of this section is to provide information to prepare for failures of th
 
 When OpenNebula detects that a Host is down, a hook can be triggered to deal with the situation. OpenNebula comes out-of-the-box with a script that can act as a hook to be triggered when a Host enters the `ERROR` state. This can very useful to limit the downtime of a service due to a hardware failure, since it can redeploy the VMs on another Host.
 
+{{< alert title="Warning" type="warning" >}}
+Fencing is enabled by default and must succeed before the Host error hook performs any VM recovery actions. If `/var/lib/one/remotes/hooks/ft/fence_host.sh` is missing or fails, the hook exits without recovering or rescheduling any VMs. Configure the script as described in [Enabling Fencing](#enabling-fencing) before using the hook. To explicitly skip fencing, add `--no-fencing` to the hook's `ARGUMENTS`; a missing script does not disable fencing. Disabling fencing risks a split-brain condition, with the same VM running on multiple Hosts, potentially corrupting shared data.
+{{< /alert >}}
+
 To set up this Host hook to be triggered in the `ERROR` state, you need to create it using the following template and command:
 
-```default
-$ cat /usr/share/one/examples/host_hooks/error_hook
+```shell
+cat /usr/share/one/examples/host_hooks/error_hook
 
 ARGUMENTS       = "$TEMPLATE -m -p 5"
 ARGUMENTS_STDIN = "yes"
@@ -35,7 +39,7 @@ REMOTE          = "no"
 RESOURCE        = HOST
 TYPE            = state
 
-$ onehook create /usr/share/one/examples/host_hooks/error_hook
+onehook create /usr/share/one/examples/host_hooks/error_hook
 ```
 
 We are defining a Host hook, named `host_error`, that will execute the script `ft/host_error.rb` locally with the following arguments:
@@ -51,7 +55,8 @@ We are defining a Host hook, named `host_error`, that will execute the script `f
 More information on hooks [here]({{% relref "../../../product/integration_references/system_interfaces/hook_driver#hooks" %}}).
 
 {{< alert title="Warning" type="warning" >}}
-Note that spurious network errors may lead to a VM being started twice on different hosts and possibly clashing on shared resources. The previous script needs to fence the error Host to prevent split brain VMs. You may use any fencing mechanism for the Host and invoke it within the error hook.{{< /alert >}} 
+Network errors can cause a Host to be reported as unavailable while its VMs are still running. Recovering those VMs on another Host could start a second instance of each VM. You may use any fencing mechanism appropriate for your infrastructure by invoking it from `fence_host.sh` to ensure the original VMs can no longer run before recovery proceeds.
+{{< /alert >}}
 
 ## Tuning HA responsiveness
 
@@ -79,12 +84,14 @@ Consider that a temporary network/Host problem or a small hiccup combined with s
 
 ## Enabling Fencing
 
-In order to enable fencing you need to create the file `/var/lib/one/remotes/hooks/ft/fence_host.sh`. The Host error hook attempts fencing only if this file exists. Start from the shipped example:
+Fencing prevents VMs from continuing to run on an unresponsive Host before they are recovered on another Host. The Host error hook requires successful fencing by default. To configure it, duplicate `/var/lib/one/remotes/hooks/ft/fence_host.sh` from the shipped example:
 
-```default
+```shell
 cp -p /var/lib/one/remotes/hooks/ft/fence_host.sh.example \
       /var/lib/one/remotes/hooks/ft/fence_host.sh
 ```
+
+If the script is missing or returns an error, the hook stops without performing any VM recovery actions. Fencing is skipped only when `--no-fencing` is explicitly included in the hook's `ARGUMENTS`, for example `ARGUMENTS = "$TEMPLATE -m -p 5 --no-fencing"`. Use this option only when you can ensure that the VMs on the failed Host are no longer running before recovery proceeds.
 
 The `fence_host.sh` file is yours and is preserved across OpenNebula upgrades, while the example may be updated by them. Adapt it to your infrastructure:
 

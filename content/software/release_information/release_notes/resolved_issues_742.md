@@ -23,10 +23,12 @@ Include a high level description and a link to the documentation explaining the 
 * Improve OneBEX performance by allowing concurrent reads when exposing disk data and remove OneBEX timeouts [#7961](https://github.com/OpenNebula/one/issues/7961).
 * Add a [log warning when a driver's action queue is larger than its number of threads]({{% relref "product/operation_references/opennebula_services_configuration/oned.md#action-queue-warning" %}}).
 * Add a [OneKS Application Catalog]({{% relref "platform_services/oneks/management/k8s_cluster_lifecycle_management/#managing-applications" %}}) of validated Helm-based applications that can be deployed on runing K8s Clusters and managed through Sunstone or the CLI, with application lifecycle monitoring and configurable installation options [#7302](https://github.com/OpenNebula/one/issues/7302).
-
 * Enable [OneDRS balancing by storage space]({{% relref "product/cloud_system_administration/scheduler/drs#load-balancing-objectives" %}}) through the `STORAGE_WEIGHT` Cluster attribute, configurable in Sunstone. Administrators can combine datastore space utilization with other balancing objectives, such as disk I/O, to optimize storage distribution across the Cluster [#7930](https://github.com/OpenNebula/one/issues/7930).
-
+* Allow [attaching and detaching disks on Virtual Machines in the `HOLD` state]({{% relref "product/virtual_machines_operation/virtual_machines/vm_instances.md#disk-hotplugging" %}}).
+* Add [automatic bridge management for switchdev SR-IOV networks]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#switchdev-mode" %}}) through `BRIDGE="switchdev"` with the `ovswitch` driver. OpenNebula creates or reuses a dedicated Open vSwitch bridge for each parent Physical Function (PF) and connects the PF and its VF representors, allowing one Virtual Network to serve VFs from multiple PFs without separate per-PF network definitions [#7960](https://github.com/OpenNebula/one/issues/7960).
 * Add the OneSwap [`--machine` and `--cpu-features`]({{% relref "software/migration_from_vmware/oneswap.md#customizing-the-created-vm-template" %}}) options to set the KVM machine type and CPU model features for a migration profile. Configure them in `/etc/one/oneswap.yaml` or on the command line; `--cpu-features` requires `--cpu-model` [#8112](https://github.com/OpenNebula/one/issues/8112).
+
+* Add [SR-IOV PF/VF relationship monitoring]({{% relref "product/cluster_configuration/hosts_and_clusters/hosts.md#host-pci-devices" %}}) and [VF selection by parent PF]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#selecting-virtual-functions-by-physical-function" %}}) through `PF_IFNAME` or `PF_ADDRESS`. Select the same PF to keep VFs together (affinity), or different PFs to spread them (anti-affinity). Monitoring also reports passthrough eligibility and the network PF e-switch mode when available [#7671](https://github.com/OpenNebula/one/issues/7671), [#7619](https://github.com/OpenNebula/one/issues/7619).
 
 ## Resolved Issues
 
@@ -71,6 +73,7 @@ The following issues have been solved in 7.4.2:
 * Fix OneGate service role scaling from inside VMs, which could fail due to the request body being consumed before processing [#7954](https://github.com/OpenNebula/one/issues/7954).
 * Fix DRS cluster workload optimization attempting to migrate VMs in `UNDEPLOYED` or `STOPPED` states [#8073](https://github.com/OpenNebula/one/issues/8073).
 * Fix Allow long attribute values to be expanded in FireEdge [#8131](https://github.com/OpenNebula/one/issues/8131).
+* Fix oned crashing when a KVM host reports a NUMA node without cores [#8133](https://github.com/OpenNebula/one/issues/8133).
 
 ---
 
@@ -96,7 +99,7 @@ The `admin` view already has an `actions` section for backups; add the new entry
 
 ### Update any item without having permissions to create it on yaml FireEdge views [#6416](https://github.com/OpenNebula/one/issues/6416)
 
-In `sunstone/tabs/40-networks-tab.yaml`, as part of `routes` attributes after the entry:
+In `sunstone/tab-manifest.yaml`, locate the entry with title: Networks. Within its `routes` section, after the following entry:
 
 ```yaml
     - title: Create Virtual Network
@@ -128,7 +131,7 @@ Add the following content
       Component: CreateSecurityGroup
 ```
 
-In `sunstone/tabs/60-systems-tab.yaml`, as part of `routes` attributes after the entry:
+In `sunstone/tab-manifest.yaml`, locate the entry with title: System. Within its `routes` section, after the following entry:
 
 ```yaml
     - title: Groups
