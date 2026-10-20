@@ -68,7 +68,8 @@ The following issues have been solved in 7.4.2:
 * Fix `oneimage` and `onevm` commands to not truncate IDs greater than 999 [#8108](https://github.com/OpenNebula/one/issues/8108)
 * Fix missing network security risk warnings in documentation for interactive backups and restores [#8061](https://github.com/OpenNebula/one/issues/8061).
 * Fix multiple security groups issues [#8126](https://github.com/OpenNebula/one/issues/8126).
-* Fix VM Template custom attributes not being removed when edited in FireEdge [#8098](https://github.com/OpenNebula/one/issues/8098).
+* Fix VM Template custom attributes not being removed when edited in FireEdge. [#8098](https://github.com/OpenNebula/one/issues/8098).
+* Fix LDAP authentication errors in FireEdge when the LDAP server is unreachable. [#6813](https://github.com/OpenNebula/one/issues/6813).
 * Fix NetApp Datastore values in creation tab [#8035](https://github.com/OpenNebula/one/issues/8035).
 * Fix missing CPU Model field in VM Update Configuration [#8034](https://github.com/OpenNebula/one/issues/8034).
 * Fix missing `IOTHREADS` in VM `OS & CPU Features` configuration tab [#7585](https://github.com/OpenNebula/one/issues/7585).
