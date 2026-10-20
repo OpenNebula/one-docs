@@ -42,6 +42,7 @@ The following issues have been solved in 7.4.2:
 * Fix update VM Template dialog fails to open on FireEdge Sunstone if the user doesn't have IMAGE permissions [#6994](https://github.com/OpenNebula/one/issues/6994).
 * Fix unable to flush offline host in Sunstone [#7407](https://github.com/OpenNebula/one/issues/7407).
 * Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
+* Fix missing service template instantiation dialog [#8037](https://github.com/OpenNebula/one/issues/8037).
 * Fix missing VRouter NIC attach/detach action [#7708](https://github.com/OpenNebula/one/issues/7708).
 * Fix VNC console reliability for LXC virtual machines by increasing Guacamole tunnel timeouts and preventing premature disconnections due to svncterm inactivity [#8095](https://github.com/OpenNebula/one/issues/8095).
 * Fix SPICE support in Sunstone [#7667](https://github.com/OpenNebula/one/issues/7667).
@@ -180,4 +181,22 @@ In `sunstone/views/admin/vm-tab.yaml`, `sunstone/views/cloud/vm-tab.yaml`, `suns
 
 ```yaml
     - spice: true
+```
+
+### Service template instantiate missing selection dialog [#8037](https://github.com/OpenNebula/one/issues/8037)
+
+In `sunstone/tab-manifest.yaml`, locate the entry with title: Instances. Under Instances entry, locate the entry with title: Instantiate Service Template and replace the content:
+
+```yaml
+    - title: Instantiate Service Template
+      path: /service/instantiate/
+      Component: InstantiateServiceTemplate
+```
+
+With the following content:
+
+```yaml
+    - title: Instantiate Service Template
+      path: /service/instantiate/
+      Component: CreateService
 ```
