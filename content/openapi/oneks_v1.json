@@ -3,7 +3,7 @@
     "info": {
         "title": "OneKS API",
         "version": "v1",
-        "description": "This specification defines all RESTful operations for the OneKS system, including Kubernetes clusters and nodegroups.\\n"
+        "description": "This specification defines all RESTful operations for OneKS, including Kubernetes clusters, nodegroups, monitoring and managed applications.\n"
     },
     "servers": [
         {
@@ -28,6 +28,14 @@
         {
             "name": "nodegroups",
             "description": "Create and manage OneKS nodegroups"
+        },
+        {
+            "name": "applications",
+            "description": "Inspect the Application catalogue and manage Cluster applications"
+        },
+        {
+            "name": "monitoring",
+            "description": "Read monitor snapshots and receive encrypted monitor callbacks"
         }
     ],
     "paths": {
@@ -200,7 +208,18 @@
                     "500": {
                         "$ref": "#/components/responses/500"
                     }
-                }
+                },
+                "parameters": [
+                    {
+                        "name": "include_sensitive",
+                        "in": "query",
+                        "required": false,
+                        "description": "Include sensitive user-input values when the caller is the owner or oneadmin.",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ]
             },
             "post": {
                 "tags": [
@@ -456,7 +475,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -464,6 +483,15 @@
                         "in": "query",
                         "required": false,
                         "description": "Expand embedded group references into full group documents",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "include_sensitive",
+                        "in": "query",
+                        "required": false,
+                        "description": "Include sensitive user-input values when the caller is the owner or oneadmin.",
                         "schema": {
                             "type": "boolean"
                         }
@@ -507,7 +535,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -557,7 +585,7 @@
                     "clusters"
                 ],
                 "summary": "Delete a cluster",
-                "description": "Deletes a cluster. By default, OneKS starts the normal deprovisioning workflow. If `force=true` is supplied, the cluster is removed immediately from the database and the caller is responsible for manual infrastructure cleanup.",
+                "description": "Starts asynchronous Cluster deprovisioning. With force=true, OneKS first discards a terminal failed operation and then runs forced cleanup; it does not expose an operation ID.",
                 "parameters": [
                     {
                         "name": "id",
@@ -565,7 +593,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -579,8 +607,8 @@
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
+                    "202": {
+                        "$ref": "#/components/responses/202"
                     },
                     "401": {
                         "$ref": "#/components/responses/401"
@@ -614,7 +642,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -650,7 +678,7 @@
                     "clusters"
                 ],
                 "summary": "Recover a cluster",
-                "description": "Retries recovery for a cluster that is in warning or a failure state. Recovery is only accepted when at least one associated group has a recoverable failure status.",
+                "description": "Applies an explicit recovery decision to a Cluster in a recoverable state. The default action is retry; delete-db is also available for terminal database cleanup.",
                 "parameters": [
                     {
                         "name": "id",
@@ -658,13 +686,16 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
+                    "202": {
+                        "$ref": "#/components/responses/202"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
                     },
                     "401": {
                         "$ref": "#/components/responses/401"
@@ -680,6 +711,19 @@
                     },
                     "500": {
                         "$ref": "#/components/responses/500"
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecoveryRequest"
+                            },
+                            "example": {
+                                "action": "retry"
+                            }
+                        }
                     }
                 }
             }
@@ -698,7 +742,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -716,15 +760,8 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "Cluster updated with the requested target version",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Cluster"
-                                }
-                            }
-                        }
+                    "202": {
+                        "$ref": "#/components/responses/202"
                     },
                     "400": {
                         "$ref": "#/components/responses/400"
@@ -900,7 +937,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -912,7 +949,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/K8sGroup"
+                                        "$ref": "#/components/schemas/K8sGroupBody"
                                     }
                                 }
                             }
@@ -945,7 +982,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -973,15 +1010,8 @@
                     }
                 },
                 "responses": {
-                    "201": {
-                        "description": "Nodegroup created and provisioning initialized",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/K8sGroup"
-                                }
-                            }
-                        }
+                    "202": {
+                        "$ref": "#/components/responses/202"
                     },
                     "400": {
                         "$ref": "#/components/responses/400"
@@ -1018,7 +1048,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -1027,7 +1057,7 @@
                         "required": true,
                         "description": "Nodegroup ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -1069,7 +1099,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -1078,7 +1108,7 @@
                         "required": true,
                         "description": "Nodegroup ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -1136,7 +1166,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -1145,13 +1175,13 @@
                         "required": true,
                         "description": "Nodegroup ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
+                    "202": {
+                        "$ref": "#/components/responses/202"
                     },
                     "401": {
                         "$ref": "#/components/responses/401"
@@ -1185,7 +1215,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -1194,13 +1224,16 @@
                         "required": true,
                         "description": "Nodegroup ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
+                    "202": {
+                        "$ref": "#/components/responses/202"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
                     },
                     "401": {
                         "$ref": "#/components/responses/401"
@@ -1216,6 +1249,30 @@
                     },
                     "500": {
                         "$ref": "#/components/responses/500"
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "action": {
+                                        "type": "string",
+                                        "default": "retry",
+                                        "enum": [
+                                            "retry",
+                                            "success",
+                                            "failure"
+                                        ]
+                                    }
+                                }
+                            },
+                            "example": {
+                                "action": "retry"
+                            }
+                        }
                     }
                 }
             }
@@ -1234,7 +1291,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -1243,7 +1300,7 @@
                         "required": true,
                         "description": "Nodegroup ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -1261,6 +1318,9 @@
                     }
                 },
                 "responses": {
+                    "202": {
+                        "$ref": "#/components/responses/202"
+                    },
                     "400": {
                         "$ref": "#/components/responses/400"
                     },
@@ -1278,9 +1338,6 @@
                     },
                     "500": {
                         "$ref": "#/components/responses/500"
-                    },
-                    "201": {
-                        "description": "Nodegroup scaling action accepted"
                     }
                 }
             }
@@ -1299,7 +1356,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -1361,7 +1418,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -1428,7 +1485,7 @@
                         "required": true,
                         "description": "Cluster ID",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -1469,6 +1526,959 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/clusters/{id}/observations": {
+            "get": {
+                "tags": [
+                    "monitoring"
+                ],
+                "summary": "Get Cluster observations",
+                "description": "Returns the latest monitor observation snapshot. The Cluster must have monitoring enabled.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Cluster ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Observation snapshot",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Observation"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "monitoring"
+                ],
+                "summary": "Replace Cluster observations",
+                "description": "Internal monitor callback. The decrypted payload is an array of Observation objects and replaces the complete snapshot.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Cluster ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EncryptedMonitorPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/clusters/{id}/historic": {
+            "get": {
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Get aggregate Cluster history",
+                "description": "Returns Cluster, ControlPlane and current NodeGroup lifecycle events ordered newest first.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Cluster ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Aggregate lifecycle history",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/HistoricEvent"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/clusters/{id}/pods": {
+            "get": {
+                "tags": [
+                    "monitoring"
+                ],
+                "summary": "Get aggregate Cluster Pods",
+                "description": "Returns Pods from the control plane and all NodeGroups, enriched with role and group_id.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Cluster ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Aggregate Pod snapshot",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Pod"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "monitoring"
+                ],
+                "summary": "Replace Cluster Pod snapshots",
+                "description": "Internal monitor callback. The decrypted object is keyed first by group ID and then by VM ID; each value is the complete Pod array for that VM.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Cluster ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EncryptedMonitorPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/clusters/{id}/events": {
+            "post": {
+                "tags": [
+                    "monitoring"
+                ],
+                "summary": "Dispatch a Cluster lifecycle event",
+                "description": "Internal encrypted monitor callback. Registered Cluster events are app_state_changed and app_failed; the decrypted object contains event and payload fields.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Cluster ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EncryptedMonitorPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/405"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/clusters/{id}/logs": {
+            "get": {
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Get Cluster logs",
+                "description": "Returns a page of Cluster log entries. all=true returns the complete history in chronological order.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Cluster ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "One-based page number.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Log entries per page.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 100
+                        }
+                    },
+                    {
+                        "name": "all",
+                        "in": "query",
+                        "required": false,
+                        "description": "Return the complete log history instead of one page.",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cluster log snapshot",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LogResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/clusters/{id}/nodegroups/{nodegroup_id}/pods": {
+            "get": {
+                "tags": [
+                    "monitoring"
+                ],
+                "summary": "Get NodeGroup Pods",
+                "description": "Returns the latest Pod snapshot for a NodeGroup, with each Pod enriched with its VM ID.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Cluster ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "nodegroup_id",
+                        "in": "path",
+                        "required": true,
+                        "description": "NodeGroup ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "NodeGroup Pod snapshot",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Pod"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/clusters/{id}/nodegroups/{nodegroup_id}/events": {
+            "post": {
+                "tags": [
+                    "monitoring"
+                ],
+                "summary": "Dispatch a NodeGroup lifecycle event",
+                "description": "Internal encrypted monitor callback. The registered NodeGroup event is node_ready; its decrypted payload contains vm_id and ready.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Cluster ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "nodegroup_id",
+                        "in": "path",
+                        "required": true,
+                        "description": "NodeGroup ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EncryptedMonitorPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/405"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/groups": {
+            "get": {
+                "tags": [
+                    "nodegroups"
+                ],
+                "summary": "List all Kubernetes groups",
+                "description": "Returns raw OpenNebula documents for every OneKS ControlPlane and NodeGroup visible to the caller.",
+                "parameters": [
+                    {
+                        "name": "include_sensitive",
+                        "in": "query",
+                        "required": false,
+                        "description": "Include sensitive user-input values when the caller is the owner or oneadmin.",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of Kubernetes group documents",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/K8sGroup"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/groups/{id}": {
+            "get": {
+                "tags": [
+                    "nodegroups"
+                ],
+                "summary": "Get a Kubernetes group",
+                "description": "Returns one raw OpenNebula document representing either a ControlPlane or a NodeGroup.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Kubernetes group ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "include_sensitive",
+                        "in": "query",
+                        "required": false,
+                        "description": "Include sensitive user-input values when the caller is the owner or oneadmin.",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Kubernetes group document",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/K8sGroup"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/applications": {
+            "get": {
+                "tags": [
+                    "applications"
+                ],
+                "summary": "List Application catalogue entries",
+                "description": "Returns root applications by default. all=true also includes component charts. When cluster_id is supplied, each item is enriched with installability for that Cluster.",
+                "parameters": [
+                    {
+                        "name": "all",
+                        "in": "query",
+                        "required": false,
+                        "description": "Include private component charts.",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "cluster_id",
+                        "in": "query",
+                        "required": false,
+                        "description": "Evaluate installability for this Cluster.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Application catalogue",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ApplicationSummary"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/applications/{application_id}": {
+            "get": {
+                "tags": [
+                    "applications"
+                ],
+                "summary": "Get an Application definition",
+                "description": "Returns one complete public catalogue definition. cluster_id adds installability without exposing internal lifecycle steps.",
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Application catalogue UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cluster_id",
+                        "in": "query",
+                        "required": false,
+                        "description": "Evaluate installability for this Cluster.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Application definition",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationDefinition"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/clusters/{id}/applications": {
+            "get": {
+                "tags": [
+                    "applications"
+                ],
+                "summary": "List installed Cluster applications",
+                "description": "Returns root installations by default. all=true also includes dependency entries. Catalogue version and metadata enrichment is best effort.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Cluster ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "all",
+                        "in": "query",
+                        "required": false,
+                        "description": "Include dependency installations.",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Installed applications",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/InstalledApplication"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "applications"
+                ],
+                "summary": "Install an Application",
+                "description": "Validates the selected chart and starts asynchronous installation. No operation ID is exposed.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Cluster ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InstallApplicationRequest"
+                            },
+                            "example": {
+                                "application_id": "d511b694-d868-4e40-8224-fdf6a0ca3383",
+                                "create_namespace": true
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "$ref": "#/components/responses/202"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/405"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/clusters/{id}/applications/{release_name}": {
+            "get": {
+                "tags": [
+                    "applications"
+                ],
+                "summary": "Get an installed Application",
+                "description": "Returns one root installation with direct dependencies and best-effort catalogue metadata.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Cluster ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "release_name",
+                        "in": "path",
+                        "required": true,
+                        "description": "Helm release name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Installed Application",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InstalledApplication"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "applications"
+                ],
+                "summary": "Delete an installed Application",
+                "description": "Starts asynchronous deletion of a root release and its managed dependencies. No operation ID is exposed.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Cluster ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "release_name",
+                        "in": "path",
+                        "required": true,
+                        "description": "Helm release name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "$ref": "#/components/responses/202"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/405"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
                     },
                     "500": {
                         "$ref": "#/components/responses/500"
@@ -1607,11 +2617,15 @@
                                                     "RUNNING",
                                                     "SCALING",
                                                     "UPGRADING",
+                                                    "INSTALLING_APPLICATION",
+                                                    "DELETING_APPLICATION",
                                                     "DEPROVISIONING",
                                                     "DONE",
                                                     "PROVISIONING_FAILURE",
                                                     "SCALING_FAILURE",
                                                     "UPGRADING_FAILURE",
+                                                    "INSTALLING_APPLICATION_FAILURE",
+                                                    "DELETING_APPLICATION_FAILURE",
                                                     "DEPROVISIONING_FAILURE",
                                                     "WARNING"
                                                 ]
@@ -1621,26 +2635,26 @@
                                                 "description": "Desired Kubernetes version for the cluster"
                                             },
                                             "control_plane": {
-                                                "description": "Control plane reference or expanded control plane group body. When expanded, control-plane-specific attributes such as `endpoint` may be present.",
+                                                "description": "Control plane reference, or its expanded public body when expand=true.",
                                                 "oneOf": [
                                                     {
                                                         "$ref": "#/components/schemas/K8sGroupReference"
                                                     },
                                                     {
-                                                        "$ref": "#/components/schemas/K8sGroup"
+                                                        "$ref": "#/components/schemas/K8sGroupBody"
                                                     }
                                                 ]
                                             },
                                             "node_groups": {
                                                 "type": "array",
-                                                "description": "Nodegroups attached to the cluster. Entries are references in list mode and full group bodies when expanded.",
+                                                "description": "NodeGroup references, or expanded public bodies when expand=true.",
                                                 "items": {
                                                     "oneOf": [
                                                         {
                                                             "$ref": "#/components/schemas/K8sGroupReference"
                                                         },
                                                         {
-                                                            "$ref": "#/components/schemas/K8sGroup"
+                                                            "$ref": "#/components/schemas/K8sGroupBody"
                                                         }
                                                     ]
                                                 }
@@ -1650,15 +2664,31 @@
                                                 "format": "int64",
                                                 "description": "Unix timestamp indicating when the cluster was registered"
                                             },
-                                            "historic": {
-                                                "type": "array",
-                                                "description": "Historic lifecycle events registered for the cluster",
-                                                "items": {
-                                                    "$ref": "#/components/schemas/HistoricEntry"
-                                                }
-                                            },
                                             "deployment": {
                                                 "$ref": "#/components/schemas/ClusterDeployment"
+                                            },
+                                            "target_kubernetes_version": {
+                                                "type": "string",
+                                                "nullable": true,
+                                                "description": "Target Kubernetes version while an upgrade is in progress."
+                                            },
+                                            "features": {
+                                                "type": "object",
+                                                "description": "Optional capabilities captured when the Cluster was created.",
+                                                "properties": {
+                                                    "monitor": {
+                                                        "type": "boolean",
+                                                        "description": "Whether monitor-backed APIs are enabled."
+                                                    }
+                                                }
+                                            },
+                                            "error": {
+                                                "allOf": [
+                                                    {
+                                                        "$ref": "#/components/schemas/LifecycleError"
+                                                    }
+                                                ],
+                                                "nullable": true
                                             }
                                         },
                                         "additionalProperties": true
@@ -1820,22 +2850,20 @@
                                                     "PROVISIONING",
                                                     "RUNNING",
                                                     "SCALING",
-                                                    "UPGRADING",
                                                     "DEPROVISIONING",
                                                     "DONE",
                                                     "WARNING",
                                                     "BOOTSTRAPPING_FAILURE",
                                                     "PROVISIONING_FAILURE",
                                                     "SCALING_FAILURE",
-                                                    "UPGRADING_FAILURE",
                                                     "DEPROVISIONING_FAILURE"
                                                 ]
                                             },
                                             "vms": {
                                                 "type": "array",
-                                                "description": "OpenNebula VM IDs currently associated with the group",
+                                                "description": "VMs currently associated with the group.",
                                                 "items": {
-                                                    "type": "integer"
+                                                    "$ref": "#/components/schemas/K8sVmRecord"
                                                 }
                                             },
                                             "dependencies": {
@@ -1855,17 +2883,22 @@
                                                 "format": "int64",
                                                 "description": "Unix timestamp indicating when the group was registered"
                                             },
-                                            "historic": {
-                                                "type": "array",
-                                                "description": "Historic lifecycle events registered for the group",
-                                                "items": {
-                                                    "$ref": "#/components/schemas/HistoricEntry"
-                                                }
-                                            },
                                             "endpoint": {
                                                 "type": "string",
                                                 "nullable": true,
                                                 "description": "Kubernetes API endpoint. This attribute is only populated for control plane groups."
+                                            },
+                                            "uuid": {
+                                                "type": "string",
+                                                "description": "Kubernetes group UUID."
+                                            },
+                                            "error": {
+                                                "allOf": [
+                                                    {
+                                                        "$ref": "#/components/schemas/LifecycleError"
+                                                    }
+                                                ],
+                                                "nullable": true
                                             }
                                         },
                                         "additionalProperties": true
@@ -1890,6 +2923,10 @@
                     "name": {
                         "type": "string",
                         "description": "Group name"
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "description": "Kubernetes group UUID"
                     },
                     "type": {
                         "type": "string",
@@ -2337,36 +3374,737 @@
                             "public",
                             "private"
                         ]
+                    },
+                    "datastores": {
+                        "type": "object",
+                        "description": "Optional datastore placement overrides.",
+                        "properties": {
+                            "image": {
+                                "type": "object",
+                                "description": "Image datastore used by the deployment.",
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "description": "OpenNebula image datastore ID."
+                                    }
+                                },
+                                "required": [
+                                    "id"
+                                ]
+                            }
+                        }
                     }
                 },
                 "required": [
                     "cluster",
                     "networks"
                 ]
+            },
+            "Error": {
+                "type": "object",
+                "description": "Error response returned by the OneKS server.",
+                "properties": {
+                    "err_code": {
+                        "type": "integer",
+                        "description": "HTTP error code."
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "Human-readable error message."
+                    },
+                    "context": {
+                        "type": "object",
+                        "description": "Optional structured validation or debugging context.",
+                        "additionalProperties": true
+                    }
+                },
+                "required": [
+                    "err_code",
+                    "message"
+                ]
+            },
+            "LifecycleError": {
+                "type": "object",
+                "description": "Recoverable failure context persisted with a Cluster or Kubernetes group.",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Unix timestamp when the failure was recorded."
+                    },
+                    "opts": {
+                        "type": "object",
+                        "description": "Sanitized arguments used by lifecycle recovery.",
+                        "additionalProperties": true
+                    },
+                    "step": {
+                        "type": "string",
+                        "description": "Lifecycle step that failed, when available."
+                    }
+                },
+                "required": [
+                    "message",
+                    "timestamp",
+                    "opts"
+                ],
+                "additionalProperties": true
+            },
+            "PodSnapshot": {
+                "type": "object",
+                "properties": {
+                    "pod": {
+                        "type": "string",
+                        "description": "Kubernetes Pod name."
+                    },
+                    "namespace": {
+                        "type": "string",
+                        "description": "Kubernetes namespace."
+                    },
+                    "state": {
+                        "type": "string",
+                        "description": "Current Kubernetes Pod phase."
+                    },
+                    "reason": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Current status reason, if any."
+                    }
+                },
+                "required": [
+                    "pod",
+                    "namespace",
+                    "state",
+                    "reason"
+                ]
+            },
+            "Pod": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/PodSnapshot"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "vm_id": {
+                                "type": "integer",
+                                "description": "OpenNebula VM hosting the Pod."
+                            },
+                            "role": {
+                                "type": "string",
+                                "enum": [
+                                    "controlplane",
+                                    "nodegroup"
+                                ],
+                                "description": "Group role. Present in aggregate Cluster Pod responses."
+                            },
+                            "group_id": {
+                                "type": "integer",
+                                "description": "Owning Kubernetes group ID. Present in aggregate Cluster Pod responses."
+                            }
+                        },
+                        "required": [
+                            "vm_id"
+                        ]
+                    }
+                ]
+            },
+            "K8sVmRecord": {
+                "type": "object",
+                "description": "VM membership and monitor snapshot stored by a Kubernetes group.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "OpenNebula VM ID."
+                    },
+                    "ready": {
+                        "type": "boolean",
+                        "description": "Whether the Kubernetes node is ready."
+                    },
+                    "pods": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PodSnapshot"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "ready",
+                    "pods"
+                ]
+            },
+            "K8sGroupBody": {
+                "type": "object",
+                "description": "Public body of a control plane or NodeGroup.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Group name"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Group description"
+                    },
+                    "cluster_id": {
+                        "type": "integer",
+                        "description": "Owning cluster ID"
+                    },
+                    "family": {
+                        "type": "string",
+                        "description": "Group family name"
+                    },
+                    "flavour": {
+                        "type": "string",
+                        "description": "Group flavour name"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Group role",
+                        "enum": [
+                            "ControlPlane",
+                            "NodeGroup"
+                        ]
+                    },
+                    "state": {
+                        "type": "string",
+                        "description": "Current state of the group lifecycle",
+                        "enum": [
+                            "PENDING",
+                            "BOOTSTRAPPING",
+                            "PROVISIONING",
+                            "RUNNING",
+                            "SCALING",
+                            "DEPROVISIONING",
+                            "DONE",
+                            "WARNING",
+                            "BOOTSTRAPPING_FAILURE",
+                            "PROVISIONING_FAILURE",
+                            "SCALING_FAILURE",
+                            "DEPROVISIONING_FAILURE"
+                        ]
+                    },
+                    "vms": {
+                        "type": "array",
+                        "description": "VMs currently associated with the group.",
+                        "items": {
+                            "$ref": "#/components/schemas/K8sVmRecord"
+                        }
+                    },
+                    "dependencies": {
+                        "type": "array",
+                        "description": "Dependencies tracked by the group lifecycle manager",
+                        "items": {
+                            "$ref": "#/components/schemas/K8sDependency"
+                        }
+                    },
+                    "user_inputs_values": {
+                        "type": "object",
+                        "description": "Resolved input values that define the desired size and capacity of the group",
+                        "additionalProperties": true
+                    },
+                    "registration_time": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Unix timestamp indicating when the group was registered"
+                    },
+                    "endpoint": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Kubernetes API endpoint. This attribute is only populated for control plane groups."
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "description": "Kubernetes group UUID."
+                    },
+                    "error": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/LifecycleError"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": true
+            },
+            "Observation": {
+                "type": "object",
+                "properties": {
+                    "resource": {
+                        "type": "string",
+                        "description": "Kubernetes resource kind in plural form."
+                    },
+                    "namespace": {
+                        "type": "string",
+                        "description": "Kubernetes namespace."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Kubernetes resource name."
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "Observed field path."
+                    },
+                    "value": {
+                        "nullable": true,
+                        "description": "Observed scalar value.",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "boolean"
+                            }
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 0,
+                        "description": "Unix timestamp."
+                    }
+                },
+                "required": [
+                    "resource",
+                    "namespace",
+                    "name",
+                    "path",
+                    "value",
+                    "createdAt"
+                ]
+            },
+            "HistoricEvent": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HistoricEntry"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "kind": {
+                                "type": "string",
+                                "enum": [
+                                    "Cluster",
+                                    "ControlPlane",
+                                    "NodeGroup"
+                                ]
+                            },
+                            "resource_id": {
+                                "type": "integer"
+                            },
+                            "resource_name": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "kind",
+                            "resource_id",
+                            "resource_name"
+                        ]
+                    }
+                ]
+            },
+            "LogResponse": {
+                "type": "object",
+                "properties": {
+                    "meta": {
+                        "type": "object",
+                        "properties": {
+                            "mode": {
+                                "type": "string",
+                                "enum": [
+                                    "all"
+                                ]
+                            },
+                            "page": {
+                                "type": "integer"
+                            },
+                            "per_page": {
+                                "type": "integer"
+                            },
+                            "total_pages": {
+                                "type": "integer"
+                            },
+                            "total_lines": {
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "total_lines"
+                        ]
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "level": {
+                                    "type": "string"
+                                },
+                                "text": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "level",
+                                "text"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "meta",
+                    "lines"
+                ]
+            },
+            "RecoveryRequest": {
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "default": "retry",
+                        "enum": [
+                            "retry",
+                            "success",
+                            "failure",
+                            "delete-db"
+                        ],
+                        "description": "Recovery decision. delete-db is only available for Cluster recovery."
+                    }
+                }
+            },
+            "EncryptedMonitorPayload": {
+                "type": "object",
+                "description": "AES-256-GCM encrypted monitor payload encoded as Base64.",
+                "properties": {
+                    "payload": {
+                        "type": "string",
+                        "format": "byte",
+                        "description": "Base64-encoded nonce, ciphertext and authentication tag."
+                    }
+                },
+                "required": [
+                    "payload"
+                ]
+            },
+            "ApplicationSummary": {
+                "type": "object",
+                "description": "Public Application catalogue summary. Metadata fields are flattened into this object.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Application catalogue UUID."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Display name."
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "documentationUrl": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "repo": {
+                        "type": "string",
+                        "description": "Helm repository URL, when required."
+                    },
+                    "chart": {
+                        "type": "string",
+                        "description": "Helm chart name or OCI URL."
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "Chart version."
+                    },
+                    "user_inputs": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserInput"
+                        }
+                    },
+                    "installable": {
+                        "type": "boolean",
+                        "description": "Present when cluster_id was supplied."
+                    },
+                    "reasons": {
+                        "type": "array",
+                        "description": "Validation failures. Present only when installable is false.",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "chart",
+                    "version"
+                ],
+                "additionalProperties": true
+            },
+            "ApplicationDefinition": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApplicationSummary"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "authSecret": {
+                                "type": "string"
+                            },
+                            "defaultValuesContent": {
+                                "type": "string"
+                            },
+                            "deploymentConstraints": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "installDefaults": {
+                                "type": "object",
+                                "properties": {
+                                    "releaseName": {
+                                        "type": "string"
+                                    },
+                                    "targetNamespace": {
+                                        "type": "string"
+                                    },
+                                    "createNamespace": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "releaseName",
+                                    "targetNamespace",
+                                    "createNamespace"
+                                ]
+                            },
+                            "dependencies": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "repo": {
+                                            "type": "string"
+                                        },
+                                        "chart": {
+                                            "type": "string"
+                                        },
+                                        "version": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "name",
+                                        "chart",
+                                        "version"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "InstalledApplication": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Application catalogue UUID."
+                    },
+                    "release_name": {
+                        "type": "string",
+                        "description": "Helm release name."
+                    },
+                    "target_namespace": {
+                        "type": "string"
+                    },
+                    "state": {
+                        "type": "string",
+                        "enum": [
+                            "installing",
+                            "ready",
+                            "deleting",
+                            "error"
+                        ]
+                    },
+                    "resource_version": {
+                        "type": "integer",
+                        "nullable": true,
+                        "minimum": 0
+                    },
+                    "parent": {
+                        "type": "string",
+                        "description": "Root release for a dependency."
+                    },
+                    "error_msg": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "Best-effort catalogue enrichment."
+                    },
+                    "metadata": {
+                        "type": "object",
+                        "description": "Best-effort catalogue metadata.",
+                        "additionalProperties": true
+                    },
+                    "dependencies": {
+                        "type": "array",
+                        "description": "Installed dependencies. Present in detail responses.",
+                        "items": {
+                            "$ref": "#/components/schemas/InstalledApplication"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "release_name",
+                    "state",
+                    "resource_version"
+                ]
+            },
+            "InstallApplicationRequest": {
+                "type": "object",
+                "properties": {
+                    "application_id": {
+                        "type": "string",
+                        "description": "Application catalogue UUID."
+                    },
+                    "release_name": {
+                        "type": "string",
+                        "description": "Optional RFC 1123 Helm release override."
+                    },
+                    "target_namespace": {
+                        "type": "string",
+                        "description": "Optional RFC 1123 namespace override."
+                    },
+                    "create_namespace": {
+                        "type": "boolean"
+                    },
+                    "user_input_values": {
+                        "type": "object",
+                        "description": "Application input values keyed by input name.",
+                        "additionalProperties": true
+                    }
+                },
+                "required": [
+                    "application_id"
+                ]
             }
         },
         "responses": {
             "204": {
-                "description": "The request has been accepted for processing"
+                "description": "The operation completed successfully. The response has no body."
             },
             "400": {
-                "description": "Malformed syntax"
+                "description": "The request body or parameters are invalid.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
             },
             "401": {
-                "description": "Bad authentication"
+                "description": "The credentials are not authorized to access the resource.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
             },
             "403": {
-                "description": "Bad authorization"
+                "description": "Authentication failed.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
             },
             "404": {
-                "description": "Resource not found"
+                "description": "The requested resource was not found.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
             },
             "405": {
-                "description": "The requested action is not allowed in the current resource state"
+                "description": "The requested action is not allowed in the current resource state.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
             },
             "500": {
-                "description": "The server encountered an unexpected condition which prevented it from fulfilling the request."
+                "description": "The server encountered an unexpected condition.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "409": {
+                "description": "The request conflicts with the capabilities enabled for the resource.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "202": {
+                "description": "The asynchronous operation was accepted. The response has no body."
+            }
+        },
+        "securitySchemes": {
+            "basicAuth": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "OpenNebula username and password."
             }
         }
-    }
+    },
+    "security": [
+        {
+            "basicAuth": [
+
+            ]
+        }
+    ]
 }

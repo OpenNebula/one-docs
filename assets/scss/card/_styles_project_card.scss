@@ -128,7 +128,8 @@
   }
 }
 
-// Delete border of card row
+// Keep the card row transparent and borderless.
 .td-card {
+  background-color: transparent;
   border: 0 !important;
 }
