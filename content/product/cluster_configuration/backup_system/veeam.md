@@ -71,6 +71,19 @@ To ensure a compatible integration between OpenNebula and Veeam Backup, the foll
 
 {{< image path="/images/veeam/interactive_backup_veeam_architecture.svg" alt="Architecture of the OpenNebula-Veeam Backup Integration" align="center" width="90%" mb="20px" border="false" >}}
 
+### Firewall Configuration
+
+| Source        | Destination          | Port          | Service / Purpose                                  |
+|---------------|----------------------|---------------|----------------------------------------------------|
+| Veeam Server  | OpenNebula Front-end | TCP/443       | oVirtAPI (HTTPS)                                   |
+| Veeam Workers | OpenNebula Front-end | TCP/443       | oVirtAPI (HTTPS)                                   |
+| Veeam Server  | OpenNebula Hosts     | TCP/13014     | OneBEX image transfers                             |
+| Veeam Workers | OpenNebula Hosts     | TCP/13014     | OneBEX backup and restore transfers                |
+| Veeam Server  | OpenNebula Hosts     | TCP/13015     | OneBEX SSL image transfers (optional)              |
+| Veeam Workers | OpenNebula Hosts     | TCP/13015     | OneBEX SSL backup and restore transfers (optional) |
+
+The required connections are initiated by the Veeam components. Therefore, the firewall must allow traffic from the Veeam Server and Veeam Workers to the corresponding destination ports on the OpenNebula Front-end and Hosts.
+
 ## Installation and Configuration
 
 ### 1. Configure OneBEX
@@ -78,6 +91,14 @@ To ensure a compatible integration between OpenNebula and Veeam Backup, the foll
 Configure OneBEX on every OpenNebula hypervisor that can run VMs backed up by Veeam. OneBEX starts on demand during the backup operation and exposes the prepared disk exports directly to Veeam.
 
 The Veeam Server and Veeam Backup Appliance must be able to connect to the configured OneBEX address and port on each hypervisor.
+
+{{< alert title="Network Security Risk" type="warning" >}}
+By default, OneBEX uses unauthenticated HTTP on port `13014`. This creates a security risk that VM disk data could be intercepted by a malicious 3rd-party during backup. **Therefore it is recommended to encrypt OneBEX traffic**.
+
+To encrypt OneBEX traffic, configure TLS as described in [Configuring SSL in the Hosts]({{% relref "product/cluster_configuration/backup_system/veeam/#41-configuring-ssl-in-the-hosts" %}}). Restrict the OneBEX ports with firewall rules so they are reachable only from the OpenNebula Front-end and the Veeam Server and Workers. These ports carry raw VM disk data while a backup is running.
+
+During interactive restores, the restore writer listens on all interfaces (`0.0.0.0`) by default. Set the `ONE_BEX_WRITER_ADDR` environment variable in the Front-end to bind it to a specific address. Restrict the restore port range configured by `port_min` and `port_max` to the Front-end nodes that relay restore data because these ports accept raw image data without authentication or encryption.
+{{< /alert >}}
 
 Edit the OneBEX configuration in the OpenNebula remotes directory. Open the file in the following location:
 
@@ -99,20 +120,38 @@ If using High Availability, any changes to ``/var/lib/one/remotes/etc/onebex/one
 
 ### 2. Enable VM Guest Agent Monitoring
 
-The integration needs VM Guest Agent monitoring to be enabled. To do so set ``:enabled`` to ``true`` on the following file in the frontend: 
+For Veeam to discover guest IP addresses on the correct NIC, enable the QEMU Guest Agent communication channel in each VM template with `FEATURES = [ GUEST_AGENT = "YES" ]`, and install and start the QEMU Guest Agent inside the guest. See [Enabling QEMU Guest Agent]({{% relref "product/operation_references/hypervisor_configuration/kvm_driver#enabling-qemu-guest-agent" %}}) for details.
+
+On the Front-end, edit:
 
 ```default
 /var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf
 ```
 
-Then, in the same frontend server execute the following command to propagate the remote into the KVM hosts: 
+Set `:enabled` to `true` and add `:vm_guest_interfaces_b64` under the existing `:commands` section:
+
+```yaml
+:enabled: true
+:commands:
+  :vm_qemu_ping: one-$vm_id '{"execute":"guest-ping"}' --timeout 5
+  :vm_guest_interfaces_b64: >-
+    one-$vm_id '{"execute":"guest-network-get-interfaces"}' --timeout 10 |
+    ruby -rjson -rbase64 -e 'puts JSON.generate("return" =>
+    Base64.strict_encode64(JSON.parse(STDIN.read).fetch("return").to_json))'
+```
+
+Keep any other commands already configured. This command stores the guest interface list as Base64-encoded JSON in `MONITORING/VM_GUEST_INTERFACES_B64`. The list includes each interface's MAC address and IP addresses, allowing oVirtAPI to associate guest IPv4 addresses with the right VM NIC. The default `GUEST_IP_ADDRESSES` value does not include that association.
+
+Then synchronize the configuration to the KVM hosts from the Front-end:
 
 ```shell
 onehost sync --force
 ```
 
+After the next VM monitoring cycle, check `onevm show <vm-id> --json` for `MONITORING/VM_GUEST_INTERFACES_B64` on a running VM with a working guest agent.
+
 {{< alert title="High Availability" type="info" >}}
-If using High Availability, any changes to ``/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf`` need to be performed on all frontends.
+If using High Availability, make the same change to `/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf` on all Front-ends.
 {{< /alert >}}
 
 ### 3. Create the Veeam Backup Datastore
@@ -143,7 +182,7 @@ Add the datastore to each Cluster containing VMs that will be backed up by Veeam
 onecluster adddatastore <cluster-name> <datastore-name>
 ```
 
-For more information about the `interactive` driver internals, see [Interactive Backup Integrations]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration#interactive-backup-integration" %}}).
+For more information about the `interactive` driver internals, see [Interactive Backup Integrations]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
 
 ### 4. Install and Configure the oVirtAPI Module
 

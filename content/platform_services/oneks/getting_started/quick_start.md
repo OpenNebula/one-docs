@@ -289,5 +289,6 @@ Once you have completed this quick-start guide, you can move on to deploying K8s
 * [K8s Cluster Lifecycle Management]({{% relref "platform_services/oneks/management/k8s_cluster_lifecycle_management/" %}})
 * [Monitoring and Troubleshooting]({{% relref "platform_services/oneks/management/monitoring_and_troubleshooting/" %}})
 * [Configuration]({{% relref "platform_services/oneks/management/configuration/" %}})
+* [Application Catalog]({{% relref "platform_services/oneks/catalog/" %}})
 * [OneKS REST API]({{% relref "platform_services/oneks/references/oneks_api/" %}})
 * [OneKS CLI]({{% relref "platform_services/oneks/references/oneks_cli/" %}})

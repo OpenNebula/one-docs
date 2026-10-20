@@ -230,4 +230,54 @@ For further details about the API, see the [OneForm API Reference]({{% relref "/
 
 {{< /tabpane >}}
 
-Now that you have created an on-premises NFS Cluster, learn how to [Manage your Provisioned Clusters]({{% relref "/product/cluster_provisioning/cluster_operations/provision_operations.md" %}}).
+## Ensure the New Host Appears in the Correct Cluster
+
+Ensure that the Host installed during provisioning of your on-premises resources has been assigned to the correct Cluster: 
+
+* Go to **Infrastructure -> Clusters** and select your new Cluster in the list
+* In the **Hosts** tab of the info panel, ensure you see the expected Host
+
+If it appears in the correct place, continue learning how to [Manage your Provisioned Clusters]({{% relref "/product/cluster_provisioning/cluster_operations/provision_operations.md" %}}), otherwise, see below.
+
+### Host Appears in the Wrong Cluster
+
+If you have provisioned an on-premises Cluster after [installing the Front-end using miniONE]({{% relref "getting_started/install_opennebula/production/minione_frontend_install/" %}}), you may find that the newly installed KVM Host appears in the *default* Cluster rather than your newly provisioned OneForm Cluster. It is important to fix this to ensure workload placement functions correctly.
+
+{{< tabpane text=true right=false >}}
+{{% tab header="**Interfaces**:" disabled=true /%}}
+
+{{% tab header="Sunstone"%}}
+
+In the **Infrastructure -> Hosts** view, select the new host from the list and press **Select Cluster**:
+
+{{< image
+  pathDark="images/sunstone/hosts/dark/select_cluster.png"
+  path="images/sunstone/hosts/light/select_cluster.png"
+  alt="Select Cluster"
+>}}
+
+In the following step, select your new Cluster and press **Continue**:
+
+{{< image
+  pathDark="images/sunstone/hosts/dark/select_cluster_modal.png"
+  path="images/sunstone/hosts/light/select_cluster_modal.png"
+  alt="Select Cluster modal"
+>}}
+
+{{% /tab %}}
+
+{{% tab header="CLI"%}}
+
+This can be fixed simply with the following command:
+
+```shell
+onecluster addhost <CLUSTER_ID> <HOST_ID>
+```
+
+Use `onecluster list` and `onehost list` to find the relevant IDs. 
+
+{{% /tab %}}
+
+{{< /tabpane >}}
+
+You do not need to move the networks and datastores of your new Cluster. You can now continue learning how to [Manage your Provisioned Clusters]({{% relref "/product/cluster_provisioning/cluster_operations/provision_operations.md" %}}).
