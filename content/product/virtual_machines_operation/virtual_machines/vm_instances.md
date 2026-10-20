@@ -268,11 +268,19 @@ ID NETWORK      VLAN BRIDGE   IP              MAC
 ...
 ```
 
-It is possible to attach (and live-attach) PCI and SR-IOV interfaces. Simply select the device by its address, id, vendor, or class.
+It is possible to attach (and live-attach) PCI and SR-IOV interfaces. Select the device by its address, device ID, vendor, or class:
 
 ```shell
-onevm nic-attach 2 --network net_172 onevm nic-attach 2 --network net_172 --pci '00:06.1'
+onevm nic-attach 2 --network net_172 --pci '00:06.1'
 ```
+
+To attach an available SR-IOV VF from a particular parent PF, use `--pf <interface>`:
+
+```shell
+onevm nic-attach 2 --network net_172 --pf pf0
+```
+
+The `--pf` option sets `PF_IFNAME` and selects a free VF from the named PF on the VM's Host. Find the parent interface name in the `IFNAME` or `PF_IFNAME` columns of `onehost show <host>`. Use `--pf` without the other PCI device selectors. See [Selecting Virtual Functions by Physical Function]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#selecting-virtual-functions-by-physical-function" %}}) for prerequisites and selector restrictions.
 
 **Important**, predictable PCI addresses for guests will be only generated if PCI bus 1 is present in the Virtual Machine as PCI bridges cannot be hot-plugged.
 

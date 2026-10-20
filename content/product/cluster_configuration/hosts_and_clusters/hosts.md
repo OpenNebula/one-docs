@@ -322,13 +322,7 @@ From the CLI, list the Host's PCI devices:
 onehost show <host>
 ```
 
-The **PCI DEVICES** table shows device addresses, types, names, and VM assignments. To inspect all PCI attributes, including `PF_ADDRESS`, `PF_IFNAME`, and `PASSTHROUGH`, use the XML output:
-
-```shell
-onehost show <host> -x
-```
-
-Each VF's `PF_ADDRESS` refers to its parent PF's `ADDRESS`. For network VFs, `PF_IFNAME` also identifies the parent interface. Network PFs with enabled VFs remain in the monitored inventory, with `PASSTHROUGH="NO"`; their VFs can still be assigned individually. `SRIOV_NUM` counts enabled VFs, while each VF's `VMID` shows whether it is already assigned.
+The **PCI DEVICES** table shows device addresses, types, names, and VM assignments, together with the associated SR-IOV attributes when available.
 
 You can use this relationship to [select VFs from a particular PF]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#selecting-virtual-functions-by-physical-function" %}}). Ensure that the monitoring filters expose both the parent PF and its VFs.
 
