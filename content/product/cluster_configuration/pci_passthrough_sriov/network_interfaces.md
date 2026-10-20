@@ -267,6 +267,14 @@ Set only one PF selector per `PCI` entry. Neither `PF_IFNAME` nor `PF_ADDRESS` c
 
 The following examples assume an existing Virtual Network named `SRIOV-NET` and monitored PFs named `pf0` and `pf1`. Replace these names with those in your environment.
 
+#### Attaching a VF from the CLI
+
+To attach an available VF from a particular parent PF to an existing VM, use `onevm nic-attach` with `--pf <interface>`, where `<interface>` is the parent PF's interface name:
+
+```shell
+onevm nic-attach 2 --network SRIOV-NET --pf pf0
+```
+
 #### Affinity: VFs on the Same PF
 
 To place two VFs on the same PF, use the same selector in both entries. The PF must have at least two free VFs:
