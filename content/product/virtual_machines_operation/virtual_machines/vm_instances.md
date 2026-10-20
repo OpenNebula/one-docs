@@ -516,7 +516,7 @@ This action might not be supported for `RUNNING` VMs depending on the hypervisor
 {{< alert title="Note" type="info" >}}
 The `--append` option replaces the entire value of each existing attribute supplied in the update. It does not concatenate values or append entries within a value.
 
-For example, to add a third SSH key while keeping the two existing keys, supply all three in `SSH_PUBLIC_KEY`. Other `CONTEXT` attributes are preserved. Replace the placeholders below with the complete public keys:
+For example, to add a third SSH key while keeping the two existing keys, supply all three in `SSH_PUBLIC_KEY`. Other `CONTEXT` attributes are preserved. The Linux contextualization packages synchronize the keys in the guest with `SSH_PUBLIC_KEY`, so a key left out of the update is removed from the guest `authorized_keys` file. Replace the placeholders below with the complete public keys:
 
 ```text
 onevm updateconf --append 25 <<'EOT'
