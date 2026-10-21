@@ -306,7 +306,7 @@ The update operation will trigger driver action to live update the network confi
 | fw                                | - PHYDEV<br/>- INBOUND_AVG_BW<br/>- INBOUND_PEAK_BW<br/>- INBOUND_PEAK_KB<br/>- OUTBOUND_AVG_BW<br/>- OUTBOUND_PEAK_BW                                                                           |
 | 802.1Q<br/>vxlan                  | - PHYDEV<br/>- VLAN_ID<br/>- MTU<br/>- INBOUND_AVG_BW<br/>- INBOUND_PEAK_BW<br/>- INBOUND_PEAK_KB<br/>- OUTBOUND_AVG_BW<br/>- OUTBOUND_PEAK_BW                                                   |
 > {{< alert title="Important" type="info" >}}
-> QoS attributes (INBOUND and OUTBOUND) can be updated for single VMs with [onevm nic-update]({{% relref "../../virtual_machines_operation/virtual_machines/vm_instances#nic-update" %}}).{{< /alert >}}
+> QoS attributes (INBOUND and OUTBOUND) can be updated for single VMs with [`onevm nic-update`]({{% relref "product/virtual_machines_operation/virtual_machines/vm_resources.md#nic-update" %}}).{{< /alert >}}
 
 > {{< alert title="Important" type="info" >}}
 > For SR-IOV-based NICs you can update all the attributes that can be set for this type of interfaces.{{< /alert >}}

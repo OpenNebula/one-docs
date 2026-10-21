@@ -32,7 +32,7 @@ Storage in OpenNebula is designed around the concept of datastores. A datastore 
 
 ## Storage portfolio
 
-| Use case                                                      | Description                                                                                            | Shared | Disk Format                    | Disk snapshots | VM snapshots | [Storage migration]({{% relref "/product/virtual_machines_operation/virtual_machines/vm_instances/#virtual-machine-datastore-migration" %}}) | Fault tolerance | HV      | Availability |
+| Use case                                                      | Description                                                                                            | Shared | Disk Format                    | Disk snapshots | VM snapshots | [Storage migration]({{% relref "product/virtual_machines_operation/virtual_machines/vm_resources.md#virtual-machine-datastore-migration" %}}) | Fault tolerance | HV      | Availability |
 | --                                                            | --                                                                                                     | --     | --                             | --             | --           | --                | --              | --      | --           |
 | [Local storage]({{% relref "local_ds" %}})                    | Images stored in Front-end* and transferred to hosts via<br/>SSH on instantiation.                     | no     | raw/qcow2                      | yes            | yes          | poweroff/live     | no              | KVM/LXC | EE/CE        |
 | [NFS/NAS]({{% relref "nas_ds" %}})                            | Images stored in a NFS share, activated directly.                                                      | yes    | raw/qcow2                      | yes            | yes          | poweroff/live     | yes             | KVM/LXC | EE/CE        |
@@ -49,7 +49,7 @@ Storage in OpenNebula is designed around the concept of datastores. A datastore 
 
 <sup>\*\*\*</sup> Images stored on the frontend just contain metadata. The filesystems to mount should be present and available on the hosts.
 
-For details on performing **datastore migrations**, refer to the [datastore migration section of the Virtual Machines Operation Documentation]({{% relref "product/virtual_machines_operation/virtual_machines/vm_instances/#virtual-machine-datastore-migration" %}}).
+For details on performing **datastore migrations**, refer to [Migrating VM Storage Between Datastores]({{% relref "product/virtual_machines_operation/virtual_machines/vm_resources.md#virtual-machine-datastore-migration" %}}).
 
 ### Other storage options
 
