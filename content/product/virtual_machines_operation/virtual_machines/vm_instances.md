@@ -314,7 +314,7 @@ onevm nic-detach 2 1
 
 ### Updating NICs
 
-To update NIC QoS attributes, use `onevm nic-update`. If the VM is running, the driver updates the network parameters while the VM runs.
+To update NIC QoS attributes, use `onevm nic-update <VM_ID> <NIC_ID> [file]`. If the VM is running, the driver updates the network parameters while the VM runs.
 
 Create `update_nic.txt` with this content:
 
@@ -331,6 +331,8 @@ Review the file and apply the configuration:
 cat update_nic.txt
 onevm nic-update 0 0 update_nic.txt
 ```
+
+If the file argument is omitted, the existing NIC configuration will be opened in an editor.
 
 <a id="vm-guide2-sg-hotplugging"></a>
 
