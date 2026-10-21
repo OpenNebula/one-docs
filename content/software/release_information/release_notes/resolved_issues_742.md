@@ -79,6 +79,7 @@ The following issues have been solved in 7.4.2:
 * Fix an issue preventing long attribute values from being expanded in FireEdge [#8131](https://github.com/OpenNebula/one/issues/8131).
 * Fix multi-line formatting in VM descriptions [#8130](https://github.com/OpenNebula/one/issues/8130).
 * Fix oned crashing when a KVM host reports a NUMA node without cores [#8133](https://github.com/OpenNebula/one/issues/8133).
+* Fix the “Allocated CPU” slider on the hosts [#8208](https://github.com/OpenNebula/one/issues/8208).
 
 ---
 
