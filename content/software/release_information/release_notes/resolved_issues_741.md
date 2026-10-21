@@ -25,7 +25,7 @@ Include a high-level description and a link to the documentation explaining the 
 
 * Add an [option to block OneDRS migrations]({{% relref "product/cloud_system_administration/scheduler/drs/#blocking-vm-migrations" %}}) in Sunstone [#7783](https://github.com/OpenNebula/one/issues/7783).
 * Allow [assignment of deployed VMs to VM Groups]({{% relref "affinity#dynamic-vmg" %}}) in Sunstone [#4159](https://github.com/OpenNebula/one/issues/4159).
-* Add an [Exec tab]({{% relref "product/virtual_machines_operation/virtual_machines/vm_instances.md#executing-a-command-from-sunstone" %}}) in Sunstone to run, monitor, retry, and cancel commands inside VMs and copy their output [#7559](https://github.com/OpenNebula/one/issues/7559).
+* Add an [Exec tab]({{% relref "product/virtual_machines_operation/virtual_machines/vm_access.md#executing-a-command-from-sunstone" %}}) in Sunstone to run, monitor, retry, and cancel commands inside VMs and copy their output [#7559](https://github.com/OpenNebula/one/issues/7559).
 * Allow [permissions editing when updating groups]({{% relref "manage_groups#manage-groups-permissions" %}}) in Sunstone [#6394](https://github.com/OpenNebula/one/issues/6394).
 * Add support for creating and configuring [Restic backup datastores with AWS S3 and S3-compatible backends]({{% relref "product/cluster_configuration/backup_system/restic#sunstone" %}}) in Sunstone [#7906](https://github.com/OpenNebula/one/issues/7906).
 * Add the `--keep-ha` option to `onezone serversync` to preserve the local [RAFT configuration]({{% relref "frontend_ha.md#server-sync-ha" %}}) [#7936](https://github.com/OpenNebula/one/issues/7936).
