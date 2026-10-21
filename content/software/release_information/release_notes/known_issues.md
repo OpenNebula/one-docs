@@ -99,11 +99,68 @@ When provisioning a Cluster with OneForm through Sunstone, fields in the **User 
 
 As a workaround, enter the values into a notepad or code editor then copy and paste each complete value into each field in a single operation.
 
-### VM Actions Missing in the Group Admin View
+### Legacy Configuration Keys in Sunstone Views
 
-Some VM actions are not displayed in the **Group Admin** view because the config file `/etc/one/fireedge/sunstone/views/groupadmin/vm-tab.yaml` uses legacy action names.
+Several Sunstone view files use legacy action and tab keys. These mismatches can hide or disable controls.
 
-As a workaround, edit the file and substitute the legacy action names as follows, preserving all other existing entries:
+As a workaround, edit the affected files and replace the legacy action names as follows, preserving all other existing entries. Paths are relative to `/etc/one/fireedge/sunstone/views/`.:
+
+#### `/admin/backupjobs-tab.yaml`
+
+```diff
+ info-tabs:
+   sched_actions:
+     actions:
+-      sched_action_create: true
+-      sched_action_update: true
+-      sched_action_delete: true
++      sched-add: true
++      sched-update: true
++      sched-delete: true
+```
+
+#### `/cloud/vm-tab.yaml`
+
+```diff
+ actions:
+-  migrate_live: false
++  live-migrate: false
+
+ info-tabs:
+   storage:
+     actions:
+-      disk-attach:
+-        enabled: true
++      disk-attach-image: true
++      disk-attach-volatile: true
+       disk-detach: true
+       disk-resize: true
+-      disk_saveas:
+-        enabled: true
++      disk-saveas: true
+```
+
+#### `/groupadmin/group-tab.yaml`
+
+```diff
+ info-tabs:
+-  'VLAN Group':
++  vlanrules:
+     enabled: true
+```
+
+#### `/groupadmin/vm-group-tab.yaml`
+
+```diff
+ info-tabs:
+   info:
+     ownership_panel:
+       actions:
+-        cgrp: true
++        chgrp: true
+```
+
+#### `/groupadmin/vm-tab.yaml`
 
 ```diff
  actions:
@@ -159,7 +216,7 @@ As a workaround, edit the file and substitute the legacy action names as follows
        charter_create: true
 ```
 
-After updating and saving the file, restart the FireEdge service:
+After updating and saving the affected files, restart the FireEdge service:
 
 ```shell
 systemctl restart opennebula-fireedge
