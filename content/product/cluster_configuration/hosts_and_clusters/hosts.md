@@ -8,10 +8,6 @@ tags:
 weight: "2"
 ---
 
-<a id="hosts"></a>
-
-<a id="hosts-guide"></a>
-
 In order to use a physical or virtual server as a Host, you must first prepare the server with a hypervisor and configure it to be added to OpenNebula as a Host, refer to the guides to prepare a [KVM node]({{% relref "software/installation_process/cluster_installation/kvm_node_installation/" %}}) or an [LXC node]({{% relref "software/installation_process/cluster_installation/lxc_node_installation/" %}}).
 
 Once you have prepared your physical or virtual nodes, you can add them to OpenNebula as Hosts. To add a Host only its hostname and type is needed.
@@ -141,8 +137,6 @@ onehost list
 
 The above information can be also displayed in XML, JSON, or CSV format using `-x` or `-j` or `-c`, respectively.
 
-<a id="host-lifecycle"></a>
-
 ## Host States
 
 In order to manage the life cycle of a Host it can be set to different operation modes: enabled (`on`), disabled (`dsbl`), and offline (`off`). The different operation status for each mode is described in the following table:
@@ -238,11 +232,9 @@ The `flush` command will migrate all the active VMs in the specified Host to ano
   - :flush: delete-recreate
 ```
 
-<a id="host-guide-information"></a>
-
 ### Custom Host Attributes
 
-You can add custom attributes either by [creating a probe in the host]({{% relref "../../../product/integration_references/infrastructure_drivers_development/devel-im#devel-im" %}}) or by updating the Host information with: `onehost update`.
+You can add custom attributes either by [creating a probe in the Host]({{% relref "../../../product/integration_references/infrastructure_drivers_development/devel-im#devel-im" %}}) or by updating the Host information with: `onehost update`.
 
 For example, to label a Host as *production* we can add a custom tag *TYPE*:
 
@@ -293,7 +285,7 @@ The monitoring information for a Host includes details about all PCI devices det
 
 Each PCI device reported by the monitor contains the following attributes:
 
-| Attribute       | Type    | Present             | Description                                                                                                    |
+| **Attribute**   | **Type** | **Present**             | **Description**                                                                                                    |
 | ---             | ---     | ---                 | ---                                                                                                            |
 | `ADDRESS`       | String  | Always              | Full PCI address including domain (e.g., `0000:81:02:1`)                                                       |
 | `BUS`           | String  | Always              | PCI bus number (e.g., `81`)                                                                                    |
@@ -304,17 +296,35 @@ Each PCI device reported by the monitor contains the following attributes:
 | `DOMAIN`        | String  | Always              | PCI domain number (e.g., `0000`)                                                                               |
 | `FUNCTION`      | String  | Always              | PCI function number (e.g., `1`)                                                                                |
 | `NUMA_NODE`     | String  | Always              | NUMA node where the PCI device is attached (`-` if undetermined)                                               |
-| `SHORT_ADDRESS` | String  | Always              | Short PCI address without domain (e.g., `81:02:1`)                                                             |
+| `SHORT_ADDRESS` | String  | Always              | Short PCI address without domain (e.g., `81:02.1`)                                                             |
 | `SLOT`          | String  | Always              | PCI slot name (e.g., `02`)                                                                                     |
 | `TYPE`          | String  | Always              | PCI device type (`VENDOR:DEVICE:CLASS`)                                                                        |
 | `VENDOR`        | String  | Always              | PCI vendor ID (e.g., `10de` for NVIDIA)                                                                        |
 | `VENDOR_NAME`   | String  | Always              | Human-readable vendor name (e.g., "NVIDIA Corporation")                                                        |
 | `VMID`          | Integer | Always              | ID of the Virtual Machine currently using this PCI device (`-1` if unassigned)                                 |
 | `IFNAME`        | String  | Always              | Network interface name bound to the PCI device (e.g., `eth0`, `ens1f0`). For non-network devices, this is `-`. |
-| `SRIOV`         | String  | Always              | SR-IOV role: `pf` (Physical Function), `vf` (Virtual Function), or `-` (neither)                               |
-| `SRIOV_NUM`     | String  | SRIOV NIC  only     | Available Virtual Functions within a given Physical Function                                                   |
+| `SRIOV`         | String  | Always              | SR-IOV role: `pf` (Physical Function), `vf` (Virtual Function), or `no` (neither)                              |
+| `SRIOV_NUM`     | String  | Physical Functions  | Number of enabled Virtual Functions on the PF, including those already assigned to VMs.                       |
+| `PF_ADDRESS`    | String  | VF, if parent found | Full monitored `ADDRESS` of the parent PF (e.g., `0000:81:00:0`).                                               |
+| `PF_IFNAME`     | String  | Network VF, if parent found | Interface name of the parent PF (e.g., `pf0`).                                                         |
+| `PASSTHROUGH`   | String  | Always              | Eligibility for PCI passthrough: `YES` or `NO`. A PF with enabled VFs has `NO`.                                 |
+| `ESWITCH_MODE`  | String  | Network PF, if available | PF e-switch mode, such as `legacy` or `switchdev`. Omitted if the probe cannot retrieve it through `devlink`. |
 | `PROFILES`      | String  | NVIDIA vGPU VF only | Available hardware profile(s), comma-separated (e.g., `1145 (NVIDIA L40S-1B),1146 (NVIDIA L40S-2B)`)           |
 | `UUID`          | String  | NVIDIA vGPU VF only | Deterministic SHA1-based identifier derived from the PCI address                                               |
+
+#### PF and VF Monitoring
+
+In Sunstone, open **Infrastructure**, **Hosts**, select the Host, and open the **PCI** tab. The table shows each device's **SR-IOV role**, the parent **Physical function** interface for VFs, and the PF's **eSwitch mode** when available. For PFs, **Available Functions** shows free VFs out of the total monitored VFs. These counts reflect the monitored inventory and can differ from `SRIOV_NUM` if monitoring filters exclude some VFs.
+
+From the CLI, list the Host's PCI devices:
+
+```shell
+onehost show <host>
+```
+
+The **PCI DEVICES** table shows device addresses, types, names, and VM assignments, together with the associated SR-IOV attributes when available.
+
+You can use this relationship to [select VFs from a particular PF]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#selecting-virtual-functions-by-physical-function" %}}). Ensure that the monitoring filters expose both the parent PF and its VFs.
 
 #### IFNAME Resolution
 
@@ -324,7 +334,7 @@ The `IFNAME` attribute is resolved using multiple methods, following this preced
 2. **File cache** — consults `/var/tmp/one_db/pci_net_names/<PCI_ADDRESS>`, where each file (named as the PCI address) contains the interface name. Created automatically on first resolution.
 3. **Direct sysfs lookup** — reads the directory `/sys/bus/pci/devices/<PCI_ADDRESS>/net/` to find the kernel interface name.
 
-The cache is cleared when the monitoring daemon restarts.
+The cache is cleared when the monitoring daemon restarts. After renaming an interface, run `onehost forceupdate <host>` to restart monitoring and refresh the cached names.
 
 <a id="import-wild-vms"></a>
 

@@ -9,7 +9,7 @@ weight: "4"
 type: docs
 ---
 
-This section explains the main concepts behind OpenNebula Elastic Kubernetes Service (OneKS). This service exposes Kubernetes Clusters as high-level resources while orchestrating the OpenNebula, Cluster API, CAPONE, and runtime components required to provision and operate them.
+This section explains the main concepts behind OpenNebula Managed Kubernetes Service (OneKS). This service exposes Kubernetes Clusters as high-level resources while orchestrating the OpenNebula, Cluster API, CAPONE, and runtime components required to provision and operate them.
 
 Users mainly interact with:
 

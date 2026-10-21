@@ -21,7 +21,7 @@ Unlike proprietary alternatives, OpenNebula offers:
 * A predictable subscription model with full access to all features.
 * Unified virtualization and cloud management.
 * Native edge and hybrid cloud support, including automatic resource provisioning on public clouds such as AWS.
-* Integrated elastic Kubernetes-as-a-Service.
+* Integrated Managed Kubernetes-as-a-Service.
 * Enterprise-grade scalability and automation, with high availability, multi-tenancy, and federation across sites.
 
 To assist with the preparation and completion of the numerous Requests for Proposal (RFPs) we receive every week, we have created the following table to help guide comparisons between OpenNebula and other cloud solutions. You will find three areas of interest:
@@ -65,7 +65,7 @@ Thousands of organizations worldwide already rely on OpenNebula as an open alter
 | **Capacity and Performance Management** | <p style="margin-bottom: 0px">Live migration, Enhanced VM Compatibility (EVC), storage live migration, DRS, and scheduling, affinity rules, and host overcommitment to optimize performance and resource efficiency.</p> |
 | **Monitoring & Observability** | <p style="margin-bottom: 0px">Built-in telemetry, Prometheus and Grafana integration, as well as NVIDIA DCGM for GPU metrics.</p> |
 | **Secure Multi-tenancy** | <p style="margin-bottom: 0px" >Fine-grained ACLs, user/group roles, quotas, VDCs, network isolation, and hardware partitioning.</p> |
-| **Container & Kubernetes Support** | <p style="margin-bottom: 0px" >Native Kubernetes integrations through OpenNebula’s elastic Kubernetes-as-a-Service, including Cluster API Provider for OpenNebula (CAPONE), Cloud Provider Interface (CPI), and Container Storage Interface (CSI), together with fully certified support for SUSE Rancher Prime and RKE2.</p> |
+| **Container & Kubernetes Support** | <p style="margin-bottom: 0px" >Native Kubernetes integrations through OpenNebula’s Managed Kubernetes-as-a-Service, including Cluster API Provider for OpenNebula (CAPONE), Cloud Provider Interface (CPI), and Container Storage Interface (CSI), together with fully certified support for SUSE Rancher Prime and RKE2.</p> |
 | **Confidential Computing** | <p style="margin-bottom: 0px" >Encrypted VM disks, encrypted VM memory and support for Confidential Computing and vTPM.</p> |
 | **Automation & Configuration** | <p style="margin-bottom: 0px" >Native support for Terraform and Ansible event hooks and APIs for DevOps integration.</p> |
 | **Marketplace** | <p style="margin-bottom: 0px" >Public and private App Marketplaces for VM templates, OS images, and application stacks.</p> |

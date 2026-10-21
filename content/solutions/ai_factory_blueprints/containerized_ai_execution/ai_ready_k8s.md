@@ -11,7 +11,7 @@ Kubernetes embraces multi-tenancy, supporting different isolated namespaces wher
 
 Additionally, running Kubernetes Clusters on top of OpenNebula-provisioned Virtual Machines (VMs) provides several advantages, such as hardware-level isolation, physically secure multi-tenancy. This also provides an additional layer of resource isolation for performance-sensitive workloads, multi-cloud architectures, flexibility as well as lifecycle management, and resource efficiency. 
 
-[OneKS]({{% relref "platform_services/oneks/" %}}), the OpenNebula Elastic Kubernetes Service, enables straightforward deployment of AI-ready Kubernetes Clusters on OpenNebula-managed infrastructure.
+[OneKS]({{% relref "platform_services/oneks/" %}}), the OpenNebula Managed Kubernetes Service, enables straightforward deployment of AI-ready Kubernetes Clusters on OpenNebula-managed infrastructure.
 
 In this guide you will learn how to provision a secure, robust and scalable containerized solution for AI workloads using OpenNebula's powerful Kubernetes capabilities.
 
@@ -48,6 +48,15 @@ The AI-ready Kubernetes deployment in the guides in this section was tested with
 | RAM | 377 GiB (OS-reported) Samsung 32 GB DDR5-4800 ECC RDIMM |
 | GPU | 1 NVIDIA L40S |
 | Disk | 1 3.5 TiB NVMe | 
+
+## Architecture
+
+The diagram below depicts the top-level architecture of the NVIDIA Dynamo framework setup in an OpenNebula deployment. The OpenNebula Front-end Host contains one or two NVIDIA L40S GPU PCI cards which operate as the Host server for the K8s Cluster VMs. For this reference setup, the VMs share a simple bridged network.
+
+{{< image
+  path="images/ai_factories/oneks_ai_k8s_architecture_opennebula.svg"
+  alt="AI-ready K8s Architecture" align="center" width="90%" mb="20px"
+>}}
 
 ## Step 1: Configure the OneKS NodeGroup Template to Use the GPU
 

@@ -137,6 +137,16 @@ The following attributes can be set in `/var/lib/one/remotes/etc/datastore/datas
 Before adding a new filesystem to the `SUPPORTED_FS` list, verify that the corresponding `mkfs.<fs_name>` command is available in all Hosts including the front-end and hypervisors. The system will revert to the default filesystem if an unsupported one is detected.
 {{< /alert >}}
 
+## Changing Persistency Mode
+
+Persistent and non-persistent images use different Logical Volume layouts in the LVM SAN datastore. Changing the `PERSISTENT` attribute directly does not convert the underlying LVM layout.
+
+To convert a persistent image to a non-persistent one:
+
+1. Instantiate a VM using the persistent image.
+2. Use the **Save As** operation on the VM disk to create a new non-persistent image in the LVM Image Datastore.
+3. Once the operation completes, verify that the new image is in the `READY` state.
+
 <a id="datastore-internals"></a>
 
 ## Datastore Internals

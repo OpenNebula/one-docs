@@ -10,7 +10,7 @@ weight: "1"
 
 <a id="whats-new"></a>
 
-The OpenNebula team is excited to announce the availability of **OpenNebula 7.4 "Helix"**! This release introduces a broad set of usability, automation, and operational improvements across the platform for operating virtualized infrastructure at scale, led by a redesigned Sunstone interface that makes day-to-day cloud management more modern and intuitive. This release also introduces OneKS Elastic Kubernetes and LVM storage as Community Edition features — now available to all OpenNebula users!
+The OpenNebula team is excited to announce the availability of **OpenNebula 7.4 "Helix"**! This release introduces a broad set of usability, automation, and operational improvements across the platform for operating virtualized infrastructure at scale, led by a redesigned Sunstone interface that makes day-to-day cloud management more modern and intuitive. This release also introduces OneKS Managed Kubernetes and LVM storage as Community Edition features — now available to all OpenNebula users!
 
 {{< image
   pathDark="images/sunstone/common/dark/sunstone_showcase.png"
@@ -23,7 +23,7 @@ Together with this release, OpenNebula also introduces new extension capabilitie
 Key highlights of this release include:
 
 * Redesigned Sunstone interface, delivering a modern, highly intuitive user experience for cloud administrators.
-* OneKS Elastic Kubernetes is now a Community Edition feature — OpenNebula's simple, powerful Kubernetes Cluster provisioning and management tool is now available to all users.
+* OneKS Managed Kubernetes is now a Community Edition feature — OpenNebula's simple, powerful Kubernetes Cluster provisioning and management tool is now available to all users.
 * LVM storage is now a Community Edition feature, bringing flexibility such as dynamic resizing and live migration capabilities to all OpenNebula users.
 * Improved Kubernetes management with multi-cluster deployment configuration options and pre-deployment diagnostics to validate Cluster readiness and avoid time-consuming provisioning failures.
 * Optimized enterprise workload management with OneSwap batch VMware migrations, dynamic VM group management via the CLI, and bulk deletion of scheduled actions from all service VMs.
@@ -80,7 +80,7 @@ Thank you to our incredible community and partners for your continued support in
 * Gather network information using qemu-guest-agent when [QEMU Guest Agent Monitoring](/product/operation_references/hypervisor_configuration/kvm_driver/#qemu-guest-agent-monitoring) is enabled.
 * Added per-VM live migration tuning through [`MIGRATE_AUTO_CONVERGE` and `MIGRATE_COMPRESSED`]({{% relref "product/operation_references/configuration_references/template.md#template-features" %}}), allowing administrators to improve live migration convergence for busy KVM guests.
 
-## OpenNebula Elastic Kubernetes Service
+## OpenNebula Managed Kubernetes Service
 
 * Added multi-cluster deployment support in OneKS, allowing users to select the target OpenNebula Cluster and deployment networks when creating Kubernetes Clusters.
 * Added [pre-deployment diagnostics for OneKS provisioning]({{% relref "platform_services/oneks/management/configuration/#readiness-check-configuration" %}}), enabling users to validate the readiness a deployment placement option prior to deployment to avoid time-consuming provisioning failures.
