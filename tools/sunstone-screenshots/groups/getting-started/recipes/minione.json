@@ -1,0 +1,87 @@
+{
+  "setup": [
+    {"action": "goto", "url": "${SUNSTONE_URL}"},
+    {"action": "fill", "selector": "input[type='text']", "value": "${SUNSTONE_USER}"},
+    {"action": "fill", "selector": "input[type='password']", "value": "${SUNSTONE_PASSWORD}"},
+    {"action": "click", "role": "button", "name": "Sign In Now", "exact": true},
+    {"action": "waitForSelector", "selector": "[data-cy='sidebar-paper']"}
+  ],
+  "themeSteps": {
+    "light": [{"action": "waitTime", "timeout": 250}],
+    "dark": [{"action": "waitTime", "timeout": 250}]
+  },
+  "captures": [
+    {
+      "id": "dashboard",
+      "steps": [
+        {"action": "waitForSelector", "selector": "[data-cy='dashboard-panel']"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body", "clip": {"leftPercent": 0, "rightPercent": 100, "topPercent": 0, "bottomPercent": 60}}
+    },
+    {
+      "id": "network-menu",
+      "steps": [
+        {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
+        {"action": "click", "selector": "[data-cy='networks']:visible"},
+        {"action": "hover", "selector": "[data-cy='main-menu-item']:visible:has-text('Virtual Networks')"}
+      ],
+      "screenshot": {"selector": "body", "clip": {"leftPercent": 0, "rightPercent": 65, "topPercent": 0, "bottomPercent": 65}}
+    },
+    {
+      "id": "network-details",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Virtual Networks')"},
+        {"action": "defocus"},
+        {"action": "click", "selector": "[data-cy^='vnets-']:has(:text-is('vnet'))"},
+        {"action": "waitForSelector", "selector": "[data-cy='tab-content-info']:has-text('vnet')"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "templates",
+      "steps": [
+        {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
+        {"action": "click", "selector": "[data-cy='templates']:visible"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('VM Templates')"},
+        {"action": "defocus"},
+        {"action": "waitForSelector", "selector": "[data-cy^='vm-template-']:has-text('Alpine')"}
+      ],
+      "screenshot": {"selector": "body", "clip": {"leftPercent": 0, "rightPercent": 100, "topPercent": 0, "bottomPercent": 65}}
+    },
+    {
+      "id": "instantiate-configuration",
+      "steps": [
+        {"action": "click", "selector": "[data-cy^='vm-template-']:has-text('Alpine')"},
+        {"action": "click", "dataCy": "action-instantiate_dialog"},
+        {"action": "fill", "dataCy": "information-name", "value": "docs-screenshot-alpine"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "instantiate-advanced",
+      "steps": [
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "waitForSelector", "selector": "[data-cy='tab-content-storage']"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "running",
+      "steps": [
+        {"action": "click", "selector": "button[data-cy='stepper-next-button']:has-text('Finish')"},
+        {"action": "waitForURL", "url": "**/vm", "timeout": 60000},
+        {"action": "defocus"},
+        {"action": "waitForSelector", "selector": "[data-cy^='vms-']:has-text('docs-screenshot-alpine'):has-text('RUNNING')", "timeout": 300000, "refreshSelector": "button[data-cy='refresh']"}
+      ],
+      "screenshot": {"selector": "body", "clip": {"leftPercent": 0, "rightPercent": 100, "topPercent": 0, "bottomPercent": 65}}
+    }
+  ],
+  "teardown": [
+    {"action": "click", "selector": "[data-cy='sidebar-user-menu']:visible"},
+    {"action": "click", "selector": "[data-cy='sidebar-logout-button']:visible"},
+    {"action": "waitForSelector", "selector": "input[type='password']"}
+  ]
+}

@@ -35,12 +35,23 @@ def validate_manifest(manifest: dict[str, Any], repo_root: Path, manifest_path: 
     else:
         for commands in hooks.values():
             try:
-                validate_commands(commands)
+                validate_commands(commands, manifest_dir)
             except ManifestError as exc:
                 errors.append(str(exc))
     group = manifest.get('group')
     if group is not None and (not isinstance(group, str) or not (manifest_dir / group).is_file()):
         errors.append('group: must reference an existing group JSON file')
+
+    deferred = manifest.get('deferredScreenshots', [])
+    if not isinstance(deferred, list):
+        errors.append('deferredScreenshots: expected a list')
+    else:
+        for item in deferred:
+            if (not isinstance(item, dict) or set(item) != {'image', 'reason'}
+                    or not all(isinstance(v, str) and v.strip() for v in item.values())):
+                errors.append('deferredScreenshots: each entry requires image and reason strings')
+            elif not (repo_root / item['image']).is_file():
+                errors.append(f'deferredScreenshots: image does not exist: {item["image"]}')
 
     for index, screenshot in enumerate(manifest.get("screenshots", []), start=1):
         prefix = f"screenshots[{index}]"
@@ -60,6 +71,21 @@ def validate_manifest(manifest: dict[str, Any], repo_root: Path, manifest_path: 
             if not screenshot.get(key):
                 errors.append(f"{prefix}: missing {key}")
 
+        if 'sharedFrom' in screenshot:
+            try:
+                source_path, source, source_manifest = shared_source(screenshot, manifest_path)
+                if source.get('sharedFrom') or source.get('status') == 'disabled':
+                    raise ManifestError('sharedFrom must name an enabled, directly captured screenshot')
+                for key in ('image', 'darkImage', 'capture'):
+                    if screenshot.get(key) != source.get(key):
+                        raise ManifestError(f'sharedFrom {key} differs from its source')
+                if (manifest_dir / screenshot['recipe']).resolve() != (source_path.parent / source['recipe']).resolve():
+                    raise ManifestError('sharedFrom recipe differs from its source')
+                if manifest_defaults(manifest) != manifest_defaults(source_manifest):
+                    raise ManifestError('sharedFrom defaults differ from its source')
+            except (ManifestError, OSError, KeyError, TypeError) as exc:
+                errors.append(f'{prefix}: {exc}')
+
         for key in ("doc", "image", "darkImage"):
             rel_path = screenshot.get(key)
             if rel_path and not (repo_root / rel_path).exists():
@@ -75,10 +101,12 @@ def validate_manifest(manifest: dict[str, Any], repo_root: Path, manifest_path: 
                 captures = data.get('captures', [])
                 if screenshot.get('capture') not in [c.get('id') for c in captures]:
                     errors.append(f'{prefix}: capture not found in recipe')
-                steps = list(data.get('setup', []))
+                steps = list(data.get('setup', [])) + list(data.get('teardown', []))
                 for capture in captures:
                     steps.extend(capture.get('steps', []))
                 validate_commands([s for s in steps if s.get('action') == 'guestCommand'])
+                if any('script' in s for s in steps if s.get('action') == 'guestCommand'):
+                    errors.append(f'{prefix}: guestCommand recipe steps require inline command; script hooks belong in the manifest')
             except (ValueError, TypeError, AttributeError) as exc:
                 errors.append(f'{prefix}: invalid recipe: {exc}')
 
@@ -95,6 +123,19 @@ def validate_manifest(manifest: dict[str, Any], repo_root: Path, manifest_path: 
             errors.append(f"{screenshot.get('id', '<unknown>')}: unknown environment {environment}")
 
     return errors
+
+
+def shared_source(screenshot: dict[str, Any], manifest_path: Path) -> tuple[Path, dict[str, Any], dict[str, Any]]:
+    reference = screenshot['sharedFrom']
+    if (not isinstance(reference, dict) or set(reference) != {'manifest', 'id'}
+            or not all(isinstance(value, str) and value.strip() for value in reference.values())):
+        raise ManifestError('sharedFrom requires nonempty manifest and id strings')
+    path = (manifest_path.resolve().parent / reference['manifest']).resolve()
+    manifest = load_manifest(path)
+    matches = [s for s in manifest['screenshots'] if isinstance(s, dict) and s.get('id') == reference['id']]
+    if len(matches) != 1:
+        raise ManifestError('sharedFrom must identify exactly one source screenshot')
+    return path, matches[0], manifest
 
 
 def screenshot_variants(screenshot: dict[str, Any]) -> Iterable[tuple[str, str]]:

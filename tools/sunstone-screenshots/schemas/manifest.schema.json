@@ -63,14 +63,28 @@
       "items": {
         "$ref": "#/$defs/screenshot"
       }
+    },
+    "deferredScreenshots": {
+      "type": "array",
+      "description": "Known screenshots that cannot yet be reproduced by this lab.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["image", "reason"],
+        "properties": {
+          "image": {"type": "string", "minLength": 1},
+          "reason": {"type": "string", "minLength": 1}
+        }
+      }
     }
   },
   "$defs": {
     "guestCommand": {
       "type": "object",
-      "required": ["command"],
+      "oneOf": [{"required": ["command"], "not": {"required": ["script"]}}, {"required": ["script"], "not": {"required": ["command"]}}],
       "properties": {
         "command": {"type": "string", "minLength": 1},
+        "script": {"type": "string", "minLength": 1},
         "timeout": {"type": "integer", "minimum": 1}
       }
     },
@@ -137,6 +151,16 @@
         },
         "capture": {
           "type": "string"
+        },
+        "sharedFrom": {
+          "type": "object",
+          "description": "Reuse a replacement captured by an earlier manifest in the same group; do not run its recipe again.",
+          "additionalProperties": false,
+          "required": ["manifest", "id"],
+          "properties": {
+            "manifest": {"type": "string", "minLength": 1},
+            "id": {"type": "string", "minLength": 1}
+          }
         },
         "viewport": {
           "$ref": "#/$defs/viewport"

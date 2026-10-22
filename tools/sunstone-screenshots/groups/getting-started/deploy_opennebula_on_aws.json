@@ -1,0 +1,62 @@
+{
+  "$schema": "../../schemas/manifest.schema.json",
+  "version": 1,
+  "group": "group.json",
+  "defaults": {"viewport": {"width": 1440, "height": 1000}, "locale": "en-US"},
+  "screenshots": [
+    {
+      "id": "aws.login", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_on_aws.md",
+      "image": "assets/images/quickstart/light/sunstone_login_page.png", "darkImage": "assets/images/quickstart/dark/sunstone_login_page.png",
+      "recipe": "recipes/login-page.json", "capture": "login", "sharedFrom": {"manifest": "deploy_opennebula_onprem_with_minione.json", "id": "minione.login"},
+      "tags": ["getting-started", "aws"], "status": "draft"
+    },
+    {
+      "id": "aws.dashboard", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_on_aws.md",
+      "image": "assets/images/quickstart/light/sunstone_dashboard.png", "darkImage": "assets/images/quickstart/dark/sunstone_dashboard.png",
+      "recipe": "recipes/minione.json", "capture": "dashboard", "sharedFrom": {"manifest": "deploy_opennebula_onprem_with_minione.json", "id": "minione.dashboard"},
+      "tags": ["getting-started", "aws"], "status": "draft"
+    },
+    {
+      "id": "aws.network-menu", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_on_aws.md",
+      "image": "assets/images/quickstart/light/sunstone_select_vnetwork.png", "darkImage": "assets/images/quickstart/dark/sunstone_select_vnetwork.png",
+      "recipe": "recipes/minione.json", "capture": "network-menu", "sharedFrom": {"manifest": "deploy_opennebula_onprem_with_minione.json", "id": "minione.network-menu"},
+      "tags": ["getting-started", "aws"], "status": "draft"
+    },
+    {
+      "id": "aws.network-details", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_on_aws.md",
+      "image": "assets/images/quickstart/light/sunstone_network_details.png", "darkImage": "assets/images/quickstart/dark/sunstone_network_details.png",
+      "recipe": "recipes/minione.json", "capture": "network-details", "sharedFrom": {"manifest": "deploy_opennebula_onprem_with_minione.json", "id": "minione.network-details"},
+      "tags": ["getting-started", "aws"], "status": "draft"
+    },
+    {
+      "id": "aws.templates", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_on_aws.md",
+      "image": "assets/images/quickstart/light/sunstone_vm_templates_alpine.png", "darkImage": "assets/images/quickstart/dark/sunstone_vm_templates_alpine.png",
+      "recipe": "recipes/minione.json", "capture": "templates", "sharedFrom": {"manifest": "deploy_opennebula_onprem_with_minione.json", "id": "minione.templates"},
+      "tags": ["getting-started", "aws"], "status": "draft"
+    },
+    {
+      "id": "aws.instantiate-configuration", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_on_aws.md",
+      "image": "assets/images/quickstart/light/sunstone_instantiate_vm_1.png", "darkImage": "assets/images/quickstart/dark/sunstone_instantiate_vm_1.png",
+      "recipe": "recipes/minione.json", "capture": "instantiate-configuration", "sharedFrom": {"manifest": "deploy_opennebula_onprem_with_minione.json", "id": "minione.instantiate-configuration"},
+      "tags": ["getting-started", "aws"], "status": "draft"
+    },
+    {
+      "id": "aws.instantiate-advanced", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_on_aws.md",
+      "image": "assets/images/quickstart/light/sunstone_instantiate_vm_2.png", "darkImage": "assets/images/quickstart/dark/sunstone_instantiate_vm_2.png",
+      "recipe": "recipes/minione.json", "capture": "instantiate-advanced", "sharedFrom": {"manifest": "deploy_opennebula_onprem_with_minione.json", "id": "minione.instantiate-advanced"},
+      "tags": ["getting-started", "aws"], "status": "draft"
+    },
+    {
+      "id": "aws.running", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_on_aws.md",
+      "image": "assets/images/quickstart/light/sunstone_vm_instances.png", "darkImage": "assets/images/quickstart/dark/sunstone_vm_instances.png",
+      "recipe": "recipes/minione.json", "capture": "running", "sharedFrom": {"manifest": "deploy_opennebula_onprem_with_minione.json", "id": "minione.running"},
+      "tags": ["getting-started", "aws"], "status": "draft"
+    },
+    {
+      "id": "aws.console", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_on_aws.md",
+      "image": "assets/images/quickstart/light/sunstone_vnc_alpine.png", "darkImage": "assets/images/quickstart/dark/sunstone_vnc_alpine.png",
+      "recipe": "recipes/alpine-console.json", "capture": "console", "sharedFrom": {"manifest": "deploy_opennebula_onprem_with_minione.json", "id": "minione.console"},
+      "tags": ["getting-started", "aws"], "status": "draft"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/group.schema.json",
+  "version": 1,
+  "provision": "provision.json",
+  "destroyOnSuccess": true,
+  "manifests": [
+    "deploy_opennebula_onprem_with_minione.json",
+    "deploy_opennebula_on_aws.json",
+    "deploy_opennebula_onprem_with_poc_iso.json",
+    "validate_the_environment.json"
+  ]
+}

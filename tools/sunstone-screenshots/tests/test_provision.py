@@ -122,6 +122,62 @@ class ProvisionTests(unittest.TestCase):
             self.assertTrue(lab.guest_ready(state, self.run))
         self.assertNotIn('ssh_error', state)
 
+    def test_services_require_a_monitored_kvm_host(self):
+        for host_state, driver, ready in [('2', 'kvm', True), ('0', 'kvm', False),
+                                           ('3', 'kvm', False), ('4', 'kvm', False),
+                                           ('2', 'lxc', False)]:
+            with self.subTest(state=host_state, driver=driver):
+                state = {'services_error': 'previous failure'}
+                xml = (f'<HOST_POOL><HOST><ID>0</ID><NAME>localhost</NAME><STATE>{host_state}</STATE>'
+                       f'<VM_MAD>{driver}</VM_MAD></HOST></HOST_POOL>')
+                with patch.object(lab, 'ssh', return_value=SimpleNamespace(returncode=0, stdout=xml)):
+                    self.assertEqual(lab.services_ready(state, self.run), ready)
+                if ready:
+                    self.assertNotIn('services_error', state)
+                else:
+                    self.assertIn(f'STATE={host_state}, VM_MAD={driver}', state['services_error'])
+
+    def test_services_preserve_transport_and_parse_errors(self):
+        results = [(None, 'SSH timed out'),
+                   (SimpleNamespace(returncode=1, stderr='sudo: a password is required'), 'sudo:'),
+                   (SimpleNamespace(returncode=0, stdout='not XML'), 'invalid host XML'),
+                   (SimpleNamespace(returncode=0, stdout='<ERROR/>'), 'Expected HOST_POOL'),
+                   (SimpleNamespace(returncode=0, stdout='<HOST_POOL/>'), 'No hosts registered')]
+        for result, detail in results:
+            with self.subTest(detail=detail), patch.object(lab, 'ssh', return_value=result):
+                state = {}
+                self.assertFalse(lab.services_ready(state, self.run))
+                self.assertIn(detail, state['services_error'])
+
+    def test_services_preserve_host_monitoring_error(self):
+        xml = ('<HOST_POOL><HOST><ID>0</ID><NAME>localhost</NAME><STATE>3</STATE>'
+               '<VM_MAD>kvm</VM_MAD><TEMPLATE><ERROR>Monitoring probe failed</ERROR>'
+               '</TEMPLATE></HOST></HOST_POOL>')
+        state = {}
+        with patch.object(lab, 'ssh', return_value=SimpleNamespace(returncode=0, stdout=xml)):
+            self.assertFalse(lab.services_ready(state, self.run))
+        self.assertIn('Monitoring probe failed', state['services_error'])
+
+    def test_failed_readiness_retains_host_diagnostic(self):
+        cfg = lab.load(self.config)
+        cfg['boot_timeout'] = 1
+        self.config.write_text(json.dumps(cfg))
+        one = Mock()
+        one.template.instantiate.return_value = 17
+        xml = ('<HOST_POOL><HOST><ID>0</ID><NAME>localhost</NAME><STATE>0</STATE>'
+               '<VM_MAD>kvm</VM_MAD></HOST></HOST_POOL>')
+        with patch.object(lab, 'connect', return_value=one), \
+             patch.object(lab, 'running_address', return_value='192.0.2.4'), \
+             patch.object(lab, 'guest_ready', return_value=True), \
+             patch.object(lab, 'install'), \
+             patch.object(lab, 'ssh', return_value=SimpleNamespace(returncode=0, stdout=xml)), \
+             patch.object(lab.time, 'monotonic', side_effect=[0, 0, 0, 2]):
+            with self.assertRaisesRegex(lab.ProvisionError, 'localhost .*STATE=0'):
+                lab.provision(self.config, self.run)
+        state = lab.load(self.run / 'state.json')
+        self.assertEqual(state['failed_phase'], 'checking-services')
+        self.assertIn('STATE=0', state['services_error'])
+
     def test_failed_install_records_vm_for_cleanup(self):
         one = Mock()
         one.template.instantiate.return_value = 17
@@ -167,6 +223,57 @@ class ProvisionTests(unittest.TestCase):
                 lab.destroy(self.run)
         one.vm.action.assert_not_called()
 
+    def installed_state(self, **changes):
+        self.run.mkdir()
+        state = {'phase': 'failed', 'failed_phase': 'checking-services', 'vm_id': 17,
+                 'vm_name': 'lab', 'address': '192.0.2.4', 'config': lab.configuration(self.config)}
+        state.update(changes)
+        lab.save(self.run / 'state.json', state)
+
+    def test_readiness_resume_uses_existing_installation(self):
+        self.installed_state(services_error='host still INIT')
+        with patch.object(lab, 'connect'), \
+             patch.object(lab, 'running_address', return_value='192.0.2.4'), \
+             patch.object(lab, 'services_ready', return_value=True), \
+             patch.object(lab, 'http_ready', return_value=True), \
+             patch.object(lab, 'install') as install, \
+             patch.object(lab, 'prepare_installer') as download:
+            lab.resume_readiness(self.run)
+        install.assert_not_called()
+        download.assert_not_called()
+        state = lab.load(self.run / 'state.json')
+        self.assertEqual(state['phase'], 'ready')
+        self.assertEqual(state['vm_id'], 17)
+        self.assertNotIn('failed_phase', state)
+        self.assertNotIn('services_error', state)
+
+    def test_readiness_resume_refuses_partial_install(self):
+        self.installed_state(failed_phase='installing')
+        with patch.object(lab, 'connect') as connect:
+            with self.assertRaisesRegex(lab.ProvisionError, 'completed installations'):
+                lab.resume_readiness(self.run)
+        connect.assert_not_called()
+
+    def test_readiness_resume_refuses_changed_vm_address(self):
+        self.installed_state()
+        with patch.object(lab, 'connect'), \
+             patch.object(lab, 'running_address', return_value='192.0.2.99'), \
+             patch.object(lab, 'services_ready') as services:
+            with self.assertRaisesRegex(lab.ProvisionError, 'saved address'):
+                lab.resume_readiness(self.run)
+        services.assert_not_called()
+
+    def test_failed_readiness_resume_keeps_failure_record(self):
+        self.installed_state()
+        with patch.object(lab, 'connect'), \
+             patch.object(lab, 'running_address', return_value='192.0.2.4'), \
+             patch.object(lab, 'services_ready', side_effect=lab.ProvisionError('SSH denied')):
+            with self.assertRaisesRegex(lab.ProvisionError, 'SSH denied'):
+                lab.resume_readiness(self.run)
+        state = lab.load(self.run / 'state.json')
+        self.assertEqual(state['phase'], 'failed')
+        self.assertEqual(state['failed_phase'], 'checking-services')
+
     def test_installer_change_refused(self):
         cfg = lab.configuration(self.config)
         (self.root / 'minione').write_text('changed')
@@ -176,6 +283,8 @@ class ProvisionTests(unittest.TestCase):
     def test_minione_options_validation(self):
         original = lab.load(self.config)
         for key, value in [('minione_force', 'true'), ('minione_force', 1),
+                           ('disable_automatic_updates', 'true'), ('disable_automatic_updates', 1),
+                           ('disable_automatic_updates', None),
                            ('minione_password', ''), ('minione_password', 123),
                            ('minione_password', 'a\nb'), ('minione_password', 'a\x00b')]:
             with self.subTest(key=key, value=value):
@@ -204,6 +313,23 @@ class ProvisionTests(unittest.TestCase):
                 if enabled:
                     self.assertEqual(args[args.index('--password') + 1], password)
                     self.assertEqual(args[args.index('--repo-base') + 1], cfg['repo_base'])
+
+    def test_automatic_update_guard_is_opt_in_and_runs_before_minione(self):
+        self.run.mkdir()
+        for enabled in (False, True):
+            with self.subTest(enabled=enabled):
+                cfg = lab.configuration(self.config)
+                if enabled:
+                    cfg['disable_automatic_updates'] = True
+                with patch.object(lab, 'ssh', return_value=SimpleNamespace(returncode=0)) as ssh:
+                    lab.install({'config': cfg}, self.run)
+                script = ssh.call_args.args[2]
+                self.assertEqual('APT::Periodic::Enable' in script, enabled)
+                if enabled:
+                    self.assertLess(script.index('cloud-init status --wait'), script.index('Pausing scheduled APT'))
+                    self.assertLess(script.index('Scheduled APT jobs are idle'),
+                                    script.index('bash /root/screenshot-lab/minione '))
+                    self.assertEqual(ssh.call_args.kwargs['timeout'], cfg['install_timeout'])
 
     def url_config(self):
         cfg = lab.load(self.config)

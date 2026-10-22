@@ -1,0 +1,29 @@
+{
+  "setup": [
+    {"action": "goto", "url": "${SUNSTONE_URL}"},
+    {"action": "fill", "selector": "input[type='text']", "value": "${SUNSTONE_USER}"},
+    {"action": "fill", "selector": "input[type='password']", "value": "${SUNSTONE_PASSWORD}"},
+    {"action": "click", "role": "button", "name": "Sign In Now", "exact": true},
+    {"action": "waitForSelector", "selector": "[data-cy='sidebar-paper']"}
+  ],
+  "captures": [
+    {
+      "id": "vllm-app",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='storage']:visible"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Apps')"},
+        {"action": "defocus"},
+        {"action": "fill", "dataCy": "search-marketplace-apps", "value": "vllm"},
+        {"action": "click", "selector": "[data-cy^='marketplace-apps-']:has-text('vllm'):has-text('x86_64')"},
+        {"action": "waitForSelector", "selector": "[data-cy='tab-content-info']:has-text('PUBLISHER')"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body", "clip": {"leftPercent": 0, "rightPercent": 100, "topPercent": 0, "bottomPercent": 55}}
+    }
+  ],
+  "teardown": [
+    {"action": "click", "selector": "[data-cy='sidebar-user-menu']:visible"},
+    {"action": "click", "selector": "[data-cy='sidebar-logout-button']:visible"},
+    {"action": "waitForSelector", "selector": "input[type='password']"}
+  ]
+}

@@ -1,12 +1,34 @@
 {
-  "setup": [{"action": "goto", "url": "${SUNSTONE_URL}"}],
+  "setup": [
+    {"action": "goto", "url": "${SUNSTONE_URL}"},
+    {"action": "fill", "selector": "input[type='text']", "value": "${SUNSTONE_USER}"},
+    {"action": "fill", "selector": "input[type='password']", "value": "${SUNSTONE_PASSWORD}"},
+    {"action": "click", "role": "button", "name": "Sign In Now", "exact": true},
+    {"action": "waitForSelector", "selector": "[data-cy='sidebar-paper']"}
+  ],
   "captures": [
     {
-      "id": "login",
+      "id": "alpine-running",
       "steps": [
-        {"action": "guestCommand", "command": "su - oneadmin -c 'onehost list >/dev/null'", "timeout": 30},
-        {"action": "waitForSelector", "selector": "input[type=password]"}
-      ]
+        {"action": "click", "selector": "[data-cy='templates']:visible"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('VM Templates')"},
+        {"action": "defocus"},
+        {"action": "click", "selector": "[data-cy^='vm-template-']:has-text('Alpine')"},
+        {"action": "click", "dataCy": "action-instantiate_dialog"},
+        {"action": "fill", "dataCy": "information-name", "value": "docs-screenshot-alpine"},
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "selector": "button[data-cy='stepper-next-button']:has-text('Finish')"},
+        {"action": "click", "selector": "[data-cy='instances']:visible"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('VMs')"},
+        {"action": "defocus"},
+        {"action": "waitForSelector", "selector": "[data-cy^='vms-']:has-text('docs-screenshot-alpine'):has-text('RUNNING')", "timeout": 300000, "refreshSelector": "button[data-cy='refresh']"}
+      ],
+      "screenshot": {"selector": "body"}
     }
+  ],
+  "teardown": [
+    {"action": "click", "selector": "[data-cy='sidebar-user-menu']:visible"},
+    {"action": "click", "selector": "[data-cy='sidebar-logout-button']:visible"},
+    {"action": "waitForSelector", "selector": "input[type='password']"}
   ]
 }

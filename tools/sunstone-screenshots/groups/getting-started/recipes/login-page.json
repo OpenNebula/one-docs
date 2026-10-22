@@ -1,0 +1,16 @@
+{
+  "captures": [
+    {
+      "id": "login",
+      "steps": [
+        {"action": "goto", "url": "${SUNSTONE_URL}"},
+        {"action": "waitForSelector", "selector": "input[type='password']"}
+      ],
+      "screenshot": {"selector": "body", "clip": {"leftPercent": 27, "rightPercent": 73, "topPercent": 22, "bottomPercent": 73}}
+    }
+  ],
+  "themeSteps": {
+    "light": [{"action": "waitTime", "timeout": 250}],
+    "dark": [{"action": "waitTime", "timeout": 250}]
+  }
+}

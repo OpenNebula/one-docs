@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>VM console menu regression fixture</title>
+<style>
+  [hidden] { display: none !important; }
+  body { margin: 0; font: 16px sans-serif; }
+  nav { width: 200px; padding: 20px; }
+  button, .menu-button-option, [data-cy^="vms-"] { padding: 12px; cursor: pointer; }
+  main { margin: 20px 220px; }
+  #drawer { position: fixed; top: 0; right: 0; width: 400px; padding: 20px; background: #eee; }
+  #overflow { position: fixed; top: 130px; right: 20px; background: #ddd; }
+  #console-menu { position: fixed; top: 130px; right: 170px; background: #ddd; }
+</style>
+<nav>
+  <button data-cy="instances">Instances</button>
+  <button data-cy="main-menu-item" hidden>VMs</button>
+  <button data-cy="sidebar-user-menu">oneadmin</button>
+  <button data-cy="sidebar-logout-button" hidden>Log out</button>
+</nav>
+<main hidden>
+  <div data-cy="vms-17">docs-screenshot-alpine RUNNING</div>
+</main>
+<aside id="drawer" hidden>
+  <h2 data-cy="vm-info-title">docs-screenshot-alpine</h2>
+  <button data-cy="compact-toolbar-overflow">More</button>
+</aside>
+<div hidden>
+  <button data-cy="compact-toolbar-overflow">Hidden toolbar</button>
+  <div data-cy="99-vnc">Hidden VNC entry</div>
+</div>
+<div id="overflow" role="menu" hidden>
+  <div id="console" class="menu-button-option">
+    <span class="menu-button-option-label">Console</span>
+  </div>
+</div>
+<!-- Nested menus are portaled siblings, not descendants of the parent option. -->
+<div id="console-menu" role="menu" hidden>
+  <div class="menu-button-option" data-cy="17-vnc">
+    <span class="menu-button-option-label">VNC</span>
+  </div>
+</div>
+<input type="password" hidden>
+<script>
+  const events = window.consoleEvents = [];
+  document.querySelector('[data-cy="instances"]').onclick = () => {
+    document.querySelector('[data-cy="main-menu-item"]').hidden = false;
+  };
+  document.querySelector('[data-cy="main-menu-item"]').onclick = () => {
+    document.querySelector('main').hidden = false;
+  };
+  document.querySelector('[data-cy="vms-17"]').onclick = () => {
+    events.push('drawer');
+    document.querySelector('#drawer').hidden = false;
+  };
+  document.querySelector('[data-cy="compact-toolbar-overflow"]').onclick = () => {
+    events.push('overflow');
+    document.querySelector('#overflow').hidden = false;
+  };
+  document.querySelector('#console').onmouseenter = () => {
+    events.push('console');
+    setTimeout(() => { document.querySelector('#console-menu').hidden = false; }, 100);
+  };
+  document.querySelector('[data-cy="17-vnc"]').onclick = () => {
+    events.push('vnc');
+    document.querySelector('#overflow').hidden = true;
+    document.querySelector('#console-menu').hidden = true;
+    window.open('/vnc/17', '_blank');
+  };
+  document.querySelector('[data-cy="sidebar-user-menu"]').onclick = () => {
+    document.querySelector('[data-cy="sidebar-logout-button"]').hidden = false;
+  };
+  document.querySelector('[data-cy="sidebar-logout-button"]').onclick = () => {
+    events.push('logout');
+    document.querySelector('input').hidden = false;
+  };
+</script>
+</html>

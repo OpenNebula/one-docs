@@ -8,9 +8,9 @@ import sys
 from contextlib import nullcontext
 from pathlib import Path
 
-from .capture import CaptureError, capture_screenshots
+from .capture import CaptureError, _select_screenshots, capture_screenshots
 from .docs_scan import ImageReference, scan_content
-from .manifest import ManifestError, load_manifest, validate_manifest
+from .manifest import ManifestError, load_manifest, screenshot_variants, validate_manifest
 from .qa_report import write_qa_report
 from . import provision as lab
 from . import workflow
@@ -56,6 +56,8 @@ def main(argv: list[str] | None = None) -> int:
     capture_parser.add_argument("--output-root", default=".sunstone-screenshots/runs/local")
     capture_parser.add_argument("--id", action="append", dest="ids", help="Screenshot id to capture. Can be repeated.")
     capture_parser.add_argument("--tag", action="append", dest="tags", help="Capture screenshots with this tag. Can be repeated.")
+    capture_parser.add_argument("--skip-hooks", action="store_true",
+                                help="Debug with existing resources: skip manifest guest setup/teardown hooks, not recipe actions.")
     capture_parser.add_argument("--headed", action="store_true", help="Show the browser while recipes run.")
     capture_parser.add_argument("--browser", choices=("chromium", "firefox", "webkit"), default="chromium")
     capture_parser.add_argument("--debug", action="store_true", help="Show the browser, slow actions down, and print each recipe step.")
@@ -70,33 +72,54 @@ def main(argv: list[str] | None = None) -> int:
     group_parser.add_argument('--reuse', action='store_true', help='Explicitly reuse a ready lab with matching configuration.')
     group_parser.add_argument('--check', action='store_true', help='Validate group files without provisioning or SSH.')
     group_parser.add_argument('--debug', action='store_true')
+    group_parser.add_argument('--keep-open-on-failure', action='store_true',
+                              help='Keep the browser open at a failed recipe step until Enter is pressed, before cleanup.')
     group_parser.set_defaults(ids=None, tags=None, headed=False, browser='chromium', slow_mo=0,
                               pause_before_step=False, pause_after_step=False, keep_open_on_failure=False)
+
+    suite_parser = subparsers.add_parser('run-suite', help='Run groups sequentially, each with a fresh disposable VM.')
+    suite_parser.add_argument('suite', help='Suite JSON listing group files in order.')
+    suite_parser.add_argument('--run-dir', required=True, help='New directory containing separate group run directories.')
+    suite_parser.add_argument('--check', action='store_true', help='Validate all groups without contacting infrastructure.')
+    suite_parser.add_argument('--debug', action='store_true')
+    suite_parser.add_argument('--keep-open-on-failure', action='store_true',
+                              help='Keep the browser open at a failed recipe step until Enter is pressed, before cleanup.')
+    suite_parser.add_argument('--resume', action='store_true', help='Resume a suite stopped at readiness checks before screenshots started.')
+    suite_parser.set_defaults(reuse=False, ids=None, tags=None, headed=False, browser='chromium', slow_mo=0,
+                              pause_before_step=False, pause_after_step=False, keep_open_on_failure=False)
+
+    for lab_parser in (provision_parser, capture_parser, group_parser, suite_parser):
+        lab_parser.add_argument('--keep-sudo-alive', action='store_true',
+                                help='Refresh existing sudo authorization while this command runs; run sudo -v first.')
 
     args = parser.parse_args(argv)
     repo_root = Path(args.repo_root).resolve()
 
     try:
-        if args.command == 'run-group':
-            return _run_group(args, repo_root)
-        if args.command == "provision":
-            if args.check:
-                lab.configuration(args.config)
-                print("Local provisioning configuration OK; no infrastructure contacted.")
-            else:
-                lab.provision(args.config, args.run_dir)
-            return 0
-        if args.command in ("status", "destroy"):
-            getattr(lab, args.command)(args.run_dir)
-            return 0
-        if args.command == "scan":
-            return _scan(args, repo_root)
-        if args.command == "validate":
-            return _validate(args, repo_root)
-        if args.command == "qa-report":
-            return _qa_report(args, repo_root)
-        if args.command == "capture":
-            return _capture(args, repo_root)
+        keep_sudo_alive = getattr(args, 'keep_sudo_alive', False) and not getattr(args, 'check', False)
+        with lab.sudo_session(keep_sudo_alive):
+            if args.command == 'run-suite':
+                return _run_suite(args, repo_root)
+            if args.command == 'run-group':
+                return _run_group(args, repo_root)
+            if args.command == "provision":
+                if args.check:
+                    lab.configuration(args.config)
+                    print("Local provisioning configuration OK; no infrastructure contacted.")
+                else:
+                    lab.provision(args.config, args.run_dir)
+                return 0
+            if args.command in ("status", "destroy"):
+                getattr(lab, args.command)(args.run_dir)
+                return 0
+            if args.command == "scan":
+                return _scan(args, repo_root)
+            if args.command == "validate":
+                return _validate(args, repo_root)
+            if args.command == "qa-report":
+                return _qa_report(args, repo_root)
+            if args.command == "capture":
+                return _capture(args, repo_root)
     except (ManifestError, CaptureError, lab.ProvisionError, OSError, ValueError, KeyError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
@@ -157,6 +180,18 @@ def _capture(args: argparse.Namespace, repo_root: Path) -> int:
             print(error, file=sys.stderr)
         return 1
 
+    selected = _select_screenshots(manifest, set(args.ids) if args.ids else None, set(args.tags) if args.tags else None)
+    shared = [s for s in selected if s.get('sharedFrom')]
+    for screenshot in shared:
+        for _, image in screenshot_variants(screenshot):
+            if not (Path(args.output_root) / image).is_file():
+                raise CaptureError(f'Shared replacement is missing: {image}. Run its producer manifest first in the same output directory.')
+    if shared:
+        manifest = dict(manifest, screenshots=[s for s in manifest['screenshots'] if not s.get('sharedFrom')])
+        if not any(not s.get('sharedFrom') for s in selected):
+            print(f'Reused {len(shared)} shared screenshots: {manifest_path}')
+            return 0
+
     previous = {}
     if args.run_dir:
         environment = lab.capture_environment(args.run_dir)
@@ -164,7 +199,11 @@ def _capture(args: argparse.Namespace, repo_root: Path) -> int:
         os.environ.update(environment)
     try:
         with workflow.guest_session(args.run_dir) if args.run_dir else nullcontext():
-            workflow.capture_with_hooks(manifest, lambda: _run_capture(args, repo_root, manifest_path, manifest))
+            if getattr(args, 'skip_hooks', False):
+                print('Skipping manifest guest setup/teardown hooks; required resources must already exist. Recipe actions still run.')
+                _run_capture(args, repo_root, manifest_path, manifest)
+            else:
+                workflow.capture_with_hooks(manifest, lambda: _run_capture(args, repo_root, manifest_path, manifest), manifest_path)
     finally:
         for key, value in previous.items():
             if value is None:
@@ -175,12 +214,16 @@ def _capture(args: argparse.Namespace, repo_root: Path) -> int:
 
 
 def _run_group(args, repo_root):
-    config, manifests = workflow.load_group(args.group, repo_root)
+    config, manifests, destroy_on_success = workflow.load_group(args.group, repo_root)
     if args.check:
-        print(f'Group OK: {len(manifests)} page manifests; no infrastructure contacted.')
+        policy = 'destroy lab after success' if destroy_on_success else 'retain lab'
+        print(f'Group OK: {len(manifests)} page manifests; {policy}; no infrastructure contacted.')
         return 0
     run_dir = Path(args.run_dir).resolve()
-    if args.reuse:
+    resuming = getattr(args, 'resume', False) and (run_dir / 'state.json').is_file()
+    if resuming and (run_dir / 'workflow.json').exists():
+        raise lab.ProvisionError('Resume refuses a group whose screenshot workflows have already started.')
+    if args.reuse or resuming:
         previous_workflow = run_dir / 'workflow.json'
         if previous_workflow.exists() and any(p.get('status') != 'complete' for p in lab.load(previous_workflow).get('pages', [])):
             raise lab.ProvisionError('Previous workflow did not complete; use a fresh lab to avoid carrying dirty state.')
@@ -188,12 +231,16 @@ def _run_group(args, repo_root):
         expected = lab.configuration(config)
         actual = dict(state['config'])
         actual['minione_script'] = actual.get('installer_url', actual['minione_script'])
-        if state.get('phase') != 'ready' or any(actual.get(k) != v for k, v in expected.items()):
+        if any(actual.get(k) != v for k, v in expected.items()):
+            raise lab.ProvisionError('Recorded lab must match the group provisioning configuration.')
+        if resuming:
+            lab.resume_readiness(run_dir)
+        elif state.get('phase') != 'ready':
             raise lab.ProvisionError('Reused lab must be ready and match the group provisioning configuration.')
     else:
         lab.provision(config, run_dir)
     output = run_dir / 'screenshots'
-    summary = {'group': str(Path(args.group).resolve()), 'pages': []}
+    summary = {'group': str(Path(args.group).resolve()), 'pages': [], 'lab_status': 'retained'}
     try:
         for index, path in enumerate(manifests, 1):
             entry = {'manifest': str(path), 'status': 'running'}
@@ -210,10 +257,104 @@ def _run_group(args, repo_root):
             except BaseException:
                 entry['status'] = 'failed'
                 raise
+        if destroy_on_success:
+            summary['lab_status'] = 'destroying'
+            lab.save(run_dir / 'workflow.json', summary)
+            try:
+                lab.destroy(run_dir)
+            except BaseException:
+                summary['lab_status'] = 'destroy-failed'
+                raise
+            summary['lab_status'] = 'destroyed'
     finally:
         lab.save(run_dir / 'workflow.json', summary)
-        print(f'Lab retained; workflow results: {run_dir / "workflow.json"}')
+        status = 'destroyed' if summary['lab_status'] == 'destroyed' else 'retained'
+        print(f'Lab {status}; workflow results: {run_dir / "workflow.json"}')
     return 0
+
+
+def _run_suite(args, repo_root):
+    groups = workflow.load_suite(args.suite, repo_root)
+    run_dir = Path(args.run_dir).resolve()
+    resuming = getattr(args, 'resume', False)
+    summary = {'version': 1, 'suite': str(Path(args.suite).resolve()), 'groups': [
+        {'group': str(group), 'run_dir': str(run_dir / f'{index:02d}-{group.parent.name}'), 'status': 'pending'}
+        for index, group in enumerate(groups, 1)
+    ]}
+    suite_path = run_dir / 'suite.json'
+    if resuming:
+        summary = _validate_suite_resume(lab.load(suite_path), summary)
+    if args.check:
+        print(f'Suite OK: {len(groups)} groups; each lab destroyed before the next provision; no infrastructure contacted.')
+        return 0
+    if run_dir.exists() and not resuming:
+        raise lab.ProvisionError('Suite run directory already exists; choose a fresh directory.')
+    # Validate local credentials for every provision before creating the first VM.
+    for group, entry in zip(groups, summary['groups']):
+        if entry['status'] == 'complete':
+            continue
+        config, _, _ = workflow.load_group(group, repo_root)
+        lab.configuration(config)
+    if not resuming:
+        run_dir.mkdir(parents=True, mode=0o700)
+    lab.save(suite_path, summary)
+    try:
+        for entry in summary['groups']:
+            if entry['status'] == 'complete':
+                print(f'Skipping completed group: {entry["group"]}', flush=True)
+                continue
+            entry['status'] = 'running'
+            lab.save(suite_path, summary)
+            print(f'Starting group: {entry["group"]}', flush=True)
+            group_args = argparse.Namespace(**vars(args))
+            group_args.group = entry['group']
+            group_args.run_dir = entry['run_dir']
+            group_args.reuse = False
+            try:
+                if _run_group(group_args, repo_root):
+                    raise lab.ProvisionError(f'Group failed: {entry["group"]}')
+                state = lab.load(Path(entry['run_dir']) / 'state.json')
+                if state.get('phase') != 'destroyed':
+                    raise lab.ProvisionError('Group lab was not destroyed; refusing to provision the next group.')
+                entry.update(status='complete', vm_id=state['vm_id'], lab_status='destroyed')
+            except BaseException:
+                entry['status'] = 'failed'
+                raise
+            lab.save(suite_path, summary)
+    finally:
+        lab.save(suite_path, summary)
+        print(f'Suite results: {suite_path}')
+    return 0
+
+
+def _validate_suite_resume(saved, expected):
+    if saved.get('version') != 1 or saved.get('suite') != expected['suite']:
+        raise lab.ProvisionError('Saved suite does not match the requested suite.')
+    entries = saved.get('groups')
+    if not isinstance(entries, list) or len(entries) != len(expected['groups']):
+        raise lab.ProvisionError('Saved suite group list does not match.')
+    unfinished = False
+    for entry, target in zip(entries, expected['groups']):
+        if entry.get('group') != target['group'] or entry.get('run_dir') != target['run_dir']:
+            raise lab.ProvisionError('Saved group paths/order do not match the suite; refusing resume.')
+        path = Path(entry['run_dir'])
+        status = entry.get('status')
+        if status == 'complete':
+            state = lab.load(path / 'state.json')
+            if unfinished or state.get('phase') != 'destroyed' or state.get('vm_id') != entry.get('vm_id'):
+                raise lab.ProvisionError('Completed group must have its recorded VM destroyed before resume.')
+            continue
+        unfinished = True
+        if status not in ('pending', 'failed', 'running'):
+            raise lab.ProvisionError('Unexpected group status in saved suite.')
+        if (path / 'workflow.json').exists():
+            raise lab.ProvisionError('Resume refuses groups whose screenshot workflows have already started.')
+        state_path = path / 'state.json'
+        if state_path.exists():
+            lab.validate_readiness_resume(lab.load(state_path))
+        elif path.exists():
+            raise lab.ProvisionError('Group directory exists without VM state; inspect it before retrying.')
+    return saved
 
 
 def _run_capture(args, repo_root, manifest_path, manifest):

@@ -4,20 +4,26 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 import json
 from pathlib import Path
+import uuid
 
 from . import provision as lab
-from .manifest import ManifestError, load_manifest, validate_manifest
+from .manifest import ManifestError, load_manifest, shared_source, validate_manifest
 
 
 guest_runner = ContextVar('guest_runner', default=None)
 
 
-def validate_commands(commands):
+def validate_commands(commands, base_dir=None):
     if not isinstance(commands, list):
         raise ManifestError('Guest hooks must be lists.')
     for command in commands:
-        if not isinstance(command, dict) or not isinstance(command.get('command'), str) or not command['command'].strip():
-            raise ManifestError('Guest commands require a nonempty command string.')
+        if not isinstance(command, dict) or len({'command', 'script'} & command.keys()) != 1:
+            raise ManifestError('Guest hooks require exactly one of command or script.')
+        value = command.get('command', command.get('script'))
+        if not isinstance(value, str) or not value.strip():
+            raise ManifestError('Guest command or script must be a nonempty string.')
+        if 'script' in command and base_dir is not None and not (base_dir / value).is_file():
+            raise ManifestError(f'Guest script does not exist: {value}')
         if type(command.get('timeout', 120)) is not int or command.get('timeout', 120) <= 0:
             raise ManifestError('Guest command timeout must be a positive integer.')
 
@@ -27,6 +33,8 @@ def load_group(path, repo_root):
     group = json.loads(path.read_text())
     if not isinstance(group, dict) or group.get('version') != 1:
         raise ManifestError('Group must be a version 1 object.')
+    if type(group.get('destroyOnSuccess', False)) is not bool:
+        raise ManifestError('Group destroyOnSuccess must be a boolean.')
     config = group.get('provision')
     if not isinstance(config, str) or not (path.parent / config).is_file():
         raise ManifestError('Group provision must reference an existing configuration file.')
@@ -34,7 +42,7 @@ def load_group(path, repo_root):
     if not isinstance(manifests, list) or not manifests:
         raise ManifestError('Group requires an ordered, nonempty manifests list.')
     resolved = []
-    assets = set()
+    assets = {}
     for name in manifests:
         if not isinstance(name, str):
             raise ManifestError('Group manifest paths must be strings.')
@@ -51,38 +59,72 @@ def load_group(path, repo_root):
         if len(docs) != 1:
             raise ManifestError(f'{target}: grouped manifests must contain one documentation page.')
         for screenshot in manifest['screenshots']:
+            source_identity = None
+            if screenshot.get('sharedFrom'):
+                source_path, source, _ = shared_source(screenshot, target)
+                if source_path not in resolved:
+                    raise ManifestError('sharedFrom producer must appear earlier in the same group.')
+                source_identity = (source_path, source['id'])
             for key in ('image', 'darkImage'):
                 asset = screenshot.get(key)
                 if asset:
-                    if asset in assets:
+                    if source_identity:
+                        if assets.get(asset) != source_identity:
+                            raise ManifestError(f'sharedFrom does not match the producer of {asset}')
+                    elif asset in assets:
                         raise ManifestError(f'Duplicate output asset across group: {asset}')
-                    assets.add(asset)
+                    else:
+                        assets[asset] = (target, screenshot['id'])
         resolved.append(target)
-    return (path.parent / config).resolve(), resolved
+    return (path.parent / config).resolve(), resolved, group.get('destroyOnSuccess', False)
+
+
+def load_suite(path, repo_root):
+    path = Path(path).resolve()
+    suite = json.loads(path.read_text())
+    if not isinstance(suite, dict) or suite.get('version') != 1:
+        raise ManifestError('Suite must be a version 1 object.')
+    groups = suite.get('groups')
+    if not isinstance(groups, list) or not groups:
+        raise ManifestError('Suite requires an ordered, nonempty groups list.')
+    resolved = []
+    for name in groups:
+        if not isinstance(name, str) or not name.strip():
+            raise ManifestError('Suite group paths must be nonempty strings.')
+        group = (path.parent / name).resolve()
+        if group in resolved:
+            raise ManifestError(f'Duplicate group in suite: {group}')
+        _, _, destroy_on_success = load_group(group, repo_root)
+        if not destroy_on_success:
+            raise ManifestError(f'{group}: suite groups require destroyOnSuccess=true.')
+        resolved.append(group)
+    return resolved
 
 
 @contextmanager
 def guest_session(run_dir):
     run_dir = Path(run_dir).resolve()
-    state = lab.load(run_dir / 'state.json')
-    if state.get('phase') != 'ready':
-        raise lab.ProvisionError('Guest commands require a ready lab.')
+    with lab.run_lock(run_dir):
+        state = lab.load(run_dir / 'state.json')
+        if state.get('phase') != 'ready':
+            raise lab.ProvisionError('Guest commands require a ready lab.')
+        workflow_id = uuid.uuid4().hex
 
-    def execute(command):
-        validate_commands([command])
-        log_path = run_dir / 'guest-commands.log'
-        log_path.touch(mode=0o600)
-        with log_path.open('a') as log:
-            result = lab.ssh(state, run_dir, 'set -e\n' + command['command'] + '\n',
-                             timeout=command.get('timeout', 120), log=log)
-        if result.returncode:
-            raise lab.ProvisionError(f'Guest command failed; inspect {log_path}')
+        def execute(command):
+            validate_commands([command])
+            log_path = run_dir / 'guest-commands.log'
+            log_path.touch(mode=0o600)
+            with log_path.open('a') as log:
+                result = lab.ssh(state, run_dir, f'set -e\nexport SUNSTONE_WORKFLOW_ID={workflow_id}\n' + command['command'] + '\n',
+                                 timeout=command.get('timeout', 120), log=log)
+            if result.returncode:
+                raise lab.ProvisionError(f'Guest command failed; inspect {log_path}')
 
-    token = guest_runner.set(execute)
-    try:
-        yield
-    finally:
-        guest_runner.reset(token)
+        token = guest_runner.set(execute)
+        try:
+            yield
+        finally:
+            guest_runner.reset(token)
 
 
 def run_guest(command):
@@ -92,18 +134,37 @@ def run_guest(command):
     execute(command)
 
 
-def capture_with_hooks(manifest, capture):
+def capture_with_hooks(manifest, capture, manifest_path=None):
     hooks = manifest.get('hooks', {})
-    try:
-        for command in hooks.get('setup', []):
+    def execute(command, stage, index):
+        label = command.get('script', 'inline command')
+        if 'script' in command:
+            if manifest_path is None:
+                raise ManifestError('Script hooks require the manifest path.')
+            command = dict(command)
+            command['command'] = (Path(manifest_path).resolve().parent / command.pop('script')).read_text()
+        try:
             run_guest(command)
+        except lab.ProvisionError as exc:
+            raise lab.ProvisionError(f'Guest {stage} hook {index} ({label}): {exc}') from exc
+
+    primary_error = None
+    try:
+        for index, command in enumerate(hooks.get('setup', []), 1):
+            execute(command, 'setup', index)
         capture()
+    except BaseException as exc:
+        primary_error = exc
+        raise
     finally:
         failures = []
-        for command in hooks.get('teardown', []):
+        for index, command in enumerate(hooks.get('teardown', []), 1):
             try:
-                run_guest(command)
+                execute(command, 'teardown', index)
             except Exception as exc:
                 failures.append(str(exc))
         if failures:
-            raise lab.ProvisionError('Teardown failed: ' + '; '.join(failures))
+            detail = 'Teardown failed: ' + '; '.join(failures)
+            if primary_error is not None:
+                detail = f'Workflow failed: {primary_error}. ' + detail
+            raise lab.ProvisionError(detail) from primary_error

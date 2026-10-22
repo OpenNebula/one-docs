@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -132,14 +133,23 @@ def capture_screenshots(
                                 )
                                 _take_screenshot(page, capture.get("screenshot", {}), target, variant_env)
                                 print(f"captured {screenshot.get('id')} {variant}: {target.relative_to(repo_root) if target.is_relative_to(repo_root) else target}")
-                except Exception:
+                except Exception as exc:
                     if keep_open_on_failure:
-                        print("\nRecipe failed. Browser is still open for inspection.")
-                        print("Press Enter here when you are finished inspecting the page.")
+                        print(f"\nRecipe failed: {exc}")
+                        print("Browser is still open for inspection.")
+                        print("Press Enter here when finished to run teardown and close the browser.")
                         input()
                     raise
                 finally:
-                    context.close()
+                    try:
+                        for step_index, step in enumerate(recipe.get('teardown', []), start=1):
+                            page = _run_debug_step(
+                                page, step, {}, label=f'{recipe_path.name} teardown step {step_index}',
+                                debug=debug, pause_before_step=pause_before_step,
+                                pause_after_step=pause_after_step,
+                            )
+                    finally:
+                        context.close()
         finally:
             browser.close()
 
@@ -217,7 +227,7 @@ def _run_step(page: Any, step: dict[str, Any], variables: dict[str, str]) -> Any
         page.goto(_expand(step["url"], variables), wait_until=step.get("waitUntil", "networkidle"))
         return page
     if action == "waitForSelector":
-        page.wait_for_selector(_expand(step["selector"], variables), timeout=step.get("timeout", 30000))
+        _wait_for_selector(page, step, variables)
         return page
     if action == "waitForURL":
         page.wait_for_url(_expand(step["url"], variables), timeout=step.get("timeout", 30000))
@@ -269,6 +279,34 @@ def _run_step(page: Any, step: dict[str, Any], variables: dict[str, str]) -> Any
     raise CaptureError(f"Unsupported recipe action: {action}")
 
 
+def _wait_for_selector(page, step, variables):
+    selector = _expand(step['selector'], variables)
+    timeout = step.get('timeout', 30000)
+    state = step.get('state', 'visible')
+    if not step.get('refreshSelector'):
+        page.wait_for_selector(selector, timeout=timeout, state=state)
+        return
+    from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+
+    deadline = time.monotonic() + timeout / 1000
+    while True:
+        remaining = int((deadline - time.monotonic()) * 1000)
+        if remaining <= 0:
+            raise CaptureError(f'Timed out waiting for selector: {selector}')
+        try:
+            page.wait_for_selector(selector, timeout=min(5000, remaining), state=state)
+            return
+        except PlaywrightTimeoutError:
+            remaining = int((deadline - time.monotonic()) * 1000)
+            if remaining <= 0:
+                raise CaptureError(f'Timed out waiting for selector: {selector}')
+            try:
+                page.locator(_expand(step['refreshSelector'], variables)).first.click(timeout=min(5000, remaining))
+            except PlaywrightTimeoutError:
+                # A busy or rerendered refresh control must not shorten the overall wait.
+                continue
+
+
 def _run_debug_step(
     page: Any,
     step: dict[str, Any],
@@ -285,7 +323,10 @@ def _run_debug_step(
         print(f"Paused before {label}. Resume in Playwright Inspector.")
         page.pause()
 
-    page = _run_step(page, step, variables)
+    try:
+        page = _run_step(page, step, variables)
+    except Exception as exc:
+        raise CaptureError(f'{label}: {exc}') from exc
 
     if pause_after_step or step.get("pauseAfter"):
         print(f"Paused after {label}. Resume in Playwright Inspector.")

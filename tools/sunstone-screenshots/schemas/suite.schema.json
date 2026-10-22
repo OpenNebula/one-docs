@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sunstone screenshot group suite",
+  "type": "object",
+  "required": ["version", "groups"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {"type": "string"},
+    "version": {"const": 1},
+    "groups": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

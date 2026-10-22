@@ -1,0 +1,201 @@
+{
+  "setup": [
+    {"action": "goto", "url": "${SUNSTONE_URL}"},
+    {"action": "fill", "selector": "input[type='text']", "value": "${SUNSTONE_USER}"},
+    {"action": "fill", "selector": "input[type='password']", "value": "${SUNSTONE_PASSWORD}"},
+    {"action": "click", "role": "button", "name": "Sign In Now", "exact": true},
+    {"action": "waitForSelector", "selector": "[data-cy='sidebar-paper']"}
+  ],
+  "captures": [
+    {
+      "id": "apps-menu",
+      "steps": [
+        {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
+        {"action": "click", "selector": "[data-cy='storage']:visible"},
+        {"action": "hover", "selector": "[data-cy='main-menu-item']:visible:has-text('Apps')"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Apps')"}
+      ],
+      "screenshot": {"selector": "body", "clip": {"leftPercent": 0, "rightPercent": 65, "topPercent": 0, "bottomPercent": 65}}
+    },
+    {
+      "id": "apps-list",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Apps')"},
+        {"action": "defocus"},
+        {"action": "waitForSelector", "selector": "[data-cy^='marketplace-apps-']:has-text('KVM')", "timeout": 180000, "refreshSelector": "button[data-cy='refresh']"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "wordpress-filter",
+      "steps": [
+        {"action": "fill", "dataCy": "search-marketplace-apps", "value": "wordpress"},
+        {"action": "waitForSelector", "selector": "[data-cy^='marketplace-apps-']:has-text('Service WordPress - KVM')", "timeout": 180000, "refreshSelector": "button[data-cy='refresh']"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "wordpress-selection",
+      "steps": [
+        {"action": "click", "selector": "[data-cy^='marketplace-apps-']:has-text('Service WordPress - KVM')"},
+        {"action": "waitForSelector", "selector": "[data-cy='tab-content-info']:has-text('PUBLISHER')"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "import-configuration",
+      "steps": [
+        {"action": "click", "dataCy": "action-marketapp-export"},
+        {"action": "fill", "dataCy": "export-app-configuration-name", "value": "Service WordPress - KVM"},
+        {"action": "fill", "dataCy": "export-app-configuration-vmname", "value": "Service WordPress - KVM"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "import-datastore",
+      "steps": [
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "selector": "[data-cy^='datastores-']:has(:text-is('default'))"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "import-ready",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='stepper-next-button']:has-text('Finish')"},
+        {"action": "waitForSelector", "selector": "[data-cy='modal-export']", "state": "hidden", "timeout": 1200000},
+        {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
+        {"action": "hover", "selector": "[data-cy='storage']:visible"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Images')"},
+        {"action": "defocus"},
+        {"action": "fill", "dataCy": "search-images", "value": "Service WordPress - KVM"},
+        {"action": "waitForSelector", "selector": "[data-cy^='images-']:has-text('Service WordPress - KVM'):has-text('READY')", "timeout": 1200000, "refreshSelector": "button[data-cy='refresh']"},
+        {"action": "click", "selector": "[data-cy^='images-']:has-text('Service WordPress - KVM')"},
+        {"action": "waitForSelector", "selector": "[data-cy='tab-content-info']:has-text('READY')"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "templates-menu",
+      "steps": [
+        {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
+        {"action": "click", "selector": "[data-cy='templates']:visible:has-text('Templates')"},
+        {"action": "hover", "selector": "[data-cy='main-menu-item']:visible:has-text('VM Templates')"}
+      ],
+      "screenshot": {"selector": "body", "clip": {"leftPercent": 0, "rightPercent": 65, "topPercent": 0, "bottomPercent": 65}}
+    },
+    {
+      "id": "template-selection",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('VM Templates')"},
+        {"action": "defocus"},
+        {"action": "click", "selector": "[data-cy^='vm-template-']:has-text('Service WordPress - KVM')"},
+        {"action": "waitForSelector", "selector": "[data-cy='action-instantiate_dialog']"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "instantiate-configuration",
+      "steps": [
+        {"action": "click", "dataCy": "action-instantiate_dialog"},
+        {"action": "fill", "dataCy": "information-name", "value": "docs-screenshot-wordpress"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "user-inputs",
+      "steps": [
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "waitForSelector", "selector": "[data-cy='stepper-next-button']:has-text('Next')"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "advanced",
+      "steps": [
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "waitForSelector", "selector": "[data-cy='tab-content-storage']"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "attach-nic",
+      "steps": [
+        {"action": "click", "dataCy": "tab-network"},
+        {"action": "waitForSelector", "selector": "[data-cy='vm-template-networking-attach-nic']"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "nic-advanced",
+      "steps": [
+        {"action": "click", "dataCy": "vm-template-networking-attach-nic"},
+        {"action": "waitForSelector", "selector": "[data-cy='modal-attach-nic']"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "[data-cy='modal-attach-nic']"}
+    },
+    {
+      "id": "nic-network",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='modal-attach-nic'] [data-cy='stepper-next-button']"},
+        {"action": "click", "selector": "[data-cy='modal-attach-nic'] [data-cy^='vnets-']:has(:text-is('vnet'))"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "[data-cy='modal-attach-nic']"}
+    },
+    {
+      "id": "nic-security-groups",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='modal-attach-nic'] [data-cy='stepper-next-button']"},
+        {"action": "waitForSelector", "selector": "[data-cy='modal-attach-nic'] [data-cy='security-groups']"},
+        {"action": "defocus"}
+      ]
+    },
+    {
+      "id": "nic-values",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='modal-attach-nic'] [data-cy='stepper-next-button']"},
+        {"action": "waitForSelector", "selector": "[data-cy='modal-attach-nic'] input[data-cy='override-ipv4-IP']"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "[data-cy='modal-attach-nic']"}
+    },
+    {
+      "id": "nic-qos",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='modal-attach-nic'] [data-cy='stepper-next-button']"},
+        {"action": "waitForSelector", "selector": "[data-cy='modal-attach-nic'] [data-cy='stepper-next-button']:has-text('Finish')"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "[data-cy='modal-attach-nic']"}
+    },
+    {
+      "id": "running",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='modal-attach-nic'] [data-cy='stepper-next-button']:has-text('Finish')"},
+        {"action": "waitForSelector", "selector": "[data-cy='modal-attach-nic']", "state": "hidden"},
+        {"action": "click", "selector": "button[data-cy='stepper-next-button']:has-text('Finish')"},
+        {"action": "waitForURL", "url": "**/vm", "timeout": 60000},
+        {"action": "guestCommand", "command": "python3 - <<'PY'\nimport json, os, subprocess\nfrom pathlib import Path\nstate = json.loads(Path('/root/screenshot-lab/alpine-workflow.json').read_text())\nassert state['workflow_id'] == os.environ['SUNSTONE_WORKFLOW_ID'], 'Alpine workflow ownership changed'\ntemplate_id = str(int(state['template_id']))\nsubprocess.run(['su', '-', 'oneadmin', '-c', 'onetemplate instantiate ' + template_id + ' --name docs-screenshot-alpine'], check=True)\nPY", "timeout": 60},
+        {"action": "defocus"},
+        {"action": "waitForSelector", "selector": "[data-cy^='vms-']:has-text('docs-screenshot-wordpress'):has-text('RUNNING')", "timeout": 600000, "refreshSelector": "button[data-cy='refresh']"},
+        {"action": "waitForSelector", "selector": "[data-cy^='vms-']:has-text('docs-screenshot-alpine'):has-text('RUNNING')", "timeout": 300000, "refreshSelector": "button[data-cy='refresh']"}
+      ],
+      "screenshot": {"selector": "body"}
+    }
+  ],
+  "teardown": [
+    {"action": "goto", "url": "${SUNSTONE_URL}"},
+    {"action": "click", "selector": "[data-cy='sidebar-user-menu']:visible"},
+    {"action": "click", "selector": "[data-cy='sidebar-logout-button']:visible"},
+    {"action": "waitForSelector", "selector": "input[type='password']"}
+  ]
+}

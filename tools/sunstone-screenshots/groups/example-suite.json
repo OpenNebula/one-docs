@@ -1,0 +1,8 @@
+{
+  "$schema": "../schemas/suite.schema.json",
+  "version": 1,
+  "groups": [
+    "single-node/group.json",
+    "service-and-hosts/group.json"
+  ]
+}

@@ -1,5 +1,7 @@
 {
+  "$schema": "../../schemas/group.schema.json",
   "version": 1,
   "provision": "../../provision.example.json",
-  "manifests": ["automated.json"]
+  "destroyOnSuccess": true,
+  "manifests": ["automated.json", "marketplace-apps.json"]
 }

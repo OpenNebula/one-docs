@@ -1,0 +1,19 @@
+{
+  "endpoint": "http://localhost:2633/RPC2",
+  "auth_file": "~/.one/one_auth",
+  "template_id": 80,
+  "management_nic_id": 0,
+  "ssh_user": "root",
+  "ssh_local_user": "oneadmin",
+  "ssh_key": "/var/lib/one/.ssh/id_rsa",
+  "ssh_known_hosts": "/var/lib/one/.ssh/screenshot_lab_known_hosts",
+  "minione_script": "https://github.com/OpenNebula/minione/releases/download/v7.4.0/minione",
+  "opennebula_version": "7.5",
+  "repo_base": "http://172.20.0.1/build/7.5-16-10-26/ubuntu2404/repo",
+  "minione_force": true,
+  "disable_automatic_updates": true,
+  "minione_password": null,
+  "sunstone_port": 80,
+  "boot_timeout": 600,
+  "install_timeout": 1800
+}

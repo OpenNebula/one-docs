@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/manifest.schema.json",
+  "version": 1,
+  "group": "group.json",
+  "hooks": {
+    "setup": [{"script": "scripts/prepare-oneslurm.sh", "timeout": 60}],
+    "teardown": [{"script": "scripts/cleanup-oneslurm.sh", "timeout": 120}]
+  },
+  "screenshots": [
+    {
+      "id": "oneflow.oneslurm-instantiate",
+      "doc": "content/product/virtual_machines_operation/multi-vm_workflows/appflow_use_cli.md",
+      "image": "assets/images/oneflow-services-create.png",
+      "recipe": "recipes/oneslurm.json",
+      "capture": "oneslurm-instantiate",
+      "status": "draft",
+      "notes": "OneSlurm example of the first service-instantiation step. Cancel without deploying the service and review before replacing the current documentation image."
+    }
+  ]
+}

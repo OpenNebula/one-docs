@@ -3,11 +3,14 @@
 import hashlib
 import ipaddress
 import json
+from contextlib import contextmanager
 from pathlib import Path
 import re
 import shlex
 import shutil
 import subprocess
+import sys
+import threading
 import time
 import uuid
 from urllib.request import urlopen
@@ -16,6 +19,45 @@ from urllib.parse import urlparse
 
 class ProvisionError(RuntimeError):
     pass
+
+
+_SUDO_REFRESH_INTERVAL = 60
+
+
+@contextmanager
+def sudo_session(enabled=False):
+    if not enabled:
+        yield
+        return
+
+    def refresh():
+        try:
+            result = subprocess.run(['sudo', '-n', '-v'], capture_output=True, text=True, timeout=10)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            raise ProvisionError(f'Could not refresh sudo authorization: {exc}') from exc
+        if result.returncode:
+            raise ProvisionError('Cannot refresh cached sudo authorization. Run sudo -v in this terminal first. '
+                                 + result.stderr.strip())
+
+    refresh()
+    stopped = threading.Event()
+
+    def keep_alive():
+        while not stopped.wait(_SUDO_REFRESH_INTERVAL):
+            try:
+                refresh()
+            except ProvisionError as exc:
+                print(f'warning: {exc} Subsequent guest commands and cleanup may fail.', file=sys.stderr, flush=True)
+                return
+
+    worker = threading.Thread(target=keep_alive, name='sunstone-sudo-keepalive', daemon=True)
+    print('Keeping cached sudo authorization active until this command exits.', flush=True)
+    worker.start()
+    try:
+        yield
+    finally:
+        stopped.set()
+        worker.join()
 
 
 def save(path, state):
@@ -29,6 +71,24 @@ def load(path):
     return json.loads(Path(path).read_text())
 
 
+@contextmanager
+def run_lock(run_dir):
+    import fcntl
+
+    path = Path(run_dir).resolve() / '.capture.lock'
+    path.touch(mode=0o600)
+    with path.open('r+') as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as exc:
+            raise ProvisionError(f'Another capture or recovery is using {path.parent}. '
+                                 'Finish any paused run before retrying.') from exc
+        try:
+            yield
+        finally:
+            fcntl.flock(lock, fcntl.LOCK_UN)
+
+
 def configuration(path):
     path = Path(path).resolve()
     cfg = load(path)
@@ -36,6 +96,8 @@ def configuration(path):
         raise ProvisionError('Provisioning configuration must be a JSON object.')
     if type(cfg.get('minione_force', False)) is not bool:
         raise ProvisionError('minione_force must be a boolean.')
+    if type(cfg.get('disable_automatic_updates', False)) is not bool:
+        raise ProvisionError('disable_automatic_updates must be a boolean.')
     password = cfg.get('minione_password')
     if password is not None and (not isinstance(password, str) or not password
                                  or any(c in password for c in '\x00\r\n')):
@@ -217,9 +279,13 @@ def install(state, run_dir):
         args.append('--force')
     if cfg.get('minione_password') is not None:
         args += ['--password', cfg['minione_password']]
+    update_guard = ''
+    if cfg.get('disable_automatic_updates', False):
+        update_guard = (Path(__file__).parent / 'guest/pause-apt-updates.sh').read_text() + '\n'
     remote = (
         'test -c /dev/kvm || { echo "Nested KVM unavailable"; exit 1; }\n'
         'if command -v cloud-init >/dev/null; then cloud-init status --wait; fi\n'
+    ) + update_guard + (
         'install -d -m 700 /root/screenshot-lab\n'
         f'printf %s {shlex.quote(encoded)} | base64 -d > /root/screenshot-lab/minione\n'
         f'bash /root/screenshot-lab/minione {shlex.join(args)}\n'
@@ -237,15 +303,37 @@ def install(state, run_dir):
 def services_ready(state, run_dir):
     result = ssh(state, run_dir,
                  "su - oneadmin -c 'oneuser show 0 >/dev/null && onehost list -x'\n")
-    if result is None or result.returncode:
+    if result is None:
+        state['services_error'] = 'SSH timed out while checking the inner API and host pool.'
+        return False
+    if result.returncode:
+        detail = result.stderr.strip()[-2000:] or 'No stderr returned.'
+        state['services_error'] = f'Inner readiness command failed (exit {result.returncode}): {detail}'
         return False
     import xml.etree.ElementTree as ET
     try:
         hosts = ET.fromstring(result.stdout)
-        return any(h.findtext('STATE') == '2' and h.findtext('VM_MAD') == 'kvm'
-                   for h in hosts.findall('HOST'))
-    except ET.ParseError:
+    except ET.ParseError as exc:
+        state['services_error'] = f'Inner API command returned invalid host XML: {exc}'
         return False
+    if hosts.tag != 'HOST_POOL':
+        state['services_error'] = f'Expected HOST_POOL XML, received {hosts.tag}.'
+        return False
+    entries = hosts.findall('HOST')
+    if any(h.findtext('STATE') == '2' and h.findtext('VM_MAD') == 'kvm' for h in entries):
+        state.pop('services_error', None)
+        return True
+    descriptions = []
+    for host in entries:
+        description = (f'#{host.findtext("ID", "?")} {host.findtext("NAME", "?")} '
+                       f'(STATE={host.findtext("STATE", "?")}, VM_MAD={host.findtext("VM_MAD", "?")})')
+        error = host.findtext('TEMPLATE/ERROR')
+        if error:
+            description += ': ' + error[-600:]
+        descriptions.append(description)
+    state['services_error'] = ('Inner API responds, but no KVM host is MONITORED (STATE=2). '
+                               + ('Hosts: ' + '; '.join(descriptions) if entries else 'No hosts registered.'))
+    return False
 
 
 def http_ready(url):
@@ -254,6 +342,52 @@ def http_ready(url):
             return response.status == 200
     except OSError:
         return False
+
+
+def check_services(state, run_dir):
+    cfg = state['config']
+    state_path = run_dir / 'state.json'
+    state['phase'] = 'checking-services'
+    save(state_path, state)
+    wait_for(lambda: services_ready(state, run_dir), cfg['boot_timeout'], 'inner API and monitored KVM host',
+             diagnostic=lambda: state.get('services_error', 'No inner readiness diagnostic available.'))
+    host = state['address']
+    if ':' in host:
+        host = f'[{host}]'
+    state['sunstone_url'] = f'http://{host}:{cfg["sunstone_port"]}'
+    wait_for(lambda: http_ready(state['sunstone_url']), cfg['boot_timeout'], 'Sunstone from this runner')
+    state['phase'] = 'ready'
+    state.pop('failed_phase', None)
+    state.pop('services_error', None)
+    save(state_path, state)
+    print(f'Ready: {state["sunstone_url"]} (state: {state_path})')
+
+
+def validate_readiness_resume(state):
+    phase = state.get('phase')
+    if not (phase in ('checking-services', 'ready') or
+            (phase == 'failed' and state.get('failed_phase') == 'checking-services')):
+        raise ProvisionError('Resume only supports completed installations stopped at readiness checks.')
+    if state.get('vm_id') is None or not state.get('address'):
+        raise ProvisionError('Readiness resume requires a recorded VM ID and management address.')
+
+
+def resume_readiness(run_dir):
+    run_dir = Path(run_dir).resolve()
+    state_path = run_dir / 'state.json'
+    state = load(state_path)
+    validate_readiness_resume(state)
+    address = running_address(connect(state['config']), state)
+    if address != state['address']:
+        raise ProvisionError('Recorded VM is not running at its saved address; refusing readiness resume.')
+    print(f'Rechecking installed lab VM {state["vm_id"]}; miniONE will not be reinstalled.', flush=True)
+    try:
+        check_services(state, run_dir)
+    except BaseException:
+        state['failed_phase'] = state['phase']
+        state['phase'] = 'failed'
+        save(state_path, state)
+        raise
 
 
 def provision(config_path, run_dir):
@@ -282,17 +416,7 @@ def provision(config_path, run_dir):
         save(state_path, state)
         print('Installing miniONE; output is in install.log...', flush=True)
         install(state, run_dir)
-        state['phase'] = 'checking-services'
-        save(state_path, state)
-        wait_for(lambda: services_ready(state, run_dir), cfg['boot_timeout'], 'inner API and monitored KVM host')
-        host = state['address']
-        if ':' in host:
-            host = f'[{host}]'
-        state['sunstone_url'] = f'http://{host}:{cfg["sunstone_port"]}'
-        wait_for(lambda: http_ready(state['sunstone_url']), cfg['boot_timeout'], 'Sunstone from this runner')
-        state['phase'] = 'ready'
-        save(state_path, state)
-        print(f'Ready: {state["sunstone_url"]} (state: {state_path})')
+        check_services(state, run_dir)
     except BaseException:
         state['failed_phase'] = state['phase']
         state['phase'] = 'failed'

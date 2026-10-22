@@ -3,16 +3,16 @@
   "version": 1,
   "group": "group.json",
   "hooks": {
-    "setup": [{"command": "su - oneadmin -c 'oneuser show 0 >/dev/null'", "timeout": 30}],
-    "teardown": []
+    "setup": [{"script": "scripts/prepare-alpine.sh", "timeout": 30}],
+    "teardown": [{"script": "scripts/cleanup-alpine.sh", "timeout": 240}]
   },
   "screenshots": [
     {
-      "id": "automated.login",
+      "id": "automated.alpine-running",
       "doc": "content/software/installation_process/frontend_installation/automated.md",
-      "image": "assets/images/quickstart/light/sunstone_login_page.png",
+      "image": "assets/images/quickstart/light/sunstone_vm_instances.png",
       "recipe": "recipes/login.json",
-      "capture": "login",
+      "capture": "alpine-running",
       "status": "draft"
     }
   ]

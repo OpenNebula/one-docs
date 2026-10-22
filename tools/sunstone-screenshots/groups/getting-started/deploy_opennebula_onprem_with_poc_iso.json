@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/manifest.schema.json",
+  "version": 1,
+  "group": "group.json",
+  "defaults": {"viewport": {"width": 1440, "height": 1000}, "locale": "en-US"},
+  "hooks": {
+    "setup": [{"script": "scripts/prepare-theme.sh", "timeout": 30}],
+    "teardown": [{"script": "scripts/restore-theme.sh", "timeout": 30}]
+  },
+  "screenshots": [
+    {
+      "id": "iso.network-configuration", "title": "VXLAN EVPN configuration (unsubmitted form)",
+      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_poc_iso.md",
+      "image": "assets/images/ISO/03-sunstone-network-config.png", "recipe": "recipes/iso-network.json", "capture": "configuration",
+      "tags": ["getting-started", "iso"], "status": "draft",
+      "notes": "Reproduces the form on miniONE, not an ISO installation or a working EVPN fabric. The illustrative physical device can be changed in the recipe."
+    },
+    {
+      "id": "iso.address-range", "title": "VXLAN IPv4 address range",
+      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_poc_iso.md",
+      "image": "assets/images/ISO/04-sunstone-network-ip-range.png", "recipe": "recipes/iso-network.json", "capture": "address-range",
+      "tags": ["getting-started", "iso"], "status": "draft"
+    },
+    {
+      "id": "iso.context", "title": "VXLAN network context",
+      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_poc_iso.md",
+      "image": "assets/images/ISO/05-sunstone-network-context.png", "recipe": "recipes/iso-network.json", "capture": "context",
+      "tags": ["getting-started", "iso"], "status": "draft"
+    },
+    {
+      "id": "iso.vllm-app", "title": "vLLM marketplace selection",
+      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_poc_iso.md",
+      "image": "assets/images/ISO/09-vllm-appliance.png", "recipe": "recipes/vllm-app.json", "capture": "vllm-app",
+      "tags": ["getting-started", "iso"], "status": "draft",
+      "notes": "Selects the catalog entry; does not download the appliance or instantiate a GPU VM."
+    }
+  ],
+  "deferredScreenshots": [
+    {"image": "assets/images/ISO/06-vm-instantiate-1.png", "reason": "GPU instantiation sequence needs a GPU-capable provision and appliance template."},
+    {"image": "assets/images/ISO/07-vm-instantiate-pci-device.png", "reason": "Requires a monitored passthrough GPU in the lab."},
+    {"image": "assets/images/ISO/08-vm-instantiate-pci-device-select.png", "reason": "Requires a real selectable passthrough GPU; do not fabricate PCI inventory."}
+  ]
+}

@@ -56,6 +56,7 @@ def write_qa_report(
         "total": total,
         "missing": missing_count,
         "replacementRoot": str(replacement_root),
+        "deferred": manifest.get('deferredScreenshots', []),
     }
 
     output.write_text(_render_page(summary, rows), encoding="utf-8")
@@ -123,6 +124,11 @@ def _render_card(
 
 def _render_page(summary: dict[str, Any], rows: list[str]) -> str:
     summary_json = html.escape(json.dumps(summary, indent=2))
+    deferred = summary.get('deferred', [])
+    deferred_html = ''
+    if deferred:
+        items = ''.join(f'<li>{html.escape(item["image"])}: {html.escape(item["reason"])}</li>' for item in deferred)
+        deferred_html = f'<section><h2>Deferred Screenshots</h2><ul>{items}</ul></section>'
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -311,7 +317,7 @@ def _render_page(summary: dict[str, Any], rows: list[str]) -> str:
     <section class="topbar">
       <div>
         <h1>Sunstone Screenshot QA</h1>
-        <p>{summary["total"]} variants · {summary["missing"]} missing replacements · generated {html.escape(summary["generated"])}</p>
+        <p>{summary["total"]} variants · {summary["missing"]} missing replacements · {len(deferred)} deferred · generated {html.escape(summary["generated"])}</p>
       </div>
     </section>
     <details>
@@ -321,6 +327,7 @@ def _render_page(summary: dict[str, Any], rows: list[str]) -> str:
     <section class="grid">
       {''.join(rows)}
     </section>
+    {deferred_html}
   </main>
   <script>
     const keyPrefix = "sunstone-screenshot-qa:";

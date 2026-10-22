@@ -1,0 +1,63 @@
+{
+  "setup": [
+    {"action": "goto", "url": "${SUNSTONE_URL}"},
+    {"action": "fill", "selector": "input[type='text']", "value": "${SUNSTONE_USER}"},
+    {"action": "fill", "selector": "input[type='password']", "value": "${SUNSTONE_PASSWORD}"},
+    {"action": "click", "role": "button", "name": "Sign In Now", "exact": true},
+    {"action": "waitForSelector", "selector": "[data-cy='sidebar-paper']"}
+  ],
+  "captures": [
+    {
+      "id": "configuration",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='networks']:visible"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Virtual Networks')"},
+        {"action": "defocus"},
+        {"action": "click", "role": "button", "name": "Create Virtual Network", "exact": true},
+        {"action": "click", "role": "button", "selector": "[data-cy='vnet-create-scratch']", "exact": true},
+        {"action": "click", "role": "button", "selector": "[data-cy='vnet-create-confirm']", "exact": true},
+        {"action": "fill", "dataCy": "general-information-NAME", "value": "docs-screenshot-vxlan"},
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "selector": "[data-cy='configuration-VN_MAD'] button[value='vxlan']"},
+        {"action": "fill", "dataCy": "configuration-PHYDEV", "value": "enp0s3"},
+        {"action": "fill", "dataCy": "configuration-VLAN_ID", "value": "100"},
+        {"action": "fill", "selector": "[data-cy='configuration-VXLAN_MODE'] input, input[data-cy='configuration-VXLAN_MODE']", "value": "evpn"},
+        {"action": "click", "role": "option", "name": "evpn", "exact": true},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "[data-cy='tab-content-configuration']"}
+    },
+    {
+      "id": "address-range",
+      "steps": [
+        {"action": "click", "dataCy": "tab-addresses"},
+        {"action": "click", "dataCy": "add-ar"},
+        {"action": "fill", "selector": "input[data-cy='undefined-IP']", "value": "172.16.100.8"},
+        {"action": "fill", "selector": "input[data-cy='undefined-SIZE']", "value": "100"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "[role='dialog']"}
+    },
+    {
+      "id": "context",
+      "steps": [
+        {"action": "click", "role": "button", "name": "Accept", "exact": true},
+        {"action": "click", "dataCy": "tab-context"},
+        {"action": "fill", "dataCy": "context-NETWORK_ADDRESS", "value": "172.16.100.0"},
+        {"action": "fill", "dataCy": "context-NETWORK_MASK", "value": "255.255.255.0"},
+        {"action": "fill", "dataCy": "context-GATEWAY", "value": "172.16.100.1"},
+        {"action": "fill", "dataCy": "context-DNS", "value": "8.8.8.8"},
+        {"action": "fill", "dataCy": "context-GUEST_MTU", "value": "1450"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "[data-cy='tab-content-context']"}
+    }
+  ],
+  "teardown": [
+    {"action": "click", "dataCy": "stepper-cancel-button"},
+    {"action": "click", "role": "button", "name": "Continue", "exact": true},
+    {"action": "click", "selector": "[data-cy='sidebar-user-menu']:visible"},
+    {"action": "click", "selector": "[data-cy='sidebar-logout-button']:visible"},
+    {"action": "waitForSelector", "selector": "input[type='password']"}
+  ]
+}

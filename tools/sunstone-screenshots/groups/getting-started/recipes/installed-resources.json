@@ -1,0 +1,62 @@
+{
+  "setup": [
+    {"action": "goto", "url": "${SUNSTONE_URL}"},
+    {"action": "fill", "selector": "input[type='text']", "value": "${SUNSTONE_USER}"},
+    {"action": "fill", "selector": "input[type='password']", "value": "${SUNSTONE_PASSWORD}"},
+    {"action": "click", "role": "button", "name": "Sign In Now", "exact": true},
+    {"action": "waitForSelector", "selector": "[data-cy='sidebar-paper']"}
+  ],
+  "captures": [
+    {
+      "id": "host",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='infrastructure']:visible"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Hosts')"},
+        {"action": "defocus"},
+        {"action": "click", "selector": "[data-cy^='hosts-']:has(:text-is('localhost'))"},
+        {"action": "waitForSelector", "selector": "[data-cy='tab-content-info']:has-text('MONITORED')"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "cluster",
+      "steps": [
+        {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Clusters')"},
+        {"action": "defocus"},
+        {"action": "click", "selector": "[data-cy^='clusters-']:has(:text-is('default'))"},
+        {"action": "waitForSelector", "selector": "[data-cy='tab-content-info']:has-text('default')"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "datastore",
+      "steps": [
+        {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
+        {"action": "click", "selector": "[data-cy='storage']:visible"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Datastores')"},
+        {"action": "defocus"},
+        {"action": "click", "selector": "[data-cy^='datastores-']:has(:text-is('default'))"},
+        {"action": "waitForSelector", "selector": "[data-cy='tab-content-info']:has-text('default')"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "network",
+      "steps": [
+        {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
+        {"action": "click", "selector": "[data-cy='networks']:visible"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Virtual Networks')"},
+        {"action": "defocus"},
+        {"action": "click", "selector": "[data-cy^='vnets-']:has(:text-is('vnet'))"},
+        {"action": "waitForSelector", "selector": "[data-cy='tab-content-info']:has-text('vnet')"}
+      ],
+      "screenshot": {"selector": "body"}
+    }
+  ],
+  "teardown": [
+    {"action": "click", "selector": "[data-cy='sidebar-user-menu']:visible"},
+    {"action": "click", "selector": "[data-cy='sidebar-logout-button']:visible"},
+    {"action": "waitForSelector", "selector": "input[type='password']"}
+  ]
+}

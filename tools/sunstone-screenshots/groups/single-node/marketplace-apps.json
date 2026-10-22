@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/manifest.schema.json",
+  "version": 1,
+  "group": "group.json",
+  "screenshots": [
+    {
+      "id": "marketplace.wordpress-details",
+      "doc": "content/product/apps-marketplace/managing_marketplaces/marketapps.md",
+      "image": "assets/images/show_marketplaceapp.png",
+      "recipe": "recipes/wordpress.json",
+      "capture": "wordpress-details",
+      "status": "draft",
+      "notes": "WordPress details example; review the replacement against the documentation before promotion."
+    }
+  ]
+}

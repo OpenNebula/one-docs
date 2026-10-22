@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sidebar hover fixture</title>
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+    [data-cy="sidebar"] { width: 0; height: 0; }
+    [data-cy="sidebar-paper"] { position: fixed; top: 0; bottom: 0; left: 0; width: 48px; background: white; border-right: 1px solid gray; }
+    [data-cy="sidebar-paper"][hidden] { display: none; }
+    .sidebar-header { height: 48px; background: silver; }
+    [data-cy="networks"], [data-cy="instances"] { height: 32px; cursor: pointer; }
+    [data-cy="main-menu-item"] { padding: 8px; cursor: pointer; }
+    main { margin: 48px 0 0 300px; }
+  </style>
+</head>
+<body>
+  <div data-cy="sidebar">
+    <div data-cy="sidebar-paper" hidden><div class="sidebar-header">Hidden copy</div></div>
+    <div data-cy="sidebar-paper" id="drawer">
+      <div class="sidebar-header">ONE</div>
+      <div data-cy="networks" role="button"><span hidden>Networks</span></div>
+      <div data-cy="main-menu-item" role="button" hidden><div><span>Virtual Networks</span></div></div>
+      <div data-cy="instances" role="button"><span hidden>Instances</span></div>
+      <div data-cy="main-menu-item" id="vms-menu" role="button" hidden><div><span>VMs</span></div></div>
+    </div>
+  </div>
+  <main>
+    <button data-cy="stepper-next-button" id="finish">Finish</button>
+    <div id="vm-list" hidden>
+      <button data-cy="refresh">Refresh</button>
+      <div data-cy="vms-1" id="alpine">docs-screenshot-alpine PENDING</div>
+    </div>
+  </main>
+  <script>
+    const drawer = document.getElementById('drawer');
+    const header = drawer.querySelector('.sidebar-header');
+    const networks = drawer.querySelector('[data-cy="networks"]');
+    const menu = drawer.querySelector('[data-cy="main-menu-item"]');
+    const instances = drawer.querySelector('[data-cy="instances"]');
+    const vmsMenu = document.getElementById('vms-menu');
+    const finish = document.getElementById('finish');
+    let expanded = false;
+    let instancesOpen = false;
+    drawer.dataset.instancesClicks = '0';
+    const updateInstances = () => { vmsMenu.hidden = !(expanded && instancesOpen); };
+    header.addEventListener('mouseenter', () => {
+      expanded = true;
+      drawer.style.width = '240px';
+      networks.querySelector('span').hidden = false;
+      instances.querySelector('span').hidden = false;
+      if (location.pathname.endsWith('/vm')) instancesOpen = true;
+      updateInstances();
+    });
+    networks.addEventListener('click', () => {
+      if (!networks.querySelector('span').hidden) menu.hidden = false;
+    });
+    drawer.addEventListener('mouseleave', () => {
+      expanded = false;
+      drawer.style.width = '48px';
+      networks.querySelector('span').hidden = true;
+      instances.querySelector('span').hidden = true;
+      menu.hidden = true;
+      updateInstances();
+    });
+    instances.addEventListener('click', () => {
+      instancesOpen = !instancesOpen;
+      drawer.dataset.instancesClicks = String(Number(drawer.dataset.instancesClicks) + 1);
+      updateInstances();
+    });
+    finish.addEventListener('click', () => {
+      finish.disabled = true;
+      setTimeout(() => {
+        history.pushState({}, '', '/fireedge/sunstone/vm');
+        finish.hidden = true;
+        document.getElementById('vm-list').hidden = false;
+        if (expanded) instancesOpen = true;
+        updateInstances();
+        setTimeout(() => {
+          document.getElementById('alpine').textContent = 'docs-screenshot-alpine RUNNING';
+        }, 50);
+      }, 100);
+    });
+  </script>
+</body>
+</html>

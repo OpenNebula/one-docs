@@ -1,0 +1,34 @@
+{
+  "setup": [
+    {"action": "goto", "url": "${SUNSTONE_URL}"},
+    {"action": "fill", "selector": "input[type='text']", "value": "${SUNSTONE_USER}"},
+    {"action": "fill", "selector": "input[type='password']", "value": "${SUNSTONE_PASSWORD}"},
+    {"action": "click", "role": "button", "name": "Sign In Now", "exact": true},
+    {"action": "waitForSelector", "selector": "[data-cy='sidebar-paper']"}
+  ],
+  "captures": [
+    {
+      "id": "console",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='instances']:visible"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('VMs')"},
+        {"action": "defocus"},
+        {"action": "waitForSelector", "selector": "[data-cy^='vms-']:has-text('docs-screenshot-alpine'):has-text('RUNNING')", "timeout": 300000, "refreshSelector": "button[data-cy='refresh']"},
+        {"action": "click", "selector": "[data-cy^='vms-']:has-text('docs-screenshot-alpine'):has-text('RUNNING')"},
+        {"action": "waitForSelector", "selector": "[data-cy='vm-info-title']:visible"},
+        {"action": "click", "selector": "[data-cy='compact-toolbar-overflow']:visible"},
+        {"action": "hover", "selector": ".menu-button-option:visible:has(> .menu-button-option-label:text-is('Console'))"},
+        {"action": "click", "selector": "[data-cy$='-vnc']:visible", "opensPage": true},
+        {"action": "waitForSelector", "selector": "canvas", "timeout": 60000},
+        {"action": "waitTime", "timeout": 10000}
+      ],
+      "screenshot": {"selector": "body", "clip": {"leftPercent": 0, "rightPercent": 100, "topPercent": 0, "bottomPercent": 100}}
+    }
+  ],
+  "teardown": [
+    {"action": "switchToPage", "target": "first"},
+    {"action": "click", "selector": "[data-cy='sidebar-user-menu']:visible"},
+    {"action": "click", "selector": "[data-cy='sidebar-logout-button']:visible"},
+    {"action": "waitForSelector", "selector": "input[type='password']"}
+  ]
+}

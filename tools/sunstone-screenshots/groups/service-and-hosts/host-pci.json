@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/manifest.schema.json",
+  "version": 1,
+  "group": "group.json",
+  "screenshots": [
+    {
+      "id": "hosts.localhost-pci",
+      "doc": "content/product/cluster_configuration/hosts_and_clusters/pci_passthrough.md",
+      "image": "assets/images/sunstone_host_pci.png",
+      "recipe": "recipes/host-pci.json",
+      "capture": "localhost-pci",
+      "status": "draft",
+      "notes": "Capture the actual localhost PCI inventory; a nested lab may have no devices available for passthrough."
+    }
+  ]
+}
