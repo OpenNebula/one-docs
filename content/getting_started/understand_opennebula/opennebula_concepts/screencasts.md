@@ -62,7 +62,7 @@ screencast updates.
 ## High Availability and Resources
 
 <div class="screencast-grid">
-{{< screencast id="cLvmSUUZh1Y" title="OpenNebula Frontend High Availability" thumbnail="frontend_ha.png">}}
+{{< screencast id="dTBE6ABDXrM" title="OpenNebula Frontend High Availability" thumbnail="frontend_ha.png">}}
 {{< screencast id="IFRuZV8tuhA" title="Virtual Machine High Availability in OpenNebula" thumbnail="vm_ha.png">}}
 {{< screencast id="HuHqGAwNzW8" title="Optimizing Infrastructure at Scale with OpenNebula’s AI-Powered DRS" thumbnail="optimizing_infra_ha.png" >}}
 </div>
