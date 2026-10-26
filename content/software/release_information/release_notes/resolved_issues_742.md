@@ -83,6 +83,7 @@ The following issues have been solved in 7.4.2:
 * Fix oned crashing when a KVM host reports a NUMA node without cores [#8133](https://github.com/OpenNebula/one/issues/8133).
 * Fix checkpoint delete endpoint and reset the backup chain after an invalid checkpoint in Veeam [#8062](https://github.com/OpenNebula/one/issues/8062).
 * Fix the “Allocated CPU” slider on the hosts [#8208](https://github.com/OpenNebula/one/issues/8208).
+* Fix exposure of the restic datastore password in image error messages and logs when backup operations fail.
 
 ---
 
