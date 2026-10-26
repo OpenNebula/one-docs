@@ -63,13 +63,13 @@ You can pin containers to Host CPUs and NUMA nodes simply by adding a `TOPOLOGY`
 
 Some of the VM actions available in the OpenNebula API are not implemented yet for the LXC driver:
 
-- [live migration](../../virtual_machines_operation/virtual_machine_instances/vm_instances.md#advanced-operations-for-administrators)
-- [live disk resize](../../virtual_machines_operation/virtual_machine_instances/vm_instances.md#resizing-vm-disks)
-- [vm state save and restore](../../virtual_machines_operation/virtual_machine_instances/vm_instances.md#save-a-vm-instance)
-- [system snapshots](../../virtual_machines_operation/virtual_machine_instances/vm_instances.md#virtual-machine-system-snapshots)
-- [live disk snapshots](../../virtual_machines_operation/virtual_machine_instances/vm_instances.md#virtual-machine-disk-snapshots) with qcow2 disks.
-- [live disk save](../../virtual_machines_operation/virtual_machine_instances/vm_instances.md#saving-a-vm-disk-to-an-image)
-- [live capacity resize](../../virtual_machines_operation/virtual_machine_instances/vm_instances.md#live-resize-of-capacity)
+- [live migration]({{% relref "product/virtual_machines_operation/virtual_machines/vm_resources.md#vm-migration" %}})
+- [live disk resize]({{% relref "product/virtual_machines_operation/virtual_machines/vm_resources.md#resizing-vm-disks" %}})
+- [VM state save and restore]({{% relref "product/virtual_machines_operation/virtual_machines/vm_instances.md#pausing-vm-instances" %}})
+- [system snapshots]({{% relref "product/virtual_machines_operation/virtual_machines/vm_resources.md#virtual-machine-system-snapshots" %}})
+- [live disk snapshots]({{% relref "product/virtual_machines_operation/virtual_machines/vm_resources.md#virtual-machine-disk-snapshots" %}}) with qcow2 disks.
+- [live disk save]({{% relref "product/virtual_machines_operation/virtual_machines/vm_resources.md#disk-save-as-action" %}})
+- [live capacity resize]({{% relref "product/virtual_machines_operation/virtual_machines/vm_resources.md#live-resize-of-capacity" %}})
 
 ### PCI Passthrough
 

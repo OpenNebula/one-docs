@@ -6,7 +6,7 @@ description:
 categories:
 pageintoc: "83"
 tags:
-weight: "4"
+weight: "6"
 ---
 
 <a id="images"></a>
@@ -394,7 +394,7 @@ $ oneimage list
 
 ### Managing Image Snapshots
 
-Persistent Images can have snapshots if they are [created]({{% relref "../virtual_machines/vm_instances#vm-guide-2-disk-snapshots-managing" %}}) during the life-cycle of the VM that uses them. The following operations allow the user to manage these snapshots directly:
+Persistent Images can have snapshots if they are [created]({{% relref "product/virtual_machines_operation/virtual_machines/vm_resources.md#vm-guide-2-disk-snapshots-managing" %}}) during the life-cycle of the VM that uses them. The following operations allow the user to manage these snapshots directly:
 
 * `oneimage snapshot-revert <image_id> <snapshot_id>`: The active state of the Image is overwritten by the specified snapshot. Note that this operation discards any unsaved data of the disk state.
 * `oneimage snapshot-delete <image_id> <snapshot_id>`: Deletes a snapshot. This operation is only allowed if the snapshot is not the active snapshot and if it has no children.
@@ -430,7 +430,7 @@ Once the VM is deployed and changes are made to its disks, you can save those ch
 * **Disk snapshots**, a snapshot of the disk state is saved, you can later revert to this saved state.
 * **Disk save as**, the disk is copied to a new Image in the datastore. The disk must be in a consistent state during the `save_as` operation (e.g., by unmounting the disk from the VM).
 
-A detailed description of this process is [described in section Virtual Machine Instances]({{% relref "../virtual_machines/vm_instances#vm-guide-2-disk-snapshots" %}})
+For a detailed description of this process, see [Virtual Machine Disk Snapshots]({{% relref "product/virtual_machines_operation/virtual_machines/vm_resources.md#vm-guide-2-disk-snapshots" %}}).
 
 ## How to Use File Images in Virtual Machines
 
