@@ -16,55 +16,55 @@
   "screenshots": [
     {
       "id": "minione.login", "title": "Sunstone login",
-      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_minione.md",
+      "doc": "content/getting_started/install_opennebula/evaluation/deploy_opennebula_onprem_with_minione.md",
       "image": "assets/images/quickstart/light/sunstone_login_page.png", "darkImage": "assets/images/quickstart/dark/sunstone_login_page.png",
       "recipe": "recipes/login-page.json", "capture": "login", "tags": ["getting-started", "minione"], "status": "draft"
     },
     {
       "id": "minione.dashboard", "title": "miniONE dashboard before deployment",
-      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_minione.md",
+      "doc": "content/getting_started/install_opennebula/evaluation/deploy_opennebula_onprem_with_minione.md",
       "image": "assets/images/quickstart/light/sunstone_dashboard.png", "darkImage": "assets/images/quickstart/dark/sunstone_dashboard.png",
       "recipe": "recipes/minione.json", "capture": "dashboard", "tags": ["getting-started", "minione"], "status": "draft"
     },
     {
       "id": "minione.network-menu", "title": "Virtual Networks navigation",
-      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_minione.md",
+      "doc": "content/getting_started/install_opennebula/evaluation/deploy_opennebula_onprem_with_minione.md",
       "image": "assets/images/quickstart/light/sunstone_select_vnetwork.png", "darkImage": "assets/images/quickstart/dark/sunstone_select_vnetwork.png",
       "recipe": "recipes/minione.json", "capture": "network-menu", "tags": ["getting-started", "minione"], "status": "draft"
     },
     {
       "id": "minione.network-details", "title": "miniONE vnet details",
-      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_minione.md",
+      "doc": "content/getting_started/install_opennebula/evaluation/deploy_opennebula_onprem_with_minione.md",
       "image": "assets/images/quickstart/light/sunstone_network_details.png", "darkImage": "assets/images/quickstart/dark/sunstone_network_details.png",
       "recipe": "recipes/minione.json", "capture": "network-details", "tags": ["getting-started", "minione"], "status": "draft"
     },
     {
       "id": "minione.templates", "title": "Existing Alpine VM template",
-      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_minione.md",
+      "doc": "content/getting_started/install_opennebula/evaluation/deploy_opennebula_onprem_with_minione.md",
       "image": "assets/images/quickstart/light/sunstone_vm_templates_alpine.png", "darkImage": "assets/images/quickstart/dark/sunstone_vm_templates_alpine.png",
       "recipe": "recipes/minione.json", "capture": "templates", "tags": ["getting-started", "minione"], "status": "draft"
     },
     {
       "id": "minione.instantiate-configuration", "title": "Alpine instantiation: configuration",
-      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_minione.md",
+      "doc": "content/getting_started/install_opennebula/evaluation/deploy_opennebula_onprem_with_minione.md",
       "image": "assets/images/quickstart/light/sunstone_instantiate_vm_1.png", "darkImage": "assets/images/quickstart/dark/sunstone_instantiate_vm_1.png",
       "recipe": "recipes/minione.json", "capture": "instantiate-configuration", "tags": ["getting-started", "minione"], "status": "draft"
     },
     {
       "id": "minione.instantiate-advanced", "title": "Alpine instantiation: advanced options",
-      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_minione.md",
+      "doc": "content/getting_started/install_opennebula/evaluation/deploy_opennebula_onprem_with_minione.md",
       "image": "assets/images/quickstart/light/sunstone_instantiate_vm_2.png", "darkImage": "assets/images/quickstart/dark/sunstone_instantiate_vm_2.png",
       "recipe": "recipes/minione.json", "capture": "instantiate-advanced", "tags": ["getting-started", "minione"], "status": "draft"
     },
     {
       "id": "minione.running", "title": "Alpine VM in RUNNING state",
-      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_minione.md",
+      "doc": "content/getting_started/install_opennebula/evaluation/deploy_opennebula_onprem_with_minione.md",
       "image": "assets/images/quickstart/light/sunstone_vm_instances.png", "darkImage": "assets/images/quickstart/dark/sunstone_vm_instances.png",
       "recipe": "recipes/minione.json", "capture": "running", "tags": ["getting-started", "minione"], "status": "draft"
     },
     {
       "id": "minione.console", "title": "Alpine VNC console in a new tab",
-      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_minione.md",
+      "doc": "content/getting_started/install_opennebula/evaluation/deploy_opennebula_onprem_with_minione.md",
       "image": "assets/images/quickstart/light/sunstone_vnc_alpine.png", "darkImage": "assets/images/quickstart/dark/sunstone_vnc_alpine.png",
       "recipe": "recipes/alpine-console.json", "capture": "console", "tags": ["getting-started", "minione"], "status": "draft",
       "notes": "The VNC terminal itself does not have a Sunstone light/dark theme."

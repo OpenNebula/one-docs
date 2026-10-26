@@ -65,12 +65,19 @@ def scan_content(repo_root: Path, content_dir: Path) -> list[ImageReference]:
     references: list[ImageReference] = []
 
     for path in sorted(content_root.rglob("*.md")):
-        text = path.read_text(encoding="utf-8")
-        rel_doc = path.relative_to(repo_root).as_posix()
-        references.extend(_scan_markdown_images(repo_root, rel_doc, text))
-        references.extend(_scan_image_shortcodes(repo_root, rel_doc, text))
+        references.extend(scan_document(repo_root, path))
 
     return sorted(references, key=lambda ref: (ref.doc, ref.line, ref.kind))
+
+
+def scan_document(repo_root: Path, path: Path) -> list[ImageReference]:
+    repo_root = repo_root.resolve()
+    path = (repo_root / path).resolve()
+    rel_doc = path.relative_to(repo_root).as_posix()
+    text = path.read_text(encoding="utf-8")
+    references = list(_scan_markdown_images(repo_root, rel_doc, text))
+    references.extend(_scan_image_shortcodes(repo_root, rel_doc, text))
+    return sorted(references, key=lambda ref: (ref.line, ref.kind))
 
 
 def _scan_markdown_images(repo_root: Path, rel_doc: str, text: str) -> Iterable[ImageReference]:

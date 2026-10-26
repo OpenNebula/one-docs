@@ -1,0 +1,303 @@
+{
+  "$schema": "../../schemas/manifest.schema.json",
+  "version": 1,
+  "group": "group.json",
+  "defaults": {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "locale": "en-US"
+  },
+  "hooks": {
+    "setup": [
+      {
+        "script": "scripts/prepare-oneks.sh",
+        "timeout": 420
+      },
+      {
+        "script": "../getting-started/scripts/prepare-theme.sh",
+        "timeout": 30
+      }
+    ],
+    "teardown": [
+      {
+        "command": "if [ -f /root/screenshot-lab/oneks-workflow.py ]; then python3 /root/screenshot-lab/oneks-workflow.py cleanup; elif [ -e /root/screenshot-lab/oneks-workflow.json ]; then echo 'OneKS helper is missing; marker retained.' >&2; exit 1; fi",
+        "timeout": 1200
+      },
+      {
+        "script": "../getting-started/scripts/restore-theme.sh",
+        "timeout": 30
+      }
+    ]
+  },
+  "screenshots": [
+    {
+      "id": "oneks.quickstart.networks",
+      "title": "Public vnet before creating the private network",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/create_private_vnet.png",
+      "darkImage": "assets/images/quickstart/dark/create_private_vnet.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "networks",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.private-general",
+      "title": "Private network name and cluster",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/create_private_vnet_1.png",
+      "darkImage": "assets/images/quickstart/dark/create_private_vnet_1.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "private-general",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.private-configuration",
+      "title": "Private bridged host network",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/create_private_vnet_2.png",
+      "darkImage": "assets/images/quickstart/dark/create_private_vnet_2.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "private-configuration",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.private-address-range",
+      "title": "Private network address range",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/create_private_vnet_3.png",
+      "darkImage": "assets/images/quickstart/dark/create_private_vnet_3.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "private-address-range",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.private-created",
+      "title": "Created private-k8s network",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/create_private_vnet_4.png",
+      "darkImage": "assets/images/quickstart/dark/create_private_vnet_4.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "private-created",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.public-selected",
+      "title": "Public network selected for update",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/update_vnet.png",
+      "darkImage": "assets/images/quickstart/dark/update_vnet.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "public-selected",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.public-dns",
+      "title": "Public network DNS configuration",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/update_vnet_dns.png",
+      "darkImage": "assets/images/quickstart/dark/update_vnet_dns.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "public-dns",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.cluster-general",
+      "title": "OneKS cluster name",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/create_k8s_cluster_1.png",
+      "darkImage": "assets/images/quickstart/dark/create_k8s_cluster_1.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "cluster-general",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.cluster-placement",
+      "title": "Select the default OpenNebula cluster",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/k8s_select_default_cluster.png",
+      "darkImage": "assets/images/quickstart/dark/k8s_select_default_cluster.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "cluster-placement",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.cluster-public",
+      "title": "Select the public network",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/k8s_select_public_vnet.png",
+      "darkImage": "assets/images/quickstart/dark/k8s_select_public_vnet.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "cluster-public",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.cluster-private",
+      "title": "Select the private network",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/k8s_select_private_vnet.png",
+      "darkImage": "assets/images/quickstart/dark/k8s_select_private_vnet.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "cluster-private",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.cluster-version",
+      "title": "Select an available Kubernetes version",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/k8s_select_version.png",
+      "darkImage": "assets/images/quickstart/dark/k8s_select_version.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "cluster-version",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.cluster-flavour",
+      "title": "Select Single-Node Control Plane",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/k8s_flavour.png",
+      "darkImage": "assets/images/quickstart/dark/k8s_flavour.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "cluster-flavour",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.cluster-logs",
+      "title": "OneKS provisioning logs",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/k8s_logs.png",
+      "darkImage": "assets/images/quickstart/dark/k8s_logs.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "cluster-logs",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.cluster-vms",
+      "title": "OneKS virtual machines after control-plane provisioning",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/k8s_vms_view.png",
+      "darkImage": "assets/images/quickstart/dark/k8s_vms_view.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "cluster-vms",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.node-groups",
+      "title": "Node Groups before adding a worker",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/create_node_group.png",
+      "darkImage": "assets/images/quickstart/dark/create_node_group.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "node-groups",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.node-group-inputs",
+      "title": "Small Worker Nodes with one worker",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/node_group_user_inputs.png",
+      "darkImage": "assets/images/quickstart/dark/node_group_user_inputs.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "node-group-inputs",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.node-group-details",
+      "title": "Running worker node group",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/nodegroup_details.png",
+      "darkImage": "assets/images/quickstart/dark/nodegroup_details.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "node-group-details",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "oneks.quickstart.kubeconfig",
+      "title": "Kubeconfig tab with credentials masked",
+      "doc": "content/getting_started/install_opennebula/evaluation/oneks_quickstart.md",
+      "image": "assets/images/quickstart/light/kubeconfig.png",
+      "darkImage": "assets/images/quickstart/dark/kubeconfig.png",
+      "recipe": "recipes/oneks-quickstart.json",
+      "capture": "kubeconfig",
+      "tags": [
+        "getting-started",
+        "oneks"
+      ],
+      "status": "draft",
+      "notes": "The live kubeconfig code block is masked in both themes. Do not remove this mask or publish usable credentials."
+    }
+  ]
+}

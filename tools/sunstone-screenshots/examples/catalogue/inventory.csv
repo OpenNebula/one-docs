@@ -1,0 +1,4 @@
+id,title,source_page,doc,group,manifest,automation_status,section
+demo.first,First page,,content/first.md,group.json,manifests/first.json,draft,Catalogue Examples
+demo.second,Shared screenshot page,,content/second.md,group.json,manifests/second.json,draft,Catalogue Examples
+demo.pending,Not automated yet,,content/pending.md,,,pending,Catalogue Examples

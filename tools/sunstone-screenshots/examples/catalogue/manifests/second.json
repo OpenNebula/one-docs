@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "group": "../group.json",
+  "screenshots": [
+    {
+      "id": "second.login",
+      "doc": "content/second.md",
+      "image": "assets/images/sunstone-light.svg",
+      "darkImage": "assets/images/sunstone-dark.svg",
+      "recipe": "../recipes/login.json",
+      "capture": "login",
+      "sharedFrom": {"manifest": "first.json", "id": "first.login"}
+    }
+  ]
+}

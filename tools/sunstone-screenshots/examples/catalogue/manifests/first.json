@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "group": "../group.json",
+  "screenshots": [
+    {
+      "id": "first.login",
+      "doc": "content/first.md",
+      "image": "assets/images/sunstone-light.svg",
+      "darkImage": "assets/images/sunstone-dark.svg",
+      "recipe": "../recipes/login.json",
+      "capture": "login"
+    }
+  ]
+}

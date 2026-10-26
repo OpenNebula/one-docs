@@ -9,35 +9,103 @@
   },
   "screenshots": [
     {
-      "id": "iso.network-configuration", "title": "VXLAN EVPN configuration (unsubmitted form)",
-      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_poc_iso.md",
-      "image": "assets/images/ISO/03-sunstone-network-config.png", "recipe": "recipes/iso-network.json", "capture": "configuration",
-      "tags": ["getting-started", "iso"], "status": "draft",
-      "notes": "Reproduces the form on miniONE, not an ISO installation or a working EVPN fabric. The illustrative physical device can be changed in the recipe."
+      "id": "iso.overview", "title": "Virtual Networks dashboard card",
+      "doc": "content/solutions/engineering_blueprints/ee_poc/ee_poc_iso.md",
+      "image": "assets/images/ISO/1-vnet-select.png", "recipe": "recipes/ee-iso-network.json", "capture": "overview",
+      "tags": ["getting-started","iso","ee-poc"], "status": "draft"
+    },
+    {
+      "id": "iso.networks", "title": "Virtual Networks list",
+      "doc": "content/solutions/engineering_blueprints/ee_poc/ee_poc_iso.md",
+      "image": "assets/images/ISO/2-vnet-create.png", "recipe": "recipes/ee-iso-network.json", "capture": "networks",
+      "tags": ["getting-started","iso","ee-poc"], "status": "draft"
+    },
+    {
+      "id": "iso.source", "title": "Create Virtual Network from scratch",
+      "doc": "content/solutions/engineering_blueprints/ee_poc/ee_poc_iso.md",
+      "image": "assets/images/ISO/3-vnet-fromscratch.png", "recipe": "recipes/ee-iso-network.json", "capture": "source",
+      "tags": ["getting-started","iso","ee-poc"], "status": "draft"
+    },
+    {
+      "id": "iso.general", "title": "Network name and default cluster",
+      "doc": "content/solutions/engineering_blueprints/ee_poc/ee_poc_iso.md",
+      "image": "assets/images/ISO/4-vnet-vlan_100.png", "recipe": "recipes/ee-iso-network.json", "capture": "general",
+      "tags": ["getting-started","iso","ee-poc"], "status": "draft"
+    },
+    {
+      "id": "iso.configuration", "title": "VXLAN EVPN configuration (unsubmitted form)",
+      "doc": "content/solutions/engineering_blueprints/ee_poc/ee_poc_iso.md",
+      "image": "assets/images/ISO/5-vnet-vxlan_100.png", "recipe": "recipes/ee-iso-network.json", "capture": "configuration",
+      "tags": ["getting-started","iso","ee-poc"], "status": "draft",
+      "notes": "UI-only reproduction on miniONE, not an EE ISO installation or an operational EVPN network. enX0 is illustrative; the form is cancelled at teardown."
+    },
+    {
+      "id": "iso.addresses", "title": "Address ranges before adding a range",
+      "doc": "content/solutions/engineering_blueprints/ee_poc/ee_poc_iso.md",
+      "image": "assets/images/ISO/6-vnet-address.png", "recipe": "recipes/ee-iso-network.json", "capture": "addresses",
+      "tags": ["getting-started","iso","ee-poc"], "status": "draft"
     },
     {
       "id": "iso.address-range", "title": "VXLAN IPv4 address range",
-      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_poc_iso.md",
-      "image": "assets/images/ISO/04-sunstone-network-ip-range.png", "recipe": "recipes/iso-network.json", "capture": "address-range",
-      "tags": ["getting-started", "iso"], "status": "draft"
+      "doc": "content/solutions/engineering_blueprints/ee_poc/ee_poc_iso.md",
+      "image": "assets/images/ISO/7-vnet-range.png", "recipe": "recipes/ee-iso-network.json", "capture": "address-range",
+      "tags": ["getting-started","iso","ee-poc"], "status": "draft"
     },
     {
-      "id": "iso.context", "title": "VXLAN network context",
-      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_poc_iso.md",
-      "image": "assets/images/ISO/05-sunstone-network-context.png", "recipe": "recipes/iso-network.json", "capture": "context",
-      "tags": ["getting-started", "iso"], "status": "draft"
-    },
-    {
-      "id": "iso.vllm-app", "title": "vLLM marketplace selection",
-      "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/deploy_opennebula_onprem_with_poc_iso.md",
-      "image": "assets/images/ISO/09-vllm-appliance.png", "recipe": "recipes/vllm-app.json", "capture": "vllm-app",
-      "tags": ["getting-started", "iso"], "status": "draft",
-      "notes": "Selects the catalog entry; does not download the appliance or instantiate a GPU VM."
+      "id": "iso.context", "title": "VXLAN network context and MTU",
+      "doc": "content/solutions/engineering_blueprints/ee_poc/ee_poc_iso.md",
+      "image": "assets/images/ISO/8-vnet-MTU.png", "recipe": "recipes/ee-iso-network.json", "capture": "context",
+      "tags": ["getting-started","iso","ee-poc"], "status": "draft"
     }
   ],
   "deferredScreenshots": [
-    {"image": "assets/images/ISO/06-vm-instantiate-1.png", "reason": "GPU instantiation sequence needs a GPU-capable provision and appliance template."},
-    {"image": "assets/images/ISO/07-vm-instantiate-pci-device.png", "reason": "Requires a monitored passthrough GPU in the lab."},
-    {"image": "assets/images/ISO/08-vm-instantiate-pci-device-select.png", "reason": "Requires a real selectable passthrough GPU; do not fabricate PCI inventory."}
+    {"image":"assets/images/ISO/9-vmtemplate-update.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/10-vmtemplate-NIC.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/11-vmtemplate-select.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/12-vm-create.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/13-vm-select.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/14-vm-name.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/15-vm-finish.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/16-vm-running.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/17-vm-VNC.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/18-vm-console.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/19-vm-IP.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/20-vm-newimg.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/21-vm-upload.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/22-vm-datastore.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/23-vm-imgloading.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/24-vm-imglocked.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/25-vm-imgready.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/26-vm-createtemplate.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/27-vm-templatekvm.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/28-vm-templateattachdisk.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/29-vm-templateimage.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/30-vm-templatechoice.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/31-vm-templateNIC.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/32-vm-templateauto.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/33-vm-templatenext.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/34-vm-templateready.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/35-vm-templateinstantiate.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/36-vm-templaterunning.png","reason":"Requires the EE PoC Linux image/template, a persisted test network and workflow-owned resource setup/cleanup; not reproduced by this form-only miniONE workflow."},
+    {"image":"assets/images/ISO/37-vm-winiso.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/38-vm-winlocked.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/39-vm-winready.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/42-vm-windisk.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/40-vm-winconfig1.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/43-vm-winattachiso.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/50-vm-winsata.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/55-vm-windrivers.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/44-vm-winattachempty.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/51-vm-winnoro.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/45-vm-windisksattached.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/52-vm-winboot.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/41-vm-winconfig2.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/46-vm-wintemplate.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/47-vm-wininstantiate.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/48-vm-winVNC.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/54-vm-wininstall.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/49-vm-winreboot.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/56-vm-windrivers2.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."},
+    {"image":"assets/images/ISO/57-vm-wincontext.png","reason":"Requires the EE PoC Windows ISO, driver images and a prepared Windows installation; the single miniONE lab does not provide these fixtures."}
   ]
 }

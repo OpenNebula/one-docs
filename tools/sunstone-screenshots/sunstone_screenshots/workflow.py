@@ -134,6 +134,40 @@ def run_guest(command):
     execute(command)
 
 
+def archive_workflow_markers(manifest):
+    """Abandon known setup markers without adopting or deleting their resources."""
+    markers_by_script = {
+        'prepare-theme.sh': 'theme-workflow.json',
+        'prepare-alpine.sh': 'alpine-workflow.json',
+        'prepare-wordpress.sh': 'wordpress-workflow.json',
+        'prepare-oneks.sh': 'oneks-workflow.json',
+    }
+    markers = sorted({markers_by_script[Path(hook['script']).name]
+                      for hook in manifest.get('hooks', {}).get('setup', [])
+                      if 'script' in hook and Path(hook['script']).name in markers_by_script})
+    if not markers:
+        raise lab.ProvisionError('--force-workflow found no supported marker-based setup hooks in this manifest.')
+    command = '''import os
+from pathlib import Path
+root = Path('/root/screenshot-lab')
+names = MARKER_NAMES
+paths = [root / name for name in names]
+for path in paths:
+    if path.is_symlink() or (path.exists() and not path.is_file()):
+        raise SystemExit('Refusing to archive non-regular marker: ' + str(path))
+existing = [path for path in paths if path.exists()]
+if existing:
+    archive = root / ('abandoned-' + os.environ['SUNSTONE_WORKFLOW_ID'])
+    archive.mkdir(mode=0o700)
+    for path in existing:
+        path.rename(archive / path.name)
+        print('Archived stale marker: ' + str(archive / path.name), flush=True)
+else:
+    print('No selected workflow markers to archive.', flush=True)
+'''.replace('MARKER_NAMES', repr(markers))
+    run_guest({'command': "python3 - <<'SUNSTONE_ARCHIVE'\n" + command + 'SUNSTONE_ARCHIVE', 'timeout': 30})
+
+
 def capture_with_hooks(manifest, capture, manifest_path=None):
     hooks = manifest.get('hooks', {})
     def execute(command, stage, index):

@@ -3,6 +3,7 @@
 import hashlib
 import ipaddress
 import json
+import math
 from contextlib import contextmanager
 from pathlib import Path
 import re
@@ -13,6 +14,7 @@ import sys
 import threading
 import time
 import uuid
+import xml.etree.ElementTree as ET
 from urllib.request import urlopen
 from urllib.parse import urlparse
 
@@ -89,11 +91,32 @@ def run_lock(run_dir):
             fcntl.flock(lock, fcntl.LOCK_UN)
 
 
+def resource_template(cfg):
+    resources = cfg.get('vm_resources', {})
+    fields = {'cpu': 'CPU', 'vcpu': 'VCPU', 'memory_mb': 'MEMORY'}
+    if not isinstance(resources, dict) or set(resources) - fields.keys():
+        raise ProvisionError('vm_resources must be an object containing only cpu, vcpu and memory_mb.')
+    template = ET.Element('TEMPLATE')
+    for key, attribute in fields.items():
+        if key not in resources:
+            continue
+        value = resources[key]
+        valid = type(value) is int and value > 0
+        if key == 'cpu' and type(value) is float:
+            valid = math.isfinite(value) and value > 0
+        if not valid:
+            expected = 'a finite positive number' if key == 'cpu' else 'a positive integer'
+            raise ProvisionError(f'vm_resources.{key} must be {expected}.')
+        ET.SubElement(template, attribute).text = str(value)
+    return ET.tostring(template, encoding='unicode') if resources else ''
+
+
 def configuration(path):
     path = Path(path).resolve()
     cfg = load(path)
     if not isinstance(cfg, dict):
         raise ProvisionError('Provisioning configuration must be a JSON object.')
+    resource_template(cfg)
     if type(cfg.get('minione_force', False)) is not bool:
         raise ProvisionError('minione_force must be a boolean.')
     if type(cfg.get('disable_automatic_updates', False)) is not bool:
@@ -405,7 +428,11 @@ def provision(config_path, run_dir):
         state['phase'] = 'allocating'
         save(state_path, state)
         print('Instantiating lab VM...', flush=True)
-        state['vm_id'] = int(one.template.instantiate(cfg['template_id'], state['vm_name']))
+        extra = resource_template(cfg)
+        if extra:
+            state['vm_id'] = int(one.template.instantiate(cfg['template_id'], state['vm_name'], False, extra))
+        else:
+            state['vm_id'] = int(one.template.instantiate(cfg['template_id'], state['vm_name']))
         state['phase'] = 'booting'
         save(state_path, state)
         state['address'] = wait_for(lambda: running_address(one, state), cfg['boot_timeout'], 'VM and management IP')

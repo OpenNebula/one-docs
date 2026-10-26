@@ -89,7 +89,6 @@ def validate_manifest(manifest: dict[str, Any], repo_root: Path, manifest_path: 
         for key in ("doc", "image", "darkImage"):
             rel_path = screenshot.get(key)
             if rel_path and not (repo_root / rel_path).exists():
-                print(repo_root / rel_path)
                 errors.append(f"{prefix}: {key} does not exist: {rel_path}")
 
         recipe = screenshot.get("recipe")

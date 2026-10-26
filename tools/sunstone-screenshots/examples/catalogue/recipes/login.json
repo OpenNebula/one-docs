@@ -1,0 +1,7 @@
+{
+  "setup": [{"action": "goto", "url": "${SUNSTONE_URL}"}],
+  "captures": [
+    {"id": "login", "steps": [], "screenshot": {"selector": "body"}},
+    {"id": "navigation-only", "steps": [{"action": "defocus"}]}
+  ]
+}

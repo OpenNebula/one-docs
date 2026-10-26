@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
+import xml.etree.ElementTree as ET
 
 from sunstone_screenshots import provision as lab
 
@@ -30,6 +31,49 @@ class ProvisionTests(unittest.TestCase):
             TEMPLATE={'NIC': [{'NIC_ID': '1', 'IP': '10.1.0.2'},
                               {'NIC_ID': '0', 'IP': '192.0.2.4'}]})
         self.assertEqual(lab.running_address(one, {'vm_id': 4, 'vm_name': 'lab', 'config': {}}), '192.0.2.4')
+
+    def test_resource_overrides_use_a_minimal_xml_template(self):
+        values = {'cpu': 2.5, 'vcpu': 4, 'memory_mb': 16384}
+        extra = ET.fromstring(lab.resource_template({'vm_resources': values}))
+        self.assertEqual(extra.tag, 'TEMPLATE')
+        self.assertEqual({item.tag: item.text for item in extra},
+                         {'CPU': '2.5', 'VCPU': '4', 'MEMORY': '16384'})
+        self.assertEqual(lab.resource_template({}), '')
+        self.assertEqual(lab.resource_template({'vm_resources': {}}), '')
+        self.assertEqual(ET.fromstring(lab.resource_template({'vm_resources': {'vcpu': 4}})).findtext('VCPU'), '4')
+
+    def test_bad_resource_overrides_are_rejected_before_infrastructure_access(self):
+        original = lab.load(self.config)
+        bad = [None, [], {'memory': 16384}, {'vcpu': 0}, {'vcpu': 1.5}, {'vcpu': True},
+               {'memory_mb': '16384'}, {'memory_mb': -1}, {'memory_mb': False},
+               {'cpu': 0}, {'cpu': True}, {'cpu': float('nan')}, {'cpu': float('inf')}, {'cpu': '4'}]
+        for resources in bad:
+            with self.subTest(resources=resources), patch.object(lab, 'connect') as connect:
+                self.config.write_text(json.dumps(dict(original, vm_resources=resources)))
+                with self.assertRaisesRegex(lab.ProvisionError, 'vm_resources'):
+                    lab.provision(self.config, self.run)
+                connect.assert_not_called()
+                self.assertFalse(self.run.exists())
+
+    def test_provision_overrides_only_the_new_instance_not_the_base_template(self):
+        cfg = lab.load(self.config)
+        cfg['vm_resources'] = {'cpu': 4, 'vcpu': 4, 'memory_mb': 16384}
+        self.config.write_text(json.dumps(cfg))
+        one = Mock()
+        one.template.instantiate.return_value = 17
+        with patch.object(lab, 'connect', return_value=one), \
+             patch.object(lab, 'running_address', return_value='192.0.2.4'), \
+             patch.object(lab, 'guest_ready', return_value=True), \
+             patch.object(lab, 'install'), patch.object(lab, 'check_services'):
+            lab.provision(self.config, self.run)
+        state = lab.load(self.run / 'state.json')
+        args = one.template.instantiate.call_args.args
+        self.assertEqual(args[:3], (42, state['vm_name'], False))
+        extra = ET.fromstring(args[3])
+        self.assertEqual({item.tag: item.text for item in extra},
+                         {'CPU': '4', 'VCPU': '4', 'MEMORY': '16384'})
+        self.assertEqual(state['config']['vm_resources'], cfg['vm_resources'])
+        one.template.update.assert_not_called()
 
     def local_user_config(self):
         cfg = lab.load(self.config)
@@ -206,6 +250,7 @@ class ProvisionTests(unittest.TestCase):
             state = lab.load(self.run / 'state.json')
             self.assertEqual(state['phase'], 'ready')
             self.assertEqual(state['host_key_alias'], state['vm_name'])
+            one.template.instantiate.assert_called_once_with(42, state['vm_name'])
             one.vm.info.side_effect = [SimpleNamespace(NAME=state['vm_name'], STATE=3),
                                       SimpleNamespace(NAME=state['vm_name'], STATE=6)]
             lab.destroy(self.run)

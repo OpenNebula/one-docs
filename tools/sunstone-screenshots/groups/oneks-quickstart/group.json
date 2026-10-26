@@ -1,0 +1,7 @@
+{
+  "$schema": "../../schemas/group.schema.json",
+  "version": 1,
+  "provision": "provision.json",
+  "destroyOnSuccess": true,
+  "manifests": ["oneks_quickstart.json"]
+}

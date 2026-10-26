@@ -1,0 +1,3 @@
+id,title,source_page,doc,group,manifest,automation_status,section
+demo.broken,Broken mappings,,content/first.md,,manifests/broken.json,draft,Catalogue Examples
+demo.missing,Missing document,,content/not-there.md,,,pending,Catalogue Examples

@@ -1,0 +1,2 @@
+Pillow>=10,<13
+scikit-image>=0.24,<0.27

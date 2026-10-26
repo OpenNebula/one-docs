@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
 
-from sunstone_screenshots.docs_scan import scan_content
+from sunstone_screenshots.docs_scan import scan_document
 from sunstone_screenshots.manifest import screenshot_variants
 from sunstone_screenshots.workflow import load_group
 
@@ -27,7 +27,7 @@ class GettingStartedManifestTests(unittest.TestCase):
         self.assertEqual(config, GROUP / 'provision.json')
         self.assertTrue(destroy)
         self.assertEqual(paths, [(BASE / row['manifest']).resolve() for row in rows])
-        for row, path, count in zip(rows, paths, (9, 9, 4, 22)):
+        for row, path, count in zip(rows, paths, (9, 9, 8, 22)):
             manifest = json.loads(path.read_text())
             self.assertEqual({s['doc'] for s in manifest['screenshots']}, {row['doc']})
             self.assertEqual(len(manifest['screenshots']), count)
@@ -35,20 +35,19 @@ class GettingStartedManifestTests(unittest.TestCase):
 
     def test_all_page_sunstone_images_are_captured_shared_or_explicitly_deferred(self):
         _, paths, _ = load_group(GROUP / 'group.json', ROOT)
-        references = scan_content(ROOT, Path('content/getting_started/try_opennebula/opennebula_sandbox_deployment'))
         excluded = {
             'assets/images/ISO/00-onepoc_architecture.svg',
             'assets/images/ISO/0-uefi_boot_screen.png', 'assets/images/ISO/0-mbr_boot_screen.png',
-            'assets/images/ISO/01-validation_script.png', 'assets/images/ISO/011-disk_selection.png',
-            'assets/images/ISO/02-anaconda_unattended_install.png',
             'assets/images/icons/sunstone/import_into_datastore.png',
-            'assets/images/icons/sunstone/instantiate.png', 'assets/images/wordpress_install_page.png',
+            'assets/images/icons/sunstone/instantiate.png', 'assets/images/quickstart/light/wordpress_install_page.png',
         }
         for path in paths:
             manifest = json.loads(path.read_text())
             doc = manifest['screenshots'][0]['doc']
+            references = scan_document(ROOT, Path(doc))
             expected = {v.asset_path for r in references if r.doc == doc for v in r.variants
-                        if v.asset_path not in excluded and '/minione_aws_' not in v.asset_path}
+                        if v.asset_path not in excluded
+                        and not Path(v.asset_path).name.startswith(('minione_aws_', 'minione-aws-'))}
             mapped = {image for s in manifest['screenshots'] for _, image in screenshot_variants(s)}
             deferred = {s['image'] for s in manifest.get('deferredScreenshots', [])}
             self.assertFalse(mapped & deferred)
@@ -74,10 +73,40 @@ class GettingStartedManifestTests(unittest.TestCase):
                     self.assertIn(step['action'], actions)
 
     def test_iso_never_submits_the_network_form(self):
-        recipe = json.loads((GROUP / 'recipes/iso-network.json').read_text())
+        recipe = json.loads((GROUP / 'recipes/ee-iso-network.json').read_text())
         steps = recipe['setup'] + recipe['teardown'] + [s for c in recipe['captures'] for s in c['steps']]
-        self.assertFalse(any(s['action'] == 'click' and 'Finish' in s.get('selector', '') for s in steps))
+        self.assertFalse(any(s['action'] == 'click' and 'Finish' in (s.get('selector', '') + s.get('name', '')) for s in steps))
         self.assertFalse(any(s['action'] == 'guestCommand' for s in steps))
+        self.assertEqual(recipe['teardown'][:2], [
+            {'action': 'click', 'dataCy': 'stepper-cancel-button'},
+            {'action': 'click', 'role': 'button', 'name': 'Continue', 'exact': True}])
+
+    def test_ee_iso_maps_the_eight_network_images_in_document_order(self):
+        manifest = json.loads((GROUP / 'deploy_opennebula_onprem_with_poc_iso.json').read_text())
+        references = scan_document(ROOT, Path('content/solutions/engineering_blueprints/ee_poc/ee_poc_iso.md'))
+        images = [v.asset_path for r in references for v in r.variants if '/ISO/' in v.asset_path][3:11]
+        self.assertEqual([s['image'] for s in manifest['screenshots']], images)
+        self.assertEqual({s['recipe'] for s in manifest['screenshots']}, {'recipes/ee-iso-network.json'})
+        self.assertEqual(len(manifest['deferredScreenshots']), 48)
+        self.assertTrue(all('Requires the EE PoC' in item['reason'] for item in manifest['deferredScreenshots']))
+        recipe = json.loads((GROUP / 'recipes/ee-iso-network.json').read_text())
+        configuration = next(c for c in recipe['captures'] if c['id'] == 'configuration')
+        self.assertIn({'action': 'fill', 'dataCy': 'configuration-PHYDEV', 'value': 'enX0'}, configuration['steps'])
+
+    def test_legacy_ce_iso_recipes_are_retained_but_not_referenced_by_active_manifests(self):
+        for name, captures in (('iso-network.json', ['configuration', 'address-range', 'context']),
+                               ('vllm-app.json', ['vllm-app'])):
+            recipe = json.loads((GROUP / 'recipes/legacy' / name).read_text())
+            self.assertEqual([c['id'] for c in recipe['captures']], captures)
+        _, paths, _ = load_group(GROUP / 'group.json', ROOT)
+        self.assertFalse(any('legacy/' in s['recipe'] for path in paths
+                             for s in json.loads(path.read_text())['screenshots']))
+
+    def test_validation_captures_both_current_theme_variants(self):
+        manifest = json.loads((GROUP / 'validate_the_environment.json').read_text())
+        for shot in manifest['screenshots']:
+            self.assertTrue(shot['image'].startswith('assets/images/quickstart/light/'))
+            self.assertEqual(shot['darkImage'], shot['image'].replace('/light/', '/dark/'))
 
     def test_wordpress_visits_security_groups_between_network_and_values(self):
         recipe = json.loads((GROUP / 'recipes/wordpress.json').read_text())
@@ -91,7 +120,7 @@ class GettingStartedManifestTests(unittest.TestCase):
             {'action': 'defocus'}])
         self.assertNotIn('screenshot', security_groups)
         self.assertEqual(values['steps'], [next_button, {
-            'action': 'waitForSelector', 'selector': "[data-cy='modal-attach-nic'] input[name='network-values.IP']"},
+            'action': 'waitForSelector', 'selector': "[data-cy='modal-attach-nic'] input[data-cy='override-ipv4-IP']"},
             {'action': 'defocus'}])
 
     def test_vnc_recipe_switches_back_before_logout(self):

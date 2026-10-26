@@ -4,9 +4,10 @@
       "id": "login",
       "steps": [
         {"action": "goto", "url": "${SUNSTONE_URL}"},
-        {"action": "waitForSelector", "selector": "input[type='password']"}
+        {"action": "waitForSelector", "selector": "input[type='password']"},
+        {"action": "waitTime", "timeout": 500}
       ],
-      "screenshot": {"selector": "body", "clip": {"leftPercent": 27, "rightPercent": 73, "topPercent": 22, "bottomPercent": 73}}
+      "screenshot": {"selector": "body", "clip": {"leftPercent": 29, "rightPercent": 71, "topPercent": 20, "bottomPercent": 71}}
     }
   ],
   "themeSteps": {

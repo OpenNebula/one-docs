@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "screenshots": [
+    {
+      "id": "broken.capture",
+      "doc": "content/first.md",
+      "image": "assets/images/missing.svg",
+      "recipe": "../recipes/login.json",
+      "capture": "does-not-exist"
+    },
+    {
+      "id": "broken.recipe",
+      "doc": "content/first.md",
+      "image": "assets/images/sunstone-light.svg",
+      "recipe": "../recipes/not-there.json",
+      "capture": "login"
+    }
+  ]
+}

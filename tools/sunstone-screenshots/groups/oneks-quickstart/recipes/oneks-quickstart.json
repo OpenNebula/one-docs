@@ -1,0 +1,238 @@
+{
+  "setup": [
+    {"action": "goto", "url": "${SUNSTONE_URL}"},
+    {"action": "fill", "selector": "input[type='text']", "value": "${SUNSTONE_USER}"},
+    {"action": "fill", "selector": "input[type='password']", "value": "${SUNSTONE_PASSWORD}"},
+    {"action": "click", "role": "button", "name": "Sign In Now", "exact": true},
+    {"action": "waitForSelector", "selector": "[data-cy='sidebar-paper']"}
+  ],
+  "themeSteps": {
+    "light": [{"action": "waitTime", "timeout": 250}],
+    "dark": [{"action": "waitTime", "timeout": 250}]
+  },
+  "captures": [
+    {
+      "id": "networks",
+      "steps": [
+        {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
+        {"action": "click", "selector": "[data-cy='networks']:visible"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Virtual Networks')"},
+        {"action": "waitForSelector", "selector": "[data-cy^='vnets-']:has(:text-is('vnet'))"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "private-general",
+      "steps": [
+        {"action": "click", "role": "button", "name": "Create Virtual Network", "exact": true},
+        {"action": "click", "dataCy": "vnet-create-scratch"},
+        {"action": "click", "dataCy": "vnet-create-confirm"},
+        {"action": "fill", "dataCy": "general-information-NAME", "value": "private-k8s"},
+        {"action": "click", "selector": "input[data-cy='general-information-CLUSTER']"},
+        {"action": "click", "role": "option", "name": "#0 default", "exact": true},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "private-configuration",
+      "steps": [
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "selector": "[data-cy='configuration-VN_MAD'] button[value='bridge']"},
+        {"action": "click", "selector": "input[data-cy='configuration-PHYDEV_SWITCH']"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "private-address-range",
+      "steps": [
+        {"action": "click", "dataCy": "tab-addresses"},
+        {"action": "click", "dataCy": "add-ar"},
+        {"action": "fill", "selector": "input[data-cy='undefined-IP']", "value": "192.168.200.2"},
+        {"action": "fill", "selector": "input[data-cy='undefined-SIZE']", "value": "100"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "[role='dialog']"}
+    },
+    {
+      "id": "private-created",
+      "steps": [
+        {"action": "click", "role": "button", "name": "Accept", "exact": true},
+        {"action": "click", "selector": "button[data-cy='stepper-next-button']:has-text('Finish')"},
+        {"action": "waitForSelector", "selector": "[data-cy^='vnets-']:has(:text-is('private-k8s'))", "timeout": 60000, "refreshSelector": "button[data-cy='refresh']"},
+        {"action": "guestCommand", "command": "python3 /root/screenshot-lab/oneks-workflow.py private", "timeout": 60},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "public-selected",
+      "steps": [
+        {"action": "click", "selector": "[data-cy^='vnets-']:has(:text-is('vnet'))"},
+        {"action": "waitForSelector", "selector": "[data-cy='action-vnet-update_dialog']:visible"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "public-dns",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='action-vnet-update_dialog']:visible"},
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "dataCy": "tab-context"},
+        {"action": "fill", "dataCy": "context-DNS", "value": "1.1.1.1"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "cluster-general",
+      "steps": [
+        {"action": "click", "selector": "button[data-cy='stepper-next-button']:has-text('Finish')"},
+        {"action": "waitForSelector", "selector": "input[data-cy='context-DNS']", "state": "hidden"},
+        {"action": "guestCommand", "command": "python3 /root/screenshot-lab/oneks-workflow.py dns", "timeout": 60},
+        {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
+        {"action": "click", "selector": "[data-cy='sidebar-paper']:visible [data-cy='kubernetes']"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Clusters')"},
+        {"action": "defocus"},
+        {"action": "click", "role": "button", "name": "Create Kubernetes Cluster", "exact": true},
+        {"action": "fill", "dataCy": "general-NAME", "value": "docs-screenshot-oneks"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "cluster-placement",
+      "steps": [
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "selector": "[data-cy^='clusters-']:has(:text-is('default'))"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "cluster-public",
+      "steps": [
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "selector": "[data-cy^='vnets-']:has(:text-is('vnet'))"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "cluster-private",
+      "steps": [
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "selector": "[data-cy^='vnets-']:has(:text-is('private-k8s'))"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "cluster-version",
+      "steps": [
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "selector": "input[data-cy='kubernetes_version-KUBERNETES_VERSION']"},
+        {"action": "press", "selector": "input[data-cy='kubernetes_version-KUBERNETES_VERSION']", "key": "ArrowDown"},
+        {"action": "press", "selector": "input[data-cy='kubernetes_version-KUBERNETES_VERSION']", "key": "Enter"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "cluster-flavour",
+      "steps": [
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "dataCy": "standalone"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "cluster-logs",
+      "steps": [
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "selector": "button[data-cy='stepper-next-button']:has-text('Finish')"},
+        {"action": "waitForSelector", "selector": "[data-cy='logs-viewer']", "timeout": 120000},
+        {"action": "guestCommand", "command": "python3 /root/screenshot-lab/oneks-workflow.py cluster", "timeout": 60},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "cluster-vms",
+      "steps": [
+        {"action": "guestCommand", "command": "python3 /root/screenshot-lab/oneks-workflow.py wait-cluster", "timeout": 1860},
+        {"action": "click", "dataCy": "button-background"},
+        {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
+        {"action": "click", "selector": "[data-cy='instances']:visible"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('VMs')"},
+        {"action": "waitForSelector", "selector": "[data-cy^='vms-']:has-text('controlplane'):has-text('RUNNING')", "timeout": 120000, "refreshSelector": "button[data-cy='refresh']"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "node-groups",
+      "steps": [
+        {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
+        {"action": "click", "selector": "[data-cy='sidebar-paper']:visible [data-cy='kubernetes']"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Clusters')"},
+        {"action": "click", "selector": ":text-is('docs-screenshot-oneks'):visible"},
+        {"action": "click", "dataCy": "tab-nodegroup"},
+        {"action": "waitForSelector", "selector": "[data-cy='add-node-group']:visible:not([disabled])"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "node-group-inputs",
+      "steps": [
+        {"action": "click", "dataCy": "add-node-group"},
+        {"action": "fill", "selector": "[data-cy='modal-create-node-group'] input[data-cy='general-NAME']", "value": "worker1"},
+        {"action": "click", "selector": "[data-cy='modal-create-node-group'] [data-cy='stepper-next-button']"},
+        {"action": "click", "selector": "[data-cy='modal-create-node-group'] [data-cy='small']"},
+        {"action": "click", "selector": "[data-cy='modal-create-node-group'] [data-cy='stepper-next-button']"},
+        {"action": "fill", "selector": "[data-cy='modal-create-node-group'] input[data-cy='user-inputs-count']", "value": "1"},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "[data-cy='modal-create-node-group']"}
+    },
+    {
+      "id": "node-group-details",
+      "steps": [
+        {"action": "click", "selector": "[data-cy='modal-create-node-group'] [data-cy='stepper-next-button']:has-text('Finish')"},
+        {"action": "waitForSelector", "selector": "[data-cy='button-background']", "timeout": 120000},
+        {"action": "guestCommand", "command": "python3 /root/screenshot-lab/oneks-workflow.py wait-worker", "timeout": 1260},
+        {"action": "click", "dataCy": "button-background"},
+        {"action": "click", "selector": ":text-is('docs-screenshot-oneks'):visible"},
+        {"action": "click", "dataCy": "tab-nodegroup"},
+        {"action": "click", "selector": "[data-cy='tab-content-nodegroup'] :text-is('worker1'):visible"},
+        {"action": "waitForSelector", "selector": "[data-cy='tab-content-nodegroup']:has-text('RUNNING')", "timeout": 120000},
+        {"action": "defocus"}
+      ],
+      "screenshot": {"selector": "body"}
+    },
+    {
+      "id": "kubeconfig",
+      "steps": [
+        {"action": "click", "dataCy": "tab-kubeconfig"},
+        {"action": "waitForSelector", "selector": "[data-cy='tab-content-kubeconfig'] .code-container", "timeout": 60000},
+        {"action": "defocus"}
+      ],
+      "screenshot": {
+        "selector": "body",
+        "maskSelectors": ["[data-cy='tab-content-kubeconfig'] .code-container"],
+        "maskColor": "#dce5e7"
+      }
+    }
+  ],
+  "teardown": [
+    {"action": "goto", "url": "${SUNSTONE_URL}"},
+    {"action": "click", "selector": "[data-cy='sidebar-user-menu']:visible"},
+    {"action": "click", "selector": "[data-cy='sidebar-logout-button']:visible"},
+    {"action": "waitForSelector", "selector": "input[type='password']"}
+  ]
+}

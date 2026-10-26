@@ -17,92 +17,92 @@
   },
   "screenshots": [
     {
-      "id": "validation.host", "title": "Monitored localhost host", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/minione-kvm_host.png", "recipe": "recipes/installed-resources.json", "capture": "host", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.host", "title": "Monitored localhost host", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/minione_kvm_host.png", "darkImage": "assets/images/quickstart/dark/minione_kvm_host.png", "recipe": "recipes/installed-resources.json", "capture": "host", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.cluster", "title": "Default cluster", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/minione-cluster.png", "recipe": "recipes/installed-resources.json", "capture": "cluster", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.cluster", "title": "Default cluster", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/minione_cluster.png", "darkImage": "assets/images/quickstart/dark/minione_cluster.png", "recipe": "recipes/installed-resources.json", "capture": "cluster", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.datastore", "title": "Default image datastore", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/minione-datastore.png", "recipe": "recipes/installed-resources.json", "capture": "datastore", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.datastore", "title": "Default image datastore", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/minione_datastores.png", "darkImage": "assets/images/quickstart/dark/minione_datastores.png", "recipe": "recipes/installed-resources.json", "capture": "datastore", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.network", "title": "miniONE virtual network", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/minione-vnet.png", "recipe": "recipes/installed-resources.json", "capture": "network", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.network", "title": "miniONE virtual network", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/minione_vnet.png", "darkImage": "assets/images/quickstart/dark/minione_vnet.png", "recipe": "recipes/installed-resources.json", "capture": "network", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.apps-menu", "title": "Storage Apps navigation", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/sunstone-select_apps.png", "recipe": "recipes/wordpress.json", "capture": "apps-menu", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.apps-menu", "title": "Storage Apps navigation", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/sunstone_select_apps.png", "darkImage": "assets/images/quickstart/dark/sunstone_select_apps.png", "recipe": "recipes/wordpress.json", "capture": "apps-menu", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.apps-list", "title": "Marketplace apps list", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/sunstone-apps_list.png", "recipe": "recipes/wordpress.json", "capture": "apps-list", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.apps-list", "title": "Marketplace apps list", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/sunstone_apps_list.png", "darkImage": "assets/images/quickstart/dark/sunstone_apps_list.png", "recipe": "recipes/wordpress.json", "capture": "apps-list", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.wordpress-filter", "title": "WordPress search", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/sunstone-apps-word_filter.png", "recipe": "recipes/wordpress.json", "capture": "wordpress-filter", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.wordpress-filter", "title": "WordPress search", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/sunstone_apps_wordpress.png", "darkImage": "assets/images/quickstart/dark/sunstone_apps_wordpress.png", "recipe": "recipes/wordpress.json", "capture": "wordpress-filter", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.wordpress-selection", "title": "WordPress app selected for import", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/sunstone-import_wordp_to_ds.png", "recipe": "recipes/wordpress.json", "capture": "wordpress-selection", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.wordpress-selection", "title": "WordPress app selected for import", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/sunstone_import_wordpress.png", "darkImage": "assets/images/quickstart/dark/sunstone_import_wordpress.png", "recipe": "recipes/wordpress.json", "capture": "wordpress-selection", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.import-configuration", "title": "Download App configuration", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/sunstone-download_app.png", "recipe": "recipes/wordpress.json", "capture": "import-configuration", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.import-configuration", "title": "Download App configuration", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/sunstone_download_app.png", "darkImage": "assets/images/quickstart/dark/sunstone_download_app.png", "recipe": "recipes/wordpress.json", "capture": "import-configuration", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.import-datastore", "title": "Choose the default datastore", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/minione-import_to_datastore.png", "recipe": "recipes/wordpress.json", "capture": "import-datastore", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.import-datastore", "title": "Choose the default datastore", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/minione_import_to_datastore.png", "darkImage": "assets/images/quickstart/dark/minione_import_to_datastore.png", "recipe": "recipes/wordpress.json", "capture": "import-datastore", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.import-ready", "title": "Imported WordPress image is READY", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/minione-imported_wordpress.png", "recipe": "recipes/wordpress.json", "capture": "import-ready", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.import-ready", "title": "Imported WordPress image is READY", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/wordpress_imported.png", "darkImage": "assets/images/quickstart/dark/wordpress_imported.png", "recipe": "recipes/wordpress.json", "capture": "import-ready", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.templates-menu", "title": "VM Templates navigation", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/sunstone-vm_templates.png", "recipe": "recipes/wordpress.json", "capture": "templates-menu", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.templates-menu", "title": "VM Templates navigation", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/sunstone_vm_templates.png", "darkImage": "assets/images/quickstart/dark/sunstone_vm_templates.png", "recipe": "recipes/wordpress.json", "capture": "templates-menu", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.template-selection", "title": "WordPress template selected", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/sunstone-vm_instantiate.png", "recipe": "recipes/wordpress.json", "capture": "template-selection", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.template-selection", "title": "WordPress template selected", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/sunstone_vm_instantiate.png", "darkImage": "assets/images/quickstart/dark/sunstone_vm_instantiate.png", "recipe": "recipes/wordpress.json", "capture": "template-selection", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.instantiate-configuration", "title": "WordPress VM configuration", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/sunstone-vm_instantiate_wiz1.png", "recipe": "recipes/wordpress.json", "capture": "instantiate-configuration", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.instantiate-configuration", "title": "WordPress VM configuration", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/sunstone_vm_instantiate_wiz1.png", "darkImage": "assets/images/quickstart/dark/sunstone_vm_instantiate_wiz1.png", "recipe": "recipes/wordpress.json", "capture": "instantiate-configuration", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.user-inputs", "title": "WordPress user inputs", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/sunstone-vm_instantiate_wiz2.png", "recipe": "recipes/wordpress.json", "capture": "user-inputs", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.user-inputs", "title": "WordPress user inputs", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/sunstone_vm_instantiate_wiz2.png", "darkImage": "assets/images/quickstart/dark/sunstone_vm_instantiate_wiz2.png", "recipe": "recipes/wordpress.json", "capture": "user-inputs", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.advanced", "title": "WordPress advanced options", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/sunstone-vm_instantiate_wiz3.png", "recipe": "recipes/wordpress.json", "capture": "advanced", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.advanced", "title": "WordPress advanced options", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/sunstone_vm_instantiate_wiz3.png", "darkImage": "assets/images/quickstart/dark/sunstone_vm_instantiate_wiz3.png", "recipe": "recipes/wordpress.json", "capture": "advanced", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.attach-nic", "title": "Attach a virtual network interface", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/sunstone-vm_instantiate_wiz4-attach_nic.png", "recipe": "recipes/wordpress.json", "capture": "attach-nic", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.attach-nic", "title": "Attach a virtual network interface", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/sunstone_vm_instantiate_wiz4.png", "darkImage": "assets/images/quickstart/dark/sunstone_vm_instantiate_wiz4.png", "recipe": "recipes/wordpress.json", "capture": "attach-nic", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.nic-advanced", "title": "NIC advanced options", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/minione-attach_nic_2.png", "recipe": "recipes/wordpress.json", "capture": "nic-advanced", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.nic-advanced", "title": "NIC advanced options", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/minione_attach_nic_1.png", "darkImage": "assets/images/quickstart/dark/minione_attach_nic_1.png", "recipe": "recipes/wordpress.json", "capture": "nic-advanced", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.nic-network", "title": "Select vnet", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/minione-attach_nic.png", "recipe": "recipes/wordpress.json", "capture": "nic-network", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.nic-network", "title": "Select vnet", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/minione_attach_nic_2.png", "darkImage": "assets/images/quickstart/dark/minione_attach_nic_2.png", "recipe": "recipes/wordpress.json", "capture": "nic-network", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.nic-values", "title": "NIC network values", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/minione-attach_nic_3.png", "recipe": "recipes/wordpress.json", "capture": "nic-values", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.nic-values", "title": "NIC network values", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/minione_attach_nic_3.png", "darkImage": "assets/images/quickstart/dark/minione_attach_nic_3.png", "recipe": "recipes/wordpress.json", "capture": "nic-values", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.nic-qos", "title": "NIC QoS options", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/minione-select_qos.png", "recipe": "recipes/wordpress.json", "capture": "nic-qos", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.nic-qos", "title": "NIC QoS options", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/minione_select_qos.png", "darkImage": "assets/images/quickstart/dark/minione_select_qos.png", "recipe": "recipes/wordpress.json", "capture": "nic-qos", "tags": ["getting-started", "validation"], "status": "draft"
     },
     {
-      "id": "validation.running", "title": "WordPress and Alpine VMs in RUNNING state", "doc": "content/getting_started/try_opennebula/opennebula_sandbox_deployment/validate_the_environment.md",
-      "image": "assets/images/minione-running_vms.png", "recipe": "recipes/wordpress.json", "capture": "running", "tags": ["getting-started", "validation"], "status": "draft"
+      "id": "validation.running", "title": "WordPress and Alpine VMs in RUNNING state", "doc": "content/getting_started/install_opennebula/evaluation/validate_the_environment.md",
+      "image": "assets/images/quickstart/light/minione_vm_wordpress.png", "darkImage": "assets/images/quickstart/dark/minione_vm_wordpress.png", "recipe": "recipes/wordpress.json", "capture": "running", "tags": ["getting-started", "validation"], "status": "draft"
     }
   ]
 }

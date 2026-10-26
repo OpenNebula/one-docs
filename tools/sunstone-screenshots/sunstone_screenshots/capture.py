@@ -432,12 +432,24 @@ def _take_screenshot(page: Any, options: dict[str, Any], target: Path, variables
     omit_background = bool(options.get("omitBackground", False))
     buffer = int(options.get("buffer", 0))
     clip = _clip_from_options(page, options)
+    masking = {}
+    if "maskSelectors" in options:
+        selectors = options["maskSelectors"]
+        if (not isinstance(selectors, list) or not selectors
+                or any(not isinstance(s, str) or not s.strip() for s in selectors)):
+            raise CaptureError('maskSelectors must be a nonempty list of selector strings.')
+        masks = [page.locator(_expand(s, variables)) for s in selectors]
+        # A stale selector must not silently produce a screenshot containing credentials.
+        if any(not mask.count() or not mask.first.is_visible() for mask in masks):
+            raise CaptureError('Screenshot mask is missing or hidden; refusing an unredacted capture.')
+        masking = {"mask": masks, "mask_color": options.get("maskColor", "#dce5e7")}
 
     if clip:
         page.screenshot(
             path=str(target),
             omit_background=omit_background,
             clip=clip,
+            **masking,
         )
         return
 
@@ -454,12 +466,14 @@ def _take_screenshot(page: Any, options: dict[str, Any], target: Path, variables
                     "y": max(box["y"] - buffer, 0),
                     "width": box["width"] + buffer * 2,
                     "height": box["height"] + buffer * 2,
-                },)
+                },
+                **masking,
+            )
             return
         page.locator(_expand(selector, variables)).first.screenshot(
             path=str(target),
             omit_background=omit_background,
-
+            **masking,
         )
         return
 
@@ -467,6 +481,7 @@ def _take_screenshot(page: Any, options: dict[str, Any], target: Path, variables
         path=str(target),
         full_page=bool(options.get("fullPage", False)),
         omit_background=omit_background,
+        **masking,
     )
 
 

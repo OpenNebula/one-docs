@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "provision": "provision.json",
+  "manifests": ["manifests/first.json", "manifests/second.json"]
+}

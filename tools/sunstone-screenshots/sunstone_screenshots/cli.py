@@ -9,6 +9,7 @@ from contextlib import nullcontext
 from pathlib import Path
 
 from .capture import CaptureError, _select_screenshots, capture_screenshots
+from .catalogue import build_catalogue
 from .docs_scan import ImageReference, scan_content
 from .manifest import ManifestError, load_manifest, screenshot_variants, validate_manifest
 from .qa_report import write_qa_report
@@ -41,6 +42,21 @@ def main(argv: list[str] | None = None) -> int:
     validate_parser = subparsers.add_parser("validate", help="Validate a screenshot manifest.")
     validate_parser.add_argument("manifest", help="Path to manifest JSON.")
 
+    catalogue_parser = subparsers.add_parser('catalogue', help='Validate and index document/screenshot relationships without infrastructure.')
+    catalogue_parser.add_argument('inventory', help='CSV inventory; manifest/group paths are relative to this CSV.')
+    catalogue_parser.add_argument('--discover', action='store_true', help='Also find likely Sunstone pages under content/ missing from the CSV.')
+    catalogue_output = catalogue_parser.add_mutually_exclusive_group()
+    catalogue_output.add_argument('--check', action='store_true', help='Print a validation summary instead of JSON.')
+    catalogue_output.add_argument('--output', help='Write catalogue JSON; defaults to stdout. Invalid catalogues are exported too.')
+
+    review_parser = subparsers.add_parser('review', help='Open the local React screenshot comparison and substitution review app.')
+    review_parser.add_argument('--run-dir', required=True, help='Completed/failed group, suite or capture run directory.')
+    review_parser.add_argument('--inventory', default=str(Path(__file__).resolve().parents[1] / 'inventory.csv'))
+    review_parser.add_argument('--replacement-root', help='Override replacement location, for standalone capture debugging.')
+    review_parser.add_argument('--manifest', help='Manifest reviewed by a legacy standalone capture with no saved run metadata.')
+    review_parser.add_argument('--port', type=int, default=8765)
+    review_parser.add_argument('--no-browser', action='store_true', help='Print the local URL without opening the browser.')
+
     report_parser = subparsers.add_parser("qa-report", help="Create a visual old-vs-new screenshot QA report.")
     report_parser.add_argument("manifest", help="Path to manifest JSON.")
     report_parser.add_argument(
@@ -58,6 +74,8 @@ def main(argv: list[str] | None = None) -> int:
     capture_parser.add_argument("--tag", action="append", dest="tags", help="Capture screenshots with this tag. Can be repeated.")
     capture_parser.add_argument("--skip-hooks", action="store_true",
                                 help="Debug with existing resources: skip manifest guest setup/teardown hooks, not recipe actions.")
+    capture_parser.add_argument('--force-workflow', action='store_true',
+                                help='After manual cleanup, archive known markers for this manifest and rerun setup; does not delete resources.')
     capture_parser.add_argument("--headed", action="store_true", help="Show the browser while recipes run.")
     capture_parser.add_argument("--browser", choices=("chromium", "firefox", "webkit"), default="chromium")
     capture_parser.add_argument("--debug", action="store_true", help="Show the browser, slow actions down, and print each recipe step.")
@@ -116,6 +134,12 @@ def main(argv: list[str] | None = None) -> int:
                 return _scan(args, repo_root)
             if args.command == "validate":
                 return _validate(args, repo_root)
+            if args.command == 'catalogue':
+                return _catalogue(args, repo_root)
+            if args.command == 'review':
+                from .review_server import serve_review
+                return serve_review(repo_root, args.run_dir, args.inventory, args.replacement_root,
+                                    args.manifest, args.port, not args.no_browser)
             if args.command == "qa-report":
                 return _qa_report(args, repo_root)
             if args.command == "capture":
@@ -126,6 +150,37 @@ def main(argv: list[str] | None = None) -> int:
 
     parser.error(f"Unknown command: {args.command}")
     return 2
+
+
+def _catalogue(args: argparse.Namespace, repo_root: Path) -> int:
+    result = build_catalogue(Path(args.inventory), repo_root, discover=args.discover)
+    if args.check:
+        summary = result['summary']
+        status = 'OK' if result['valid'] else 'INVALID'
+        print(f"Catalogue {status}: documents={summary['documents']}, manifests={summary['manifests']}, "
+              f"recipes={summary['recipes']}, screenshots={summary['screenshots']}; "
+              f"{summary['errors']} errors, {summary['warnings']} warnings; no infrastructure contacted.")
+    else:
+        payload = json.dumps(result, indent=2) + '\n'
+        if args.output:
+            output = Path(args.output)
+            sources = {Path(args.inventory).resolve()}
+            for kind in ('documents', 'manifests', 'recipes', 'assets', 'groups'):
+                for entity in result[kind]:
+                    for field in ('path', 'doc', 'provision'):
+                        if entity.get(field):
+                            sources.add((repo_root / entity[field]).resolve())
+            if output.resolve() in sources:
+                raise ManifestError('Refusing to overwrite a catalogue source file; choose a generated output path.')
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(payload, encoding='utf-8')
+            print(f'Wrote catalogue: {output}', file=sys.stderr)
+        else:
+            print(payload, end='')
+    for diagnostic in result['diagnostics']:
+        if diagnostic['severity'] == 'error':
+            print(f"error: [{diagnostic['code']}] {diagnostic['source']}: {diagnostic['message']}", file=sys.stderr)
+    return 0 if result['valid'] else 1
 
 
 def _scan(args: argparse.Namespace, repo_root: Path) -> int:
@@ -172,6 +227,9 @@ def _qa_report(args: argparse.Namespace, repo_root: Path) -> int:
 
 
 def _capture(args: argparse.Namespace, repo_root: Path) -> int:
+    if getattr(args, 'force_workflow', False):
+        if not args.run_dir or getattr(args, 'skip_hooks', False):
+            raise CaptureError('--force-workflow requires --run-dir and cannot be combined with --skip-hooks.')
     manifest_path = Path(args.manifest)
     manifest = load_manifest(manifest_path)
     errors = validate_manifest(manifest, repo_root, manifest_path)
@@ -180,6 +238,31 @@ def _capture(args: argparse.Namespace, repo_root: Path) -> int:
             print(error, file=sys.stderr)
         return 1
 
+    output = Path(args.output_root)
+    output.mkdir(parents=True, exist_ok=True)
+    result_path = output / 'capture-results.json'
+    saved = lab.load(result_path) if result_path.exists() else {'version': 1, 'manifests': {}}
+    if saved.get('version') != 1 or not isinstance(saved.get('manifests'), dict):
+        raise CaptureError('Unsupported capture-results.json; refusing to overwrite it.')
+    identity = manifest_path.resolve().relative_to(repo_root).as_posix()
+    selected = _select_screenshots(manifest, set(args.ids) if args.ids else None, set(args.tags) if args.tags else None)
+    record = {'status': 'running', 'expected_images': [image for shot in selected for _, image in screenshot_variants(shot)]}
+    if getattr(args, 'force_workflow', False):
+        record['force_workflow'] = True
+    saved['manifests'][identity] = record
+    lab.save(result_path, saved)
+    try:
+        result = _capture_workflow(args, repo_root, manifest_path, manifest)
+        record['status'] = 'complete'
+        return result
+    except BaseException as exc:
+        record.update(status='failed', error=str(exc)[:4000])
+        raise
+    finally:
+        lab.save(result_path, saved)
+
+
+def _capture_workflow(args, repo_root, manifest_path, manifest):
     selected = _select_screenshots(manifest, set(args.ids) if args.ids else None, set(args.tags) if args.tags else None)
     shared = [s for s in selected if s.get('sharedFrom')]
     for screenshot in shared:
@@ -199,6 +282,10 @@ def _capture(args: argparse.Namespace, repo_root: Path) -> int:
         os.environ.update(environment)
     try:
         with workflow.guest_session(args.run_dir) if args.run_dir else nullcontext():
+            if getattr(args, 'force_workflow', False):
+                print('Forcing workflow restart: archiving selected guest markers. '
+                      'Existing resources/settings are not cleaned or restored; manual cleanup is your responsibility.')
+                workflow.archive_workflow_markers(manifest)
             if getattr(args, 'skip_hooks', False):
                 print('Skipping manifest guest setup/teardown hooks; required resources must already exist. Recipe actions still run.')
                 _run_capture(args, repo_root, manifest_path, manifest)

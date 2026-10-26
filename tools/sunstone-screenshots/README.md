@@ -27,6 +27,199 @@ tools/sunstone-screenshots/
 Generated screenshots and QA reports should live under `.sunstone-screenshots/`,
 which is ignored by Git.
 
+## Document Catalogue (Offline)
+
+The catalogue connects the CSV document inventory to manifests, recipes, ordered
+capture points and baseline image assets. It validates these relationships and
+exports a versioned JSON graph for future browser/SQLite consumers. CSV and JSON
+definitions remain authoritative; no database or generated catalogue is committed.
+This command never provisions VMs, opens a browser, runs hooks, reads lab state,
+or requires credentials.
+
+```bash
+tools/sunstone-screenshots/bin/sunstone-screenshots catalogue \
+  tools/sunstone-screenshots/inventory.csv --check
+tools/sunstone-screenshots/bin/sunstone-screenshots catalogue \
+  tools/sunstone-screenshots/inventory.csv \
+  --output .sunstone-screenshots/catalogue/current.json
+```
+
+Exit status is `0` when there are no errors, or `1` for broken relationships.
+Pending, external and unresolved documents remain visible and produce warnings,
+not errors. JSON is exported even when validation fails so consumers can inspect
+incomplete mappings. Without `--output` or `--check`, stdout contains only JSON;
+errors are written to stderr. `--check` reports error details and warning counts;
+the JSON contains every structured diagnostic.
+
+The CSV requires `title`, `doc`, `manifest` and `automation_status`. Existing
+inventories need no migration. An optional `id` column provides a stable document
+identity across moves; without it the local Markdown path is the identity, falling
+back to `source_page` or the unresolved title when necessary. Do not use CSV row
+numbers as identities. Each curated document has one row and an optional manifest.
+Manifest and group paths are relative to the CSV; recipe, hook and shared-source
+paths are relative to the manifest. Document and image paths are repository-relative.
+CLI inventory/output arguments are relative to the working directory; `--repo-root`
+sets the root used for resolving the contents of the catalogue.
+
+The JSON has `version`, `inventory`, `valid`, `summary`, `diagnostics` and six entity
+lists: `documents`, `manifests`, `recipes`, `screenshots`, `assets`, `groups`.
+Relationships refer to entity `id` values. Manifest/recipe/group/asset IDs are
+repository-relative paths; screenshot IDs are `<manifest-path>#<screenshot-id>`.
+Recipe-local capture IDs remain ordered inside their recipe. An unmapped capture
+point can be navigation-only and need not produce a screenshot. Assets expose
+inverse links to all consuming documents/screenshots, including `sharedFrom`
+reuse. SHA-256 hashes identify source files and baseline image contents without
+embedding recipe commands, passwords or provisioning configuration contents.
+
+Checks cover missing files/capture points, duplicate identities, shared producers
+and ordering, group membership, mismatched document mappings and screenshots no
+longer referenced in Markdown. Image references record their line, light/dark
+variant and coverage: `mapped`, `deferred`, `disabled`, `unmapped` (likely Sunstone),
+or `unclassified` (other images needing human classification). Known deferred
+images retain their reason. Missing assets are errors; incomplete automation is
+not. References use the existing Markdown/Hugo scanner, not rendered page analysis.
+
+Add `--discover` to scan `content/` for likely Sunstone pages missing from the CSV.
+These appear with `origin: "discovered"` and warnings; heuristics require human
+review and never rewrite the inventory. To onboard a page, add its CSV row and
+manifest/recipe files, then rerun the catalogue check. Broken catalogue references
+must be fixed in the text sources, not in the generated JSON.
+
+Two self-contained, offline examples with expected results and runnable commands
+are in [examples/catalogue/README.md](examples/catalogue/README.md). They are
+independent of production mappings that may have drifted after documentation moves.
+The browser review below consumes this catalogue and saved run results. A SQLite
+index is not required and is not implemented.
+
+## Browser Review
+
+The local React/Vite app provides a document list with separate content-change,
+dimension-change, missing-image and workflow-status indicators. Each document
+opens an ordered list of paired thumbnails. The enlarged comparison includes
+zoom, linked scrolling, previous/next navigation and the same Substitute control.
+This is a review tool, not a replacement executor: it never overwrites repository
+images or accesses OpenNebula/SSH credentials.
+
+### Install And Build
+
+Use a Python environment containing the optional review dependencies, and Node.js
+22.12+ (or a compatible newer Node release):
+
+```bash
+python3 -m venv .sunstone-screenshots/venv-review
+. .sunstone-screenshots/venv-review/bin/activate
+python -m pip install -r tools/sunstone-screenshots/requirements-review.txt
+npm --prefix tools/sunstone-screenshots/review-ui ci
+npm --prefix tools/sunstone-screenshots/review-ui run build
+```
+
+The app uses React, Vite and Lucide icons. Its bundle and `node_modules` are
+ignored; only text source and the package lock are versioned. The backend uses
+Python's standard HTTP server on `127.0.0.1`, Pillow and scikit-image. It serves
+only the UI, review metadata and registered images, not arbitrary repository or
+run files such as `state.json` and `install.log`. Changes require a session token
+and cross-origin requests are rejected. Do not expose this development tool on
+a public interface.
+
+Some Debian/Ubuntu Python installations need the `python3-venv` package for the
+normal environment-creation command. If system pip is already available, the
+alternative `python3 -m venv --without-pip --system-site-packages` can create the
+environment, whose Python can then run `-m pip install` as above.
+
+### Open A Run
+
+After a group or suite finishes, including a failed run retained for inspection:
+
+```bash
+tools/sunstone-screenshots/bin/sunstone-screenshots review \
+  --run-dir .sunstone-screenshots/labs/getting-started-20261022-120141
+```
+
+The command prints its local URL and opens the browser. Use `--no-browser` to
+skip opening it, `--port 8766` for another port, or `--port 0` for an automatically
+allocated port. Stop the server with Ctrl+C. A suite root resolves each group's
+own screenshot directory. `--inventory` selects another CSV catalogue.
+
+For a new standalone capture, `--run-dir` can also point directly to its output
+directory containing `capture-results.json`. To associate a custom capture output
+with an existing lab directory, use `--replacement-root`. For a legacy capture
+with no saved result record, also supply its manifest explicitly:
+
+```bash
+tools/sunstone-screenshots/bin/sunstone-screenshots review \
+  --run-dir .sunstone-screenshots/labs/getting-started-20261022-125938 \
+  --replacement-root .sunstone-screenshots/debug/wordpress \
+  --manifest tools/sunstone-screenshots/groups/getting-started/validate_the_environment.json
+```
+
+New captures write `capture-results.json` under their output root, including
+expected image paths and completion/failure after guest teardown. A selection
+made with `--id` or `--tag` does not make unrequested outputs appear missing.
+Existing `workflow.json` and `suite.json` records are supported without migration.
+Old runs without a reliable result record are shown as Unrecorded, not assumed
+successful or failed. Pages not reached after an earlier failure show Not run;
+unrelated catalogue pages remain visible as Outside run or Unmapped.
+
+Mapped and likely Sunstone images are shown; unrelated unclassified diagrams and
+icons remain in the catalogue but are excluded from the review list. Markdown
+reference order is used where available. If Markdown was moved or deleted, the
+manifest capture order remains inspectable and the document gets a missing-page
+warning. This helps diagnose stale workflows before updating their mappings.
+
+### Change Metrics
+
+The change score uses scikit-image's
+[structural similarity (SSIM)](https://scikit-image.org/docs/stable/api/skimage.metrics.html#skimage.metrics.structural_similarity)
+on full-resolution RGBA pixels with an explicit data range of 255:
+
+```text
+structural change (%) = 100 * (1 - max(0, SSIM))
+```
+
+Identical decoded pixels report exactly `0.00%`, even if PNG encoding differs.
+This score is not a percentage of changed pixels or proof of a workflow error.
+Colour thresholds are triage hints: up to 2% small, 2-10% intermediate, above 10%
+large. Compare the images before deciding. Small nonzero values display `<0.01%`.
+
+Dimension changes are reported independently. Different-size images are **not
+resized** to manufacture a similarity score. Missing baseline and missing
+replacement images are separate conditions; only outputs expected for this run
+or capture selection contribute to the missing-replacement count. Unreadable or
+unsupported images get explicit error states. Raster images above 24 megapixels
+are rejected for bounded local processing. Shared assets count once in run totals
+and appear on each consuming document.
+
+### Substitution Intentions
+
+Substitute toggles a persisted intention in:
+
+```text
+<run-dir>/review/substitutions.json
+```
+
+It is available in both thumbnail and enlarged views, and disabled when either
+image is missing or unreadable. The file records the repository asset path,
+replacement path relative to the run directory, both SHA-256 hashes, dimensions,
+consuming document IDs and nomination time. It is written atomically with private
+permissions, and can be downloaded with Export selections. One shared asset has
+one intention affecting all consumers; conflicting candidates for the same target
+are rejected. Click a selected Substitute control again to remove it, or clear
+the run's selections from the document list.
+
+Changing either file invalidates its saved intention. The app refuses stale
+nomination requests until comparisons are refreshed, and lists stale selections
+separately. A future substitution executor must verify both recorded hashes and
+approved paths again before copying anything; this release deliberately does
+not execute substitutions. The file contains no Sunstone passwords or VM state.
+
+A disposable example using actual Sunstone screenshot copies and browser-check
+commands is in [examples/review/README.md](examples/review/README.md).
+
+For UI development, run the Python review server and
+`npm --prefix tools/sunstone-screenshots/review-ui run dev`. Vite proxies `/api`
+to `http://127.0.0.1:8765`; set `REVIEW_BACKEND_URL` if the backend uses another
+port. Normal review uses the built app and needs no Vite development server.
+
 ## Local Workflow
 
 ### 1. Seed the screenshot inventory
@@ -487,6 +680,22 @@ The bounds are left/right/top/bottom, not x/y/width/height. If `clip` is set,
 the crop is taken from the viewport. If `clip` is not set, `selector` and
 `buffer` work as before.
 
+To redact credentials or other sensitive content without changing the live UI,
+add `maskSelectors` to the capture's `screenshot` options:
+
+```json
+"screenshot": {
+  "selector": "body",
+  "maskSelectors": ["[data-cy='tab-content-kubeconfig'] .code-container"],
+  "maskColor": "#dce5e7"
+}
+```
+
+Each mask selector must match a visible element. A missing/hidden mask target
+fails the capture rather than saving an unredacted screenshot. Masks work with
+element, full-page, cropped and buffered screenshots. `maskColor` is optional
+and defaults to the grey shown above.
+
 ### New Tabs
 
 Some Sunstone actions open a new browser tab, such as a VNC console. Mark the
@@ -527,9 +736,18 @@ python3 -m pip install -r tools/sunstone-screenshots/requirements-provision.txt
 Configure `provision.example.json` for the outer (local) OpenNebula installation:
 
 - `endpoint` and `auth_file`: outer XML-RPC endpoint and credential file.
-- `template_id`: replace `null` with a clean supported OS template ID. Its network,
-  disk, CPU and memory configuration are used unchanged; start with 4 vCPUs,
-  8 GiB RAM and 40 GiB disk for a small lab, adjusting for workloads.
+- `template_id`: replace `null` with a clean supported OS template ID. Its network
+  and disk configuration are used unchanged. CPU and memory are inherited unless
+  `vm_resources` overrides are provided. Start with 4 vCPUs, 8 GiB RAM and 40 GiB
+  disk for a small lab, adjusting for workloads.
+- `vm_resources`: optional per-instance capacity overrides, for example
+  `{"cpu": 4, "vcpu": 4, "memory_mb": 16384}`. `cpu` is a finite positive
+  number of CPU units; `vcpu` and `memory_mb` must be positive integers (memory
+  is in OpenNebula MB units). Only specified attributes are merged into the new
+  VM during template instantiation. The stored OpenNebula template is not
+  updated, and neither are existing VMs. Without this object, provisioning uses
+  the template exactly as before. These requests require available outer-cloud
+  capacity; they do not enable nested KVM or increase the template's disks.
 - The template must already contextualize SSH access for `ssh_user`/`ssh_key`.
   Non-root users need passwordless sudo. The runner requires local OpenSSH.
   By default, `ssh_key` is a private key readable by your local runner account, not
@@ -578,7 +796,11 @@ Configure `provision.example.json` for the outer (local) OpenNebula installation
 - `management_nic_id`: NIC whose IPv4 address is reachable from the runner.
 - `minione_script`: HTTP(S) URL or local path to a miniONE script, preferably
   from a pinned release/commit. For example:
-  `https://github.com/OpenNebula/minione/releases/download/v7.4.0/minione`.
+  `https://raw.githubusercontent.com/OpenNebula/minione/6cc1d37a122b3edca3e3f105c15f40f47ca33c6a/minione`.
+  The supplied provisioning configurations pin this revision because it includes
+  the OneKS TPROXY entry for port `10780`, alongside ports `5030` and `2633`.
+  The older `v7.4.0` release asset lacks that entry and is unsuitable for the
+  development build used by these labs.
   URL downloads follow redirects and are saved as `minione` in the run directory
   before allocating a VM. The source URL and downloaded SHA-256 are recorded in
   state; installation transfers that exact copy over SSH. Download failures stop
@@ -740,15 +962,22 @@ and shares one disposable miniONE VM between these ordered workflows:
 | --- | --- |
 | `deploy_opennebula_onprem_with_minione.json` | Login, dashboard, network navigation/details, Alpine template and instantiation wizard, running VM, VNC console: nine captures with light/dark variants. |
 | `deploy_opennebula_on_aws.json` | References the same nine image pairs through `sharedFrom`; no AWS resources are provisioned and the Alpine workflow is not repeated. |
-| `deploy_opennebula_onprem_with_poc_iso.json` | VXLAN configuration, IPv4 address range, context, and vLLM marketplace selection. Three GPU-instantiation screenshots are explicitly deferred. |
-| `validate_the_environment.json` | Host, cluster, datastore and network details, followed by the complete WordPress import and instantiation workflow: 22 captures. |
+| `deploy_opennebula_onprem_with_poc_iso.json` | Current EE PoC ISO guide: eight network-wizard captures, from the dashboard through VXLAN configuration, IPv4 address range and context. Later Linux/template and Windows examples are explicitly deferred. |
+| `validate_the_environment.json` | Host, cluster, datastore and network details, followed by the complete WordPress import and instantiation workflow: 22 captures with light/dark variants. |
 
 All entries start as `draft` until tested against the target build and visually
 approved. Coverage is checked against the Markdown image references in tests.
-The group produces 44 distinct replacement files and four per-page QA reports.
+The group produces 70 distinct replacement files and four per-page QA reports.
 AWS console images, ISO boot/installer screens, inline button icons, and the
 WordPress website screenshot are outside this Sunstone automation's scope.
 Existing documentation image files are not modified during capture.
+
+The miniONE, AWS and validation manifests target the current
+`content/getting_started/install_opennebula/evaluation/` pages. The ISO manifest
+keeps its existing filename and group position but now targets
+`content/solutions/engineering_blueprints/ee_poc/ee_poc_iso.md`, not the removed
+Community Edition guide. `inventory.csv` points to these current source files;
+its `source_page` URLs retain the historical spreadsheet references.
 
 Review this group's **own** `provision.json` before running: set the outer VM
 template and internal build repository as needed. It starts with the same
@@ -785,13 +1014,20 @@ VM/template/image dependencies before terminating the WordPress VM and deleting
 its template/image. Alpine cleanup uses the existing guarded helper scripts.
 No pre-existing WordPress resource with the intended name is silently reused.
 
-The ISO network recipe fills an unsubmitted form; it does not install the ISO,
-enable FRR/EVPN, or create an operational VXLAN network. Its `enp0s3` field is
-an illustrative value matching the original screenshot, not an assertion about
-the lab interface. The vLLM recipe selects its catalog entry without importing
-the large image. GPU screenshots are listed under `deferredScreenshots`, with
-reasons, and also appear as deferred in the QA report. They need a provision
-with real passthrough GPU inventory before automation can capture them.
+The active ISO recipe, `recipes/ee-iso-network.json`, fills an unsubmitted form;
+it does not install the EE ISO, enable FRR/EVPN, or create an operational VXLAN
+network. The `vlan_100` name and illustrative `enX0` interface follow the current
+guide, not the lab's actual interface. The default miniONE cluster is used.
+The form is cancelled before logout so the next page inherits no new network.
+The EE guide's remaining 48 distinct Sunstone images are listed individually
+under `deferredScreenshots`: they need the PoC Linux image/template or Windows
+ISO/driver fixtures and guarded resource setup/cleanup. A successful run does
+not imply that these deferred examples have been tested.
+
+The old CE ISO network and vLLM recipes are retained unchanged under
+`recipes/legacy/`, with migration notes. They are not referenced by active
+manifests; the EE guide has no GPU or vLLM section. No old screenshot is silently
+mapped to an unrelated new example.
 
 Page setup temporarily sets the lab oneadmin user's Sunstone scheme to `system`
 so browser color-scheme emulation applies even to wizard captures. Other user
@@ -862,6 +1098,23 @@ run. It does not create or delete the Alpine VM, restore user settings, or
 clear stale markers. This console-only recipe has no inline guest commands.
 Add `--pause-before-step` for step-by-step inspection. Use the normal capture
 without `--skip-hooks` for a complete, reproducible page workflow.
+
+To restart setup after **manually cleaning the lab**, use `capture --force-workflow`
+with `--run-dir`. This archives existing OneKS, theme, Alpine and WordPress markers
+associated with recognized setup scripts in the selected manifest under
+`/root/screenshot-lab/abandoned-<new-invocation-id>/` in the guest. Unrelated
+markers and helper scripts are left untouched. Archive directories have mode
+0700; the originals remain available there for inspection or manual recovery.
+Stop any other capture using this VM before forcing a restart.
+
+This abandons the previous invocation; it does not clean resources, restore
+DNS/theme settings, adopt old resources, reinstall miniONE, or provision another
+VM. The next setup records a fresh baseline, so restore settings and remove
+conflicting resources yourself first. Resource-collision and ownership checks
+still apply, and new-attempt teardown runs normally. The override is recorded
+in `capture-results.json`. It cannot be combined with `--skip-hooks`.
+Supported hooks are `prepare-oneks.sh`, `prepare-theme.sh`, `prepare-alpine.sh`
+and `prepare-wordpress.sh`; custom marker schemes require their own recovery.
 
 If setup reports `Previous theme marker exists`, cleanup from an earlier
 invocation did not finish. For example, local sudo authorization may have
@@ -1064,6 +1317,28 @@ the lab for inspection; failed destruction is recorded as `destroy-failed`.
 `--reuse` opts into an existing ready lab with matching provisioning settings.
 A previous failed/interrupted group run blocks reuse because cleanliness is
 unknown. Group execution stops at the first failure.
+
+### OneKS Evaluation Quickstart
+
+`groups/oneks-quickstart/group.json` adds the current
+`content/getting_started/install_opennebula/evaluation/oneks_quickstart.md` page
+as an independent group, with its own fresh VM and 19 light/dark Sunstone image
+pairs. Its own provisioning configuration requests 16 GiB RAM, 4 vCPUs and 4 CPU
+units without modifying the underlying OS template. It is not included in the
+existing four-page group or example suite. Keep this group's repository URL
+up to date separately from the getting-started configuration.
+
+The browser creates the private network, updates public DNS, provisions a real
+OneKS cluster and one worker, captures their running state and masks the live
+kubeconfig. Teardown verifies resource ownership, deprovisions the cluster,
+removes its private network and restores the original DNS. The example
+application website is outside the Sunstone capture scope.
+
+This workload needs substantially more nested-VM capacity than the Alpine test;
+use an outer template with at least 16 GiB RAM and 4 vCPUs. See the
+[OneKS group README](groups/oneks-quickstart/README.md) for prerequisites, exact
+coverage, timeout/cleanup behavior and debug/review commands. These captures are
+drafts pending a complete live run against the target build.
 
 ### Second Group: Services and Hosts
 
