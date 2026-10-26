@@ -84,6 +84,7 @@ The following issues have been solved in 7.4.2:
 * Fix oned crashing when a KVM host reports a NUMA node without cores [#8133](https://github.com/OpenNebula/one/issues/8133).
 * Fix checkpoint delete endpoint and reset the backup chain after an invalid checkpoint in Veeam [#8062](https://github.com/OpenNebula/one/issues/8062).
 * Fix the “Allocated CPU” slider on the hosts [#8208](https://github.com/OpenNebula/one/issues/8208).
+* Fix OneKS deployment failures when using an image datastore other than the default datastore [#8081](https://github.com/OpenNebula/one/issues/8081).
 
 ---
 
