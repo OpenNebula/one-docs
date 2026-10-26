@@ -130,7 +130,7 @@ Automatic selection is recommended because it allows the scheduler to place the 
 
 ## Existing Virtual Machines
 
-PCI devices can also be attached to or detached from an existing Virtual Machine in a supported power state. Refer to [PCI Devices in the Virtual Machine Instances Guide]({{% relref "product/virtual_machines_operation/virtual_machines/vm_instances#vm-guide2-pci" %}}) for the `onevm pci-attach` and `onevm pci-detach` commands.
+PCI devices can also be attached to or detached from an existing Virtual Machine in a supported power state. Refer to [Attaching and Detaching PCI Devices]({{% relref "product/virtual_machines_operation/virtual_machines/vm_resources.md#vm-guide2-pci" %}}) for the `onevm pci-attach` and `onevm pci-detach` commands.
 
 ## Guest Verification
 
