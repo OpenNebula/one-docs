@@ -188,7 +188,7 @@ The `cache.local.cvmfsQuotaLimit` value is the local cache of each node in MB an
 
 ### The Open OnDemand Service
 
-In the instantiate wizard of the Open OnDemand service template, enable **CernVM-FS proxy of your own** in the **Software catalogue** tab, with `ONEAPP_SOFTWARE_PROXY_ENABLED=YES` and `ONEAPP_SOFTWARE_PROXY_URL=<proxy>`. The portal and the workers then use the proxy, and the storage role runs no cache of its own. The portal and the workers reach the proxy from the compute network of the service, so that network needs a route to the proxy and must be in `ONEAPP_ACCESS_CLIENTS_NETWORKS`, unless it is the network of the first NIC of the proxy. See the [Open OnDemand configuration]({{% relref "/solutions/integration_blueprints/open_ondemand/configuration/" %}}).
+In the instantiate wizard of the Open OnDemand service template, enable **CernVM-FS proxy of your own** in the **Software catalogue** tab, with `ONEAPP_SOFTWARE_PROXY_ENABLED=YES` and `ONEAPP_SOFTWARE_PROXY_URL=<proxy>`. The portal and the workers then use the proxy, and the storage role runs no cache of its own. The portal and the workers reach the proxy from the compute network of the service, so that network needs a route to the proxy and must be in `ONEAPP_ACCESS_CLIENTS_NETWORKS`, unless it is the network of the first NIC of the proxy. See the [Open OnDemand configuration]({{% relref "/solutions/integration_blueprints/open_ondemand/configuration.md" %}}).
 
 ## Checking the Proxy
 
