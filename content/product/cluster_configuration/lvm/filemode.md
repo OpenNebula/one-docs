@@ -219,6 +219,14 @@ The following attributes can be set in `/var/lib/one/remotes/etc/datastore/datas
 Before adding a new filesystem to the `SUPPORTED_FS` list make sure that the corresponding `mkfs.<fs_name>` command is available in all Hosts including Front-end and hypervisors. If an unsupported FS is used by the user the default one will be used.
 {{< /alert >}}
 
+## Live Migration
+
+When live-migrating a KVM VM between Hosts using the same System Datastore, the `fs_lvm_ssh` transfer driver pauses the VM if any of its disks have `LVM_THIN_ENABLE=YES`. OpenNebula flushes disk writes on the source before activating the volumes on the destination. The VM remains paused throughout the memory transfer and resumes on the destination only after its disk volumes and thin pools have been deactivated on the source. This prevents guest writes from being lost because of stale thin-pool metadata on the destination.
+
+{{< alert title="Note" type="info" >}}
+The pause interrupts guest execution and application availability for the duration of the migration. VMs with large memory allocations or slow migration links may remain paused for longer. Plan migrations accordingly when workloads require continuous availability.
+{{< /alert >}}
+
 <a id="datastore-internals"></a>
 
 ## Datastore Internals
