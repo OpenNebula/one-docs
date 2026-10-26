@@ -2286,7 +2286,7 @@ The third parameter must be an OpenNebula ATTRIBUTE=VALUE template, with these v
 
 - **Description**: Creates a mirror on Virtual Network. The template must contain exactly one `MIRROR` vector.
 - **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the selected source VMs and the SPAN destination VM. VLAN-only capture requires a cloud administrator.
-- **Parameters**
+- **Parameters**:
 
 | Type | Data Type  | Description                                            |
 |------|------------|--------------------------------------------------------|
@@ -2302,7 +2302,7 @@ The third parameter must be an OpenNebula ATTRIBUTE=VALUE template, with these v
 
 - **Description**: Updates a mirror. Source membership is preserved; use the port methods to change it.
 - **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the selected source VMs and the SPAN destination VM. VLAN-only capture requires a cloud administrator.
-- **Parameters**
+- **Parameters**:
 
 | Type | Data Type  | Description                                                                           |
 |------|------------|---------------------------------------------------------------------------------------|
@@ -2320,7 +2320,7 @@ The third parameter must be an OpenNebula ATTRIBUTE=VALUE template, with these v
 
 - **Description**: Adds source VM NICs to a mirror.
 - **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the selected source VMs and the SPAN destination VM.
-- **Parameters**
+- **Parameters**:
 
 | Type | Data Type  | Description                                             |
 |------|------------|---------------------------------------------------------|
@@ -2337,7 +2337,7 @@ The third parameter must be an OpenNebula ATTRIBUTE=VALUE template, with these v
 
 - **Description**: Removes source VM NICs from a mirror. If no ports remain but the VLAN filter is nonempty, the mirror becomes VLAN-only rather than inactive.
 - **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the remaining source VMs and the SPAN destination VM. VLAN-only capture requires a cloud administrator.
-- **Parameters**
+- **Parameters**:
 
 | Type | Data Type  | Description                                             |
 |------|------------|---------------------------------------------------------|
@@ -2354,7 +2354,7 @@ The third parameter must be an OpenNebula ATTRIBUTE=VALUE template, with these v
 
 - **Description**: Deletes a mirror and propagates removal of its capture configuration.
 - **Authorization**: `NET:ADMIN`.
-- **Parameters**
+- **Parameters**:
 
 | Type | Data Type  | Description                                             |
 |------|------------|---------------------------------------------------------|

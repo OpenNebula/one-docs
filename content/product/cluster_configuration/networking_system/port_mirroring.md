@@ -2,7 +2,6 @@
 title: "Port Mirroring"
 linkTitle: "Port Mirroring"
 date: "2026-10-05"
-description: "Capture Virtual Machine network traffic with Open vSwitch mirrors."
 categories:
 tags:
 weight: "12"
@@ -10,14 +9,14 @@ weight: "12"
 
 <a id="port-mirroring"></a>
 
-Port mirroring copies selected Virtual Machine traffic to a monitoring destination without changing the original traffic flow. Use it for packet capture, troubleshooting, or traffic analysis.
+Port mirroring copies selected Virtual Machine traffic to a monitoring destination without changing the original traffic flow. It can be used for packet capture, troubleshooting, or traffic analysis.
 
 Mirrors belong to a Virtual Network and are supported only by the `ovswitch` and `ovswitch_vxlan` network drivers. Open vSwitch must be installed on every participating Host. Create the Virtual Network first, then configure mirrors with the dedicated `onevnet mirror-*` commands.
 
 ## Mirror Types and Requirements
 
-| Type    | Destination                                                     | Requirements |
-|---------|-----------------------------------------------------------------|--------------|
+| **Type** | **Destination**                                                 | **Requirements** |
+|----------|-----------------------------------------------------------------|------------------|
 | `SPAN`  | A collector VM NIC on the same Open vSwitch bridge.             | Source and destination NICs must belong to the same Virtual Network. Deployed source and collector VMs must be on the same Host and bridge. The collector NIC cannot also be a source port. |
 | `RSPAN` | A dedicated output VLAN.                                        | Provision the VLAN transport and collector on the physical network. OpenNebula does not configure external switches. |
 | `GRE`   | A remote IPv4 collector, using a GRE tunnel.                    | Provide IP connectivity from each source Host to the collector and allow GRE traffic through intervening firewalls. |
@@ -35,11 +34,11 @@ Creation and update templates contain exactly one `MIRROR` vector. Names are man
 
 ### Common Attributes
 
-| Attribute     | Description                                    |
+| **Attribute** | **Description**                                |
 |---------------|------------------------------------------------|
 | `NAME`        | Required, nonempty mirror name.                |
 | `TYPE`        | Required: `SPAN`, `RSPAN`, `GRE`, or `ERSPAN`. |
-| `DIRECTION`   | `IN`, `OUT`, or `BOTH`; default `BOTH`. Direction is relative to the source VM, `OUT` copies packets sent by the VM|
+| `DIRECTION`   | `IN`, `OUT`, or `BOTH`; default `BOTH`. Direction is relative to the source VM, `OUT` copies packets sent by the VM. |
 | `PORTS`       | Optional comma-separated `VM_ID:NIC_ID` pairs. Duplicates are removed. After creation, change membership with `mirror-addport` and `mirror-delport`. |
 | `VLANS`       | Optional comma-separated VLAN IDs from `0` to `4094`. Ranges are not accepted. Duplicates are removed. |
 | `DESCRIPTION` | Optional description.                          |
@@ -48,8 +47,8 @@ Creation and update templates contain exactly one `MIRROR` vector. Names are man
 
 Only include attributes applicable to the selected type.
 
-| Type               | Attribute            | Mandatory | Description       |
-|--------------------|----------------------|-----------|-------------------|
+| **Type**           | **Attribute**        | **Mandatory** | **Description**   |
+|--------------------|----------------------|---------------|-------------------|
 | `SPAN`             | `DESTINATION_VM_ID`  | Yes       | Collector VM ID.  |
 | `SPAN`             | `DESTINATION_NIC_ID` | Yes       | Collector NIC ID. |
 | `RSPAN`            | `OUTPUT_VLAN`        | Yes       | Output VLAN, from `1` to `4094`. Use a dedicated VLAN for mirrored traffic. |
@@ -93,7 +92,7 @@ MIRROR = [
 
 A source port is identified by `VM_ID:NIC_ID`, for example `210:1`. Obtain NIC IDs with `onevm show`. Source NICs must belong to the mirror's Virtual Network.
 
-| `PORTS`  | `VLANS`  | Captured traffic |
+| `PORTS`  | `VLANS`  | **Captured traffic** |
 |----------|----------|------------------|
 | Nonempty | Empty    | Traffic on the selected VM NICs, without a VLAN filter. |
 | Nonempty | Nonempty | Traffic on the selected VM NICs that also matches the VLAN filter. |
@@ -106,9 +105,9 @@ Removing the last source port stops capture only if `VLANS` is also empty. With 
 
 ## Managing Mirrors
 
-The examples below use Virtual Network `5` and mirror `0`; replace these IDs with your own.
+The examples below use Virtual Network `5` and mirror `0`; replace these IDs with your own in the following commands:
 
-```bash
+```shell
 # Create from a file, or supply the template on standard input.
 onevnet mirror-create 5 mirror.txt
 onevnet show 5
@@ -132,10 +131,10 @@ Mirrors cannot be introduced through `onevnet create`, `onevntemplate create`, o
 
 ### Applying Changes to Running VMs
 
-Mirror changes propagate asynchronously through the existing Virtual Network update action. Inspect `onevnet show` for the network state and its updated, outdated, and failed VM lists. Wait for the affected VMs to be updated before checking packet capture. A successful API response alone does not mean the hypervisor has finished applying the change.
+Mirror changes propagate asynchronously through the existing Virtual Network update action. Inspect a network with `onevnet show` for the network state and its updated, outdated, and failed VM lists. Wait for the affected VMs to be updated before checking packet capture. A successful API response alone does not mean the hypervisor has finished applying the change.
 
 If an update fails, inspect the VM and driver logs, correct connectivity or Host configuration, then retry:
 
-```bash
+```shell
 onevnet recover 5 --retry
 ```
