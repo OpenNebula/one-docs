@@ -137,6 +137,14 @@ The following attributes can be set in `/var/lib/one/remotes/etc/datastore/datas
 Before adding a new filesystem to the `SUPPORTED_FS` list, verify that the corresponding `mkfs.<fs_name>` command is available in all Hosts including the front-end and hypervisors. The system will revert to the default filesystem if an unsupported one is detected.
 {{< /alert >}}
 
+## Live Migration
+
+When live-migrating a KVM VM with disks managed by `TM_MAD=lvm`, OpenNebula pauses the VM on the source Host before flushing its disk writes and activating its volumes on the destination Host. The VM remains paused throughout the memory transfer and resumes on the destination only after its volumes have been deactivated on the source. This prevents guest writes from being lost because of stale LVM thin-pool metadata on the destination.
+
+{{< alert title="Note" type="info" >}}
+The pause interrupts guest execution and application availability for the duration of the migration. VMs with large memory allocations or slow migration links may remain paused for longer. Plan migrations accordingly when workloads require continuous availability.
+{{< /alert >}}
+
 ## Changing Persistency Mode
 
 Persistent and non-persistent images use different Logical Volume layouts in the LVM SAN datastore. Changing the `PERSISTENT` attribute directly does not convert the underlying LVM layout.
