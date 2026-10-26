@@ -485,7 +485,7 @@ There are a few features of the [Cloud View]({{% relref "../../control_plane_con
 
 If a Template is meant to be consumed by end users, its Images should not be persistent. A persistent Image can only be used by one VM at a time. The next user will find the changes made by the previous user.
 
-If the users need persistent storage, they can use the [“instantiate to persistent” functionality]({{% relref "../virtual_machines/vm_instances#vm-guide2-clone-vm" %}}).
+If the users need persistent storage, they can use the [“instantiate to persistent” functionality]({{% relref "product/virtual_machines_operation/virtual_machines/vm_resources.md#vm-guide2-clone-vm" %}}).
 
 ### Prepare the Network Interfaces
 
