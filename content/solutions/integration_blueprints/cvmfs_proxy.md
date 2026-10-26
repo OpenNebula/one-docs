@@ -1,6 +1,7 @@
 ---
 title: "Deploy the CernVM-FS Proxy"
-linkTitle: "Deployment"
+linkTitle: "CernVM-FS Proxy"
+cardTitle: "CernVM-FS Proxy"
 date: "2026-10-26"
 description: ""
 categories:
@@ -8,6 +9,8 @@ tags:
 type: docs
 weight: "1"
 ---
+
+[CernVM-FS](https://cernvm.cern.ch/fs/), the CernVM File System, is a read-only file system developed at CERN to distribute software to many machines. Each machine mounts it under `/cvmfs` and downloads a file over HTTP only when a program reads it. The [EESSI](https://www.eessi.io/) scientific software catalogue reaches every machine this way.
 
 The CernVM-FS documentation requests users to put a caching proxy between its clients and the internet to improve performance, reduce internet traffic, and reduce load on the distribution infrastructure. The CernVM-FS Proxy appliance of the Community Marketplace is that proxy, a single VM with [Squid](https://www.squid-cache.org/) on port 3128. Each file comes from the internet once, and every later client reads it from the cache of the proxy. The clients can be VMs, workers of a OneSlurm Cluster, pods of a OneKS Cluster or the Open OnDemand Service.
 
@@ -188,7 +191,7 @@ The `cache.local.cvmfsQuotaLimit` value is the local cache of each node in MB an
 
 ### The Open OnDemand Service
 
-In the instantiate wizard of the Open OnDemand service template, enable **CernVM-FS proxy of your own** in the **Software catalogue** tab, with `ONEAPP_SOFTWARE_PROXY_ENABLED=YES` and `ONEAPP_SOFTWARE_PROXY_URL=<proxy>`. The portal and the workers then use the proxy, and the storage role runs no cache of its own. The portal and the workers reach the proxy from the compute network of the service, so that network needs a route to the proxy and must be in `ONEAPP_ACCESS_CLIENTS_NETWORKS`, unless it is the network of the first NIC of the proxy. See the [Open OnDemand configuration]({{% relref "/solutions/integration_blueprints/open_ondemand/configuration.md" %}}).
+In the instantiate wizard of the Open OnDemand service template, enable **CernVM-FS proxy of your own** in the **Software catalogue** tab, with `ONEAPP_SOFTWARE_PROXY_ENABLED=YES` and `ONEAPP_SOFTWARE_PROXY_URL=<proxy>`. The portal and the workers then use the proxy, and the storage role runs no cache of its own. The portal and the workers reach the proxy from the compute network of the service, so that network needs a route to the proxy and must be in `ONEAPP_ACCESS_CLIENTS_NETWORKS`, unless it is the network of the first NIC of the proxy. See the [Open OnDemand configuration]({{% relref "platform_services/slurm/integrations/open_ondemand/operations.md" %}}).
 
 ## Checking the Proxy
 
