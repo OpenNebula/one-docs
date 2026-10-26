@@ -87,6 +87,7 @@ The following issues have been solved in 7.4.2:
 * Fix the “Allocated CPU” slider on the hosts [#8208](https://github.com/OpenNebula/one/issues/8208).
 * Fix exposure of the restic datastore password in image error messages and logs when backup operations fail.
 * Fix OneKS deployment failures when using an image datastore other than the default datastore [#8081](https://github.com/OpenNebula/one/issues/8081).
+* Fix OneKS deployment failures when using virtual networks not owned by the user [#8128](https://github.com/OpenNebula/one/issues/8128).
 
 ---
 
