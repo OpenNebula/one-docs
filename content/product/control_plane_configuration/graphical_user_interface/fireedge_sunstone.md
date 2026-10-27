@@ -68,7 +68,7 @@ The available Sunstone sections and their tabs are described in the following su
 
 ### Networks
 
-- **Virtual Networks Tab**: Users can see all their Virtual Networks and perform managing operations such as updating, reserving, changing permissions, and more. Also, users can create a new Virtual Network from this tab. For existing Open vSwitch networks, the [Port Mirroring tab]({{% relref "../../cluster_configuration/networking_system/manage_vnets#port-mirroring-in-sunstone" %}}) allows users to inspect and manage mirrors.
+- **Virtual Networks Tab**: Users can see all their Virtual Networks and perform management operations such as updating, reserving, changing permissions, and more. Users can also create a new Virtual Network from this tab. For existing Open vSwitch networks, the [Port Mirroring Tab]({{% relref "product/cluster_configuration/networking_system/manage_vnets/#port-mirroring" %}}) allows users to inspect and manage mirrors.
 - **Virtual Networks Template Tab**: Users can see all their Virtual Networks Templates and perform updates. From this tab, users can also instantiate a Virtual Network from a template. Also, users can perform some managing operations over the templates, such as: change permissions, lock and unlock, and more.
 - **Security Groups Tab**: Users can see all their Security Groups and perform managing operations such as updating, cloning, committing, changing permissions, and more. Also, users can create a new Security Group from this tab.
 
@@ -211,7 +211,7 @@ The attributes can be modified only if they come in the YAML file by default. If
 
 The attributes described here indicate which buttons are visible to operate over the resources. The following attributes must be nested in an `actions` tag.
 
-| Attribute            | Description                                                                                                   |
+| **Attribute**            | **Description**                                                                                                   |
 | -------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `backup`             | Users will be able to create a Virtual Machine backup.                                                        |
 | `backup-cancel`      | Users will be able to cancel an ongoing Virtual Machine backup.                                               |
@@ -270,7 +270,7 @@ The attributes described here indicate which buttons are visible to operate over
 
 The attributes described here indicate which filters are visible to select resources. The following attributes must be nested in a `filters` tag.
 
-| Attribute     | Description                                                         |
+| **Attribute** | **Description**                                                     |
 | ------------- | ------------------------------------------------------------------- |
 | `group`       | Filtering by the resource group will be enabled.                    |
 | `hostname`    | Filtering by the resource hostname will be enabled.                 |
@@ -289,7 +289,7 @@ The attributes described here indicate which filters are visible to select resou
 
 The attributes described here indicate the available actions on each info tab on the resource. The following attributes must be nested in an `info-tabs` and the corresponding tab.
 
-| Attribute           | Description                                                                      |
+| **Attribute**       | **Description**                                                                  |
 | ------------------- | -------------------------------------------------------------------------------- |
 | `actions`           | Describes a list of available actions on this tab that can be disabled.          |
 | `attributes_panel`  | Describes the behavior for the `attributes` panel in the resource<br/>info tab.  |
@@ -306,7 +306,7 @@ The attributes described here indicate the available actions on each info tab on
 
 The available actions in the info tabs are described in the following table.
 
-| Action                 | Description                                                           |
+| **Action**             | **Description**                                                       |
 | ---------------------- | --------------------------------------------------------------------- |
 | `add`                  | Users will be able to add information to that panel.                  |
 | `add_ar`               | Users will be able to add an address range.                           |
@@ -358,10 +358,10 @@ The available actions in the info tabs are described in the following table.
 
 The attributes described here indicate which features are used for the resources. The following attributes must be nested in a `features` tag.
 
-| Attribute    | Description                                     |
-| ------------ | ----------------------------------------------- |
-| `hide_cpu`   | Users won’t be able to change the CPU settings. |
-| `cpu_factor` | Users won’t be able to scale the CPU.           |
+| **Attribute** | **Description**                                 |
+| ------------- | ----------------------------------------------- |
+| `hide_cpu`    | Users won’t be able to change the CPU settings. |
+| `cpu_factor`  | Users won’t be able to scale the CPU.           |
 
 <a id="fireedge-sunstone-dialogs-customization"></a>
 
@@ -369,7 +369,7 @@ The attributes described here indicate which features are used for the resources
 
 The attributes described here indicate the available actions on each dialog on the resource.
 
-| Attribute      | Description                                  |
+| **Attribute**  | **Description**                              |
 | -------------- | -------------------------------------------- |
 | `backup`       | Backup section will be displayed.            |
 | `booting`      | Booting section will be displayed.           |
@@ -444,7 +444,7 @@ To enable them on a running VM, you must follow steps 3 to 5 once you click the 
 {{< alert title="Note" type="info" >}}
 For RDP connections to work, a service such as [XRPD](https://www.xrdp.org/) is required on the VM to which you want to connect. Also, depending on the configuration of your RDP service, the following parameters can be added in the context of the VM:
 
-| Attribute      | Description                                                                                                                                                                          |
+| **Attribute**      | **Description**                                                                                                                                                                          |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `RDP_SECURITY` | You can change the type of security that the `opennebula-guacd` service will use (it must be the same as the one configured in the RDP service of the VM). By default it uses `rdp`. |
 | `RDP_PORT`     | You can change the port that the `opennebula-guacd` service will use. By default it uses port `3389`.                                                                                |
