@@ -240,6 +240,394 @@ To allow the scheduler to deploy the VM, use:
 
 * `release`: Moves a VM from `HOLD` to `PENDING`. You can schedule this action to release a VM automatically, as explained below.
 
+## Hotplug Devices to a Virtual Machine
+
+{{< alert title="Warning" type="warning" >}}
+Hotplugging might not be available for every supported hypervisor. Please check the limitations of the specific virtualization driver you’re using to ensure this feature is available before using it.{{< /alert >}}
+
+### Disk Hot-plugging
+
+New disks can be hot-plugged to running VMs with the `onevm`, `disk-attach`, and `disk-detach` commands. For example, to attach the Image named **storage** to a running VM:
+
+```shell
+onevm disk-attach one-5 --image storage
+```
+
+To detach a disk from a running VM, find the disk ID of the Image you want to detach using the `onevm show` command, and then simply execute `onevm detach vm_id disk_id`:
+
+```shell
+onevm show one-5
+...
+DISK=[
+  DISK_ID="1",
+...
+  ]
+...
+
+onevm disk-detach one-5 1
+```
+
+<a id="vm-guide2-nic-hotplugging"></a>
+
+### NIC Hot-plugging
+
+You can hot-plug network interfaces to VMs in the `RUNNING`, `POWEROFF`, or `SUSPENDED` states. Simply specify the network where the new interface should be attached, for example:
+
+```shell
+onevm show 2
+
+VIRTUAL MACHINE 2 INFORMATION
+ID                  : 2
+NAME                : centos-server
+STATE               : ACTIVE
+LCM_STATE           : RUNNING
+
+...
+
+VM NICS
+ID NETWORK      VLAN BRIDGE   IP              MAC
+ 0 net_172        no vbr0     172.16.1.201    02:00:ac:10:0
+
+...
+
+onevm nic-attach 2 --network net_172
+```
+
+After the operation you should see two NICs, 0 and 1:
+
+```shell
+onevm show 2
+VIRTUAL MACHINE 2 INFORMATION
+ID                  : 2
+NAME                : centos-server
+STATE               : ACTIVE
+LCM_STATE           : RUNNING
+
+...
+
+
+VM NICS
+ID NETWORK      VLAN BRIDGE   IP              MAC
+ 0 net_172        no vbr0     172.16.1.201    02:00:ac:10:00:c9
+                              fe80::400:acff:fe10:c9
+ 1 net_172        no vbr0     172.16.1.202    02:00:ac:10:00:ca
+                              fe80::400:acff:fe10:ca
+...
+```
+
+It is possible to attach (and live-attach) PCI and SR-IOV interfaces. Simply select the device by its address, id, vendor, or class.
+
+```shell
+onevm nic-attach 2 --network net_172 onevm nic-attach 2 --network net_172 --pci '00:06.1'
+```
+
+**Important**, predictable PCI addresses for guests will be only generated if PCI bus 1 is present in the Virtual Machine as PCI bridges cannot be hot-plugged.
+
+You can also detach a NIC by its ID. If you want to detach interface 1 (MAC `02:00:ac:10:00:ca`), execute:
+
+```shell
+onevm nic-detach 2 1
+```
+
+<a id="nic-update"></a>
+
+### NIC Update
+
+Qos attributes can be updated by the command `onevm nic-update`. If the Virtual Machine is running, the action triggers the driver action to live-update the network parameters.
+
+```shell
+cat update_nic.txt
+NIC = [
+    INBOUND_AVG_BW = "512",
+    INBOUND_PEAK_BW = "1024"
+]
+
+onevm nic-update 0 0 update_nic.txt
+```
+
+<a id="vm-guide2-sg-hotplugging"></a>
+
+### Security Group Hot-plugging
+
+You can live attach or detach security groups to VMs. Simply specify the VM, network interface, and security group to attach, for example:
+
+```shell
+onevm sg-attach centos-server 0 101
+```
+
+Similarly to detach a security group execute:.
+
+```shell
+onevm sg-detach centos-server 0 101
+```
+
+On Sunstone, you can attach and detach security groups to an NIC on a running or powered off VM by going to the Network tab, select the NIC and open the dropdown menu (with the ellipsis icon), then select **Security Groups**:
+
+{{< image
+  pathDark="/images/virtual_machines/management/dark/vm_instance_security_groups.png"
+  path="/images/virtual_machines/management/light/vm_instance_security_groups.png"
+  alt="VM Instance Security Groups" align="center" width="90%" mb="20px"
+>}}
+
+To attach a new security group, you need to click on the shield on the NIC row. A dialog will be displayed where you can find all the security groups that do not belong to the selected network.
+
+{{< image
+  pathDark="/images/virtual_machines/management/dark/add_security_group.png"
+  path="/images/virtual_machines/management/light/add_security_group.png"
+  alt="VM Instance Security Groups" align="center" width="90%" mb="20px"
+>}}
+
+To detach the security group, you must click on the Trash button next to the security group. A confirm dialog will be displayed to ensure that you want to detach the security group.
+
+<a id="vm-guide2-pci"></a>
+
+### PCI Devices
+
+You can attach or detach a PCI to/from a Virtual Machine in the `POWEROFF` and `UNDEPLOYED` state. For example:
+
+```shell
+onevm pci-attach alpine01 --pci_class 0c03 --pci_device 0015 --pci_vendor 1912
+onevm pci-detach alpine01 0
+```
+
+<a id="vm-guide2-snapshotting"></a>
+
+## Virtual Machine System Snapshots
+
+{{< alert title="Warning" type="warning" >}}
+Snapshotting might not be available for every supported hypervisor. Please check the limitations of the specific virtualization driver you’re using to ensure this feature is available before using it.
+
+A system snapshot will contain the current disks and memory state. You can create, delete, and restore snapshots for running VMs.{{< /alert >}}
+
+```shell
+onevm snapshot-create 4 "just in case"
+
+onevm show 4
+...
+SNAPSHOTS
+  ID         TIME NAME                                           HYPERVISOR_ID
+   0  02/21 16:05 just in case                                   onesnap-0
+
+onevm snapshot-revert 4 0 --verbose
+VM 4: snapshot reverted
+```
+
+{{< alert title="Warning" type="warning" >}}
+For snapshots for VMs running under the **KVM hypervisor** you should consider the following limitations:
+
+- Snapshots are only available if all the VM disks use the [qcow2 driver]({{% relref "product/operation_references/configuration_references/img_template#img-template" %}}).{{< /alert >}}
+
+<a id="vm-guide-2-disk-snapshots"></a>
+
+## Virtual Machine Disk Snapshots
+
+There are two kinds of operations related to disk snapshots:
+
+* `disk-snapshot-create`, `disk-snapshot-revert`, `disk-snapshot-delete`, `disk-snapshot-rename`: Allows the user to take snapshots of the disk states and return to them during the VM life-cycle. It is also possible to rename or delete snapshots.
+* `disk-saveas`: Exports VM disk (or a previously created snapshot) to an Image in an OpenNebula Datastore. This is a live action.
+
+{{< alert title="Warning" type="warning" >}}
+Disk snapshots might have different limitations depending on the hypervisor. Please check the limitations of the specific virtualization driver you’re using to ensure this feature is available before using it.{{< /alert >}}
+
+<a id="vm-guide-2-disk-snapshots-managing"></a>
+
+### Managing Disk Snapshots
+
+A user can take snapshots of VM disks to create a checkpoint of the state of a specific disk at any time. Depending on the storage backend, these snapshots can be organized:
+
+- In a tree-like structure, meaning that every snapshot has a parent, except for the first snapshot whose parent is `-1`. The active snapshot, the one the user has last reverted to or taken, will act as the parent of the next snapshot. It’s possible to delete snapshots that are not active and that have no children.
+- Flat structure, without parent/child relationship. In that case, snapshots can be freely removed.
+
+Disk snapshots are managed with the following commands:
+
+- `disk-snapshot-create <vmid> <diskid> <name>`: Creates a new snapshot of the specified disk.
+- `disk-snapshot-revert <vmid> <diskid> <snapshot_id>`: Reverts to the specified snapshot. The snapshots are immutable, therefore users can revert to the same snapshot as many times as they want; the disk will always return to the state of the snapshot at the time it was taken.
+- `disk-snapshot-delete <vmid> <diskid> <snapshot_id>`: Deletes a snapshot if it has no children and is not active.
+
+`disk-snapshot-create` can take place when the VM is in `RUNNING` state, provided that the drivers support it, while `disk-snapshot-revert` requires the VM to be in `POWEROFF` or `SUSPENDED`. Live snapshots are only supported for some hypervisors and storage drivers:
+
+- Hypervisor `VM_MAD=kvm` combined with `TM_MAD=qcow2` datastores. In this case OpenNebula will request that the hypervisor executes `virsh snapshot-create`.
+- Hypervisor `VM_MAD=kvm` with Ceph datastores (`TM_MAD=ceph`). In this case OpenNebula will initially create the snapshots as Ceph snapshots in the current volume.
+
+With these combinations (CEPH and qcow2 datastores, and KVM hypervisor) you can [enable QEMU Guest Agent]({{% relref "product/operation_references/hypervisor_configuration/kvm_driver#enabling-qemu-guest-agent" %}}). With this agent enabled the filesystem will be frozen while the snapshot is being taken.
+
+{{< alert title="Warning" type="warning" >}}
+OpenNebula will not automatically handle live `disk-snapshot-create` and `disk-snapshot-revert` operations for VMs in `RUNNING` state if the virtualization driver does not support it (check the limitations of the corresponding virtualization driver guide to know if this feature is available for your hypervisor). In this case the user needs to suspend or power off the VM before creating the snapshot.{{< /alert >}}
+
+See the [Storage Driver]({{% relref "product/integration_references/infrastructure_drivers_development/sd#sd-tm" %}}) guide for a reference on the driver actions invoked to perform live and non-live snapshots.
+
+{{< alert title="Warning" type="warning" >}}
+Depending on the `DISK/CACHE` attribute the live snapshot may or may not work correctly. To be sure, you can use `CACHE=writethrough`, although this delivers the slowest performance.{{< /alert >}}
+
+### Persistent Images and Disk Snapshots
+
+These actions are available for both persistent and non-persistent Images. In the case of persistent Images the snapshots **will** be preserved upon VM termination and will be able to be used by other VMs using that Image. See the [snapshots]({{% relref "product/virtual_machines_operation/virtual_machines/images#images-snapshots" %}}) section in the Images guide for more information.
+
+<a id="disk-save-as-action"></a>
+
+### Saving a VM Disk to an Image (`disk-saveas`)
+
+Any VM disk can be saved to a new Image (if the VM is in `RUNNING`, `POWEROFF`, `SUSPENDED`, `UNDEPLOYED`, or `STOPPED` states). This is a live operation that happens immediately. This operation accepts `--snapshot <snapshot_id>` as an optional argument, which specifies a disk snapshot to use as base of the new Image, instead of the current disk state (value by default).
+
+{{< alert title="Warning" type="warning" >}}
+This action is not in sync with the hypervisor. If the VM is in `RUNNING` state make sure the disk is unmounted (preferred), synced, or quiesced in some way or another before doing the `disk-saveas` operation.{{< /alert >}}
+
+<a id="vm-guide2-resizing-a-vm"></a>
+
+## Resizing VM Resources
+
+You may resize the capacity assigned to a Virtual Machine in terms of the virtual CPUs, memory, and CPU allocated. VM resizing can be done in any of the following states:
+POWEROFF, UNDEPLOYED and, with some limitations, also live in RUNNING state.
+
+If you have created a Virtual Machine and you need more resources, the following procedure is recommended:
+
+- Perform any operation needed to prepare your Virtual Machine for shutting down, e.g., you may want to manually stop some services
+- Power off the Virtual Machine
+- Resize the VM
+- Resume the Virtual Machine using the new capacity
+
+Note that using this procedure the VM will preserve any resource assigned by OpenNebula, such as IP leases.
+
+The following is an example of the previous procedure from the command line:
+
+```shell
+onevm poweroff web_vm
+onevm resize web_vm --memory 2G --vcpu 2
+onevm resume web_vm
+```
+
+### Live Resize of Capacity
+
+If you need to resize the capacity in the RUNNING state you have to set up some extra attributes in the VM template. These attributes **must be set before the VM is started**. These attributes are driver-specific, more info for [KVM]({{% relref "product/operation_references/hypervisor_configuration/kvm_driver#kvm-live-resize" %}}).
+
+{{< alert title="Warning" type="warning" >}}
+Hotplug is only implemented for KVM. Added CPUs will be in offline state after the resize. Enable them with `echo 1 > /sys/devices/system/cpu/cpu<ID>/online`{{< /alert >}}
+
+<a id="vm-guide2-resize-disk"></a>
+
+### Resizing VM Disks
+
+If the disks assigned to a Virtual Machine need more size, this can achieved at instantiation time of the VM. The SIZE parameter of the disk can be adjusted and, if it is bigger than the original size of the Image, OpenNebula will:
+
+- Increase the size of the disk container prior to launching the VM
+- Using the [contextualization packages]({{% relref "product/virtual_machines_operation/virtual_machines/vm_templates#context-overview" %}}), at boot time the VM will grow the filesystem to adjust to the new size.
+
+You can override the size of a `DISK` in a VM template at instantiation:
+
+```shell
+onetemplate instantiate <template> --disk u2104:size=20000 # Image u2104 will be resized to 2 GB
+```
+
+You can also resize VM disks for both RUNNING and POWEROFF VMs:
+
+```shell
+onevm disk-resize <vm_id> <disk_id> <new_size> # <new_size> must be greater than current disk size
+```
+
+This will make the VM disk grow on the hypervisor node. Then the contextualization service running inside the guest OS will expand the filesystem with the newly available free space. The support for this filesystem expansion depends on the Guest OS.
+
+{{< alert title="Important" type="info" >}}
+In FreeBSD the resize of the root filesystem inside the guest OS is not performed automatically by the Contextualization Service. This leads to [filesystem corruption](https://github.com/OpenNebula/addon-context-linux/issues/298) and permanent data loss. This only applies to the partition mounted on `/` , partitions with other mountpoints will be resized.{{< /alert >}}
+
+<a id="vm-updateconf"></a>
+
+## Updating the Virtual Machine Configuration
+
+Some of the VM configuration attributes defined in the VM template can be updated after the VM is created. The `onevm updateconf` command will allow you to change the following attributes:
+
+| Attribute       | Sub-attributes                                                                                                           |
+|-----------------|--------------------------------------------------------------------------------------------------------------------------|
+| `OS`            | `ARCH`, `MACHINE`, `KERNEL`, `INITRD`, `BOOTLOADER`, `BOOT`,<br/>`KERNEL_CMD`, `ROOT`, `SD_DISK_BUS`, `UUID`, `FIRMWARE`, `FIRMWARE_FORMAT` |
+| `FEATURES`      | `ACPI`, `PAE`, `APIC`, `LOCALTIME`, `HYPERV`, `GUEST_AGENT`,<br/>`VIRTIO_SCSI_QUEUES`, `VIRTIO_BLK_QUEUES`, `IOTHREADS`  |
+| `INPUT`         | `TYPE`, `BUS`                                                                                                            |
+| `GRAPHICS`      | `TYPE`, `LISTEN`, `PASSWD`, `KEYMAP`, `COMMAND`                                                                          |
+| `VIDEO`         | `TYPE`, `IOMMU`, `ATS`, `VRAM`, `RESOLUTION`                                                                             |
+| `RAW`           | `DATA`, `DATA_VMX`, `TYPE`, `VALIDATE`                                                                                   |
+| `CPU_MODEL`     | `MODEL`, `FEATURES`                                                                                                      |
+| `BACKUP_CONFIG` | `FS_FREEZE`, `KEEP_LAST`, `BACKUP_VOLATILE`, `MODE`,<br/>`INCREMENT_MODE`, `DISK_IDS`                                    |
+| `CONTEXT`       | Any value, except `ETH*`. **Variable substitution will be made**                                                         |
+
+Visit the [Virtual Machine Template reference]({{% relref "product/operation_references/configuration_references/template#template" %}}) for a complete description of each attribute. Visit the [VM Update Methods Reference]({{% relref "product/operation_references/configuration_references/vm_update_methods/" %}}) for additional details on all available VM configuration update methods.
+
+{{< alert title="Warning" type="warning" >}}
+This action might not be supported for `RUNNING` VMs depending on the hypervisor. Please check the limitation section of the specific virtualization driver.{{< /alert >}}
+
+{{< alert title="Note" type="info" >}}
+In running state only changes in CONTEXT take effect immediately, other values may need a VM restart. Also, the action may fail and the context will not be changed if the VM is running. You can try to manually trigger the action again.{{< /alert >}}
+
+<a id="vm-guide2-clone-vm"></a>
+
+## Cloning a Virtual Machine
+
+A VM template or VM instance can be copied to a new VM template. This copy will preserve the changes made to the VM disks after the instance is terminated. The template is private and will only be listed to the owner user.
+
+There are two ways to create a persistent private copy of a VM:
+
+- Instantiate a VM template with the *to persistent* option.
+- Save an existing VM instance with `onevm save`.
+
+### Instantiate to Persistent
+
+When **instantiating to persistent** the template is cloned recursively (a private persistent clone of each disk Image is created), and that new template is instantiated.
+
+To “instantiate to persistent” use the `--persistent` option:
+
+```shell
+onetemplate instantiate web_vm --persistent --name my_vm
+VM ID: 31
+
+onetemplate list
+  ID USER            GROUP           NAME                                REGTIME
+   7 oneadmin        oneadmin        web_vm                       05/12 14:53:11
+   8 oneadmin        oneadmin        my_vm                        05/12 14:53:38
+
+oneimage list
+  ID USER       GROUP      NAME            DATASTORE     SIZE TYPE PER STAT RVMS
+   7 oneadmin   oneadmin   web-img         default       200M OS   Yes used    1
+   8 oneadmin   oneadmin   my_vm-disk-0    default       200M OS   Yes used    1
+```
+
+To "instantiate multiple persistent" VMs use the options `-m N` **and** `--name`. You **must** provide `--name` when `-m` > 1. Include `%i` in the name to insert the VM index (0..N-1) at a custom place:
+
+```shell
+onetemplate instantiate -m 2 --persistent --name 'test'
+VM ID: 0
+VM ID: 1
+
+onetemplate instantiate -m 2 --persistent --name '%i-test'
+VM ID: 2
+VM ID: 3
+
+onevm list
+  ID USER         GROUP        NAME       STAT     CPU      MEM     HOST      TIME
+   3 oneadmin     oneadmin     1-test     hold       1     768M           0d 00h00
+   2 oneadmin     oneadmin     0-test     hold       1     768M           0d 00h00
+   1 oneadmin     oneadmin     test-1     hold       1     768M           0d 00h00
+   0 oneadmin     oneadmin     test-0     hold       1     768M           0d 00h00
+```
+
+Equivalently, in Sunstone activate the “Persistent” switch next to the Create button. Include `%i` in the name to insert the VM index (0..N-1) at a custom place.
+
+Please bear in mind the following `ontemplate instantiate --persistent` limitation: volatile disks cannot be persistent. The contents of the disks will be lost when the VM is terminated. The cloned VM template will contain the definition for an empty volatile disk.
+
+### Save a VM Instance
+
+Alternatively, a VM that was not created as persistent can be **saved** before it is destroyed. To do so, the user has to `poweroff` the VM first and then use the `save` operation.
+
+This action clones the VM source template, replacing the disks with copies of the current disks (see the disk-snapshot action). If the VM instance was resized, the current capacity is also used. The new cloned Images can be made persistent with the `--persistent` option. NIC interfaces are also overwritten with the ones from the VM instance, to preserve any attach/detach action.
+
+```shell
+onevm save web_vm copy_of_web_vm --persistent
+Template ID: 26
+```
+
+Please bear in mind the following `onevm save` limitations:
+
+- The VM’s source template will be used. If this template was updated since the VM was instantiated, the new contents will be used.
+- Volatile disks cannot be saved and the current contents will be lost. The cloned VM template will contain the definition for an empty volatile disk.
+- Disks and NICs will only contain the target Image/Network NAME and UNAME if defined. If your template requires extra configuration, you will need to update the new template.
+>>>>>>> parent of 9db7913c (F OpenNebula/one#8165:  Add HOLD as valid state for disk attach/detach  (#1037))
+
 <a id="vm-guide2-scheduling-actions"></a>
 
 <a id="scheduled-actions-for-virtual-machines"></a>
