@@ -62,7 +62,7 @@ screencast updates.
 ## High Availability and Resources
 
 <div class="screencast-grid">
-{{< screencast id="cLvmSUUZh1Y" title="OpenNebula Frontend High Availability" thumbnail="frontend_ha.png">}}
+{{< screencast id="dTBE6ABDXrM" title="OpenNebula Frontend High Availability" thumbnail="frontend_ha.png">}}
 {{< screencast id="IFRuZV8tuhA" title="Virtual Machine High Availability in OpenNebula" thumbnail="vm_ha.png">}}
 {{< screencast id="HuHqGAwNzW8" title="Optimizing Infrastructure at Scale with OpenNebula’s AI-Powered DRS" thumbnail="optimizing_infra_ha.png" >}}
 </div>
@@ -88,7 +88,10 @@ screencast updates.
 ## AI Factories
 
 <div class="screencast-grid">
-{{< screencast id="yWMkS3PJRIw" title="Feature Preview: OneLLM - Elastic LLM Inference Service" thumbnail="one_llm.png">}}
+{{< screencast id="wE9HBpPHpzU" title="From Bare Metal to LLMs: Build your NVIDIA AI Factory with OpenNebula" thumbnail="nvidia_ai_factory.jpg">}}
+{{< screencast id="Sn6F2lvMpl8" title="From AI Data to GPU Inference in Minutes | OpenNebula x NetApp" thumbnail="ai_data_gpu_inference.jpg">}}
+{{< screencast id="tl2ymex-YzM" title="Elastic Slurm: Scale NVIDIA AI and HPC Clusters on Demand" thumbnail="elastic_slurm_nvidia_ai_hpc.jpg">}}
+{{< screencast id="TGyRcV3XATc" title="Elastic GPU Capacity with NVIDIA Run:ai and OpenNebula" thumbnail="elastic_gpu_nvidia_runai.jpg">}}
 {{< screencast id="cydQZE3Rbtg" title="Feature Preview: OneSlurm—HPC Cluster Management" thumbnail="oneslurm_hpc.png" >}}
 {{< screencast id="le3Spyzvm8I" title="Multi-tenant AI Factory on NVIDIA GB200 NVL4 with InfiniBand" thumbnail="multi_tenant_ai_factory.png">}}
 {{< screencast id="uq4x4aECl4M" title="Elastic Capacity Management for Slurm & Kubernetes Clusters Sharing AI Factory Infrastructure" thumbnail="elastic_capacity_slurm.png">}}
