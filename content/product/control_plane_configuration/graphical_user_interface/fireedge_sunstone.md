@@ -68,7 +68,7 @@ The available Sunstone sections and their tabs are described in the following su
 
 ### Networks
 
-- **Virtual Networks Tab**: Users can see all their Virtual Networks and perform managing operations such as updating, reserving, changing permissions, and more. Also, users can create a new Virtual Network from this tab.
+- **Virtual Networks Tab**: Users can see all their Virtual Networks and perform management operations such as updating, reserving, changing permissions, and more. Users can also create a new Virtual Network from this tab. For existing Open vSwitch networks, the [Port Mirroring Tab]({{% relref "product/cluster_configuration/networking_system/manage_vnets/#port-mirroring" %}}) allows users to inspect and manage mirrors.
 - **Virtual Networks Template Tab**: Users can see all their Virtual Networks Templates and perform updates. From this tab, users can also instantiate a Virtual Network from a template. Also, users can perform some managing operations over the templates, such as: change permissions, lock and unlock, and more.
 - **Security Groups Tab**: Users can see all their Security Groups and perform managing operations such as updating, cloning, committing, changing permissions, and more. Also, users can create a new Security Group from this tab.
 
@@ -211,7 +211,7 @@ The attributes can be modified only if they come in the YAML file by default. If
 
 The attributes described here indicate which buttons are visible to operate over the resources. The following attributes must be nested in an `actions` tag.
 
-| Attribute            | Description                                                                                                   |
+| **Attribute**            | **Description**                                                                                                   |
 | -------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `backup`             | Users will be able to create a Virtual Machine backup.                                                        |
 | `backup-cancel`      | Users will be able to cancel an ongoing Virtual Machine backup.                                               |
@@ -270,7 +270,7 @@ The attributes described here indicate which buttons are visible to operate over
 
 The attributes described here indicate which filters are visible to select resources. The following attributes must be nested in a `filters` tag.
 
-| Attribute     | Description                                                         |
+| **Attribute** | **Description**                                                     |
 | ------------- | ------------------------------------------------------------------- |
 | `group`       | Filtering by the resource group will be enabled.                    |
 | `hostname`    | Filtering by the resource hostname will be enabled.                 |
@@ -289,7 +289,7 @@ The attributes described here indicate which filters are visible to select resou
 
 The attributes described here indicate the available actions on each info tab on the resource. The following attributes must be nested in an `info-tabs` and the corresponding tab.
 
-| Attribute           | Description                                                                      |
+| **Attribute**       | **Description**                                                                  |
 | ------------------- | -------------------------------------------------------------------------------- |
 | `actions`           | Describes a list of available actions on this tab that can be disabled.          |
 | `attributes_panel`  | Describes the behavior for the `attributes` panel in the resource<br/>info tab.  |
@@ -306,7 +306,7 @@ The attributes described here indicate the available actions on each info tab on
 
 The available actions in the info tabs are described in the following table.
 
-| Action                 | Description                                                           |
+| **Action**             | **Description**                                                       |
 | ---------------------- | --------------------------------------------------------------------- |
 | `add`                  | Users will be able to add information to that panel.                  |
 | `add_ar`               | Users will be able to add an address range.                           |
@@ -331,6 +331,11 @@ The available actions in the info tabs are described in the following table.
 | `exec-cancel`          | Users will be able to cancel a command execution.                     |
 | `exec-retry`           | Users will be able to re-run the last command.                        |
 | `hold_lease`           | Users will be able to hold a lease.                                   |
+| `mirror_create`        | Users will be able to create Virtual Network mirrors.                |
+| `mirror_update`        | Users will be able to edit mirror settings.                          |
+| `mirror_addport`       | Users will be able to add source interfaces to mirrors.              |
+| `mirror_delport`       | Users will be able to remove source interfaces from mirrors.         |
+| `mirror_delete`        | Users will be able to delete mirrors.                                |
 | `release_lease`        | Users will be able to release a lease.                                |
 | `rename`               | Users will be able to rename the resource.                            |
 | `resize_capacity`      | Users will be able to perform capacity resize.                        |
@@ -353,10 +358,10 @@ The available actions in the info tabs are described in the following table.
 
 The attributes described here indicate which features are used for the resources. The following attributes must be nested in a `features` tag.
 
-| Attribute    | Description                                     |
-| ------------ | ----------------------------------------------- |
-| `hide_cpu`   | Users won’t be able to change the CPU settings. |
-| `cpu_factor` | Users won’t be able to scale the CPU.           |
+| **Attribute** | **Description**                                 |
+| ------------- | ----------------------------------------------- |
+| `hide_cpu`    | Users won’t be able to change the CPU settings. |
+| `cpu_factor`  | Users won’t be able to scale the CPU.           |
 
 <a id="fireedge-sunstone-dialogs-customization"></a>
 
@@ -364,7 +369,7 @@ The attributes described here indicate which features are used for the resources
 
 The attributes described here indicate the available actions on each dialog on the resource.
 
-| Attribute      | Description                                  |
+| **Attribute**  | **Description**                              |
 | -------------- | -------------------------------------------- |
 | `backup`       | Backup section will be displayed.            |
 | `booting`      | Booting section will be displayed.           |
@@ -392,8 +397,8 @@ Sunstone allows direct connections to VMs using VNC. It admits parameters such a
 To set these VNC connection configurations we must:
 
 1. Go to the VM template configuration and click on create or update an existing one.
-2. Go to the “Advanced options” step and click on Input/Output.
-3. Under the “Graphics” section there are all the VNC configurations.
+2. Go to the **Advanced options** step and click on Input/Output.
+3. Under the **Graphics** section there are all the VNC configurations.
 
 {{< alert title="Note" type="info" >}}
 In case the VNC client is blurry or has any kind of visual tearing, try switching to the **virtio** video device type instead. This can be done by selecting the VM and going to the `Configuration` tab.
@@ -425,10 +430,10 @@ Sunstone does not connect directly to the VNC port, located in the VM template. 
 Sunstone also admits direct connections using RDP. This kind of connection is bound to a network interface, meaning that to enable it you must follow the following steps:
 
 1. Go to the VM template tab and click on create or update an existing one.
-2. Go to the “Advanced options” step.
-3. Click on “Network”.
-4. Click on attach nic or update an existing one.
-5. Go to the “Advanced options” step and enable the RDP connection and all the desired configuration parameters for the connection.
+2. Go to the **Advanced options** step.
+3. Click **Network**.
+4. Click **Attach NIC** or update an existing one.
+5. Go to the **Advanced options** step and enable the RDP connection and all the desired configuration parameters for the connection.
 
 {{< image path="/images/sunstone-rdp.png" 
           alt="Sunstone RDP" align="center" width="90%" mb="20px">}}
@@ -439,7 +444,7 @@ To enable them on a running VM, you must follow steps 3 to 5 once you click the 
 {{< alert title="Note" type="info" >}}
 For RDP connections to work, a service such as [XRPD](https://www.xrdp.org/) is required on the VM to which you want to connect. Also, depending on the configuration of your RDP service, the following parameters can be added in the context of the VM:
 
-| Attribute      | Description                                                                                                                                                                          |
+| **Attribute**      | **Description**                                                                                                                                                                          |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `RDP_SECURITY` | You can change the type of security that the `opennebula-guacd` service will use (it must be the same as the one configured in the RDP service of the VM). By default it uses `rdp`. |
 | `RDP_PORT`     | You can change the port that the `opennebula-guacd` service will use. By default it uses port `3389`.                                                                                |
@@ -462,10 +467,10 @@ At the top of the console you can find the buttons for the following actions:
 Sunstone also allows direct connections using SSH. This kind of connection is bound to a network interface, meaning that to enable it you must follow the following steps:
 
 1. Go to the VM template tab and click on create or update an existing one.
-2. Go to the “Advanced options” step.
-3. Click on “Network”.
-4. Click on attach nic or update an existing one.
-5. Go to the “Advanced options” step and enable the SSH connection.
+2. Go to the **Advanced options** step.
+3. Click **Network**.
+4. Click **Attach NIC** or update an existing one.
+5. Go to the **Advanced options** step and enable the SSH connection.
 
 {{< image path="/images/sunstone-ssh.png" 
           alt="Sunstone ssh" align="center" width="90%" mb="20px">}}
@@ -488,28 +493,27 @@ At the top of the console you can find the buttons for the following actions:
 
   - **Schema**: Changes the color scheme to be used for the terminal session. It consists of a series of name-value pairs separated by semicolons. Each name-value pair is separated by a colon and assigns a value to a color in the terminal emulator palette. For example:
 
-    > ```default
-    > foreground: rgb:00/00/ff;
-    > background: rgb:ff/ff/ff;
-    > color9: rgb:80/00/80
-    > ```
+     ```default
+     foreground: rgb:00/00/ff;
+     background: rgb:ff/ff/ff;
+     color9: rgb:80/00/80
+     ```
 
-    > Possible color names are:
-    >
-    > > - **foreground**: Set the default foreground color.
-    > > - **background**: Set the default background color.
-    > > - **colorN**: Set the color at index N on the Xterm 256-color palette. For example, color9 refers to the red color.
-    > >   : - **rgb:RR/GG/BB**: Use the specified color in RGB format, with each component in hexadecimal. For example: `rgb:ff/00/00` - **colorN**: Use the color currently assigned to index `N` on the Xterm 256-color palette.
-    > >   <br/>
-    > >   For backward compatibility, it will also accept four special values as the color scheme parameter:
-    > > - **black-white**: Black text over a white background.
-    > > - **gray-black**: Gray text over a black background. This is the default color scheme.
-    > > - **green-black**: Green text over a black background.
-    > > - **white-black**: White text over a black background.
+     Possible color names are:
+    - **foreground**: Set the default foreground color.
+    - **background**: Set the default background color.
+    - **colorN**: Set the color at index N on the Xterm 256-color palette. For example, color9 refers to the red color.
+      : - **rgb:RR/GG/BB**: Use the specified color in RGB format, with each component in hexadecimal. For example: `rgb:ff/00/00` - **colorN**: Use the color currently assigned to index `N` on the Xterm 256-color palette.
+      <br/>
+      For backward compatibility, it will also accept four special values as the color scheme parameter:
+    - **black-white**: Black text over a white background.
+    - **gray-black**: Gray text over a black background. This is the default color scheme.
+    - **green-black**: Green text over a black background.
+    - **white-black**: White text over a black background.
 
   - **Font Name**: The name of the font to use. This parameter is optional. If not specified, the default of “mono-space” will be used instead.
   - **Font Size**: The size of the font to use, in points. This parameter is optional. If not specified, the default of 12 will be used instead.
 
 - **Download connection file**: Download the connection file for use with [TigerVNC Viewer](https://tigervnc.org/).
-  > {{< alert title="Note" type="info" >}}
-  > In order to be able to connect from an external application, you must have access to the IP address that appears in the file.{{< /alert >}}
+  {{< alert title="Note" type="info" >}}
+  In order to be able to connect from an external application, you must have access to the IP address that appears in the file.{{< /alert >}}
