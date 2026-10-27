@@ -67,7 +67,7 @@ The following issues have been solved in 7.4.2:
 * Fix missing `IOTHREADS` in VM `OS & CPU Features` configuration tab [#7585](https://github.com/OpenNebula/one/issues/7585).
 * Fix OneGate service role scaling from inside VMs, which could fail due to the request body being consumed before processing [#7954](https://github.com/OpenNebula/one/issues/7954).
 * Fix DRS cluster workload optimization attempting to migrate VMs in `UNDEPLOYED` or `STOPPED` states [#8073](https://github.com/OpenNebula/one/issues/8073).
-* Fix vulnerability agains padding oracle attack and target bypass, improve entropy of generated passwords.
+* Fix padding oracle and target-user bypass vulnerabilities in server authentication, and increase the entropy of generated passwords.
 
 ---
 
