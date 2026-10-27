@@ -86,7 +86,7 @@ The following issues have been solved in 7.4.2:
 * Fix checkpoint delete endpoint and reset the backup chain after an invalid checkpoint in Veeam [#8062](https://github.com/OpenNebula/one/issues/8062).
 * Fix the “Allocated CPU” slider on the hosts [#8208](https://github.com/OpenNebula/one/issues/8208).
 * Fix exposure of the restic datastore password in image error messages and logs when backup operations fail.
-* Fix shell command injection through invalid `MD5` and `SHA1` image template attributes.
+* Fix shell command injection through malicious `MD5` or `SHA1` values in image templates [#4635](https://github.com/OpenNebula/one-ee/issues/4635).
 * Fix OneKS deployment failures when using an image datastore other than the default datastore [#8081](https://github.com/OpenNebula/one/issues/8081).
 * Fix OneKS deployment failures when using virtual networks not owned by the user [#8128](https://github.com/OpenNebula/one/issues/8128).
 
