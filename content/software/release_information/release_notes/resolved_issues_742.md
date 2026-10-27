@@ -17,7 +17,7 @@ Include a high level description and a link to the documentation explaining the 
 
 * Add a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
 * Add an option to [cancel an ongoing Virtual Machine backup from Sunstone]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations#cancel-backup" %}}) [#8069](https://github.com/OpenNebula/one/issues/8069).
-* Add [Port Mirroring management in Sunstone]({{% relref "product/cluster_configuration/networking_system/manage_vnets#port-mirroring-in-sunstone" %}}) for existing Open vSwitch networks, supporting RSPAN, GRE, and ERSPAN II/III. Users can create, inspect, edit, and delete mirrors, select source VM interfaces, and configure traffic direction and source VLAN filters. Enable the tab and form routes using the configuration instructions below [#8149](https://github.com/OpenNebula/one/issues/8149).
+* Add [Port Mirroring management in Sunstone]({{% relref "product/cluster_configuration/networking_system/manage_vnets#port-mirroring" %}}) for existing Open vSwitch networks, supporting RSPAN, GRE, and ERSPAN II/III. Users can create, inspect, edit, and delete mirrors, select source VM interfaces, and configure traffic direction and source VLAN filters. Enable the tab and form routes using the configuration [instructions below](#enable-port-mirroring-in-sunstone-8149) [#8149](https://github.com/OpenNebula/one/issues/8149).
 * Added a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
 * Add support for Ceph VM backups through the [interactive backup integration]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
 * Allow overriding `CLUSTER_IDS` when instantiating Virtual Network Templates [#8065](https://github.com/OpenNebula/one/issues/8065).
@@ -84,7 +84,7 @@ Merge these settings into the existing YAML sections, preserving other settings 
 
 The Port Mirroring tab and its form routes must be enabled manually after upgrading to 7.4.2. Apply both changes below; enabling the tab alone does not register the creation and editing forms.
 
-In `sunstone/tabs/40-networks-tab.yaml`, add the **Create mirror** and **Edit mirror** entries to the existing `routes` list, immediately before the `/virtual-network/:id` detail route. The existing detail route is included below to show the placement; do not add it a second time:
+In `sunstone/tabs/40-networks-tab.yaml`, add the **Create mirror** and **Edit mirror** entries to the existing `routes` list, immediately before the `/virtual-network/:id` detail route. The existing `VirtualNetworkDetail` route is included below to show the placement; do not add it a second time:
 
 ```yaml
     - title: Create mirror
