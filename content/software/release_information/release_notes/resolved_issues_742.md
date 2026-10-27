@@ -24,7 +24,6 @@ Include a high level description and a link to the documentation explaining the 
 * Add a [log warning when a driver's action queue is larger than its number of threads]({{% relref "product/operation_references/opennebula_services_configuration/oned.md#action-queue-warning" %}}).
 * Add a [OneKS Application Catalog]({{% relref "platform_services/oneks/management/k8s_cluster_lifecycle_management/#managing-applications" %}}) of validated Helm-based applications that can be deployed on runing K8s Clusters and managed through Sunstone or the CLI, with application lifecycle monitoring and configurable installation options [#7302](https://github.com/OpenNebula/one/issues/7302).
 * Enable [OneDRS balancing by storage space]({{% relref "product/cloud_system_administration/scheduler/drs#load-balancing-objectives" %}}) through the `STORAGE_WEIGHT` Cluster attribute, configurable in Sunstone. Administrators can combine datastore space utilization with other balancing objectives, such as disk I/O, to optimize storage distribution across the Cluster [#7930](https://github.com/OpenNebula/one/issues/7930).
-* Allow [attaching and detaching disks on Virtual Machines in the `HOLD` state]({{% relref "product/virtual_machines_operation/virtual_machines/vm_instances.md#disk-hotplugging" %}}).
 * Add [automatic bridge management for switchdev SR-IOV networks]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#switchdev-mode" %}}) through `BRIDGE="switchdev"` with the `ovswitch` driver. OpenNebula creates or reuses a dedicated Open vSwitch bridge for each parent Physical Function (PF) and connects the PF and its VF representors, allowing one Virtual Network to serve VFs from multiple PFs without separate per-PF network definitions [#7960](https://github.com/OpenNebula/one/issues/7960).
 * Add the OneSwap [`--machine` and `--cpu-features`]({{% relref "software/migration_from_vmware/oneswap.md#customizing-the-created-vm-template" %}}) options to set the KVM machine type and CPU model features for a migration profile. Configure them in `/etc/one/oneswap.yaml` or on the command line; `--cpu-features` requires `--cpu-model` [#8112](https://github.com/OpenNebula/one/issues/8112).
 * Add support for VDDK transport in OneSwap delta migrations, allowing `--delta` and `--vddk` to be used together. vSAN-backed VMs are not supported [#7903](https://github.com/OpenNebula/one/issues/7903).
@@ -216,7 +215,6 @@ With the following content:
       path: /service/instantiate/
       Component: CreateService
 ```
-
 ### Configure Guacamole connection defaults and enforced settings
 
 In `/etc/one/fireedge-server.conf`, add the following top-level `guacamole` section alongside the existing `guacd` section. The `guacd` section configures the daemon connection while `guacamole` configures VNC, SSH and RDP console connections. These settings replace connection defaults previously defined in FireEdge code and its Guacamole bridge.
