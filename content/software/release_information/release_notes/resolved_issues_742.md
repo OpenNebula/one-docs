@@ -214,3 +214,64 @@ With the following content:
       path: /service/instantiate/
       Component: CreateService
 ```
+
+### Configure Guacamole connection defaults and enforced settings
+
+In `/etc/one/fireedge-server.conf`, add the following top-level `guacamole` section alongside the existing `guacd` section. The `guacd` section configures the daemon connection while `guacamole` configures VNC, SSH and RDP console connections. These settings replace connection defaults previously defined in FireEdge code and its Guacamole bridge.
+
+If a `guacamole` section already exists, merge the settings into it without creating duplicate keys.
+
+```yaml
+guacamole:
+  common:
+    width: 1024
+    height: 768
+    dpi: 96
+
+  rdp:
+    port: 3389
+    # Disable audio and microphone
+    disable-audio: true
+    enable-audio-input: false
+
+    # Display and performance
+    resize-method: display-update
+    enable-wallpaper: false
+    enable-theming: false
+    enable-font-smoothing: false
+    enable-full-window-drag: false
+    enable-desktop-composition: false
+    enable-menu-animations: false
+    disable-bitmap-caching: false
+    disable-offscreen-caching: false
+    disable-glyph-caching: false
+
+  vnc:
+    port: 5900
+
+  ssh:
+    port: 22
+
+  # Server policy, applied whenever a Guacamole connection opens
+  enforced:
+    common:
+      disable-copy: true
+      disable-paste: true
+      enable-sftp: false
+    rdp:
+      # Requires NLA credentials and a trusted guest certificate
+      security: nla
+      ignore-cert: false
+      enable-drive: false
+      enable-printing: false
+```
+
+Connection settings are applied in the following order, with later values overriding earlier ones: `common`, the protocol section (`vnc`, `ssh` or `rdp`), VM/NIC settings, browser settings, and `enforced`. Browser overrides are limited to display and terminal settings and `rangeports`. Within `enforced`, protocol settings override `enforced.common`. VM/NIC and browser settings cannot override enforced values.
+
+The block above disables clipboard copy/paste and SFTP for all three protocols. For RDP, it also disables drive and printer redirection, requires Network Level Authentication (NLA), and enables certificate validation. Ensure that RDP guests support NLA, provide the required credentials, and use certificates trusted by the Guacamole daemon. With `enforced.rdp.security: nla`, the VM's `RDP_SECURITY` setting cannot select another security mode; change the enforced policy if a different mode is required.
+
+Restart FireEdge after saving the configuration:
+
+```shell
+systemctl restart opennebula-fireedge
+```
