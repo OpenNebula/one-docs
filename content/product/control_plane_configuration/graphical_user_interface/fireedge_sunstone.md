@@ -397,8 +397,8 @@ Sunstone allows direct connections to VMs using VNC. It admits parameters such a
 To set these VNC connection configurations we must:
 
 1. Go to the VM template configuration and click on create or update an existing one.
-2. Go to the “Advanced options” step and click on Input/Output.
-3. Under the “Graphics” section there are all the VNC configurations.
+2. Go to the **Advanced options** step and click on Input/Output.
+3. Under the **Graphics** section there are all the VNC configurations.
 
 {{< alert title="Note" type="info" >}}
 In case the VNC client is blurry or has any kind of visual tearing, try switching to the **virtio** video device type instead. This can be done by selecting the VM and going to the `Configuration` tab.
@@ -430,10 +430,10 @@ Sunstone does not connect directly to the VNC port, located in the VM template. 
 Sunstone also admits direct connections using RDP. This kind of connection is bound to a network interface, meaning that to enable it you must follow the following steps:
 
 1. Go to the VM template tab and click on create or update an existing one.
-2. Go to the “Advanced options” step.
-3. Click on “Network”.
-4. Click on attach nic or update an existing one.
-5. Go to the “Advanced options” step and enable the RDP connection and all the desired configuration parameters for the connection.
+2. Go to the **Advanced options** step.
+3. Click **Network**.
+4. Click **Attach NIC** or update an existing one.
+5. Go to the **Advanced options** step and enable the RDP connection and all the desired configuration parameters for the connection.
 
 {{< image path="/images/sunstone-rdp.png" 
           alt="Sunstone RDP" align="center" width="90%" mb="20px">}}
@@ -467,10 +467,10 @@ At the top of the console you can find the buttons for the following actions:
 Sunstone also allows direct connections using SSH. This kind of connection is bound to a network interface, meaning that to enable it you must follow the following steps:
 
 1. Go to the VM template tab and click on create or update an existing one.
-2. Go to the “Advanced options” step.
-3. Click on “Network”.
-4. Click on attach nic or update an existing one.
-5. Go to the “Advanced options” step and enable the SSH connection.
+2. Go to the **Advanced options** step.
+3. Click **Network**.
+4. Click **Attach NIC** or update an existing one.
+5. Go to the **Advanced options** step and enable the SSH connection.
 
 {{< image path="/images/sunstone-ssh.png" 
           alt="Sunstone ssh" align="center" width="90%" mb="20px">}}
@@ -493,28 +493,27 @@ At the top of the console you can find the buttons for the following actions:
 
   - **Schema**: Changes the color scheme to be used for the terminal session. It consists of a series of name-value pairs separated by semicolons. Each name-value pair is separated by a colon and assigns a value to a color in the terminal emulator palette. For example:
 
-    > ```default
-    > foreground: rgb:00/00/ff;
-    > background: rgb:ff/ff/ff;
-    > color9: rgb:80/00/80
-    > ```
+     ```default
+     foreground: rgb:00/00/ff;
+     background: rgb:ff/ff/ff;
+     color9: rgb:80/00/80
+     ```
 
-    > Possible color names are:
-    >
-    > > - **foreground**: Set the default foreground color.
-    > > - **background**: Set the default background color.
-    > > - **colorN**: Set the color at index N on the Xterm 256-color palette. For example, color9 refers to the red color.
-    > >   : - **rgb:RR/GG/BB**: Use the specified color in RGB format, with each component in hexadecimal. For example: `rgb:ff/00/00` - **colorN**: Use the color currently assigned to index `N` on the Xterm 256-color palette.
-    > >   <br/>
-    > >   For backward compatibility, it will also accept four special values as the color scheme parameter:
-    > > - **black-white**: Black text over a white background.
-    > > - **gray-black**: Gray text over a black background. This is the default color scheme.
-    > > - **green-black**: Green text over a black background.
-    > > - **white-black**: White text over a black background.
+     Possible color names are:
+    - **foreground**: Set the default foreground color.
+    - **background**: Set the default background color.
+    - **colorN**: Set the color at index N on the Xterm 256-color palette. For example, color9 refers to the red color.
+      : - **rgb:RR/GG/BB**: Use the specified color in RGB format, with each component in hexadecimal. For example: `rgb:ff/00/00` - **colorN**: Use the color currently assigned to index `N` on the Xterm 256-color palette.
+      <br/>
+      For backward compatibility, it will also accept four special values as the color scheme parameter:
+    - **black-white**: Black text over a white background.
+    - **gray-black**: Gray text over a black background. This is the default color scheme.
+    - **green-black**: Green text over a black background.
+    - **white-black**: White text over a black background.
 
   - **Font Name**: The name of the font to use. This parameter is optional. If not specified, the default of “mono-space” will be used instead.
   - **Font Size**: The size of the font to use, in points. This parameter is optional. If not specified, the default of 12 will be used instead.
 
 - **Download connection file**: Download the connection file for use with [TigerVNC Viewer](https://tigervnc.org/).
-  > {{< alert title="Note" type="info" >}}
-  > In order to be able to connect from an external application, you must have access to the IP address that appears in the file.{{< /alert >}}
+  {{< alert title="Note" type="info" >}}
+  In order to be able to connect from an external application, you must have access to the IP address that appears in the file.{{< /alert >}}
