@@ -200,13 +200,13 @@ Hotplugging might not be available for every supported hypervisor. Please check 
 
 ### Disk Hot-plugging
 
-New disks can be hot-plugged to running VMs with the `onevm`, `disk-attach`, and `disk-detach` commands. For example, to attach the Image named **storage** to a running VM:
+Disks can be attached to and detached from VMs in the `RUNNING`, `POWEROFF`, and `HOLD` states with the `onevm disk-attach` and `onevm disk-detach` commands. For example, to attach the Image named **storage** to a VM:
 
 ```shell
 onevm disk-attach one-5 --image storage
 ```
 
-To detach a disk from a running VM, find the disk ID of the Image you want to detach using the `onevm show` command, and then simply execute `onevm detach vm_id disk_id`:
+To detach a disk from a VM, find the disk ID of the Image you want to detach using the `onevm show` command, and then execute `onevm disk-detach vm_id disk_id`:
 
 ```shell
 onevm show one-5
@@ -268,11 +268,19 @@ ID NETWORK      VLAN BRIDGE   IP              MAC
 ...
 ```
 
-It is possible to attach (and live-attach) PCI and SR-IOV interfaces. Simply select the device by its address, id, vendor, or class.
+It is possible to attach (and live-attach) PCI and SR-IOV interfaces. Select the device by its address, device ID, vendor, or class:
 
 ```shell
-onevm nic-attach 2 --network net_172 onevm nic-attach 2 --network net_172 --pci '00:06.1'
+onevm nic-attach 2 --network net_172 --pci '00:06.1'
 ```
+
+To attach an available SR-IOV VF from a particular parent PF, use `--pf <interface>`:
+
+```shell
+onevm nic-attach 2 --network net_172 --pf pf0
+```
+
+The `--pf` option sets `PF_IFNAME` and selects a free VF from the named PF on the VM's Host. Find the parent interface name in the `IFNAME` or `PF_IFNAME` columns of `onehost show <host>`. Use `--pf` without the other PCI device selectors. See [Selecting Virtual Functions by Physical Function]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#selecting-virtual-functions-by-physical-function" %}}) for prerequisites and selector restrictions.
 
 **Important**, predictable PCI addresses for guests will be only generated if PCI bus 1 is present in the Virtual Machine as PCI bridges cannot be hot-plugged.
 
@@ -486,9 +494,15 @@ In FreeBSD the resize of the root filesystem inside the guest OS is not performe
 
 ## Updating the Virtual Machine Configuration
 
-Some of the VM configuration attributes defined in the VM template can be updated after the VM is created. The `onevm updateconf` command will allow you to change the following attributes:
+A subset of the VM configuration attributes defined in the VM template can be updated after the VM is created using `onevm updateconf`. To edit the current configuration of an instantiated VM with ID `VM_ID`, run:
 
-| Attribute       | Sub-attributes                                                                                                           |
+```shell
+onevm updateconf <VM_ID>
+```
+
+The above command opens an editor with the current values of the supported configuration attributes. Modify the values you want to change, then save and close the editor to apply the update. The following attributes are supported:
+
+| **Attribute**   | **Sub-attributes**                                                                                                       |
 |-----------------|--------------------------------------------------------------------------------------------------------------------------|
 | `OS`            | `ARCH`, `MACHINE`, `KERNEL`, `INITRD`, `BOOTLOADER`, `BOOT`,<br/>`KERNEL_CMD`, `ROOT`, `SD_DISK_BUS`, `UUID`, `FIRMWARE`, `FIRMWARE_FORMAT` |
 | `FEATURES`      | `ACPI`, `PAE`, `APIC`, `LOCALTIME`, `HYPERV`, `GUEST_AGENT`,<br/>`VIRTIO_SCSI_QUEUES`, `VIRTIO_BLK_QUEUES`, `IOTHREADS`  |
@@ -498,15 +512,33 @@ Some of the VM configuration attributes defined in the VM template can be update
 | `RAW`           | `DATA`, `DATA_VMX`, `TYPE`, `VALIDATE`                                                                                   |
 | `CPU_MODEL`     | `MODEL`, `FEATURES`                                                                                                      |
 | `BACKUP_CONFIG` | `FS_FREEZE`, `KEEP_LAST`, `BACKUP_VOLATILE`, `MODE`,<br/>`INCREMENT_MODE`, `DISK_IDS`                                    |
-| `CONTEXT`       | Any value, except `ETH*`. **Variable substitution will be made**                                                         |
+| `CONTEXT`       | Any value, except `ETH*`. **Variable substitution is performed**.                                                        |
 
 Visit the [Virtual Machine Template reference]({{% relref "product/operation_references/configuration_references/template#template" %}}) for a complete description of each attribute. Visit the [VM Update Methods Reference]({{% relref "product/operation_references/configuration_references/vm_update_methods/" %}}) for additional details on all available VM configuration update methods.
 
+To supply a partial update instead of editing the current configuration, use `onevm updateconf --append <VM_ID> [file]` (if the `file` argument is omitted the VM configuration will be opened in an editor). Define the attributes to add or modify in a file or through standard input. Attributes omitted from the update are preserved.
+
 {{< alert title="Warning" type="warning" >}}
-This action might not be supported for `RUNNING` VMs depending on the hypervisor. Please check the limitation section of the specific virtualization driver.{{< /alert >}} 
+This action might not be supported for `RUNNING` VMs depending on the hypervisor. Please check the limitation section of the specific virtualization driver.{{< /alert >}}
 
 {{< alert title="Note" type="info" >}}
-In running state only changes in CONTEXT take effect immediately, other values may need a VM restart. Also, the action may fail and the context will not be changed if the VM is running. You can try to manually trigger the action again.{{< /alert >}} 
+The `--append` option replaces the entire value of each existing attribute supplied in the update. It does not concatenate values or append entries within a value.
+
+For example, to add a third SSH key while keeping the two existing keys, supply all three in `SSH_PUBLIC_KEY`. Other `CONTEXT` attributes are preserved. The Linux contextualization packages synchronize the keys in the guest with `SSH_PUBLIC_KEY`, so a key left out of the update is removed from the guest `authorized_keys` file. Replace the placeholders below with the complete public keys:
+
+```text
+onevm updateconf --append 25 <<'EOT'
+CONTEXT = [
+  SSH_PUBLIC_KEY="<existing-public-key-1>
+                  <existing-public-key-2>
+                  <new-public-key>"
+]
+EOT
+```
+{{< /alert >}}
+
+{{< alert title="Note" type="info" >}}
+In the running state only changes in CONTEXT take effect immediately, other values may require a VM restart. The action may also fail and the context will not be changed if the VM is running. You can try to manually retrigger the action.{{< /alert >}} 
 
 <a id="vm-guide2-clone-vm"></a>
 
@@ -1323,8 +1355,8 @@ The `onevm` command manages OpenNebula Virtual Machines. The general structure o
 | `create-chart vmid`             | Adds a charter to the VM; these are some consecutive scheduled actions. You can configure the actions in `onevm.yaml` |
 | `delete-chart vmid sched_id`    | Deletes a charter from the VM. Deprecated, use `sched-delete` instead. |
 | `deploy range\|vmid_list hostid [datastoreid]` | <ul><li>Deploys the given VM in the specified Host. This command forces the deployment, in a standard installation the Scheduler is in charge of this decision.</li><li>A template can be passed as a file with or the content via STDIN. Bash symbols must be escaped on STDIN passing.</li><li>States: PENDING, HOLD, STOPPED, UNDEPLOYED</li><li>Valid options: enforce, file</li></ul>|
-| `disk-attach vmid`              | <ul><li>Attaches a disk to a running VM.</li><li>A template can be passed as a file with or the content via STDIN. Bash symbols must be escaped on STDIN passing. When using a template add only one DISK instance.</li><li>States: RUNNING, POWEROFF</li><li>Valid options: cache, discard, file, image, prefix, target</li> |
-| `disk-detach vmid diskid`       | Detaches a disk from a running VM. States: RUNNING, POWEROFF
+| `disk-attach vmid`              | <ul><li>Attaches a disk to a VM.</li><li>A template can be passed as a file with or the content via STDIN. Bash symbols must be escaped on STDIN passing. When using a template add only one DISK instance.</li><li>States: RUNNING, POWEROFF, HOLD</li><li>Valid options: cache, discard, file, image, prefix, target</li> |
+| `disk-detach vmid diskid`       | Detaches a disk from a VM. States: RUNNING, POWEROFF, HOLD
 | `disk-resize vmid diskid size`  | <ul><li>Resizes a VM disk. The new size should be larger than the old one.</li><li>The valid units are: T (TiB), G (GiB), and M (MiB). By default it is MiB.</li><li>States: RUNNING, POWEROFF</li></ul>|
 | `disk-saveas vmid diskid img_name` | <ul><li>Saves the specified VM disk as a new Image. The Image is created immediately, and the contents of the VM disk will be saved to it.</li><li>States: ANY</li><li>Valid options: snapshot, type</li></ul> |
 | `disk-snapshot-create vmid diskid name` | <ul><li>Takes a new snapshot of the given disk. This operation needs support from the Datastore drivers: QCOW2 or Ceph.</li><li>States: RUNNING, POWEROFF, SUSPENDED</li><li> Valid options: end, hourly, monthly, schedule, weekly, yearly</li></ul>|
