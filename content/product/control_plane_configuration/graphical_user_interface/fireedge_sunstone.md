@@ -440,10 +440,18 @@ For RDP connections to work, a service such as [XRPD](https://www.xrdp.org/) is 
 
 | Attribute      | Description                                                                                                                                                                          |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `RDP_SECURITY` | You can change the type of security that the `opennebula-guacd` service will use (it must be the same as the one configured in the RDP service of the VM). By default it uses `rdp`. |
-| `RDP_PORT`     | You can change the port that the `opennebula-guacd` service will use. By default it uses port `3389`.                                                                                |
+| `RDP_SECURITY` | Security mode used by `opennebula-guacd`. It must match the RDP service in the VM and is subject to the enforced FireEdge settings. The default configuration enforces `nla`. |
+| `RDP_PORT`     | Port used by `opennebula-guacd`. Overrides `guacamole.rdp.port`, which defaults to `3389`, unless the port is enforced by FireEdge. |
+| `USERNAME`     | Username used to authenticate to the RDP service in the VM. |
+| `PASSWORD`     | Password used to authenticate to the RDP service in the VM. |
 
 {{< /alert >}}
+
+RDP connection defaults and enforced settings are configured in the `guacamole` section of `/etc/one/fireedge-server.conf`. See [Connection Defaults and Enforced Settings]({{% relref "product/operation_references/opennebula_services_configuration/fireedge.md#fireedge-guacamole-connections" %}}) for the configuration and override order.
+
+The default configuration requires Network Level Authentication (NLA) and a guest certificate trusted by the Guacamole daemon. Ensure that the RDP service supports NLA and that the VM context provides the required credentials. Clipboard copy/paste, SFTP, drive redirection and printer redirection are disabled by the default enforced settings.
+
+VM context and NIC settings can override connection defaults, including audio, microphone and display options configured under `guacamole.rdp`. They cannot override settings under `guacamole.enforced`. For example, to use a security mode other than `nla`, the administrator must change or remove `guacamole.enforced.rdp.security` before selecting the matching `RDP_SECURITY` value in the VM context.
 
 ### Actions in RDP console
 
