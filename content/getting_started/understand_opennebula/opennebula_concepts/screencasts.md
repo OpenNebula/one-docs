@@ -55,7 +55,7 @@ screencast updates.
 <div class="screencast-grid">
 {{< screencast id="9x-orCQ68Qw" title="Users, Groups, and Views in OpenNebula" thumbnail="users_groups_views.png">}}
 {{< screencast id="NmR0XSds3Fg" title="Create and Manage Virtual Datacenters in OpenNebula" thumbnail="create_manage_vdcs.png">}}
-{{< screencast id="wAd9YpFJnq4" title="Enforcing Resource Quotas in OpenNebula" thumbnail="enforcing_resource_quotas.png">}}
+{{< screencast id="voGz6p_9b18" title="Enforcing Resource Quotas in OpenNebula" thumbnail="enforcing_resource_quotas.png">}}
 {{< screencast id="g03gKz_rG04" title="Managing Custom Sunstone Views in OpenNebula" thumbnail="custom_sunstone_views.png">}}
 </div>
 
