@@ -215,6 +215,24 @@ With the following content:
       Component: CreateService
 ```
 
+### Enable OneKs Application tab [#7302](https://github.com/OpenNebula/one/issues/7302)
+
+In `sunstone/views/*/oneks-tab.yaml`, as part of the `info-tabs` attribute, add the following entry:
+
+```yaml
+   applications:
+    enabled: true
+```
+
+In `sunstone/tabs/90-oneks-tab.yaml`, as part of the `routes` attribute, add the following entry:
+
+```yaml
+   - title: Install Application
+     path: /kubernetes/:id/applications/install
+     Component: InstallOneKsApplication
+```
+
+
 ### Configure Guacamole connection defaults and enforced settings
 
 In `/etc/one/fireedge-server.conf`, add the following top-level `guacamole` section alongside the existing `guacd` section. The `guacd` section configures the daemon connection while `guacamole` configures VNC, SSH and RDP console connections. These settings replace connection defaults previously defined in FireEdge code and its Guacamole bridge.
