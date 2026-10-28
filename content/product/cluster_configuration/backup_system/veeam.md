@@ -33,6 +33,8 @@ The following table summarizes the supported backup modes for each storage syste
 | Ceph         | No†  | No†         |
 | LVM          | Yes  | Yes         |
 | NetApp       | No†  | No†         |
+| PureFA       | No†  | No†         |
+
 
 <sup>†</sup> These backup modes were supported in previous OpenNebula versions, such as 7.0 and 7.2. In OpenNebula version 7.4, they are not supported by the current OneBEX-based integration, but are planned to be supported in a future maintenance releases.
 
@@ -105,13 +107,13 @@ If using High Availability, any changes to ``/var/lib/one/remotes/etc/onebex/one
 
 ### 2. Enable VM Guest Agent Monitoring
 
-The integration needs VM Guest Agent monitoring to be enabled. To do so set ``:enabled`` to ``true`` on the following file in the frontend: 
+The integration needs VM Guest Agent monitoring to be enabled. To do so set ``:enabled`` to ``true`` on the following file in the frontend:
 
 ```default
 /var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf
 ```
 
-Then, in the same frontend server execute the following command to propagate the remote into the KVM hosts: 
+Then, in the same frontend server execute the following command to propagate the remote into the KVM hosts:
 
 ```shell
 onehost sync --force
@@ -157,14 +159,14 @@ To install the oVirtAPI module, configure the OpenNebula repository on the Backu
 
 The configuration file can be found at `/etc/one/ovirtapi-server.yml`. Change the following variables before starting the service:
 
-* `public_ip`: IP address that Veeam will use to communicate with the frontend node. 
+* `public_ip`: IP address that Veeam will use to communicate with the frontend node.
 * `endpoint_port`: Port used by the OpenNebula RPC endpoint (defaults to 2633).
 * `backup_freeze`: (Optional) Controls which filesystem freeze mode OpenNebula requests when performing backups initiated via the oVirtAPI/Veeam integration. Valid values are `NONE`, `AGENT`, and `SUSPEND`. For details on each mode see the Backup Modes section in the backup guide: [Backup Modes]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations/#backup-modes" %}}).
 
 In the same configuration file, configure the OneBEX port and the port range reserved for interactive restores:
 
 * `onebex_port`: Port where OneBEX listens on the hypervisors. It must match the port configured in `onebex-server.conf`.
-* `onebex_port_ssl`: Alternative port used for SSL. Optional, but recommended for secure Image Transfers. If used, it is mandatory to follow section 4.1 to enable this feature in the hosts. The recommended port is 13015. 
+* `onebex_port_ssl`: Alternative port used for SSL. Optional, but recommended for secure Image Transfers. If used, it is mandatory to follow section 4.1 to enable this feature in the hosts. The recommended port is 13015.
 * `port_min` and `port_max`: Range of available ports reserved for interactive restores.
 * `ports_path`: File where the oVirtAPI Server tracks ports used for interactive restores.
 
@@ -184,7 +186,7 @@ dnf install -y passenger mod_passenger mod_ssl
 
 {{< alert title="High availability" type="info" >}}
 
-If the ovirtapi module is going to be configured in High Availability mode, the ovirtapi package needs to be installed and configured in all frontends. Additionally, the `public_ip` must be the VIP address, which is also the one we will use when adding OpenNebula as a Virtualization Platform in Veeam. 
+If the ovirtapi module is going to be configured in High Availability mode, the ovirtapi package needs to be installed and configured in all frontends. Additionally, the `public_ip` must be the VIP address, which is also the one we will use when adding OpenNebula as a Virtualization Platform in Veeam.
 
 {{< /alert >}}
 
@@ -214,7 +216,7 @@ Depending on the distribution, you will need to create the configuration file on
 /etc/nginx/conf.d/one-ssl.conf          # Rhel/Alma
 ```
 
-The configuration file must look like the following. Change the `ssl_certificate` and `ssl_certificate_key` paths to the ones you generated for this host. If you used a different port than 13015 in the ovirtapi configuration for SSL, make sure to change it in this configuration too. 
+The configuration file must look like the following. Change the `ssl_certificate` and `ssl_certificate_key` paths to the ones you generated for this host. If you used a different port than 13015 in the ovirtapi configuration for SSL, make sure to change it in this configuration too.
 
 ```conf
 server {
@@ -254,11 +256,11 @@ server {
 }
 ```
 
-Finally, start/restart nginx to load the configuration file. You will need to repeat this workflow for each host. 
+Finally, start/restart nginx to load the configuration file. You will need to repeat this workflow for each host.
 
 ### 5. Add OpenNebula to Veeam
 
-This section will address the necessary steps to add OpenNebula as a Virtualization Platform into Veeam and deploy the necessary workers. 
+This section will address the necessary steps to add OpenNebula as a Virtualization Platform into Veeam and deploy the necessary workers.
 
 #### 5.1. Add the New Virtualization Manager
 
@@ -272,7 +274,7 @@ First you need to add OpenNebula as an oVirt platform. To do so, follow the [Add
 
 Next you need to deploy at least one KVM Worker. To do so, follow the [Adding Workers](https://helpcenter.veeam.com/docs/vbr/userguide/ovirt_workers_add.html?ver=13) Veeam guide with the following considerations:
 
-- If you are not using a DHCP service, you will need to use a static address. You can set it to any free IP address in the management network. 
+- If you are not using a DHCP service, you will need to use a static address. You can set it to any free IP address in the management network.
 - The DNS server used must be able to resolve the hostnames of all KVM hosts.
 
 {{< alert title="Hostnames and DNS" type="info" >}}
