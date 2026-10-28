@@ -37,18 +37,20 @@ Modern network adapters commonly implement Single Root I/O Virtualization (SR-IO
 
 Virtual Functions are typically used for cloud and NFV deployments because they provide excellent performance while allowing multiple virtual machines to share the same physical adapter.
 
-### eswitch modes
+### eSwitch modes
 
-OpenNebula supports **Legacy** and **Switchdev** operating modes on the PF eswitch. In each mode, the PF is configured according to the following parameters
+OpenNebula supports **Legacy** and **Switchdev** operating modes on the PF eSwitch. In each mode, the PF is configured according to the following parameters
 
 * `MAC`: Administrative MAC address assigned to the VF.
-* `MTU`: Maximum MTU cap for all the VFs. The PF kernel driver might allow the Guest to overcome this cap.
+* `MTU`: Requested MTU, applied according to the eSwitch mode as described below.
 * `TRUST`: Allows the VF within the Guest to operate in promiscuous mode.
 * `SPOOFCHK`: MAC spoofing filter for the administrative MAC. Separate from the virtual switching spoofing.
 
 #### Legacy Mode
 
 In Legacy mode, VLAN filtering can only be done with access vlans using the `VLAN_ID` parameter.
+
+OpenNebula raises the PF MTU when required and does not lower it for smaller requests. Whether the PF MTU limits its VFs depends on the hardware and PF driver. OpenNebula does not configure separate per-VM MTU caps in Legacy mode.
 
 #### Switchdev mode
 
@@ -59,6 +61,7 @@ In Switchdev mode, VF parameters are controlled by Host-side representor interfa
 * `CVLANS`
 * `QINQ_TYPE`
 
+OpenNebula also sets the VF representor MTU to the requested VM NIC MTU. This value can be raised or lowered independently while retaining the higher PF MTU. Its effect on VF traffic depends on the NIC, driver, and offload behavior.
 
 Note that `TRUST` and `SPOOFCHK` might fail depending on the kernel driver controlling the PF, even if setting them to the state they are currently already at. If the attribute is unsupported (refer to the SmartNIC documentation) then it should be ommited from the Virtual Network configuration, otherwise the whole configuration fails.
 
