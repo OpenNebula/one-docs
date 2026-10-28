@@ -38,6 +38,7 @@ To set up the backup server perform the following steps:
 - Copy the SSH public key of existing `oneadmin` from the OpenNebula Front-end to this new `oneadmin` account.
 - Check that `oneadmin` can SSH access the server **without being prompted for a password** from the Front-end and Hosts.
 - Create the following folder in the backup server `/var/lib/one/datastores`, change the ownership to `oneadmin`.
+- Create the folder `/var/lib/one-remotes` in the backup server, change the ownership to `oneadmin`. OpenNebula copies the restic binary into this folder from the Front-end.
 - Mount the storage volume in `/var/lib/one/datastores`.
 - Finally make sure **rsync** and **qemu-img** commands are installed in the backup server.
 
@@ -56,8 +57,9 @@ lsblk
 ```
 
 ```shell
-ls -ld /var/lib/one/datastores/
+ls -ld /var/lib/one/datastores/ /var/lib/one-remotes/
   drwxrwxr-x 2 oneadmin oneadmin 4096 Sep  3 12:04 /var/lib/one/datastores/
+  drwxr-xr-x 2 oneadmin oneadmin 4096 Sep  3 12:04 /var/lib/one-remotes/
 ```
 
 ### S3 Backend
@@ -228,7 +230,7 @@ Disk images backups are generated within a local folder in the Host where the VM
 
 However, it’s possible to modify this path to utilize alternative locations, such as different local volumes, or to opt out of using the shared VM folder entirely.
 
-To change the base folder to store disk backups for **all** Hosts, edit `/var/lib/one/remotes/etc/datastore.conf` and set the `BACKUP_BASE_PATH` variable. Please note this file uses shell syntax.
+To change the base folder to store disk backups for **all** Hosts, edit `/var/lib/one/remotes/etc/datastore/datastore.conf` and set the `BACKUP_BASE_PATH` variable. Please note this file uses shell syntax.
 
 ### Bridge List
 

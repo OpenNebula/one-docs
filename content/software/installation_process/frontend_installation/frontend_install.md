@@ -64,7 +64,7 @@ Available packages for OpenNebula clients, the Front-end and hypervisor nodes:
 | **opennebula-fireedge**                                                                                  | Next-generation GUI [FireEdge]({{% relref "fireedge#fireedge-setup" %}})                                                                             |
 | **opennebula-gate**                                                                                      | [OneGate]({{% relref "onegate_usage#onegate-overview" %}}) server which allows communication between VMs and OpenNebula                              |
 | **opennebula-flow**                                                                                      | [OneFlow]({{% relref "/product/virtual_machines_operation/multi-vm_workflows/overview#oneflow-overview" %}}) manages services and elasticity |
-| **opennebula-ks**                                                                                      | [OneKS]({{% relref "/platform_services/oneks/" %}}), OpenNebula's elastic Kubernetes service |
+| **opennebula-ks**                                                                                      | [OneKS]({{% relref "/platform_services/oneks/" %}}), OpenNebula's Managed Kubernetes service |
 | **opennebula-migration**                                                                                 | Database migration tools                                                                                                                             |
 | **opennebula-node-kvm**                                                                                  | Base setup for KVM hypervisor Node                                                                                                                   |
 | **opennebula-node-lxc**                                                                                  | Base setup for LXC hypervisor Node (*not on RHEL 7*)                                                                                                 |
@@ -325,29 +325,29 @@ The following table lists various significant directories on your OpenNebula Fro
 
 ### Firewall Configuration
 
-The list below shows the ports used by OpenNebula. These ports need to be open for OpenNebula to work properly:
+The list below shows the ports used by OpenNebula. These ports need to be open for OpenNebula to work properly. The source is the actor that initiates the connection:
 
-|     Port      | Description                                                  |
-|---------------|--------------------------------------------------------------|
-| `22`          | Front-end Host SSH server                                    |
-| `2474`        | OneFlow server                                               |
-| `2616`        | Next-generation GUI server FireEdge                          |
-| `2633`        | Main OpenNebula Daemon (oned), XML-RPC API endpoint          |
-| `4124`        | Monitoring daemon (both TCP/UDP)                             |
-| `5030`        | OneGate server                                               |
-| `29876`       | noVNC Proxy Server                                           |
-| `5900+`       | VNC Server ports on Hosts for VMs. See VNC_PORTS             |
-| `49152-49215` | Host-Host port communication required for KVM live migrations|
-| `3000`        | Grafana server (Web UI)                                      |
-| `9090`        | Prometheus server API/Web UI                                 |
-| `9093`        | Prometheus Alertmanager API                                  |
-| `9100`        | Prometheus Node Exporter (host metrics)                      |
-| `9104`        | Prometheus MySQL/MariaDB Exporter                            |
-| `9475`        | Prometheus Open vSwitch (OVS) Exporter                       |
-| `9633`        | Prometheus Smartctl (disk status) Exporter                   |
-| `9845`        | Prometheus LVM Exporter                                      |
-| `9925`        | Prometheus OpenNebula Exporter (oned API metrics)            |
-| `9926`        | Prometheus Libvirt Exporter (KVM hypervisor metrics)         |
+| Port          | Source           | Destination            | Description                                                                                   |
+|---------------|------------------|------------------------|-----------------------------------------------------------------------------------------------|
+| `22`          | Hypervisor       | Front-end              | Front-end Host SSH server                                                                    |
+| `22`          | Front-end        | Hypervisors            | Hypervisor SSH server                                                                        |
+| `2474`        | Users            | Front-end              | OneFlow server. This is only needed if OneFlow needs to be used through the CLI, not Sunstone |
+| `443`         | Users            | Front-end              | GUI server FireEdge. If not deployed with a reverse proxy, port is `2616`.                    |
+| `2633`        | Users            | Front-end              | Main OpenNebula Daemon (oned), XML-RPC API endpoint. Needed if direct API or CLI is needed    |
+| `4124`        | Hypervisors      | Front-end              | Monitoring daemon (both TCP/UDP)                                                              |
+| `5030`        | Hypervisors      | Front-end              | OneGate server, used by VMs through a transparent proxy                                       |
+| `5900+`       | Front-end        | Hypervisors            | VNC Server ports on Hosts for VMs. See `VNC_PORTS`                                            |
+| `49152-49215` | Hypervisors      | Hypervisors            | Host-Host port communication required for KVM live migrations                                 |
+| `3000`        | Users            | Front-end              | Grafana server (Web UI)                                                                       |
+| `9090`        | Users            | Front-end              | Prometheus server API/Web UI                                                                  |
+| `9093`        | Users, Front-end | Front-end              | Prometheus Alertmanager API                                                                   |
+| `9100`        | Front-end        | Front-end, Hypervisors | Prometheus Node Exporter (host metrics)                                                       |
+| `9104`        | Front-end        | Front-end              | Prometheus MySQL/MariaDB Exporter                                                             |
+| `9475`        | Front-end        | Hypervisors            | Prometheus Open vSwitch (OVS) Exporter                                                        |
+| `9633`        | Front-end        | Hypervisors            | Prometheus Smartctl (disk status) Exporter                                                    |
+| `9845`        | Front-end        | Hypervisors            | Prometheus LVM Exporter                                                                       |
+| `9925`        | Front-end        | Front-end              | Prometheus OpenNebula Exporter (oned API metrics)                                             |
+| `9926`        | Front-end        | Hypervisors            | Prometheus Libvirt Exporter (KVM hypervisor metrics)                                          |
 
 
 {{< alert title="Note" type="info" >}}

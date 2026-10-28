@@ -9,18 +9,18 @@ tags: ['AI','NVIDIA']
 weight: "2"
 ---
 
-This guide describes the common host configuration required to enable PCI passthrough in OpenNebula. These requirements apply independently of the type of PCI device being assigned to virtual machines. Device-specific configuration is covered in the corresponding guides.
-The guide assumes a Linux host running the OpenNebula KVM hypervisor. While the examples use common Linux utilities and a GRUB-based bootloader, equivalent procedures can be used with other Linux distributions and bootloaders.
+This guide describes the common Host configuration required to enable PCI passthrough in OpenNebula. These requirements apply independently of the type of PCI device being assigned to virtual machines. Device-specific configuration is covered in the corresponding guides.
+The guide assumes a Linux Host running the OpenNebula KVM hypervisor. While the examples use common Linux utilities and a GRUB-based bootloader, equivalent procedures can be used with other Linux distributions and bootloaders.
 
 ## Prerequisites
 
-Before configuring PCI passthrough, verify that the host satisfies the following requirements:
+Before configuring PCI passthrough, verify that the Host satisfies the following requirements:
 * Hardware-assisted virtualization enabled in the system firmware.
 * An IOMMU implementation supported by the processor:
     * Intel VT-d
     * AMD-Vi
     * Arm SMMUv3
-* OpenNebula host packages installed, including KVM, QEMU, and libvirt support.
+* OpenNebula Host packages installed, including KVM, QEMU, and libvirt support.
 
 ---
 
@@ -55,7 +55,7 @@ amd_iommu=on iommu=pt
 {{% tab header="ARM"%}}
 Most Arm platforms enable the SMMU automatically. Refer to the platform documentation if additional kernel parameters are required.
 
-After modifying the kernel command line, regenerate the bootloader configuration using the appropriate command for your Linux distribution and reboot the host.
+After modifying the kernel command line, regenerate the bootloader configuration using the appropriate command for your Linux distribution and reboot the Host.
 {{% /tab %}}
 {{< /tabpane >}}
 
@@ -93,7 +93,7 @@ arm-smmu-v3 ...
 
 ## Step 2. Configure VFIO Device Binding
 
-PCI devices assigned to virtual machines must be managed by a VFIO driver instead of their native host driver. OpenNebula supports any mechanism that binds devices to VFIO. The recommended approach is to use the **driverctl** utility, which provides persistent per-device driver overrides using the Linux kernel `driver_override` interface.
+PCI devices assigned to virtual machines must be managed by a VFIO driver instead of their native Host driver. OpenNebula supports any mechanism that binds devices to VFIO. The recommended approach is to use the **driverctl** utility, which provides persistent per-device driver overrides using the Linux kernel `driver_override` interface.
 
 For Linux Containers, the PCI device driver shouldn’t be changed. Skip this section entirely if using passthrough in Linux Containers.
 
@@ -163,7 +163,7 @@ driverctl set-override 0000:43:00.0 vfio-pci
 Many PCI devices expose multiple functions. For example, GPUs often expose both a graphics controller and an audio controller. Repeat the command for every PCI function that will be assigned to the virtual machine. The override is persistent and is automatically restored after reboot.
 
 {{< alert title="Note" type="primary" >}}
-Once a device is bound to a VFIO driver, it is no longer available to the host operating system until the override is removed.
+Once a device is bound to a VFIO driver, it is no longer available to the Host operating system until the override is removed.
 {{< /alert >}}
 
 ### Verification
@@ -194,7 +194,7 @@ driverctl list-overrides
 
 ### Removing an Override
 
-To restore the default host driver:
+To restore the default Host driver:
 
 ```shell
 driverctl unset-override 0000:43:00.0
@@ -256,7 +256,7 @@ hugepages=1024 default_hugepagesz=1G hugepagesz=1G
 
 The appropriate Huge Page size depends on the processor architecture and workload. On x86 platforms, common Huge Page sizes are 2 MB and 1 GB.
 
-Regenerate the bootloader configuration using the appropriate command for your Linux distribution and reboot the host.
+Regenerate the bootloader configuration using the appropriate command for your Linux distribution and reboot the Host.
 
 **Notes**:
 
@@ -279,7 +279,7 @@ grep Huge /proc/meminfo
 
 ## Step 4. Configure PCI Monitoring
 
-OpenNebula discovers PCI devices through the host monitoring subsystem. PCI monitoring is disabled by default to avoid exposing unnecessary hardware resources.
+OpenNebula discovers PCI devices through the Host monitoring subsystem. PCI monitoring is disabled by default to avoid exposing unnecessary hardware resources.
 
 Before PCI devices can be assigned to virtual machines, configure the monitoring subsystem to discover the devices intended for passthrough.
 
@@ -337,9 +337,11 @@ device_name:
   - "Virtual Function"
 ```
 
+This example monitors only VFs. To [select VFs by their parent PF]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#selecting-virtual-functions-by-physical-function" %}}), adjust the filters to include both the PF and its VFs. A network PF with enabled VFs remains visible for monitoring but is not eligible for whole-device passthrough.
+
 ### Override Monitoring at Cluster or Host Level
 
-The system-wide configuration can be overridden for individual clusters or hosts using the corresponding template attributes:
+The system-wide configuration can be overridden for individual Clusters or Hosts using the corresponding template attributes:
 
 | Parameter | Description |
 |-----------|-------------|
@@ -347,14 +349,14 @@ The system-wide configuration can be overridden for individual clusters or hosts
 | PCI_SHORT_ADDRESS | (List) Filters by short PCI address bus:device.function |
 | PCI_DEVICE_NAME | (List) Filters by the PCI device name reported by the Host  |
 
-This allows different clusters to expose different classes of PCI devices while sharing the same frontend configuration.
+This allows different Clusters to expose different classes of PCI devices while sharing the same frontend configuration.
 
 {{< alert title="Recommendation" type="primary" >}}
-Configure the narrowest possible filters to expose only devices intended for passthrough.{{< /alert >}}
+Configure the narrowest possible filters to expose the required passthrough devices and any parent PFs needed for VF selection.{{< /alert >}}
 
 ### Synchronize the Monitoring Probes
 
-After modifying `pci.conf`, synchronize the updated monitoring probes to all hosts (run as oneadmin):
+After modifying `pci.conf`, synchronize the updated monitoring probes to all Hosts (run as oneadmin):
 
 ```shell
 onehost sync --force
@@ -386,13 +388,13 @@ Verify that:
 * Driver information is correct.
 * NUMA information is reported.
 * SR-IOV Virtual Functions are detected, when applicable.
-* Device availability matches the host configuration.
+* Device availability matches the Host configuration.
 
 If a device does not appear:
 
 * Verify that it matches the configured monitoring filters.
-* Verify that pci.conf has been synchronized to the hosts.
-* Verify that the host has completed a monitoring cycle.
+* Verify that pci.conf has been synchronized to the Hosts.
+* Verify that the Host has completed a monitoring cycle.
 * Verify that the device is visible using lspci.
 * Verify that the device is bound to the appropriate VFIO driver.
 * Verify that the OpenNebula monitoring service is running.
@@ -409,11 +411,11 @@ Before deploying virtual machines using PCI passthrough, verify that the followi
 * &#10004; PCI monitoring configured
 * &#10004; PCI devices discovered by OpenNebula
 
-Once these checks are complete, the host is ready to assign PCI devices to virtual machines.
+Once these checks are complete, the Host is ready to assign PCI devices to virtual machines.
 
 ## Next Steps
 
-After completing the host configuration:
+After completing the Host configuration:
 
 * Continue with the [Generic PCI Devices Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/generic_devices/" %}}) to assign storage controllers, USB controllers, audio devices, and other generic PCI devices.
 * Continue with the [Network Interfaces Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces/" %}}) to configure PCI passthrough or SR-IOV network devices.

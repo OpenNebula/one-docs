@@ -39,7 +39,7 @@ The LVM Datastore does not need CLVM configured in your cluster. The drivers ref
 
 In case of rebooting the virtualization Host, the volumes need to be activated to have them available for the hypervisor again. There are two possibilities:
 * If the [node package]({{% relref "kvm_node_installation#kvm-node" %}}) is installed, they will be automatically activated by the `/etc/cron.d/opennebula-node` cron file.
-* Otherwise, manual activation will be required. For each volume device of the Virtual Machines running on the Host before the reboot, run `lvchange -K -ay $DEVICE`. You can also run on the Host the activation script `/var/tmp/one/tm/lvm/activate`, located in the remote scripts.
+* Otherwise, manual activation will be required. For each volume device of the Virtual Machines running on the Host before the reboot, run `lvchange -K -ay $DEVICE`. You can also run on the Host the activation script `/var/lib/one-remotes/tm/lvm/activate`, located in the remote scripts.
 
 Virtual Machine disks are symbolic links to the block devices. However, additional VM files like checkpoints or deployment files are stored under `/var/lib/one/datastores/<id>`. To prevent filling local disks, allocate plenty of space for these files.
 
@@ -136,6 +136,24 @@ The following attributes can be set in `/var/lib/one/remotes/etc/datastore/datas
 {{< alert title="Warning" type="warning" >}}
 Before adding a new filesystem to the `SUPPORTED_FS` list, verify that the corresponding `mkfs.<fs_name>` command is available in all Hosts including the front-end and hypervisors. The system will revert to the default filesystem if an unsupported one is detected.
 {{< /alert >}}
+
+## Live Migration
+
+When live-migrating a KVM VM with disks managed by `TM_MAD=lvm`, OpenNebula pauses the VM on the source Host before flushing its disk writes and activating its volumes on the destination Host. The VM remains paused throughout the memory transfer and resumes on the destination only after its volumes have been deactivated on the source. This prevents guest writes from being lost because of stale LVM thin-pool metadata on the destination.
+
+{{< alert title="Note" type="info" >}}
+The pause interrupts guest execution and application availability for the duration of the migration. VMs with large memory allocations or slow migration links may remain paused for longer. Plan migrations accordingly when workloads require continuous availability.
+{{< /alert >}}
+
+## Changing Persistency Mode
+
+Persistent and non-persistent images use different Logical Volume layouts in the LVM SAN datastore. Changing the `PERSISTENT` attribute directly does not convert the underlying LVM layout.
+
+To convert a persistent image to a non-persistent one:
+
+1. Instantiate a VM using the persistent image.
+2. Use the **Save As** operation on the VM disk to create a new non-persistent image in the LVM Image Datastore.
+3. Once the operation completes, verify that the new image is in the `READY` state.
 
 <a id="datastore-internals"></a>
 

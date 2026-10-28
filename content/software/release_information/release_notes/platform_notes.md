@@ -17,7 +17,11 @@ This page will show you the specific considerations when using an OpenNebula clo
 This is the list of the individual platform components that have been through the complete [OpenNebula Quality Assurance and Certification Process](https://github.com/OpenNebula/one/wiki/Quality-Assurance).
 
 {{< alert title="Note" type="info" >}}
-For supported deployments, hypervisor nodes in the same Cluster must run the same operating system and version. In High Availability Front-end deployments, all Front-end nodes must also run the same operating system and version. Homogeneous deployments require matching both the OS distribution and its release version.{{< /alert >}}
+In all supported deployment scenarios, each OpenNebula Cloud must run the same OpenNebula version across all OpenNebula Servers (all Front-end and Hypervisor Nodes). In addition:
+
+* For supported Single Front-end and High-Availability Front-end deployments, all OpenNebula Servers within the same Zone must run the same OS and version, and should have the same patch or minor release version to avoid differences in behaviour across OpenNebula Servers.
+
+* For supported Federated deployments, each individual Zone's OpenNebula Servers may run a different OS, provided that the Front-end and Hypervisor Nodes within each specific Zone run the same OS and version and, ideally, the same patch or minor release version.{{< /alert >}}
 
 ## Certified Components Version
 

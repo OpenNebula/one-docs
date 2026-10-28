@@ -29,7 +29,6 @@ For a quick view of any changes in configuration file options in maintenance rel
 - `MONITORING_INTERVAL_DATASTORE`: Time in seconds between each Datastore monitoring cycle.
 - `MONITORING_INTERVAL_MARKET`: Time in seconds between each Marketplace monitoring cycle.
 - `DS_MONITOR_VM_DISK`: Number of `MONITORING_INTERVAL_DATASTORE` intervals to monitor VM disks. `0` to disable. Only applies to `fs` and `fs_lvm` datastores.
-- `SCRIPTS_REMOTE_DIR`: Remote path to store the monitoring and VM management script.
 - `PORT`: Port where `oned` will listen for XML-RPC calls.
 - `LISTEN_ADDRESS`: Host IP to listen for XML-RPC calls (default: all IPs).
 - `HOSTNAME`: Hostname to use instead of autodetect it. This hostname is used to connect to Front-end during driver operations.
@@ -83,8 +82,6 @@ MONITORING_INTERVAL_DATASTORE = 300
 MONITORING_INTERVAL_MARKET    = 600
 
 #DS_MONITOR_VM_DISK = 10
-
-SCRIPTS_REMOTE_DIR=/var/tmp/one
 
 PORT = 2633
 
@@ -870,6 +867,17 @@ Other logs are also available in Journald, use the following command to show the
 ```default
 # journalctl -u opennebula.service
 ```
+
+### Action Queue Warning
+
+OpenNebula drivers log a warning when the number of pending actions is greater than the number of threads available to process them. For example:
+
+```default
+Action queue size (4) is greater than the number of threads (1)
+Action queue size (5) is greater than the number of threads (1)
+```
+
+This warning indicates that actions are waiting in the driver queue. It does not mean that they have failed.If the warning is emitted continuously or the queue keeps growing, check the affected driver and its underlying service for slow operations. If the Front-end and the managed infrastructure have enough capacity, you can also increase the driver's thread count with the `-t` option in the corresponding `*_MAD` `ARGUMENTS` attribute in `/etc/one/oned.conf`. Restart the OpenNebula Daemon after changing the configuration.
 
 {{< alert title="Important" type="info" >}}
 See [Troubleshooting]({{% relref "troubleshooting#troubleshoot-additional" %}}) guide to learn about the logging of individual OpenNebula Daemon subsystems and drivers.{{< /alert >}}

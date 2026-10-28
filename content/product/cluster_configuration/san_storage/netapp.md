@@ -275,7 +275,7 @@ Both Full and Incremental backups are supported by NetApp. For Full Backups, a s
 Incremental backups are created by first creating the base full backup from the snapshot however this snapshot is then retained on the NetApp Volume rather than deleted after the backup is taken. When another incremental backup is taken, a new snapshot is taken and both the previous and current snapshots are cloned to new Volumes where they are attached to the host and compared for differences at the block level. These block changes are stored in a sparse QCOW2 file backed by the previous snapshot, which is then uploaded to the backup datastore.  The old snapshot is then removed while the new one is retained. When incremental backups are restored, the backing chain is rebuilt before restoring the backup to the VM disk.
 
 {{< alert title="Note" type="info" >}}
-You can configure the block size ( Defualt 2097152 B / 2 MB ) for incremental backups by modifing the file at `/var/tmp/one/etc/tm/san/backup.conf`
+You can configure the block size ( Defualt 2097152 B / 2 MB ) for incremental backups by modifing the file at `/var/lib/one-remotes/etc/tm/san/backup.conf`
 {{< /alert >}}
 
 {{< alert title="Warning" type="warning" >}}
