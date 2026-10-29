@@ -10,7 +10,7 @@ tags: ['AI']
 
 Machine Learning (ML) training and inference are resource-intensive tasks that often require the full power of a dedicated GPU. PCI passthrough allows a Virtual Machine (VM) to have exclusive access to a physical GPU, delivering bare-metal performance for the most demanding AI workloads.
 
-In this guide you will find the details to deploy and configure an AI-ready OpenNebula cloud using the [OneDeploy](https://github.com/OpenNebula/one-deploy) tool. It covers the general process of preparing an environment for demanding AI workloads by leveraging PCI passthrough for GPUs such as the NVIDIA H100 and L40S.
+In this guide you will find the details to deploy and configure an AI-ready OpenNebula cloud using the [OneDeploy](https://github.com/OpenNebula/one-deploy) tool. It covers the general process of preparing an environment for demanding AI workloads by leveraging PCI passthrough for GPUs such as the NVIDIA H100 and L40S. 
 
 ## Prerequisites
 
@@ -134,7 +134,7 @@ Once the prerequisites including configurations and dependencies are met, procee
 
 ### Configure a Network Bridge for the VMs
 
-The following AI Factory deployment examples assume the configuration of a bridge for the VMs to attach to. You will normally find the network configuration of your server in `/etc/netplan/` named something like `50-cloud-init.yaml`. You may need to update this file.
+The following AI Factory deployment examples assume the configuration of a bridge for the VMs to attach to. You will normally find the network configuration of your server in `/etc/netplan/` named something like `50-cloud-init.yaml`. You may need to update this file. 
 
 The following example configures a Linux bridge named `br0` on the OpenNebula Host. The physical interface `enp33s0f0np0` is enslaved to the bridge, and the Host IP address is assigned to `br0` rather than directly to the physical NIC. OpenNebula bridged Virtual Networks attach VM NICs to this Host bridge, allowing VMs to communicate through the underlying physical network.
 
@@ -178,7 +178,7 @@ Update the following parameters with values corresponding to your setup:
 * `10.0.1.18/24`: Static IP address of the OpenNebula Host.
 * `10.0.1.1`: Default gateway for that subnet.
 * `10.0.1.1` and `1.1.1.1`: Example DNS resolvers.
-* `enp33s0f1np1` / `enp33s0f2np2`: These are additional network interfaces of the Host used in this example that are not utilized by OpenNebula.
+* `enp33s0f1np1` / `enp33s0f2np2`: These are additional network interfaces of the Host used in this example that are not utilized by OpenNebula. 
 
 After adjusting the Netplan configuration run the following command to update the network:
 
@@ -187,10 +187,10 @@ sudo netplan apply
 ```
 
 {{< alert title="Warning!" type="warning" >}}
-When you update the Netplan configuration with `netplan apply`, improper configuration could break your network connectivity and render the server inaccessible through SSH. Revise the updated configuration carefully before applying it and ensure you have alternative access to the server (e.g. through IPMI or physical access to the server) in case of errors.
-{{< /alert >}}
+When you update the Netplan configuration with `netplan apply`, improper configuration could break your network connectivity and render the server inaccessible through SSH. Revise the updated configuration carefully before applying it and ensure you have alternative access to the server (e.g. through IPMI or physical access to the server) in case of errors. 
+{{< /alert >}}  
 
-The necessity of a bridge depends upon your network topology. Consult the [OpenNebula Networking System Documentation]({{% relref "product/cluster_configuration/networking_system/" %}}) for details or ask your system administrator for advice.
+The necessity of a bridge depends upon your network topology. Consult the [OpenNebula Networking System Documentation]({{% relref "product/cluster_configuration/networking_system/" %}}) for details or ask your system administrator for advice. 
 
 ### Configure the Inventory for PCI Passthrough
 
