@@ -345,7 +345,7 @@ This example monitors only VFs. To [select VFs by their parent PF]({{% relref "p
 
 The system-wide configuration can be overridden for individual Clusters or Hosts using the corresponding template attributes:
 
-| Parameter | Description |
+| **Parameter** | **Description** |
 |-----------|-------------|
 | PCI_FILTER | (List) Filters by PCI vendor:device:class patterns (same as for lspci) |
 | PCI_SHORT_ADDRESS | (List) Filters by short PCI address bus:device.function |
