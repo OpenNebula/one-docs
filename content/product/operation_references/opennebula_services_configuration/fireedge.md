@@ -27,7 +27,7 @@ The OpenNebula FireEdge server provides a **next-generation web-management inter
 - **FireEdge Sunstone**: new iteration of Sunstone written in React/Redux. Accessible through the following URL:
 
 {{< alert title="Warning" type="warning" >}}
-In version 7.4.2 you must update the `guacamole` configuration block in the `/etc/one/fireedge-server.conf` file in order to use all supported protocol features. Without this change RDP, VNC or SSH may not function properly. See [connection defaults]({{% relref "fireedge#fireedge-guacamole-connections" %}}) and [resolved issues]({{% relref "software/release_information/release_notes/resolved_issues_742.md#configure-guacamole-connection-defaults-and-enforced-settings" %}})for reference.
+In version 7.4.2 you must update the `guacamole` configuration block in the `/etc/one/fireedge-server.conf` file in order to use all supported protocol features. Without this change RDP, VNC or SSH may not function properly. See [connection defaults]({{% relref "fireedge#fireedge-guacamole-connections" %}}) and [resolved issues]({{% relref "software/release_information/release_notes/resolved_issues_742.md#configure-guacamole-connection-defaults-and-enforced-settings" %}}) for reference.
 {{< /alert >}}
 
 ```default
