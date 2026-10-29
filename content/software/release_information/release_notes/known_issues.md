@@ -12,7 +12,169 @@ weight: "6"
 
 <!--# Known Issues -->
 
-A complete list of [known issues for OpenNebula is maintained here](https://github.com/OpenNebula/one/issues?q=is%3Aopen%20is%3Aissue%20type%3ABug%20label%3A%22Status%3A%20Accepted%22).
+A complete list of [known issues for OpenNebula is maintained here](https://github.com/OpenNebula/one/issues?q=is%3Aopen%20is%3Aissue%20type%3ABug%20label%3A%22Status%3A%20Accepted%22%20milestone%3A%22Release%207.4%22).
 
 This page will be updated with relevant information about bugs affecting OpenNebula, as well as possible workarounds until a patch is officially published.
 
+## Upgrade Overwrites the Host Fencing Script
+
+Upgrading the OpenNebula packages [overwrites a customized](https://github.com/OpenNebula/one/issues/7996) `/var/lib/one/remotes/hooks/ft/fence_host.sh` with the stock template. If the Host error hook is configured with fencing enabled, fencing (and thus the hook) will fail after the upgrade until the file is restored.
+
+The pre-upgrade file is preserved in the configuration backup taken automatically during the package upgrade, and can be restored from there:
+
+```default
+cp /var/lib/one/backups/config/<timestamp>-v<previous version>/var/lib/one/remotes/hooks/ft/fence_host.sh \
+   /var/lib/one/remotes/hooks/ft/fence_host.sh
+```
+
+## Live Storage Migration with NVRAM VMs Failure (Fixed 7.4.1)
+
+During Live Storage Migration the virtual machine goes through a series of commands in virsh: dumpxml, define, undefine. If the virtual machine has NVRAM there is a [silent uncaught failure](https://github.com/OpenNebula/one/issues/7770):
+
+```default
+error: Requested operation is not valid: cannot undefine domain with nvram
+```
+
+The migrate pattern should be aware of NVRAM existence and properly use --keep-nvram during the undefine operation.
+
+## LVM Datastores
+
+### Leftover Backup Snapshots Can Cause Data Loss During Migration (Fixed 7.4.2)
+
+LVM VMs created before OpenNebula 7.4.2 can retain snapshot overlays after a backup operation, particularly after an interactive backup. Migrating an affected VM while its thin pool is active on the destination Host can load stale thin-pool metadata and cause guest data loss.
+
+Before migrating one of these VMs, verify that its LVM thin pools are inactive on the destination Host. VMs created with OpenNebula 7.4.2 or later are not affected. After upgrading to 7.4.2, running a new backup of an older VM also removes the leftover snapshots on the source Host and prevents this issue.
+
+### Image Imports Use `/var/tmp`
+
+The LVM Image Datastore driver [ignores `STAGING_DIR`](https://github.com/OpenNebula/one/issues/8114) during image imports and writes the temporary image to `/var/tmp/one_img<ID>.<random>`. When `BRIDGE_LIST` is configured, this path is on the selected bridge Host. Otherwise, it is on the Front-end Host. This affects both RAW and QCOW2 image imports.
+
+Before importing an image, ensure that `/var/tmp` on the applicable Host has enough free space for the complete image. A failed or interrupted download can leave a partial `one_img...` file in `/var/tmp`. After confirming that no image import is using it, remove the stale file to recover the occupied space.
+
+## Frontend HA
+
+- [ARP tables are not updated automatically](https://github.com/OpenNebula/one/issues/7920) when a leader is elected in Red Hat Enterprise Linux OS variants.
+
+## Veeam Backups
+
+### Worker Creation
+
+Worker creation and restores [will fail](https://github.com/OpenNebula/one/issues/7949) if the VM with ID 0 doesn't exist in the database.
+
+It can be fixed by changing the line ~145 in the `/usr/lib/one/ovirtapi-server/controllers/disk_controller.rb` file (located in the oVirtAPI backup server). Then restart the apache2/httpd service.
+
+```
+vm_id = disk_hash['IMAGE']['VM_ID'].to_i
+if backup_mode == 'incremental' && vm_id > 0    # <-- Add this vm_id check
+    vm = VmController.get_one_vms(client, :vm_id => vm_id)
+    vm_hash = vm.to_hash
+    backup_ids = vm_hash.dig('VM', 'BACKUPS', 'BACKUP_IDS', 'ID')
+```
+
+### Missing `interactive` Datastore Configuration
+
+The required `interactive` [datastore driver configuration](https://github.com/OpenNebula/one/issues/8074) in `/etc/one/oned.conf`. In this case, Veeam worker deployment can fail with:
+
+```default
+Datastore driver 'interactive' not available
+```
+
+Ensure that the `interactive` driver is included in the `DATASTORE_MAD` driver list under the `-d` option:
+
+```default
+DATASTORE_MAD = [
+    EXECUTABLE = "one_datastore",
+    ARGUMENTS  = "-t 15 -d dummy,fs,lvm,ceph,dev,iscsi_libvirt,restic,rsync,netapp,purefa,virtiofs,interactive -s dummy,lvm,shared,ssh,local,ceph,fs_lvm,fs_lvm_ssh,qcow2,netapp,purefa"
+]
+```
+
+The corresponding `DS_MAD_CONF` entry must also be present:
+
+```default
+DS_MAD_CONF = [
+    NAME = "interactive",
+    REQUIRED_ATTRS = "",
+    PERSISTENT_ONLY = "NO",
+    DATASTORE_CAPACITY_CHECK = "NO"
+]
+```
+
+After modifying `/etc/one/oned.conf`, restart OpenNebula:
+
+```shell
+systemctl restart opennebula
+```
+
+## Sunstone
+
+### OneForm User Inputs Form Malfunction
+
+When provisioning a Cluster with OneForm through Sunstone, fields in the **User Inputs** step cannot be entered normally because a user interface bug causes the form content to be re-rendered after each change.
+
+As a workaround, enter the values into a notepad or code editor then copy and paste each complete value into each field in a single operation.
+
+### VM Actions Missing in the Group Admin View
+
+Some VM actions are not displayed in the **Group Admin** view because the config file `/etc/one/fireedge/sunstone/views/groupadmin/vm-tab.yaml` uses legacy action names.
+
+As a workaround, edit the file and substitute the legacy action names as follows, preserving all other existing entries:
+
+```diff
+ actions:
+-  migrate_live: true
++  live-migrate: true
+
+ info-tabs:
+   info:
+     capacity_panel:
+       actions:
+-        resize_capacity: true
++        resize: true
+   storage:
+     actions:
+-      attach_disk:
+-        enabled: true
++      disk-attach-image: true
++      disk-attach-volatile: true
+       disk-detach: true
+-      snapshot_disk_create: true
+-      snapshot_disk_rename: true
+-      snapshot_disk_revert: true
+-      snapshot_disk_delete: true
+-      resize_disk: true
+-      disk_saveas:
+-        enabled: true
++      disk-snapshot-create: true
++      disk-snapshot-rename: true
++      disk-snapshot-revert: true
++      disk-snapshot-delete: true
++      disk-resize: true
++      disk-saveas: true
+   network:
+     actions:
+-      attach_nic: true
+-      detach_nic: true
+-      update_nic: true
+-      attach_secgroup: true
+-      detach_secgroup: true
++      nic-attach: true
++      nic-detach: true
++      nic-update: true
++      sg-attach: true
++      sg-detach: true
+   sched_actions:
+     actions:
+-      sched_action_create: true
+-      sched_action_update: true
+-      sched_action_delete: true
++      sched-add: true
++      sched-update: true
++      sched-delete: true
+       charter_create: true
+```
+
+After updating and saving the file, restart the FireEdge service:
+
+```shell
+systemctl restart opennebula-fireedge
+```
