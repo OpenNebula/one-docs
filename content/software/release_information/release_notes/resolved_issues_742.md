@@ -91,6 +91,7 @@ The following issues have been solved in 7.4.2:
 * Fix failed LVM backups leaving snapshots active, and clean up obsolete snapshots from previous failed backups [#8226](https://github.com/OpenNebula/one/issues/8226).
 * Fix Veeam backups failing after a persistent LVM VM disk is resized because oVirtAPI reports its outdated image size [#8203](https://github.com/OpenNebula/one/issues/8203).
 * Fix `VM_EXEC` reaper blocked by stale PID file [#8232](https://github.com/OpenNebula/one/issues/8232).
+* Fix loss of VM firewall rules when a Security Group update is immediately followed by a commit [#8143](https://github.com/OpenNebula/one/issues/8143).
 
 ---
 
