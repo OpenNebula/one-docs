@@ -26,7 +26,7 @@ You must enable this feature in your server's BIOS/UEFI. Refer to your hardware 
 
 ### Kernel Configuration (Manual Step)
 
-The OneDeploy tool automates many aspects of the configuration, but you must manually enable IOMMU support in the kernel on each hypervisor node. This is a critical step that OneDeploy does not perform automatically.
+OneDeploy checks that IOMMU support is active on each hypervisor node, but does not configure the kernel boot parameters. If necessary, update them manually before deployment.
 
 Before modifying the kernel parameters, check if IOMMU is already active by inspecting the `/sys/kernel/iommu_groups/` directory on the hypervisor.
 
@@ -36,18 +36,28 @@ ls /sys/kernel/iommu_groups/
 
 If this directory exists and contains subdirectories (e.g., `0/`, `1/`, etc.), IOMMU is likely active. An empty directory or a non-existent directory indicates that IOMMU is not correctly enabled in your kernel or BIOS/UEFI.
 
-If IOMMU is not active, add the appropriate parameter to the kernel's boot command line:
+Kernel requirements depend on the CPU and kernel configuration:
 
-*   For Intel CPUs: `intel_iommu=on`
-*   For AMD CPUs: `amd_iommu=on`
+* For Intel CPUs: add `intel_iommu=on` if IOMMU is not already enabled by default.
+* For AMD CPUs: the kernel normally enables IOMMU once AMD-Vi is enabled in the BIOS/UEFI. No additional enable parameter is usually required.
 
-For a detailed guide on how to perform this kernel configuration, refer to the [NVIDIA GPU Passthrough documentation]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough.md" %}}).
+Optionally, add `iommu=pt` to use identity mappings for devices used by the Host. This option is not required for PCI passthrough.
+
+For details, refer to the [Host Configuration Guide]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration.md#enable-the-iommu-in-the-kernel" %}}).
 
 ### Hypervisor Preparation
 
 For a correct performance of the PCI passthrough with NVIDIA GPUs, start with a clean state on the hypervisor nodes regarding NVIDIA drivers.
 
 Avoid pre-installing NVIDIA drivers on the hypervisor nodes before running the OneDeploy playbook. An active proprietary NVIDIA driver will claim the GPU and prevent other drivers, like `vfio-pci`, from binding to the device. This will block the PCI passthrough configuration from succeeding.
+
+### Hostname Resolution
+
+Every Front-end and hypervisor Host must resolve the system hostname of every Front-end through DNS or `/etc/hosts`.
+
+For a static inventory without DNS, use the servers' existing hostnames as inventory names and set `ensure_hosts: true` under `all.vars`. OneDeploy then adds missing `/etc/hosts` entries using each server's `ansible_host` address and inventory name. Existing entries are preserved.
+
+Both `ensure_hosts` and `ensure_hostname` default to `false`. Setting `ensure_hostname: true` changes each server's system hostname to its inventory name. Enable it only if you intend to rename the servers.
 
 ### Setting Up OneDeploy
 
@@ -78,12 +88,6 @@ The OneDeploy tool is a collection of Ansible playbooks that streamline the inst
     apt install pipx
     ```
 
-    Install Ansible:
-
-    ```bash
-    pipx install 'ansible-core<2.16'
-    ```
-
     Install [Hatch](https://hatch.pypa.io/latest/):
 
     ```bash
@@ -98,27 +102,31 @@ The OneDeploy tool is a collection of Ansible playbooks that streamline the inst
     make requirements
     ```
 
-    To inspect the new virtual environment run:
-
-    ```bash
-    hatch env show
-    ```
-
-    Spawn a new shell in the virtual environment:
-
-    ```bash
-    hatch shell
-    ```
-
-    After activating the virtual environment, your terminal prompt should begin with `(one-deploy)`:
-
-    ```bash
-    (one-deploy) root@vgpu1:~/one-deploy#
-    ```
-
-    You should run the AI Factory deployment in the following step in a terminal with this virtual environment activated.
+    `make requirements` creates the Hatch environment and installs OneDeploy's dependencies, including Ansible. The deployment commands use this environment automatically. You can optionally run `hatch shell` to use the environment interactively.
 
     For guidance on how to execute the playbooks in different cloud architectures, consult the [Playbook Usage Guide](https://github.com/OpenNebula/one-deploy/wiki/sys_use).
+
+3.  **Configure SSH access**:
+
+    The inventories below use `ansible_user: root`. Configure passwordless root SSH from the control node to every Host in the inventory, including the Front-end and hypervisors.
+
+    Reuse an existing root SSH key if available. If root does not have an SSH key, create one:
+
+    ```shell
+    ssh-keygen -t ed25519 -f /root/.ssh/id_ed25519 -N "" -q
+    ```
+
+    Copy the public key to each remote Host, using its `ansible_host` address in place of `<HOST_IP>`. If you use an existing key, adjust the public key path:
+
+    ```shell
+    ssh-copy-id -i /root/.ssh/id_ed25519.pub root@<HOST_IP>
+    ```
+
+    If the control node is also a Host in the inventory, authorize the key locally as well. Root must be able to connect through that Host's `ansible_host` address:
+
+    ```shell
+    cat /root/.ssh/id_ed25519.pub >> /root/.ssh/authorized_keys
+    ```
 
 ## AI Factory Deployment
 
@@ -186,9 +194,9 @@ The necessity of a bridge depends upon your network topology. Consult the [OpenN
 
 ### Configure the Inventory for PCI Passthrough
 
-Use a dedicated inventory file to define the general cloud architecture, where you specify PCI devices for passthrough. The following example corresponds to a topology with the OpenNebula Front-end and GPU nodes on separate physical Hosts. If you wish to deploy the OpenNebula Front-end and GPU nodes on the same Host, see [Single Node Deployment]({{% relref "/solutions/ai_factory_blueprints/deployment/cd_on-premises/#single-node-deployment" %}}) below.
+Use a dedicated inventory file to define the general cloud architecture, where you specify PCI devices for passthrough. The following example corresponds to a topology with the OpenNebula Front-end and GPU nodes on separate physical Hosts. If you wish to deploy the OpenNebula Front-end and GPU nodes on the same Host, see [Single Host Deployment]({{% relref "solutions/ai_factory_blueprints/deployment/cd_on-premises.md#single-host-deployment" %}}) below.
 
-Below is an example inventory file, which you can adapt for your environment. This example is based on the `inventory/pci_passthrough.yml` file found in the `one-deploy` repository. For more details on the PCI passthrough roles, refer to the [PCI Passthrough wiki page](https://github.com/OpenNebula/one-deploy/wiki/pci_passthrough).
+Below is an example inventory file, which you can adapt for your environment. For the available PCI device settings, see the [OneDeploy PCI role variables](https://github.com/OpenNebula/one-deploy/blob/master/roles/helper/pci/README.md#role-variables).
 
 The inventory file shown below is a basic example, and you should adjust it to match your specific cloud architecture, including your frontend and node IP addresses, network configuration (`vn`), and datastore setup (`ds`). For more detailed information on configuring OneDeploy for different architectures like shared or Ceph-based storage, refer to the official [OneDeploy Wiki](https://github.com/OpenNebula/one-deploy/wiki).
 
@@ -227,10 +235,14 @@ node:
       ansible_host: 192.168.122.3
       pci_devices:
         - address: "0000:09:00.0" # NVIDIA H100 GPU
+          set_driver: vfio-pci
+          unlisted: false
     l40s-node:
       ansible_host: 192.168.122.4
       pci_devices:
         - address: "0000:0a:00.0" # NVIDIA L40S GPU
+          set_driver: vfio-pci
+          unlisted: false
     standard-node:
       ansible_host: 192.168.122.5
 ```
@@ -238,22 +250,26 @@ node:
 Key configuration parameters to setup:
 
 * `ansible_host`: The IP address of each server used for either the Front-end or GPU nodes.
-* `pci_devices`: This is a list of PCI devices to be configured for passthrough on that node.
-  *  `address`: The full PCI address of the device (e.g., `"0000:09:00.0"`). Note that you must provide the full address, as short addresses are not supported by this OneDeploy feature.
+* `pci_devices`: The list of PCI devices to configure on that node.
+  * `address`: The full PCI address, including the domain, in the format `domain:bus:slot.function` (e.g., `"0000:09:00.0"`). Short addresses are not supported.
+  * `set_driver`: The driver that `driverctl` binds the device to. Set it to `vfio-pci` for passthrough. The default, `omit`, leaves the driver unchanged.
+  * `unlisted`: Controls inclusion in the Host's `PCI_SHORT_ADDRESS` filter. Set it to `false` to include the GPU. The default is `true`.
+
+In this example, OneDeploy does not configure a per-Host PCI filter for `standard-node`. With the default global filter (`*:*`), this Host may list PCI devices other than GPUs.
 
 To find the address of the GPU on each node you can use the following command:
 
 ```bash
-lspci -nn | grep -i nvidia
+lspci -Dnn | grep -i nvidia
 ```
 
 This command should output something similar to the following:
 
 ```
-c1:00.0 3D controller [0302]: NVIDIA Corporation AD102GL [L40S] [10de:26b9] (rev a1)
+0000:c1:00.0 3D controller [0302]: NVIDIA Corporation AD102GL [L40S] [10de:26b9] (rev a1)
 ```
 
-The relevant address for the inventory file in this case is `"0000.c1:00.0"`. You may need to prepend `0000.`.
+Use the full address `"0000:c1:00.0"` from this output in the inventory. The domain and bus are separated by a colon.
 
 ### Single Host Deployment
 
@@ -293,31 +309,26 @@ node:
       ansible_host: 10.0.1.18
       pci_devices:
         - address: "0000:c1:00.0" # NVIDIA L40S GPU
+          set_driver: vfio-pci
+          unlisted: false
         - address: "0000:01:00.0" # NVIDIA L40S GPU
+          set_driver: vfio-pci
+          unlisted: false
 ```
 
 This inventory outlines a topology with the OpenNebula Front-end and a KVM hypervisor node deployed on the same physical Host with PCI passthrough to 2 separate GPU devices. Adjust the inventory according to your topology.
 
-In order to successfully deploy the above inventory example with OneDeploy on a single Host, it is necessary to configure local root SSH access. As the root user (`sudo -i`), run the following commands prior to commencing the OneDeploy deployment:
-
-```shell
-ssh-keygen -t ed25519 -f /root/.ssh/id_ed25519 -N "" -q
-# If your root user already has an SSH key, omit the above command
-# and adjust the public key file location below accordingly
-cat /root/.ssh/id_ed25519.pub >> /root/.ssh/authorized_keys
-```
-
 ### Run the Deployment
 
-Once your inventory file is ready (e.g. saved as `inventory/ai_factory.yml`), run OneDeploy to provision your OpenNebula cloud (remember to activate the virtual environment):
+Once your inventory file is ready (e.g. saved as `inventory/ai_factory.yml`), run OneDeploy from its repository directory to provision your OpenNebula cloud:
 
 ```shell
 make I=inventory/ai_factory.yml
 ```
 
-When you enable the PCI passthrough feature in your inventory, OneDeploy handles all the necessary configuration steps. On each hypervisor node, OneDeploy prepares the specified GPUs for passthrough by binding them to the required `vfio-pci` driver. It also ensures the correct permissions are set so that OpenNebula manages the devices.
+For each GPU configured with `set_driver: vfio-pci`, OneDeploy uses `driverctl` to bind the device to the passthrough driver.
 
-Simultaneously, on the OpenNebula Front-end, OneDeploy configures the monitoring system to recognize these GPUs and intelligently updates each Host's template. This ensures that the GPUs are always correctly identified by OpenNebula, even if hardware addresses change, providing a stable and reliable passthrough setup.
+For GPUs configured with `unlisted: false`, OneDeploy adds their addresses to the Host's `PCI_SHORT_ADDRESS` filter so OpenNebula can discover them for VM assignment.
 
 ## Post-Deployment Verification
 
