@@ -122,7 +122,7 @@ You need:
 * A **public Virtual Network**, used as the gateway to the Internet and for external K8s Cluster connectivity.
 * A **private Virtual Network**, used for internal communication between K8s Cluster nodes.
 
-Both networks must be available in the OpenNebula Cluster selected for the K8s Cluster. The private network connects the cluster router, control plane, and workers, so it must span every Host where these VMs can run. A bridge without an uplink only connects VMs on the same Host. For deployments across multiple Hosts, use a shared Layer 2 network, such as [802.1Q]({{% relref "product/cluster_configuration/networking_system/vlan" %}}) or [VXLAN]({{% relref "product/cluster_configuration/networking_system/vxlan" %}}).
+Both networks must be available in the OpenNebula Cluster selected for the K8s Cluster. The private network connects the Cluster router, control plane, and workers, so it must span every Host where these VMs can run. A bridge without an uplink only connects VMs on the same Host. For deployments across multiple Hosts, use a shared Layer 2 network, such as [802.1Q]({{% relref "product/cluster_configuration/networking_system/vlan" %}}) or [VXLAN]({{% relref "product/cluster_configuration/networking_system/vxlan" %}}).
 
 For example, if you have already configured a bridge named `br-private` connected to the same private Layer 2 network on every Host, save the following template as `oneks-private.net`:
 
@@ -140,7 +140,7 @@ AR = [
 ]
 ```
 
-Replace the bridge name, subnet, and address range with values for your deployment. Choose a subnet that does not overlap the public network. Leave `GATEWAY` unset: OneKS supplies the cluster router's private IP as the gateway for the nodes. See [Bridged Networking]({{% relref "product/cluster_configuration/networking_system/bridged" %}}) for Host bridge configuration.
+Replace the bridge name, subnet, and address range with values for your deployment. Choose a subnet that does not overlap the public network. Leave `GATEWAY` unset: OneKS supplies the Cluster router's private IP as the gateway for the nodes. See [Bridged Networking]({{% relref "product/cluster_configuration/networking_system/bridged" %}}) for Host bridge configuration.
 
 Create the network as `oneadmin`, replacing `<CLUSTER_ID>` with the target OpenNebula Cluster ID:
 
@@ -153,7 +153,7 @@ Use the returned Virtual Network ID as the private network when checking readine
 ### Network MTU
 
 {{< alert title="Warning" type="warning" >}}
-On OpenNebula 7.4.1, provisioning can fail on VM networks with an MTU below 1500 because the TProxy veth devices retain MTU 1500. This can cause repeated control-plane VM creation and a `PROVISIONING_FAILURE` state. VXLAN over a standard 1500-byte underlay is one affected configuration.
+Provisioning can fail on VM networks with an MTU below 1500 because the TProxy veth devices retain MTU 1500. This can cause repeated control-plane VM creation and a `PROVISIONING_FAILURE` state. VXLAN over a standard 1500-byte underlay is one affected configuration.
 
 Use VM networks with MTU 1500 on an underlay that supports the additional encapsulation overhead. If you use a lower VM network MTU, a temporary workaround is to set both TProxy veth devices to the bridge MTU on every Host where the network is used:
 
@@ -186,7 +186,7 @@ Use OpenNebula ACL rules to grant the required permissions for the target users 
 
 kubectl must be installed on the Front-end Host machine. On a Linux machine, run the following command to install kubectl:
 
-1. Download kubectl for the Kubernetes minor version you plan to deploy. The following example downloads the latest patch release for Kubernetes 1.35; replace `1.35` if you select a different cluster version. Kubernetes supports kubectl within one minor version of the API server; using the same minor version avoids version-skew warnings. See the [Kubernetes version-skew policy](https://kubernetes.io/releases/version-skew-policy/#kubectl).
+1. Download kubectl for the Kubernetes minor version you plan to deploy. The following example downloads the latest patch release for Kubernetes 1.35; replace `1.35` if you select a different Cluster version. Kubernetes supports kubectl within one minor version of the API server; using the same minor version avoids version-skew warnings. See the [Kubernetes version-skew policy](https://kubernetes.io/releases/version-skew-policy/#kubectl).
 
 {{< tabpane text=true right=false >}}
 {{% tab header="**Architecture**:" disabled=true /%}}

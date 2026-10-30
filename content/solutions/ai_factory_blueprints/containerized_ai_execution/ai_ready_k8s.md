@@ -30,7 +30,7 @@ Before starting this tutorial, you must complete the AI-factory deployment with 
 
 ### OneKS Configuration
 
-You must also complete the installation and configuration of OneKS. Complete all the steps in the [Basic Configuration Guide for OneKS]({{% relref "platform_services/oneks/getting_started/basic_configuration/" %}}), including [creating the private Virtual Network]({{% relref "platform_services/oneks/getting_started/basic_configuration.md#public-and-private-virtual-networks" %}}). For deployments across multiple Hosts, the private network must connect all Hosts where the cluster router, control plane, and workers can run. Review the [network MTU requirements and workaround]({{% relref "platform_services/oneks/getting_started/basic_configuration.md#network-mtu" %}}) before provisioning, especially when using VXLAN over a 1500-byte underlay.
+You must also complete the installation and configuration of OneKS. Complete all the steps in the [Basic Configuration Guide for OneKS]({{% relref "platform_services/oneks/getting_started/basic_configuration/" %}}), including [creating the private Virtual Network]({{% relref "platform_services/oneks/getting_started/basic_configuration.md#public-and-private-virtual-networks" %}}). For deployments across multiple Hosts, the private network must connect all Hosts where the Cluster router, control plane, and workers can run. Review the [network MTU requirements and workaround]({{% relref "platform_services/oneks/getting_started/basic_configuration.md#network-mtu" %}}) before provisioning, especially when using VXLAN over a 1500-byte underlay.
 
 After completing the basic configuration guide, run the [OneKS readiness check tool]({{% relref "platform_services/oneks/management/monitoring_and_troubleshooting/#oneks-readiness-check" %}}) on the command line of your OpenNebula Front-end to ensure your deployment is properly configured for OneKS provisioning:
 
@@ -106,7 +106,7 @@ sudo systemctl restart opennebula-ks.service
 
 ## Step 2: Install kubectl and Helm
 
-If you haven't already installed kubectl during the OneKS setup, download the latest patch release for Kubernetes 1.35, matching the cluster version used in Step 3:
+If you haven't already installed kubectl during the OneKS setup, download the latest patch release for Kubernetes 1.35, matching the Cluster version used in Step 3:
 
 {{< tabpane text=true right=false >}}
 {{% tab header="**Architecture**:" disabled=true /%}}
@@ -154,7 +154,7 @@ Then follow the steps of the Create Kubernetes Cluster wizard:
 alt="OneKS name Cluster" align="center" width="90%" mb="20px" >}}
 
 * **General**: Name the Cluster, e.g. `gpu-cluster`
-* **Select Cluster**: Select the OpenNebula Cluster to host your K8s Cluster (`0 default` if you have followed the standard installation)
+* **Select Cluster**: Select the OpenNebula Cluster to Host your K8s Cluster (`0 default` if you have followed the standard installation)
 * **Select a public virtual network**: Select the public Virtual Network you previously created (must have internet access)
 * **Select a private virtual network**: Select the private Virtual Network you previously created
 * **K8s version**: Select version 1.35.0
