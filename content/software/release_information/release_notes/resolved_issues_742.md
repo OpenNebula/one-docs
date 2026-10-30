@@ -29,6 +29,7 @@ Include a high level description and a link to the documentation explaining the 
 * Add support for VDDK transport in OneSwap delta migrations, allowing `--delta` and `--vddk` to be used together. vSAN-backed VMs are not supported [#7903](https://github.com/OpenNebula/one/issues/7903).
 * Add [SR-IOV PF/VF relationship monitoring]({{% relref "product/cluster_configuration/hosts_and_clusters/hosts.md#host-pci-devices" %}}) and [VF selection by parent PF]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#selecting-virtual-functions-by-physical-function" %}}) through `PF_IFNAME` or `PF_ADDRESS`. Select the same PF to keep VFs together (affinity), or different PFs to spread them (anti-affinity). Monitoring also reports passthrough eligibility and the network PF e-switch mode when available [#7671](https://github.com/OpenNebula/one/issues/7671), [#7619](https://github.com/OpenNebula/one/issues/7619).
 * Add the [`SSH_PUBLIC_KEY_EXCLUSIVE`]({{% relref "product/operation_references/configuration_references/template#template-context" %}}) context attribute to the Linux contextualization packages. The keys from `SSH_PUBLIC_KEY` are now kept in a managed block of the user `authorized_keys` file, which is synchronized with the context every time the VM is contextualized, so keys removed from the context are also removed from the guest. With `SSH_PUBLIC_KEY_EXCLUSIVE=YES` any key outside of the managed block is removed as well [one-apps#387](https://github.com/OpenNebula/one-apps/issues/387).
+* Improve OneBEX NBD and RBD exporters to detect and report zero-filled and sparse (hole) regions during full backups [#8230](https://github.com/OpenNebula/one/issues/8230).
 
 ## Resolved Issues
 
@@ -91,6 +92,7 @@ The following issues have been solved in 7.4.2:
 * Fix Veeam backups failing after a persistent LVM VM disk is resized because oVirtAPI reports its outdated image size [#8203](https://github.com/OpenNebula/one/issues/8203).
 * Fix invalid `host-passthrough` option appearing in the Sunstone machine type selector [#8018](https://github.com/OpenNebula/one/issues/8018).
 * Fix incompatible target system datastores being offered in the Sunstone VM live migration dialog by filtering them to match the source `TM_MAD` [#8164](https://github.com/OpenNebula/one/issues/8164).
+* Fix `VM_EXEC` reaper blocked by stale PID file [#8232](https://github.com/OpenNebula/one/issues/8232).
 
 ---
 
