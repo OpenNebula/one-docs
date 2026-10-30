@@ -24,12 +24,12 @@ Include a high level description and a link to the documentation explaining the 
 * Add a [log warning when a driver's action queue is larger than its number of threads]({{% relref "product/operation_references/opennebula_services_configuration/oned.md#action-queue-warning" %}}).
 * Add a [OneKS Application Catalog]({{% relref "platform_services/oneks/management/k8s_cluster_lifecycle_management/#managing-applications" %}}) of validated Helm-based applications that can be deployed on runing K8s Clusters and managed through Sunstone or the CLI, with application lifecycle monitoring and configurable installation options [#7302](https://github.com/OpenNebula/one/issues/7302).
 * Enable [OneDRS balancing by storage space]({{% relref "product/cloud_system_administration/scheduler/drs#load-balancing-objectives" %}}) through the `STORAGE_WEIGHT` Cluster attribute, configurable in Sunstone. Administrators can combine datastore space utilization with other balancing objectives, such as disk I/O, to optimize storage distribution across the Cluster [#7930](https://github.com/OpenNebula/one/issues/7930).
-* Allow [attaching and detaching disks on Virtual Machines in the `HOLD` state]({{% relref "product/virtual_machines_operation/virtual_machines/vm_instances.md#disk-hotplugging" %}}).
 * Add [automatic bridge management for switchdev SR-IOV networks]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#switchdev-mode" %}}) through `BRIDGE="switchdev"` with the `ovswitch` driver. OpenNebula creates or reuses a dedicated Open vSwitch bridge for each parent Physical Function (PF) and connects the PF and its VF representors, allowing one Virtual Network to serve VFs from multiple PFs without separate per-PF network definitions [#7960](https://github.com/OpenNebula/one/issues/7960).
 * Add the OneSwap [`--machine` and `--cpu-features`]({{% relref "software/migration_from_vmware/oneswap.md#customizing-the-created-vm-template" %}}) options to set the KVM machine type and CPU model features for a migration profile. Configure them in `/etc/one/oneswap.yaml` or on the command line; `--cpu-features` requires `--cpu-model` [#8112](https://github.com/OpenNebula/one/issues/8112).
 * Add support for VDDK transport in OneSwap delta migrations, allowing `--delta` and `--vddk` to be used together. vSAN-backed VMs are not supported [#7903](https://github.com/OpenNebula/one/issues/7903).
 * Add [SR-IOV PF/VF relationship monitoring]({{% relref "product/cluster_configuration/hosts_and_clusters/hosts.md#host-pci-devices" %}}) and [VF selection by parent PF]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#selecting-virtual-functions-by-physical-function" %}}) through `PF_IFNAME` or `PF_ADDRESS`. Select the same PF to keep VFs together (affinity), or different PFs to spread them (anti-affinity). Monitoring also reports passthrough eligibility and the network PF e-switch mode when available [#7671](https://github.com/OpenNebula/one/issues/7671), [#7619](https://github.com/OpenNebula/one/issues/7619).
 * Add the [`SSH_PUBLIC_KEY_EXCLUSIVE`]({{% relref "product/operation_references/configuration_references/template#template-context" %}}) context attribute to the Linux contextualization packages. The keys from `SSH_PUBLIC_KEY` are now kept in a managed block of the user `authorized_keys` file, which is synchronized with the context every time the VM is contextualized, so keys removed from the context are also removed from the guest. With `SSH_PUBLIC_KEY_EXCLUSIVE=YES` any key outside of the managed block is removed as well [one-apps#387](https://github.com/OpenNebula/one-apps/issues/387).
+* Improve OneBEX NBD and RBD exporters to detect and report zero-filled and sparse (hole) regions during full backups [#8230](https://github.com/OpenNebula/one/issues/8230).
 
 ## Resolved Issues
 
@@ -89,6 +89,11 @@ The following issues have been solved in 7.4.2:
 * Fix exposure of the restic datastore password in image error messages and logs when backup operations fail.
 * Fix OneKS deployment failures when using an image datastore other than the default datastore [#8081](https://github.com/OpenNebula/one/issues/8081).
 * Fix OneKS deployment failures when using virtual networks not owned by the user [#8128](https://github.com/OpenNebula/one/issues/8128).
+* Fix failed LVM backups leaving snapshots active, and clean up obsolete snapshots from previous failed backups [#8226](https://github.com/OpenNebula/one/issues/8226).
+* Fix Veeam backups failing after a persistent LVM VM disk is resized because oVirtAPI reports its outdated image size [#8203](https://github.com/OpenNebula/one/issues/8203).
+* Fix invalid `host-passthrough` option appearing in the Sunstone machine type selector [#8018](https://github.com/OpenNebula/one/issues/8018).
+* Fix incompatible target system datastores being offered in the Sunstone VM live migration dialog by filtering them to match the source `TM_MAD` [#8164](https://github.com/OpenNebula/one/issues/8164).
+* Fix `VM_EXEC` reaper blocked by stale PID file [#8232](https://github.com/OpenNebula/one/issues/8232).
 
 ---
 
@@ -214,4 +219,64 @@ With the following content:
     - title: Instantiate Service Template
       path: /service/instantiate/
       Component: CreateService
+```
+### Configure Guacamole connection defaults and enforced settings
+
+In `/etc/one/fireedge-server.conf`, add the following top-level `guacamole` section alongside the existing `guacd` section. The `guacd` section configures the daemon connection while `guacamole` configures VNC, SSH and RDP console connections. These settings replace connection defaults previously defined in FireEdge code and its Guacamole bridge.
+
+If a `guacamole` section already exists, merge the settings into it without creating duplicate keys.
+
+```yaml
+guacamole:
+  common:
+    width: 1024
+    height: 768
+    dpi: 96
+
+  rdp:
+    port: 3389
+    # Disable audio and microphone
+    disable-audio: true
+    enable-audio-input: false
+
+    # Display and performance
+    resize-method: display-update
+    enable-wallpaper: false
+    enable-theming: false
+    enable-font-smoothing: false
+    enable-full-window-drag: false
+    enable-desktop-composition: false
+    enable-menu-animations: false
+    disable-bitmap-caching: false
+    disable-offscreen-caching: false
+    disable-glyph-caching: false
+
+  vnc:
+    port: 5900
+
+  ssh:
+    port: 22
+
+  # Server policy, applied whenever a Guacamole connection opens
+  enforced:
+    common:
+      disable-copy: true
+      disable-paste: true
+      enable-sftp: false
+    rdp:
+      # Requires NLA credentials and a trusted guest certificate
+      security: nla
+      ignore-cert: true
+      enable-drive: false
+      enable-printing: false
+```
+
+Connection settings are applied in the following order, with later values overriding earlier ones: `common`, the protocol section (`vnc`, `ssh` or `rdp`), VM/NIC settings, browser settings, and `enforced`. Browser overrides are limited to display and terminal settings and `rangeports`. Within `enforced`, protocol settings override `enforced.common`. VM/NIC and browser settings cannot override enforced values.
+
+The block above disables clipboard copy/paste and SFTP for all three protocols. For RDP, it also disables drive and printer redirection, requires Network Level Authentication (NLA), and enables certificate validation. Ensure that RDP guests support NLA, provide the required credentials, and use certificates trusted by the Guacamole daemon. With `enforced.rdp.security: nla`, the VM's `RDP_SECURITY` setting cannot select another security mode; change the enforced policy if a different mode is required.
+
+Restart FireEdge after saving the configuration:
+
+```shell
+systemctl restart opennebula-fireedge
 ```
