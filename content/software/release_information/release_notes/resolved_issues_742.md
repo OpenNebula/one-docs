@@ -90,6 +90,8 @@ The following issues have been solved in 7.4.2:
 * Fix OneKS deployment failures when using virtual networks not owned by the user [#8128](https://github.com/OpenNebula/one/issues/8128).
 * Fix failed LVM backups leaving snapshots active, and clean up obsolete snapshots from previous failed backups [#8226](https://github.com/OpenNebula/one/issues/8226).
 * Fix Veeam backups failing after a persistent LVM VM disk is resized because oVirtAPI reports its outdated image size [#8203](https://github.com/OpenNebula/one/issues/8203).
+* Fix invalid `host-passthrough` option appearing in the Sunstone machine type selector [#8018](https://github.com/OpenNebula/one/issues/8018).
+* Fix incompatible target system datastores being offered in the Sunstone VM live migration dialog by filtering them to match the source `TM_MAD` [#8164](https://github.com/OpenNebula/one/issues/8164).
 * Fix `VM_EXEC` reaper blocked by stale PID file [#8232](https://github.com/OpenNebula/one/issues/8232).
 
 ---
