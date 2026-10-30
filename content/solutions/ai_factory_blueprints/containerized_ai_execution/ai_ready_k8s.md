@@ -30,7 +30,9 @@ Before starting this tutorial, you must complete the AI-factory deployment with 
 
 ### OneKS Configuration
 
-You must also complete the installation and configuration of OneKS. Complete all the steps in the [Basic Configuration Guide for OneKS]({{% relref "platform_services/oneks/getting_started/basic_configuration/" %}}). After completing the basic configuration guide, run the [OneKS readiness check tool]({{% relref "platform_services/oneks/management/monitoring_and_troubleshooting/#oneks-readiness-check" %}}) on the command line of your OpenNebula Front-end to ensure your deployment is properly configured for OneKS provisioning:
+You must also complete the installation and configuration of OneKS. Complete all the steps in the [Basic Configuration Guide for OneKS]({{% relref "platform_services/oneks/getting_started/basic_configuration/" %}}), including [creating the private Virtual Network]({{% relref "platform_services/oneks/getting_started/basic_configuration.md#public-and-private-virtual-networks" %}}). For deployments across multiple Hosts, the private network must connect all Hosts where the cluster router, control plane, and workers can run. Review the [network MTU requirements and workaround]({{% relref "platform_services/oneks/getting_started/basic_configuration.md#network-mtu" %}}) before provisioning, especially when using VXLAN over a 1500-byte underlay.
+
+After completing the basic configuration guide, run the [OneKS readiness check tool]({{% relref "platform_services/oneks/management/monitoring_and_troubleshooting/#oneks-readiness-check" %}}) on the command line of your OpenNebula Front-end to ensure your deployment is properly configured for OneKS provisioning:
 
 ```shell
 oneks check --opennebula-cluster <CLUSTER_ID> --public-network <PUBLIC_NET_ID> --private-network <PRIVATE_NET_ID>
@@ -60,7 +62,7 @@ The diagram below depicts the top-level architecture of the NVIDIA Dynamo framew
 
 ## Step 1: Configure the OneKS NodeGroup Template to Use the GPU
 
-For OneKS worker nodes to access the GPU, it is necessary to adjust the default node group template with the details of the GPU. Firstly, on the command line of the OpenNebula Front-end, run the following command to retrieve the GPU parameters:
+For OneKS worker nodes to access the GPU, it is necessary to adjust the default node group template with the details of the GPU. On a GPU Host, run the following command to retrieve the GPU parameters:
 
 ```shell
 lspci -nn | grep -i nvidia
@@ -78,7 +80,7 @@ The key details in this example are:
 * **Device**: 26b9
 * **Vendor**: 10de
 
-After taking a note of these values from your GPU, open the node group template at the following location with a text or code editor:
+On the OpenNebula Front-end, open the node group template with a text editor:
 
 ```default
 /var/lib/one/oneks/nodegroups/general/templates/node.erb
@@ -104,22 +106,22 @@ sudo systemctl restart opennebula-ks.service
 
 ## Step 2: Install kubectl and Helm
 
-If you haven't already installed kubectl during the OneKS setup, download it:
+If you haven't already installed kubectl during the OneKS setup, download the latest patch release for Kubernetes 1.35, matching the cluster version used in Step 3:
 
 {{< tabpane text=true right=false >}}
 {{% tab header="**Architecture**:" disabled=true /%}}
 
 {{% tab header="x86-64"%}}
 ```shell
-curl -LO "https://dl.k8s.io/release/$(curl -L -s \
-https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+curl -fLO "https://dl.k8s.io/release/$(curl -fsSL \
+https://dl.k8s.io/release/stable-1.35.txt)/bin/linux/amd64/kubectl"
 ```
 {{% /tab %}}
 
 {{% tab header="ARM64"%}}
 ```shell
-curl -LO "https://dl.k8s.io/release/$(curl -L -s \
-https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
+curl -fLO "https://dl.k8s.io/release/$(curl -fsSL \
+https://dl.k8s.io/release/stable-1.35.txt)/bin/linux/arm64/kubectl"
 ```
 {{% /tab %}}
 {{< /tabpane >}}
@@ -210,6 +212,8 @@ Check that kubectl can access the Cluster:
 ```shell
 kubectl get nodes
 ```
+
+Wait until both the control-plane node and the worker node report `Ready` before continuing. A OneKS node group can be `RUNNING` while the worker is still initializing Kubernetes. If a node is missing or shows `NotReady`, wait and repeat the command.
 
 The output should look similar to the following:
 
@@ -341,7 +345,7 @@ spec:
 Then apply and watch:
 
 ```shell
-kubectl apply -f vector-add.yaml & kubectl get pods -l job-name=cuda-vectoradd -w
+kubectl apply -f vector-add.yaml && kubectl get pods -l job-name=cuda-vectoradd -w
 ```
 
 ```default

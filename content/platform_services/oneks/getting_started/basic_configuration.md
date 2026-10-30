@@ -65,12 +65,38 @@ Example configuration:
 
 The entries expose OneGate on port `5030`, OpenNebula XML-RPC on port `2633`, and the OneKS API on port `10780`. Replace `192.168.150.1` with the Front-end IP address used to connect to the Hosts and save the file. When the monitor is enabled, configure `:server` / `:bind` in `oneks-server.conf` with this Front-end address, or with `0.0.0.0`, so OneKS accepts the forwarded connections. On the Front-end command line, as the `oneadmin` system user, sync the `OpenNebulaNetwork.conf` file with the hypervisor Hosts by running `onehost sync -f`.
 
-## Start the OneKS Service
+Before provisioning K8s Clusters, set `ONEGATE_ENDPOINT` in `/etc/one/oned.conf` to the TProxy address:
 
-Once the above configuration steps are complete, start the OneKS service on the command line of your OpenNebula Front-end:
+```default
+ONEGATE_ENDPOINT = "http://169.254.16.9:5030"
+```
+
+Restart OpenNebula to apply the change:
 
 ```shell
-sudo systemctl start opennebula-ks.service
+sudo systemctl restart opennebula.service
+```
+
+The link-local endpoint makes guest contextualization configure the route to `169.254.16.9`. This route is also needed to reach the OpenNebula and OneKS APIs through TProxy. Leaving the endpoint set to the Front-end IP can cause the OneKS readiness check to time out on the private network.
+
+For installations managed with OneDeploy, set both values in the inventory variables for the Front-end so that subsequent OneDeploy runs preserve the configuration:
+
+```yaml
+gate_endpoint: http://169.254.16.9:5030
+gate_tproxy:
+  - { ":service_port": 5030, ":remote_addr": 192.168.150.1, ":remote_port": 5030 }
+  - { ":service_port": 2633, ":remote_addr": 192.168.150.1, ":remote_port": 2633 }
+  - { ":service_port": 10780, ":remote_addr": 192.168.150.1, ":remote_port": 10780 }
+```
+
+Replace `192.168.150.1` with the same Front-end address used above. Without these inventory settings, re-running OneDeploy can reset the endpoint and proxy list.
+
+## Start the OneKS Service
+
+Once the above configuration steps are complete, enable and start the OneKS service on the command line of your OpenNebula Front-end. Enabling the service also starts it automatically after a Front-end reboot:
+
+```shell
+sudo systemctl enable --now opennebula-ks.service
 ```
 
 Verify that the OneKS service is running:
@@ -78,7 +104,7 @@ Verify that the OneKS service is running:
 sudo systemctl status opennebula-ks.service
 ```
 
-The service should be in the active (`running`) state. If the service is in a failed state, try restarting it:
+The service should be in the active (`running`) state. If you changed `oneks-server.conf` while OneKS was running, or the service is in a failed state, restart it:
 ```shell
 sudo systemctl restart opennebula-ks.service
 ```
@@ -95,6 +121,51 @@ You need:
 
 * A **public Virtual Network**, used as the gateway to the Internet and for external K8s Cluster connectivity.
 * A **private Virtual Network**, used for internal communication between K8s Cluster nodes.
+
+Both networks must be available in the OpenNebula Cluster selected for the K8s Cluster. The private network connects the cluster router, control plane, and workers, so it must span every Host where these VMs can run. A bridge without an uplink only connects VMs on the same Host. For deployments across multiple Hosts, use a shared Layer 2 network, such as [802.1Q]({{% relref "product/cluster_configuration/networking_system/vlan" %}}) or [VXLAN]({{% relref "product/cluster_configuration/networking_system/vxlan" %}}).
+
+For example, if you have already configured a bridge named `br-private` connected to the same private Layer 2 network on every Host, save the following template as `oneks-private.net`:
+
+```default
+NAME = "oneks-private"
+VN_MAD = "bridge"
+BRIDGE = "br-private"
+NETWORK_ADDRESS = "10.20.0.0"
+NETWORK_MASK = "255.255.255.0"
+
+AR = [
+  TYPE = "IP4",
+  IP = "10.20.0.10",
+  SIZE = "100"
+]
+```
+
+Replace the bridge name, subnet, and address range with values for your deployment. Choose a subnet that does not overlap the public network. Leave `GATEWAY` unset: OneKS supplies the cluster router's private IP as the gateway for the nodes. See [Bridged Networking]({{% relref "product/cluster_configuration/networking_system/bridged" %}}) for Host bridge configuration.
+
+Create the network as `oneadmin`, replacing `<CLUSTER_ID>` with the target OpenNebula Cluster ID:
+
+```shell
+onevnet create oneks-private.net --cluster <CLUSTER_ID>
+```
+
+Use the returned Virtual Network ID as the private network when checking readiness and creating the K8s Cluster.
+
+### Network MTU
+
+{{< alert title="Warning" type="warning" >}}
+On OpenNebula 7.4.1, provisioning can fail on VM networks with an MTU below 1500 because the TProxy veth devices retain MTU 1500. This can cause repeated control-plane VM creation and a `PROVISIONING_FAILURE` state. VXLAN over a standard 1500-byte underlay is one affected configuration.
+
+Use VM networks with MTU 1500 on an underlay that supports the additional encapsulation overhead. If you use a lower VM network MTU, a temporary workaround is to set both TProxy veth devices to the bridge MTU on every Host where the network is used:
+
+```shell
+sudo ip link set <bridge>b mtu <MTU>
+sudo ip netns exec one_tproxy_<bridge> ip link set <bridge>a mtu <MTU>
+```
+
+Replace `<bridge>` with each public or private network bridge name and `<MTU>` with that bridge's MTU. For example, for a `br-private` bridge with MTU 1450, set `br-privateb` on the Host and `br-privatea` inside namespace `one_tproxy_br-private`.
+
+The commands require existing TProxy devices, which are created when a VM activates the network; creating the Virtual Network alone does not create them. Apply the workaround before retrying provisioning, and repeat it after Host reboots or whenever the devices are recreated.
+{{< /alert >}}
 
 ## User Permissions
 
@@ -115,43 +186,27 @@ Use OpenNebula ACL rules to grant the required permissions for the target users 
 
 kubectl must be installed on the Front-end Host machine. On a Linux machine, run the following command to install kubectl:
 
-1. Download the latest release with the following command:
+1. Download kubectl for the Kubernetes minor version you plan to deploy. The following example downloads the latest patch release for Kubernetes 1.35; replace `1.35` if you select a different cluster version. Kubernetes supports kubectl within one minor version of the API server; using the same minor version avoids version-skew warnings. See the [Kubernetes version-skew policy](https://kubernetes.io/releases/version-skew-policy/#kubectl).
 
 {{< tabpane text=true right=false >}}
 {{% tab header="**Architecture**:" disabled=true /%}}
 
 {{% tab header="x86-64"%}}
 ```shell
-curl -fsSL "https://dl.k8s.io/release/$(curl -L -s \
-https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+curl -fLO "https://dl.k8s.io/release/$(curl -fsSL \
+https://dl.k8s.io/release/stable-1.35.txt)/bin/linux/amd64/kubectl"
 ```
 {{% /tab %}}
 
 {{% tab header="ARM64"%}}
 ```shell
-curl -LO "https://dl.k8s.io/release/$(curl -L -s \
-https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
+curl -fLO "https://dl.k8s.io/release/$(curl -fsSL \
+https://dl.k8s.io/release/stable-1.35.txt)/bin/linux/arm64/kubectl"
 ```
 {{% /tab %}}
 {{< /tabpane >}}
 
-To download a specific version of kubectl, replace `$(curl -L -s https://dl.k8s.io/release/stable.txt)` in the above commands with the version number. E.g. for version 1.36.0:
-
-{{< tabpane text=true right=false >}}
-{{% tab header="**Architecture**:" disabled=true /%}}
-
-{{% tab header="x86-64"%}}
-```shell
-curl -fsSL "https://dl.k8s.io/release/v1.36.0/bin/linux/amd64/kubectl"
-```
-{{% /tab %}}
-
-{{% tab header="ARM64"%}}
-```shell
-curl -LO "https://dl.k8s.io/release/v1.36.0/bin/linux/arm64/kubectl"
-```
-{{% /tab %}}
-{{< /tabpane >}}
+To download a specific patch release, replace `$(curl -fsSL https://dl.k8s.io/release/stable-1.35.txt)` in the commands above with its version number, including the `v` prefix, such as `v1.35.0`.
 
 2. Install kubectl:
 
@@ -169,7 +224,7 @@ mv ./kubectl ~/.local/bin/kubectl
 ```
 {{< /alert >}}
 
-3. Ensure the version you have installed is up-to-date or the expected version:
+3. Verify that the installed client has the expected version:
 
 ```shell
 kubectl version --client
