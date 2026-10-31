@@ -35,6 +35,7 @@ Include a high level description and a link to the documentation explaining the 
 
 The following issues have been solved in 7.4.2:
 
+* Fix the `datastore.conf` path in the backup documentation for configuring `BACKUP_BASE_PATH` [#8150](https://github.com/OpenNebula/one/issues/8150).
 * Fix guest data loss during live migration of VMs using the `lvm` transfer driver or using `fs_lvm_ssh` with `LVM_THIN_ENABLE=YES` [#8163](https://github.com/OpenNebula/one/issues/8163).
 * Fix potential disk data loss by rejecting live datastore migration of VMs with qcow2 disks containing internal snapshots [#8092](https://github.com/OpenNebula/one/issues/8092).
 * Fix update any item without having permissions to create it on yaml FireEdge views [#6416](https://github.com/OpenNebula/one/issues/6416).
