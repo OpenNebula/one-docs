@@ -426,6 +426,8 @@ These values define the datastore behavior and thus should not be modified. They
   > - `NO`: The snapshot will not be attempted to be deleted if it has children
   > - `MIXED`: Creates children snapshots from the current active (last recovered) snapshot.  This also takes into account some dependencies which can appear after a revert snapshot action in Ceph datastores
   > - `FORMAT`: Allows orphans based on the image format in a `SHARED` datastore. For `QCOW2` this acts as `NO` and for `RAW` this acts as `YES`
+- `INTERACTIVE_BACKUP`: set to `YES` if disks managed by this transfer driver support [interactive backups]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup#interactive-backup-integration" %}}) through OneBEX. Valid values are `YES` and `NO` (default).
+- `INTERACTIVE_BACKUP_FORMATS`: optional comma-separated list of image formats supported for interactive backups, for example `raw,qcow2`. Leave this attribute empty or omit it to allow all formats when `INTERACTIVE_BACKUP="YES"`.
 
 Sample configuration:
 
@@ -435,15 +437,18 @@ TM_MAD_CONF = [
     LN_TARGET     = "NONE",
     CLONE_TARGET  = "SELF",
     SHARED        = "yes",
-    ALLOW_ORPHANS = "no"
+    ALLOW_ORPHANS = "no",
+    INTERACTIVE_BACKUP = "yes"
 ]
 
 TM_MAD_CONF = [
-    NAME        = "shared",
-    LN_TARGET   = "NONE",
-    CLONE_TARGET= "SYSTEM",
-    SHARED      = "yes",
-    DS_MIGRATE  = "yes"
+    NAME                       = "shared",
+    LN_TARGET                  = "NONE",
+    CLONE_TARGET               = "SYSTEM",
+    SHARED                     = "yes",
+    DS_MIGRATE                 = "yes",
+    INTERACTIVE_BACKUP         = "yes",
+    INTERACTIVE_BACKUP_FORMATS = "qcow2"
 ]
 ```
 
