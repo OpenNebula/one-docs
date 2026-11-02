@@ -99,6 +99,7 @@ The following issues have been solved in 7.4.2:
 * Fix potential incorrect user and group quota usage after a failed VM migration between clusters, restoring source cluster usage and releasing target cluster usage [#8191](https://github.com/OpenNebula/one/issues/8191).
 * Fix S3 Marketplace image imports ignoring the configured `READ_LENGTH` chunk size [#8194](https://github.com/OpenNebula/one/issues/8194).
 * Fix CPU monitoring errors when system CPU counters do not advance and negative CPU usage when a monitored process exits during sampling [#8195](https://github.com/OpenNebula/one/issues/8195).
+* Fix removal of user-defined `ETHx_*` context variables when detaching a NIC or NIC alias with `NETWORK` not set to `YES`, and allow updating these variables with `onevm updateconf` [#8214](https://github.com/OpenNebula/one/issues/8214).
 
 ---
 
