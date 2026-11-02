@@ -51,7 +51,7 @@ For a quick view of any changes in configuration file options in maintenance rel
 - `API_LIST_ORDER`: Sets order (by ID) of elements in list API calls (e.g., `onevm list`). Values: `ASC` (ascending order) or `DESC` (descending order).
 - `CONTEXT_RESTRICTED_DIRS`: List of space-separated directories which can’t be used in `CONTEXT/FILES` attribute.
 - `CONTEXT_SAFE_DIRS`: List of space-separated directories which allow use of subdirectories from `CONTEXT_RESTRICTED_DIRS`.
-- `CONTEXT_ALLOW_ETH_UPDATES`: Allow manual updates of `CONTEXT->ETH*` values. It may lead to inconsistencies between VM NIC settings and context attributes, but it might be useful for some use cases. Default value = NO
+- `CONTEXT_ALLOW_ETH_UPDATES`: Allow manual updates of `CONTEXT->ETH*` values with `onevm updateconf` when `CONTEXT/NETWORK=YES`. This may lead to inconsistencies between VM NIC settings and context attributes. When `CONTEXT/NETWORK` is not set to `YES`, these values are managed by the user and can be updated regardless of this setting. Default value = NO.
 - `LOG`: Configure the logging system
   - `SYSTEM`: Can be either `file` (default), `syslog` or `std`.
   - `USE_VMS_LOCATION`: Defines if store VM logs in VMS_LOCATION (`/var/lib/one/vms/<VMID>/vm.log`).
