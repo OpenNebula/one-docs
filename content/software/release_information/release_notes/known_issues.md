@@ -37,6 +37,20 @@ error: Requested operation is not valid: cannot undefine domain with nvram
 
 The migrate pattern should be aware of NVRAM existence and properly use --keep-nvram during the undefine operation.
 
+## LVM Datastores
+
+### Leftover Backup Snapshots Can Cause Data Loss During Migration (Fixed 7.4.2)
+
+LVM VMs created before OpenNebula 7.4.2 can retain snapshot overlays after a backup operation, particularly after an interactive backup. Migrating an affected VM while its thin pool is active on the destination Host can load stale thin-pool metadata and cause guest data loss.
+
+Before migrating one of these VMs, verify that its LVM thin pools are inactive on the destination Host. VMs created with OpenNebula 7.4.2 or later are not affected. After upgrading to 7.4.2, running a new backup of an older VM also removes the leftover snapshots on the source Host and prevents this issue.
+
+### Image Imports Use `/var/tmp`
+
+The LVM Image Datastore driver [ignores `STAGING_DIR`](https://github.com/OpenNebula/one/issues/8114) during image imports and writes the temporary image to `/var/tmp/one_img<ID>.<random>`. When `BRIDGE_LIST` is configured, this path is on the selected bridge Host. Otherwise, it is on the Front-end Host. This affects both RAW and QCOW2 image imports.
+
+Before importing an image, ensure that `/var/tmp` on the applicable Host has enough free space for the complete image. A failed or interrupted download can leave a partial `one_img...` file in `/var/tmp`. After confirming that no image import is using it, remove the stale file to recover the occupied space.
+
 ## Frontend HA
 
 - [ARP tables are not updated automatically](https://github.com/OpenNebula/one/issues/7920) when a leader is elected in Red Hat Enterprise Linux OS variants.

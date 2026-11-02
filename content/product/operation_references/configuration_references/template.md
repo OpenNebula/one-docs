@@ -582,6 +582,8 @@ OpenNebula will prevent VNC port collision within a Cluster to ensure that a VM 
 {{< alert title="Note" type="info" >}}
 The hypervisor column states that the attribute is **O**ptional, **M**andatory, `-` not supported for that hypervisor, or OS name where it is mandatory.{{< /alert >}}
 
+When `NETWORK` is not set to `YES` in `CONTEXT` (for example, `NETWORK=NO` or omitted), OpenNebula does not generate network context variables. User-defined `ETHx_*` variables, including `ETHx_ALIASy_*` variables for NIC aliases, are preserved when a NIC or NIC alias is detached. Users are responsible for keeping these values consistent with the VM network configuration.
+
 Context information is passed to the Virtual Machine via an ISO mounted as a partition. This information can be defined in the VM template in the optional section called Context, with the following attributes:
 
 | Attribute                       | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | KVM/LXC   |

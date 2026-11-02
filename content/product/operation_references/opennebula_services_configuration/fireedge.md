@@ -228,6 +228,72 @@ If Guacamole is running on a different Host to the FireEdge, the following FireE
 - `guacd/host`
 - `guacd/port`
 
+<a id="fireedge-guacamole-connections"></a>
+
+#### Connection Defaults and Enforced Settings
+
+Configure VNC, SSH and RDP connection parameters in the top-level `guacamole` section of `/etc/one/fireedge-server.conf`. This section is separate from `guacd`, which specifies how FireEdge connects to the Guacamole daemon.
+
+| Section | Description |
+| --- | --- |
+| `guacamole.common` | Defaults shared by VNC, SSH and RDP connections. |
+| `guacamole.vnc`, `guacamole.ssh`, `guacamole.rdp` | Protocol-specific defaults. These override values in `common`. |
+| `guacamole.enforced.common` | Settings enforced for all three protocols. |
+| `guacamole.enforced.vnc`, `guacamole.enforced.ssh`, `guacamole.enforced.rdp` | Protocol-specific enforced settings. These override values in `enforced.common`. |
+
+The default configuration is:
+
+```yaml
+guacamole:
+  common:
+    width: 1024
+    height: 768
+    dpi: 96
+
+  rdp:
+    port: 3389
+    # Disable audio and microphone
+    disable-audio: true
+    enable-audio-input: false
+
+    # Display and performance
+    resize-method: display-update
+    enable-wallpaper: false
+    enable-theming: false
+    enable-font-smoothing: false
+    enable-full-window-drag: false
+    enable-desktop-composition: false
+    enable-menu-animations: false
+    disable-bitmap-caching: false
+    disable-offscreen-caching: false
+    disable-glyph-caching: false
+
+  vnc:
+    port: 5900
+
+  ssh:
+    port: 22
+
+  # Server policy, applied whenever a Guacamole connection opens
+  enforced:
+    common:
+      disable-copy: true
+      disable-paste: true
+      enable-sftp: false
+    rdp:
+      # Requires NLA credentials and a trusted guest certificate
+      security: nla
+      ignore-cert: true
+      enable-drive: false
+      enable-printing: false
+```
+
+Settings are applied in the following order, with later values overriding earlier ones: `common`, the protocol section, VM/NIC settings, browser settings, and `enforced`. Browser overrides are limited to display and terminal settings and `rangeports`. Enforced settings are applied whenever a Guacamole connection opens and cannot be overridden by VM/NIC or browser settings.
+
+The default enforced settings disable clipboard copy/paste and SFTP for all three protocols. For RDP, they also disable drive and printer redirection, require Network Level Authentication (NLA), and enable certificate validation. RDP guests must support NLA, and the connection requires credentials and a guest certificate trusted by the Guacamole daemon. To change these requirements, edit `guacamole.enforced.rdp`; setting `RDP_SECURITY` in a VM does not override an enforced security mode.
+
+Additional connection parameters can be configured using their Guacamole parameter names. Restart the [FireEdge service]({{% relref "fireedge#fireedge-conf-service" %}}) after changing the configuration.
+
 <a id="fireedge-conf-service"></a>
 
 ### Service Control and Logs

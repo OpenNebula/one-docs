@@ -56,6 +56,33 @@ When OneBEX receives `POST /export`, it reads this file from the supplied `BACKU
 
 To add a new storage backend, the corresponding TM driver must prepare its disk source and describe it in this file. A custom OneBEX exporter then implements the storage-specific reads. See [Developing OneBEX Exporters]({{% relref "onebex_exporter#onebex-exporter-development" %}}) for the Ruby interface, example implementation, installation, and testing instructions.
 
+### Enabling Interactive Backups for a Transfer Driver
+
+A Transfer Manager driver must explicitly advertise interactive backup support in its `TM_MAD_CONF` entry in `/etc/one/oned.conf`:
+
+```default
+TM_MAD_CONF = [
+    NAME                       = "my_storage",
+    # Other TM driver attributes...
+    INTERACTIVE_BACKUP         = "YES",
+    INTERACTIVE_BACKUP_FORMATS = "raw,qcow2"
+]
+```
+
+`INTERACTIVE_BACKUP="YES"` makes disks managed by this TM driver eligible for interactive backups. The optional `INTERACTIVE_BACKUP_FORMATS` value limits support to the listed disk image formats. Omit the attribute or leave it empty to allow every format supported by the driver and its exporter.
+
+After changing `oned.conf`, restart OpenNebula:
+
+```shell
+systemctl restart opennebula
+```
+
+{{< alert title="Important" type="info" >}}
+Only enable a format when the TM driver can prepare a stable source for it and the selected OneBEX exporter can read it correctly. Adding a OneBEX exporter alone does not make a TM driver eligible for interactive backups.
+{{< /alert >}}
+
+For the complete parameter reference, see the [`TM_MAD_CONF` configuration]({{% relref "product/operation_references/opennebula_services_configuration/oned#oned-conf-transfer-driver" %}}).
+
 ## Compatibility
 
 The current interactive backup implementation supports the following configuration:

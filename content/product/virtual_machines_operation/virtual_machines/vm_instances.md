@@ -200,13 +200,13 @@ Hotplugging might not be available for every supported hypervisor. Please check 
 
 ### Disk Hot-plugging
 
-Disks can be attached to and detached from VMs in the `RUNNING`, `POWEROFF`, and `HOLD` states with the `onevm disk-attach` and `onevm disk-detach` commands. For example, to attach the Image named **storage** to a VM:
+New disks can be hot-plugged to running VMs with the `onevm`, `disk-attach`, and `disk-detach` commands. For example, to attach the Image named **storage** to a running VM:
 
 ```shell
 onevm disk-attach one-5 --image storage
 ```
 
-To detach a disk from a VM, find the disk ID of the Image you want to detach using the `onevm show` command, and then execute `onevm disk-detach vm_id disk_id`:
+To detach a disk from a running VM, find the disk ID of the Image you want to detach using the `onevm show` command, and then simply execute `onevm detach vm_id disk_id`:
 
 ```shell
 onevm show one-5
@@ -512,11 +512,13 @@ The above command opens an editor with the current values of the supported confi
 | `RAW`           | `DATA`, `DATA_VMX`, `TYPE`, `VALIDATE`                                                                                   |
 | `CPU_MODEL`     | `MODEL`, `FEATURES`                                                                                                      |
 | `BACKUP_CONFIG` | `FS_FREEZE`, `KEEP_LAST`, `BACKUP_VOLATILE`, `MODE`,<br/>`INCREMENT_MODE`, `DISK_IDS`                                    |
-| `CONTEXT`       | Any value, except `ETH*`. **Variable substitution is performed**.                                                        |
+| `CONTEXT`       | Any value. `ETH*` updates require `NETWORK` not set to `YES` or `CONTEXT_ALLOW_ETH_UPDATES=YES` in `oned.conf`. **Variable substitution is performed**. |
 
 Visit the [Virtual Machine Template reference]({{% relref "product/operation_references/configuration_references/template#template" %}}) for a complete description of each attribute. Visit the [VM Update Methods Reference]({{% relref "product/operation_references/configuration_references/vm_update_methods/" %}}) for additional details on all available VM configuration update methods.
 
 To supply a partial update instead of editing the current configuration, use `onevm updateconf --append <VM_ID> [file]` (if the `file` argument is omitted the VM configuration will be opened in an editor). Define the attributes to add or modify in a file or through standard input. Attributes omitted from the update are preserved.
+
+When `CONTEXT/NETWORK` is not set to `YES`, network context variables are managed by the user and can be updated without enabling `CONTEXT_ALLOW_ETH_UPDATES`. With `--append`, omitting `NETWORK` preserves its current value and the corresponding restrictions on `ETH*` updates.
 
 {{< alert title="Warning" type="warning" >}}
 This action might not be supported for `RUNNING` VMs depending on the hypervisor. Please check the limitation section of the specific virtualization driver.{{< /alert >}}
@@ -1355,8 +1357,8 @@ The `onevm` command manages OpenNebula Virtual Machines. The general structure o
 | `create-chart vmid`             | Adds a charter to the VM; these are some consecutive scheduled actions. You can configure the actions in `onevm.yaml` |
 | `delete-chart vmid sched_id`    | Deletes a charter from the VM. Deprecated, use `sched-delete` instead. |
 | `deploy range\|vmid_list hostid [datastoreid]` | <ul><li>Deploys the given VM in the specified Host. This command forces the deployment, in a standard installation the Scheduler is in charge of this decision.</li><li>A template can be passed as a file with or the content via STDIN. Bash symbols must be escaped on STDIN passing.</li><li>States: PENDING, HOLD, STOPPED, UNDEPLOYED</li><li>Valid options: enforce, file</li></ul>|
-| `disk-attach vmid`              | <ul><li>Attaches a disk to a VM.</li><li>A template can be passed as a file with or the content via STDIN. Bash symbols must be escaped on STDIN passing. When using a template add only one DISK instance.</li><li>States: RUNNING, POWEROFF, HOLD</li><li>Valid options: cache, discard, file, image, prefix, target</li> |
-| `disk-detach vmid diskid`       | Detaches a disk from a VM. States: RUNNING, POWEROFF, HOLD
+| `disk-attach vmid`              | <ul><li>Attaches a disk to a running VM.</li><li>A template can be passed as a file with or the content via STDIN. Bash symbols must be escaped on STDIN passing. When using a template add only one DISK instance.</li><li>States: RUNNING, POWEROFF</li><li>Valid options: cache, discard, file, image, prefix, target</li> |
+| `disk-detach vmid diskid`       | Detaches a disk from a running VM. States: RUNNING, POWEROFF
 | `disk-resize vmid diskid size`  | <ul><li>Resizes a VM disk. The new size should be larger than the old one.</li><li>The valid units are: T (TiB), G (GiB), and M (MiB). By default it is MiB.</li><li>States: RUNNING, POWEROFF</li></ul>|
 | `disk-saveas vmid diskid img_name` | <ul><li>Saves the specified VM disk as a new Image. The Image is created immediately, and the contents of the VM disk will be saved to it.</li><li>States: ANY</li><li>Valid options: snapshot, type</li></ul> |
 | `disk-snapshot-create vmid diskid name` | <ul><li>Takes a new snapshot of the given disk. This operation needs support from the Datastore drivers: QCOW2 or Ceph.</li><li>States: RUNNING, POWEROFF, SUSPENDED</li><li> Valid options: end, hourly, monthly, schedule, weekly, yearly</li></ul>|
@@ -1403,7 +1405,7 @@ The `onevm` command manages OpenNebula Virtual Machines. The general structure o
 | `unresched range\|vmid_list`         | Clears the rescheduling flag for the VM. States: RUNNING, POWEROFF |
 | `update vmid [file]`                 | Updates the user template contents. If a path is not provided the editor will be launched to modify the current content. Valid options: append |
 | `update-chart vmid sched_id [file]`  | Updates a charter from a VM. Deprecated command: use `sched-update` instead. |
-| `updateconf vmid [file]`             | <ul><li>Updates the configuration of a VM.</li><li>This command accepts a template or opens an editor. A template can be passed as a file with or the content via STDIN. Bash symbols must be escaped on STDIN passing.</li><li>Valid states are: running, pending, failure, poweroff, undeploy, hold or cloning. In running state only changes in CONTEXT and BACKUP_CONFIG take effect immediately, other values may need a VM restart.</li>Configuration attributes include: <ul><li>OS        = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT", "KERNEL_CMD", "ROOT", "SD_DISK_BUS", "UUID", "FIRMWARE", "FIRMWARE_FORMAT"]</li><li>FEATURES  = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT", "VIRTIO_SCSI_QUEUES", "VIRTIO_BLK_QUEUES", "IOTHREADS"]</li><li>INPUT     = ["TYPE", "BUS"]</li><li>GRAPHICS  = ["TYPE", "LISTEN", "PASSWD", "KEYMAP", "COMMAND"]</li><li>VIDEO     = ["TYPE", "IOMMU", "ATS", "VRAM", "RESOLUTION"]</li><li>RAW       = ["DATA", "DATA_VMX", "TYPE", "VALIDATE"]</li><li>CPU_MODEL = ["MODEL", "FEATURES"]</li><li>BACKUP_CONFIG = ["FS_FREEZE", "KEEP_LAST", "BACKUP_VOLATILE", "MODE", "INCREMENT_MODE", "DISK_IDS"]</li><li>CONTEXT (any value, ETH* if CONTEXT_ALLOW_ETH_UPDATES set in oned.conf, *variable substitution will be made*)</li></ul><li>Valid options: append</li></ul>|
+| `updateconf vmid [file]`             | <ul><li>Updates the configuration of a VM.</li><li>This command accepts a template or opens an editor. A template can be passed as a file with or the content via STDIN. Bash symbols must be escaped on STDIN passing.</li><li>Valid states are: running, pending, failure, poweroff, undeploy, hold or cloning. In running state only changes in CONTEXT and BACKUP_CONFIG take effect immediately, other values may need a VM restart.</li>Configuration attributes include: <ul><li>OS        = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT", "KERNEL_CMD", "ROOT", "SD_DISK_BUS", "UUID", "FIRMWARE", "FIRMWARE_FORMAT"]</li><li>FEATURES  = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT", "VIRTIO_SCSI_QUEUES", "VIRTIO_BLK_QUEUES", "IOTHREADS"]</li><li>INPUT     = ["TYPE", "BUS"]</li><li>GRAPHICS  = ["TYPE", "LISTEN", "PASSWD", "KEYMAP", "COMMAND"]</li><li>VIDEO     = ["TYPE", "IOMMU", "ATS", "VRAM", "RESOLUTION"]</li><li>RAW       = ["DATA", "DATA_VMX", "TYPE", "VALIDATE"]</li><li>CPU_MODEL = ["MODEL", "FEATURES"]</li><li>BACKUP_CONFIG = ["FS_FREEZE", "KEEP_LAST", "BACKUP_VOLATILE", "MODE", "INCREMENT_MODE", "DISK_IDS"]</li><li>CONTEXT (any value, ETH* if NETWORK is not YES or CONTEXT_ALLOW_ETH_UPDATES set in oned.conf, *variable substitution will be made*)</li></ul><li>Valid options: append</li></ul>|
 | `vnc vmid`                            | Opens a VNC session to the VM. Valid options include: vnc|
 
 <a href="#onevm-command">Back to The `onevm` Command</a>
