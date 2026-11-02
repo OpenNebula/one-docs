@@ -15,7 +15,7 @@ weight: "10"
 
 A **OneBEX exporter** is a Ruby class that lets OneBEX read a VM disk from a particular storage backend. The disk is prepared by the Transfer Manager (TM) driver and described in `interactive_exports.json`. OneBEX selects the exporter named in that file, manages the HTTP requests and transfer lifecycle, and delegates storage-specific operations to the exporter.
 
-Create an exporter when adding a storage backend that is not handled by the OneBEx built-in [exporters]({{% relref "interactive_backup#exporters" %}}). The exporter must be able to report the virtual disk size, describe the relevant extents, read arbitrary byte ranges, and release any resources it opens. **It does not implement HTTP endpoints, create the backup image, or store the backup payload.**
+Create an exporter when adding a storage backend that is not handled by the OneBEX built-in [exporters]({{% relref "interactive_backup#exporters" %}}). The exporter must be able to report the virtual disk size, describe the relevant extents, read arbitrary byte ranges, and release any resources it opens. **It does not implement HTTP endpoints, create the backup image, or store the backup payload.**
 
 For the three-phase backup workflow, the meaning of `interactive_exports.json`, supported configurations, and the complete HTTP API, see [Interactive Backup Integrations]({{% relref "interactive_backup#interactive-backup-integration" %}}).
 
@@ -249,41 +249,61 @@ module OneBEX
         end
     end
 end
+
+OneBEX::Exporters.register('my_exporter', OneBEX::Exporters::MyExporter)
 ```
 
 This example uses a full-disk extent because it has no incremental block map. For a real integration, replace file access and extent discovery with operations appropriate for the backend.
 
+## Enabling the Transfer Manager Driver
+
+The TM driver that prepares the disk must opt in to interactive backups in `/etc/one/oned.conf`. Add the following attributes to its `TM_MAD_CONF` entry:
+
+```default
+TM_MAD_CONF = [
+    NAME                       = "my_storage",
+    # Other TM driver attributes...
+    INTERACTIVE_BACKUP         = "YES",
+    INTERACTIVE_BACKUP_FORMATS = "raw"
+]
+```
+
+- `INTERACTIVE_BACKUP`: Set to `YES` to allow interactive backups for disks that use this TM driver. The default is `NO`.
+- `INTERACTIVE_BACKUP_FORMATS`: Optional comma-separated list of supported disk formats. An empty or omitted value allows all formats.
+
+For more information, see [Enabling Interactive Backups for a Transfer Driver]({{% relref "interactive_backup#enabling-interactive-backups-for-a-transfer-driver" %}}) and the [`TM_MAD_CONF` reference]({{% relref "product/operation_references/opennebula_services_configuration/oned#oned-conf-transfer-driver" %}}).
+
 ## Installing and Registering an Exporter
 
-Perform these changes on the **OpenNebula Front-end**, then synchronize the remotes so the exporter is available on the hypervisors.
+OneBEX discovers and loads every exporter file in its exporters directory automatically.
 
-1. **Install the Ruby class** under the OneBEX exporters directory, for example:
+Loading a file does not automatically infer the exporter's public name or Ruby class. Therefore, each file must define its exporter class and call `OneBEX::Exporters.register` when loaded, as in the complete example above.
+
+1. **Install the self-registering Ruby class** under the OneBEX exporters directory, for example:
 
    ```text
    /var/lib/one/remotes/onebex/exporters/my_exporter.rb
    ```
 
-2. **Load the class** from `/var/lib/one/remotes/onebex/config/environment.rb`:
+   End the file with the registration call shown below. OneBEX loads the file automatically. The registered name must match the `"exporter"` value in the disk's `interactive_exports.json` entry:
 
    ```ruby
-   require_relative '../exporters/my_exporter'
+   OneBEX::Exporters.register('my_exporter', OneBEX::Exporters::MyExporter)
    ```
 
-3. **Register its name** in the `exporter_registry` helper in `/var/lib/one/remotes/onebex/app/helpers.rb`:
-
-   ```ruby
-   registry.register('my_exporter', OneBEX::Exporters::MyExporter)
-   ```
-
-   This name must match the value of `"exporter"` in the disk's `interactive_exports.json` entry.
-
-4. **Synchronize the remotes** to the hypervisors:
+2. **Synchronize the remotes** to the hypervisors:
 
    ```bash
    onehost sync --force
    ```
 
-5. **Verify the installation** on the hypervisor. Make sure the exporter can be loaded, any external dependencies are installed, and the OneBEX process has the required access to its disk sources. `GET /exporters` should include `my_exporter` after OneBEX starts.
+3. **Verify the installation** on the hypervisor. Make sure any external dependencies are installed and the OneBEX process has the required access to its disk sources. After OneBEX starts, `GET /exporters` must include `my_exporter`:
+
+   ```shell
+   curl -sS http://<hypervisor>:13014/exporters
+   ```
+
+   OneBEX logs the names of all successfully loaded exporters and logs an error for each file that failed to load. A failed exporter is removed from the registry and does not prevent other exporters from loading. Check `/var/log/one/onebex.log` when the expected name is missing. Duplicate registered names also cause the corresponding file to be rejected.
 
 If your OpenNebula deployment has multiple Front-ends with separate remotes trees, apply the changes to each relevant Front-end. Keep these modifications under configuration management, since package or remote updates may replace locally modified files.
 
@@ -291,7 +311,7 @@ If your OpenNebula deployment has multiple Front-ends with separate remotes tree
 
 Before connecting a backup application, test the exporter with a prepared disk source:
 
-1. Confirm that the Ruby class loads and `GET /exporters` lists its registered name.
+1. Confirm that the Ruby file loads, self-registers, and `GET /exporters` lists its registered name.
 2. Check that `POST /export` selects the exporter and initializes each requested disk transfer.
 3. Verify that `info` returns the correct virtual size in MiB and format.
 4. Check that the full extent map covers the intended disk.
