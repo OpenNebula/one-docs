@@ -95,6 +95,10 @@ The following issues have been solved in 7.4.2:
 * Fix incompatible target system datastores being offered in the Sunstone VM live migration dialog by filtering them to match the source `TM_MAD` [#8164](https://github.com/OpenNebula/one/issues/8164).
 * Fix `VM_EXEC` reaper blocked by stale PID file [#8232](https://github.com/OpenNebula/one/issues/8232).
 * Fix OneDRS optimization failing with `PulpError` when VM monitoring data contains missing usage values [#8224](https://github.com/OpenNebula/one/issues/8224).
+* Fix incorrect quota limit errors when quota entries omit metrics, preventing powered-off VMs from resuming when `RUNNING_VMS` is missing [#8183](https://github.com/OpenNebula/one/issues/8183).
+* Fix potential incorrect user and group quota usage after a failed VM migration between clusters, restoring source cluster usage and releasing target cluster usage [#8191](https://github.com/OpenNebula/one/issues/8191).
+* Fix S3 Marketplace image imports ignoring the configured `READ_LENGTH` chunk size [#8194](https://github.com/OpenNebula/one/issues/8194).
+* Fix CPU monitoring errors when system CPU counters do not advance and negative CPU usage when a monitored process exits during sampling [#8195](https://github.com/OpenNebula/one/issues/8195).
 
 ---
 
