@@ -94,6 +94,7 @@ The following issues have been solved in 7.4.2:
 * Fix invalid `host-passthrough` option appearing in the Sunstone machine type selector [#8018](https://github.com/OpenNebula/one/issues/8018).
 * Fix incompatible target system datastores being offered in the Sunstone VM live migration dialog by filtering them to match the source `TM_MAD` [#8164](https://github.com/OpenNebula/one/issues/8164).
 * Fix `VM_EXEC` reaper blocked by stale PID file [#8232](https://github.com/OpenNebula/one/issues/8232).
+* Fix OneDRS optimization failing with `PulpError` when VM monitoring data contains missing usage values [#8224](https://github.com/OpenNebula/one/issues/8224).
 
 ---
 
