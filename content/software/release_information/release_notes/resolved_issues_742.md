@@ -105,6 +105,7 @@ The following issues have been solved in 7.4.2:
 * Fix CPU monitoring errors when system CPU counters do not advance and negative CPU usage when a monitored process exits during sampling [#8195](https://github.com/OpenNebula/one/issues/8195).
 * Fix removal of user-defined `ETHx_*` context variables when detaching a NIC or NIC alias with `NETWORK` not set to `YES`, and allow updating these variables with `onevm updateconf` [#8214](https://github.com/OpenNebula/one/issues/8214).
 * Fix Veeam VM backups ignoring the selected disks and backing up all VM disks [#8236](https://github.com/OpenNebula/one/issues/8236).
+* Fix limited visibility of CPU models for non-admin users during VM template creation [#7723](https://github.com/OpenNebula/one/issues/7723).
 
 ---
 
