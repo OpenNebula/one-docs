@@ -85,7 +85,7 @@ A source port is identified by `VM_ID:NIC_ID`, for example `210:1`. Obtain NIC I
 | Empty    | Nonempty | No traffic; the mirror is inactive. VLAN-only capture is not supported. |
 | Empty    | Empty    | No traffic; the mirror is inactive. |
 
-A VLAN filter restricts traffic on explicitly selected source NICs. It never selects other ports on the bridge. Removing the last source port stops capture even when `VLANS` remains nonempty. SPAN destinations and bridge-wide VLAN-only capture are not supported.
+A VLAN filter restricts traffic on explicitly selected source NICs. It never selects other ports on the bridge. Removing the last source port deactivates the mirror configuration even when `VLANS` remains nonempty; see the [RSPAN cache limitation](#known-limitations) below for traffic that may continue after removal. SPAN destinations and bridge-wide VLAN-only capture are not supported.
 
 ## Managing Mirrors
 
@@ -127,6 +127,14 @@ If an update fails, inspect the VM and driver logs, correct connectivity or Host
 onevnet recover 5 --retry
 ```
 
+
+## Known Limitations
+
+{{< alert title="RSPAN traffic can persist after mirror removal" type="warning" >}}
+An Open vSwitch datapath cache issue can cause RSPAN traffic to continue reaching the collector after the last source port is removed, even though the OVSDB mirror has been removed successfully. This behavior has been reproduced on several OVS versions, including 3.3.9 and 3.6.1, and can persist for more than 30 seconds while traffic continues. No fixed minimum OVS version has been established.
+
+A successful OpenNebula operation or an empty OVSDB `Mirror` table does not guarantee that mirrored traffic has stopped. Verify capture at the collector after removing sources or deleting a mirror. If traffic continues, inspect the affected Host's OVS datapath and consult the OVS vendor for a fix. OpenNebula does not automatically purge cached datapath flows: a daemon-wide purge also affects unrelated networks. Manual cache cleanup is not a required step in the normal mirror deletion procedure.
+{{< /alert >}}
 
 ## Configuring a Linux Collector
 
@@ -199,10 +207,6 @@ sudo tcpdump -ni pm-er31 -e
 The receiving tunnel is identified by the outer endpoint addresses and session ID. The index, hardware ID and direction are ERSPAN metadata, rather than additional receive-side filters. The Linux `erspan`/`erspan_hwid`/`erspan_dir` options describe metadata for packets transmitted through that interface; these examples keep the settings consistent with the sender. The collector is only used for capture. The mirror's `DIRECTION` independently controls which VM traffic is copied.
 
 See the [iproute2 ERSPAN interface reference](https://git.kernel.org/pub/scm/network/iproute2/iproute2.git/tree/man/man8/ip-link.8.in) for the Linux interface options. The [Linux ERSPAN receive implementation](https://github.com/torvalds/linux/blob/master/net/ipv4/ip_gre.c) shows endpoint and session matching.
-
-{{< alert title="Warning" type="warning" >}}
-An Open vSwitch datapath issue, reproduced with RSPAN on OVS 2.17.11 and 3.6.1, can cause cached flows to continue sending mirrored traffic after the last source port is removed and the mirror is deleted from OVSDB. An empty OVSDB Mirror table does not guarantee that capture has stopped. Verify that mirrored traffic stops at the collector after removing sources. If traffic continues, inspect the affected Host's OVS datapath and consult the OVS vendor for a fix. OpenNebula does not automatically purge cached datapath flows, because a daemon-wide purge also affects unrelated networks.
-{{< /alert >}}
 
 ### Capturing Payloads and Tunnel Headers
 
