@@ -134,7 +134,7 @@
 {{/* end L3 card */}}
 {{ end -}}
 
-{{ if eq (len .Ancestors) 2 }}
+{{ if or (eq (len .Ancestors) 2) (eq (len .Ancestors) 3) }}
 {{ $seclevel := "2" }}
 
 {{ if not $hasSubsections }}

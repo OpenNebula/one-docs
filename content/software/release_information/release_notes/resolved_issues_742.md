@@ -18,21 +18,26 @@ Include a high level description and a link to the documentation explaining the 
 * Add a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
 * Add an option to [cancel an ongoing Virtual Machine backup from Sunstone]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations#cancel-backup" %}}) [#8069](https://github.com/OpenNebula/one/issues/8069).
 * Add [Port Mirroring]({{% relref "product/cluster_configuration/networking_system/port_mirroring.md" %}}) for Virtual Networks using the `ovswitch` and `ovswitch_vxlan` drivers, supporting RSPAN, GRE, and ERSPAN types II and III, traffic direction selection, and optional source VLAN filters. Manage mirrors and source interfaces through the API, `onevnet mirror-*` commands, or [Sunstone]({{% relref "product/cluster_configuration/networking_system/manage_vnets.md#port-mirroring" %}}). Driver updates are asynchronous and capture is reconstructed after VM migration. Enable the Sunstone tab and form routes using the configuration [instructions below](#enable-port-mirroring-in-sunstone-8149) [#7638](https://github.com/OpenNebula/one/issues/7638), [#8149](https://github.com/OpenNebula/one/issues/8149).
+* Improve selection controls in Sunstone forms with icons and descriptions, using Card Buttons, Button Groups, radio buttons, and dropdowns according to the type of choice [#8216](https://github.com/OpenNebula/one/issues/8216).
 * Added a dedicated [FINISH frame to gracefully finalize interactive restore transfers]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}), eliminating the need to manually terminate the OneBEX writer process.
 * Add support for Ceph VM backups through the [interactive backup integration]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
 * Allow overriding `CLUSTER_IDS` when instantiating Virtual Network Templates [#8065](https://github.com/OpenNebula/one/issues/8065).
 * Improve OneBEX performance by allowing concurrent reads when exposing disk data and remove OneBEX timeouts [#7961](https://github.com/OpenNebula/one/issues/7961).
 * Add a [log warning when a driver's action queue is larger than its number of threads]({{% relref "product/operation_references/opennebula_services_configuration/oned.md#action-queue-warning" %}}).
 * Add a [OneKS Application Catalog]({{% relref "platform_services/oneks/management/k8s_cluster_lifecycle_management/#managing-applications" %}}) of validated Helm-based applications that can be deployed on runing K8s Clusters and managed through Sunstone or the CLI, with application lifecycle monitoring and configurable installation options [#7302](https://github.com/OpenNebula/one/issues/7302).
-
 * Enable [OneDRS balancing by storage space]({{% relref "product/cloud_system_administration/scheduler/drs#load-balancing-objectives" %}}) through the `STORAGE_WEIGHT` Cluster attribute, configurable in Sunstone. Administrators can combine datastore space utilization with other balancing objectives, such as disk I/O, to optimize storage distribution across the Cluster [#7930](https://github.com/OpenNebula/one/issues/7930).
-
+* Add [automatic bridge management for switchdev SR-IOV networks]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#switchdev-mode" %}}) through `BRIDGE="switchdev"` with the `ovswitch` driver. OpenNebula creates or reuses a dedicated Open vSwitch bridge for each parent Physical Function (PF) and connects the PF and its VF representors, allowing one Virtual Network to serve VFs from multiple PFs without separate per-PF network definitions [#7960](https://github.com/OpenNebula/one/issues/7960).
 * Add the OneSwap [`--machine` and `--cpu-features`]({{% relref "software/migration_from_vmware/oneswap.md#customizing-the-created-vm-template" %}}) options to set the KVM machine type and CPU model features for a migration profile. Configure them in `/etc/one/oneswap.yaml` or on the command line; `--cpu-features` requires `--cpu-model` [#8112](https://github.com/OpenNebula/one/issues/8112).
+* Add support for VDDK transport in OneSwap delta migrations, allowing `--delta` and `--vddk` to be used together. vSAN-backed VMs are not supported [#7903](https://github.com/OpenNebula/one/issues/7903).
+* Add [SR-IOV PF/VF relationship monitoring]({{% relref "product/cluster_configuration/hosts_and_clusters/hosts.md#host-pci-devices" %}}) and [VF selection by parent PF]({{% relref "product/cluster_configuration/pci_passthrough_sriov/network_interfaces.md#selecting-virtual-functions-by-physical-function" %}}) through `PF_IFNAME` or `PF_ADDRESS`. Select the same PF to keep VFs together (affinity), or different PFs to spread them (anti-affinity). Monitoring also reports passthrough eligibility and the network PF e-switch mode when available [#7671](https://github.com/OpenNebula/one/issues/7671), [#7619](https://github.com/OpenNebula/one/issues/7619).
+* Add the [`SSH_PUBLIC_KEY_EXCLUSIVE`]({{% relref "product/operation_references/configuration_references/template#template-context" %}}) context attribute to the Linux contextualization packages. The keys from `SSH_PUBLIC_KEY` are now kept in a managed block of the user `authorized_keys` file, which is synchronized with the context every time the VM is contextualized, so keys removed from the context are also removed from the guest. With `SSH_PUBLIC_KEY_EXCLUSIVE=YES` any key outside of the managed block is removed as well [one-apps#387](https://github.com/OpenNebula/one-apps/issues/387).
+* Improve OneBEX NBD and RBD exporters to detect and report zero-filled and sparse (hole) regions during full backups [#8230](https://github.com/OpenNebula/one/issues/8230).
 
 ## Resolved Issues
 
 The following issues have been solved in 7.4.2:
 
+* Fix guest data loss during live migration of VMs using the `lvm` transfer driver or using `fs_lvm_ssh` with `LVM_THIN_ENABLE=YES` [#8163](https://github.com/OpenNebula/one/issues/8163).
 * Fix potential disk data loss by rejecting live datastore migration of VMs with qcow2 disks containing internal snapshots [#8092](https://github.com/OpenNebula/one/issues/8092).
 * Fix update any item without having permissions to create it on yaml FireEdge views [#6416](https://github.com/OpenNebula/one/issues/6416).
 * Fix VM template instantiation to allow precise memory values to be entered directly when memory modification is configured as a range [#7426](https://github.com/OpenNebula/one/issues/7426).
@@ -41,6 +46,7 @@ The following issues have been solved in 7.4.2:
 * Fix update VM Template dialog fails to open on FireEdge Sunstone if the user doesn't have IMAGE permissions [#6994](https://github.com/OpenNebula/one/issues/6994).
 * Fix unable to flush offline host in Sunstone [#7407](https://github.com/OpenNebula/one/issues/7407).
 * Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
+* Fix missing service template instantiation dialog [#8037](https://github.com/OpenNebula/one/issues/8037).
 * Fix missing VRouter NIC attach/detach action [#7708](https://github.com/OpenNebula/one/issues/7708).
 * Fix VNC console reliability for LXC virtual machines by increasing Guacamole tunnel timeouts and preventing premature disconnections due to svncterm inactivity [#8095](https://github.com/OpenNebula/one/issues/8095).
 * Fix SPICE support in Sunstone [#7667](https://github.com/OpenNebula/one/issues/7667).
@@ -49,6 +55,7 @@ The following issues have been solved in 7.4.2:
 * Fix Zendesk support ticket comments by preventing replies to closed tickets and displaying errors when comment delivery fails [#7280](https://github.com/OpenNebula/one/issues/7280).
 * Fix Disable restricted capacity modification fields for non-admins [#7516](https://github.com/OpenNebula/one/issues/7516).
 * Fix Force option missing when removing address range in Sunstone [#8070](https://github.com/OpenNebula/one/issues/8070).
+* Fix EVC options filtering in Sunstone [#8205](https://github.com/OpenNebula/one/issues/8205).
 * Fix FireEdge failing to connect when VNC `LISTEN` is set to a DNS name [#6976](https://github.com/OpenNebula/one/issues/6976).
 * Fix OneBEX interactive exports when backup datastores use non-default paths by passing the backup directory in the export request [#8093](https://github.com/OpenNebula/one/issues/8093).
 * Fix [FireEdge] Service Template chmod fails silently [#8096](https://github.com/OpenNebula/one/issues/8096).
@@ -60,17 +67,47 @@ The following issues have been solved in 7.4.2:
 * Fix onezone serversync to synchronize OneForm, OneKS, and FireEdge configuration files across Front-end hosts and restart the corresponding services when those files change [#8039](https://github.com/OpenNebula/one/issues/8039).
 * Fix OneSwap conversion of Windows guests using CompactOS/WOF-compressed NTFS system files [#7342](https://github.com/OpenNebula/one/issues/7342).
 * Fix OneSwap context injection running the RHEL-specific `subscription-manager` command on RHEL-compatible distributions [#8111](https://github.com/OpenNebula/one/issues/8111).
+* Fix issues with FireEdge in federated environments, including zone switching, stale resource views, and VNC/Guacamole console access across zones. [#7310](https://github.com/OpenNebula/one/issues/7310).
 * Fix OneSwap Delta migration failures caused by empty VMware CD-ROM devices being incorrectly detected as virtual disks [#8170](https://github.com/OpenNebula/one/issues/8170).
 * Fix search field missing in Service Template Edit screen [#8097](https://github.com/OpenNebula/one/issues/8097).
 * Fix `oneimage` and `onevm` commands to not truncate IDs greater than 999 [#8108](https://github.com/OpenNebula/one/issues/8108)
 * Fix missing network security risk warnings in documentation for interactive backups and restores [#8061](https://github.com/OpenNebula/one/issues/8061).
 * Fix multiple security groups issues [#8126](https://github.com/OpenNebula/one/issues/8126).
-* Fix VM Template custom attributes not being removed when edited in FireEdge [#8098](https://github.com/OpenNebula/one/issues/8098).
+* Fix VM Template custom attributes not being removed when edited in FireEdge. [#8098](https://github.com/OpenNebula/one/issues/8098).
+* Fix support for creating VNETs with Dummy/Custom VN_MAD in FireEdge. [#7715](https://github.com/OpenNebula/one/issues/7715).
+* Fix LDAP authentication errors in FireEdge when the LDAP server is unreachable. [#6813](https://github.com/OpenNebula/one/issues/6813).
 * Fix NetApp Datastore values in creation tab [#8035](https://github.com/OpenNebula/one/issues/8035).
 * Fix missing CPU Model field in VM Update Configuration [#8034](https://github.com/OpenNebula/one/issues/8034).
 * Fix missing `IOTHREADS` in VM `OS & CPU Features` configuration tab [#7585](https://github.com/OpenNebula/one/issues/7585).
 * Fix OneGate service role scaling from inside VMs, which could fail due to the request body being consumed before processing [#7954](https://github.com/OpenNebula/one/issues/7954).
 * Fix DRS cluster workload optimization attempting to migrate VMs in `UNDEPLOYED` or `STOPPED` states [#8073](https://github.com/OpenNebula/one/issues/8073).
+* Fix padding oracle and target-user bypass vulnerabilities in server authentication, and increase the entropy of generated passwords.
+* Fix OneKS/Sunstone: "Cluster: Unknown (0)" for every worker [#8189](https://github.com/OpenNebula/one/issues/8189).
+* Fix an issue preventing long attribute values from being expanded in FireEdge [#8131](https://github.com/OpenNebula/one/issues/8131).
+* Fix multi-line formatting in VM descriptions [#8130](https://github.com/OpenNebula/one/issues/8130).
+* Fix oned crashing when a KVM host reports a NUMA node without cores [#8133](https://github.com/OpenNebula/one/issues/8133).
+* Fix reserved VNC ports leaking when `onevm updateconf` removes `GRAPHICS` [#8201](https://github.com/OpenNebula/one/issues/8201).
+* Fix checkpoint delete endpoint and reset the backup chain after an invalid checkpoint in Veeam [#8062](https://github.com/OpenNebula/one/issues/8062).
+* Fix the “Allocated CPU” slider on the hosts [#8208](https://github.com/OpenNebula/one/issues/8208).
+* Fix exposure of the restic datastore password in image error messages and logs when backup operations fail.
+* Fix shell command injection through malicious `MD5` or `SHA1` values in image templates [#4635](https://github.com/OpenNebula/one-ee/issues/4635).
+* Fix OneKS deployment failures when using an image datastore other than the default datastore [#8081](https://github.com/OpenNebula/one/issues/8081).
+* Fix OneKS deployment failures when using virtual networks not owned by the user [#8128](https://github.com/OpenNebula/one/issues/8128).
+* Fix failed LVM backups leaving snapshots active, and clean up obsolete snapshots from previous failed backups [#8226](https://github.com/OpenNebula/one/issues/8226).
+* Fix Veeam backups failing after a persistent LVM VM disk is resized because oVirtAPI reports its outdated image size [#8203](https://github.com/OpenNebula/one/issues/8203).
+* Fix invalid `host-passthrough` option appearing in the Sunstone machine type selector [#8018](https://github.com/OpenNebula/one/issues/8018).
+* Fix incompatible target system datastores being offered in the Sunstone VM live migration dialog by filtering them to match the source `TM_MAD` [#8164](https://github.com/OpenNebula/one/issues/8164).
+* Fix `VM_EXEC` reaper blocked by stale PID file [#8232](https://github.com/OpenNebula/one/issues/8232).
+* Fix loss of VM firewall rules when a Security Group update is immediately followed by a commit [#8143](https://github.com/OpenNebula/one/issues/8143).
+* Fix OneDRS optimization failing with `PulpError` when VM monitoring data contains missing usage values [#8224](https://github.com/OpenNebula/one/issues/8224).
+* Fix incorrect quota limit errors when quota entries omit metrics, preventing powered-off VMs from resuming when `RUNNING_VMS` is missing [#8183](https://github.com/OpenNebula/one/issues/8183).
+* Fix potential incorrect user and group quota usage after a failed VM migration between clusters, restoring source cluster usage and releasing target cluster usage [#8191](https://github.com/OpenNebula/one/issues/8191).
+* Fix S3 Marketplace image imports ignoring the configured `READ_LENGTH` chunk size [#8194](https://github.com/OpenNebula/one/issues/8194).
+* Fix CPU monitoring errors when system CPU counters do not advance and negative CPU usage when a monitored process exits during sampling [#8195](https://github.com/OpenNebula/one/issues/8195).
+* Fix removal of user-defined `ETHx_*` context variables when detaching a NIC or NIC alias with `NETWORK` not set to `YES`, and allow updating these variables with `onevm updateconf` [#8214](https://github.com/OpenNebula/one/issues/8214).
+* Fix Veeam VM backups ignoring the selected disks and backing up all VM disks [#8236](https://github.com/OpenNebula/one/issues/8236).
+* Fix interactive VM backups failing when an attached disk excluded from the backup does not support interactive backups [#8249](https://github.com/OpenNebula/one/issues/8249).
+* Fix Unable to instantiate VM if SVM SnapMirror is enabled [#7402](https://github.com/OpenNebula/one/issues/7402).
 
 ---
 
@@ -146,7 +183,7 @@ The `admin` view already has an `actions` section for backups; add the new entry
 
 ### Update any item without having permissions to create it on yaml FireEdge views [#6416](https://github.com/OpenNebula/one/issues/6416)
 
-In `sunstone/tabs/40-networks-tab.yaml`, as part of `routes` attributes after the entry:
+In `sunstone/tab-manifest.yaml`, locate the entry with title: Networks. Within its `routes` section, after the following entry:
 
 ```yaml
     - title: Create Virtual Network
@@ -178,7 +215,7 @@ Add the following content
       Component: CreateSecurityGroup
 ```
 
-In `sunstone/tabs/60-systems-tab.yaml`, as part of `routes` attributes after the entry:
+In `sunstone/tab-manifest.yaml`, locate the entry with title: System. Within its `routes` section, after the following entry:
 
 ```yaml
     - title: Groups
@@ -228,4 +265,100 @@ In `sunstone/views/admin/vm-tab.yaml`, `sunstone/views/cloud/vm-tab.yaml`, `suns
 
 ```yaml
     - spice: true
+```
+
+### Service template instantiate missing selection dialog [#8037](https://github.com/OpenNebula/one/issues/8037)
+
+In `sunstone/tab-manifest.yaml`, locate the entry with title: Instances. Under Instances entry, locate the entry with title: Instantiate Service Template and replace the content:
+
+```yaml
+    - title: Instantiate Service Template
+      path: /service/instantiate/
+      Component: InstantiateServiceTemplate
+```
+
+With the following content:
+
+```yaml
+    - title: Instantiate Service Template
+      path: /service/instantiate/
+      Component: CreateService
+```
+
+### Enable OneKs Application tab [#7302](https://github.com/OpenNebula/one/issues/7302)
+
+In `sunstone/views/*/oneks-tab.yaml`, as part of the `info-tabs` attribute, add the following entry:
+
+```yaml
+   applications:
+    enabled: true
+```
+
+In `sunstone/tabs/90-oneks-tab.yaml`, as part of the `routes` attribute, add the following entry:
+
+```yaml
+   - title: Install Application
+     path: /kubernetes/:id/applications/install
+     Component: InstallOneKsApplication
+```
+
+### Configure Guacamole connection defaults and enforced settings
+
+In `/etc/one/fireedge-server.conf`, add the following top-level `guacamole` section alongside the existing `guacd` section. The `guacd` section configures the daemon connection while `guacamole` configures VNC, SSH and RDP console connections. These settings replace connection defaults previously defined in FireEdge code and its Guacamole bridge.
+
+If a `guacamole` section already exists, merge the settings into it without creating duplicate keys.
+
+```yaml
+guacamole:
+  common:
+    width: 1024
+    height: 768
+    dpi: 96
+
+  rdp:
+    port: 3389
+    # Disable audio and microphone
+    disable-audio: true
+    enable-audio-input: false
+
+    # Display and performance
+    resize-method: display-update
+    enable-wallpaper: false
+    enable-theming: false
+    enable-font-smoothing: false
+    enable-full-window-drag: false
+    enable-desktop-composition: false
+    enable-menu-animations: false
+    disable-bitmap-caching: false
+    disable-offscreen-caching: false
+    disable-glyph-caching: false
+
+  vnc:
+    port: 5900
+
+  ssh:
+    port: 22
+
+  # Server policy, applied whenever a Guacamole connection opens
+  enforced:
+    common:
+      disable-copy: true
+      disable-paste: true
+      enable-sftp: false
+    rdp:
+      # Requires NLA credentials and a trusted guest certificate
+      security: nla
+      ignore-cert: true
+      enable-drive: false
+      enable-printing: false
+```
+
+Connection settings are applied in the following order, with later values overriding earlier ones: `common`, the protocol section (`vnc`, `ssh` or `rdp`), VM/NIC settings, browser settings, and `enforced`. Browser overrides are limited to display and terminal settings and `rangeports`. Within `enforced`, protocol settings override `enforced.common`. VM/NIC and browser settings cannot override enforced values.
+
+The block above disables clipboard copy/paste and SFTP for all three protocols. For RDP, it also disables drive and printer redirection, requires Network Level Authentication (NLA), and enables certificate validation. Ensure that RDP guests support NLA, provide the required credentials, and use certificates trusted by the Guacamole daemon. With `enforced.rdp.security: nla`, the VM's `RDP_SECURITY` setting cannot select another security mode; change the enforced policy if a different mode is required.
+
+Restart FireEdge after saving the configuration:
+
+```shell
+systemctl restart opennebula-fireedge
 ```

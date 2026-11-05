@@ -22,7 +22,7 @@ Upgrading the OpenNebula packages [overwrites a customized](https://github.com/O
 
 The pre-upgrade file is preserved in the configuration backup taken automatically during the package upgrade, and can be restored from there:
 
-```default
+```shell
 cp /var/lib/one/backups/config/<timestamp>-v<previous version>/var/lib/one/remotes/hooks/ft/fence_host.sh \
    /var/lib/one/remotes/hooks/ft/fence_host.sh
 ```
@@ -37,6 +37,20 @@ error: Requested operation is not valid: cannot undefine domain with nvram
 
 The migrate pattern should be aware of NVRAM existence and properly use --keep-nvram during the undefine operation.
 
+## LVM Datastores
+
+### Leftover Backup Snapshots Can Cause Data Loss During Migration (Fixed 7.4.2)
+
+LVM VMs created before OpenNebula 7.4.2 can retain snapshot overlays after a backup operation, particularly after an interactive backup. Migrating an affected VM while its thin pool is active on the destination Host can load stale thin-pool metadata and cause guest data loss.
+
+Before migrating one of these VMs, verify that its LVM thin pools are inactive on the destination Host. VMs created with OpenNebula 7.4.2 or later are not affected. After upgrading to 7.4.2, running a new backup of an older VM also removes the leftover snapshots on the source Host and prevents this issue.
+
+### Image Imports Use `/var/tmp`
+
+The LVM Image Datastore driver [ignores `STAGING_DIR`](https://github.com/OpenNebula/one/issues/8114) during image imports and writes the temporary image to `/var/tmp/one_img<ID>.<random>`. When `BRIDGE_LIST` is configured, this path is on the selected bridge Host. Otherwise, it is on the Front-end Host. This affects both RAW and QCOW2 image imports.
+
+Before importing an image, ensure that `/var/tmp` on the applicable Host has enough free space for the complete image. A failed or interrupted download can leave a partial `one_img...` file in `/var/tmp`. After confirming that no image import is using it, remove the stale file to recover the occupied space.
+
 ## Frontend HA
 
 - [ARP tables are not updated automatically](https://github.com/OpenNebula/one/issues/7920) when a leader is elected in Red Hat Enterprise Linux OS variants.
@@ -49,7 +63,7 @@ Worker creation and restores [will fail](https://github.com/OpenNebula/one/issue
 
 It can be fixed by changing the line ~145 in the `/usr/lib/one/ovirtapi-server/controllers/disk_controller.rb` file (located in the oVirtAPI backup server). Then restart the apache2/httpd service.
 
-```
+```ruby
 vm_id = disk_hash['IMAGE']['VM_ID'].to_i
 if backup_mode == 'incremental' && vm_id > 0    # <-- Add this vm_id check
     vm = VmController.get_one_vms(client, :vm_id => vm_id)
@@ -99,67 +113,124 @@ When provisioning a Cluster with OneForm through Sunstone, fields in the **User 
 
 As a workaround, enter the values into a notepad or code editor then copy and paste each complete value into each field in a single operation.
 
-### VM Actions Missing in the Group Admin View
+### Legacy Configuration Keys in Sunstone Views
 
-Some VM actions are not displayed in the **Group Admin** view because the config file `/etc/one/fireedge/sunstone/views/groupadmin/vm-tab.yaml` uses legacy action names.
+Several Sunstone view files use legacy action and tab keys. These mismatches can hide or disable controls.
 
-As a workaround, edit the file and substitute the legacy action names as follows, preserving all other existing entries:
+As a workaround, edit the affected files and replace the legacy action names in red with the updated names in green as follows, preserving all other existing entries. Paths are relative to `/etc/one/fireedge/sunstone/views/`.:
 
-```diff
- actions:
--  migrate_live: true
-+  live-migrate: true
+* `/admin/backupjobs-tab.yaml`
 
- info-tabs:
-   info:
-     capacity_panel:
-       actions:
--        resize_capacity: true
-+        resize: true
-   storage:
-     actions:
--      attach_disk:
--        enabled: true
-+      disk-attach-image: true
-+      disk-attach-volatile: true
-       disk-detach: true
--      snapshot_disk_create: true
--      snapshot_disk_rename: true
--      snapshot_disk_revert: true
--      snapshot_disk_delete: true
--      resize_disk: true
--      disk_saveas:
--        enabled: true
-+      disk-snapshot-create: true
-+      disk-snapshot-rename: true
-+      disk-snapshot-revert: true
-+      disk-snapshot-delete: true
-+      disk-resize: true
-+      disk-saveas: true
-   network:
-     actions:
--      attach_nic: true
--      detach_nic: true
--      update_nic: true
--      attach_secgroup: true
--      detach_secgroup: true
-+      nic-attach: true
-+      nic-detach: true
-+      nic-update: true
-+      sg-attach: true
-+      sg-detach: true
-   sched_actions:
-     actions:
--      sched_action_create: true
--      sched_action_update: true
--      sched_action_delete: true
-+      sched-add: true
-+      sched-update: true
-+      sched-delete: true
-       charter_create: true
-```
+  ```diff
+  info-tabs:
+    sched_actions:
+      actions:
+  -      sched_action_create: true
+  -      sched_action_update: true
+  -      sched_action_delete: true
+  +      sched-add: true
+  +      sched-update: true
+  +      sched-delete: true
+  ```
 
-After updating and saving the file, restart the FireEdge service:
+* `/cloud/vm-tab.yaml`
+
+  ```diff
+  actions:
+  -  migrate_live: false
+  +  live-migrate: false
+
+  info-tabs:
+    storage:
+      actions:
+  -      disk-attach:
+  -        enabled: true
+  +      disk-attach-image: true
+  +      disk-attach-volatile: true
+        disk-detach: true
+        disk-resize: true
+  -      disk_saveas:
+  -        enabled: true
+  +      disk-saveas: true
+  ```
+
+* `/groupadmin/group-tab.yaml`
+
+  ```diff
+  info-tabs:
+  -  'VLAN Group':
+  +  vlanrules:
+      enabled: true
+  ```
+
+* `/groupadmin/vm-group-tab.yaml`
+
+  ```diff
+  info-tabs:
+    info:
+      ownership_panel:
+        actions:
+  -        cgrp: true
+  +        chgrp: true
+  ```
+
+* `/groupadmin/vm-tab.yaml`
+
+  ```diff
+  actions:
+  -  migrate_live: true
+  +  live-migrate: true
+
+  info-tabs:
+    info:
+      capacity_panel:
+        actions:
+  -        resize_capacity: true
+  +        resize: true
+    storage:
+      actions:
+  -      attach_disk:
+  -        enabled: true
+  +      disk-attach-image: true
+  +      disk-attach-volatile: true
+        disk-detach: true
+  -      snapshot_disk_create: true
+  -      snapshot_disk_rename: true
+  -      snapshot_disk_revert: true
+  -      snapshot_disk_delete: true
+  -      resize_disk: true
+  -      disk_saveas:
+  -        enabled: true
+  +      disk-snapshot-create: true
+  +      disk-snapshot-rename: true
+  +      disk-snapshot-revert: true
+  +      disk-snapshot-delete: true
+  +      disk-resize: true
+  +      disk-saveas: true
+    network:
+      actions:
+  -      attach_nic: true
+  -      detach_nic: true
+  -      update_nic: true
+  -      attach_secgroup: true
+  -      detach_secgroup: true
+  +      nic-attach: true
+  +      nic-detach: true
+  +      nic-update: true
+  +      sg-attach: true
+  +      sg-detach: true
+    sched_actions:
+      actions:
+  -      sched_action_create: true
+  -      sched_action_update: true
+  -      sched_action_delete: true
+  +      sched-add: true
+  +      sched-update: true
+  +      sched-delete: true
+        charter_create: true
+  ```
+
+After updating and saving the affected files, restart the FireEdge service:
 
 ```shell
 systemctl restart opennebula-fireedge

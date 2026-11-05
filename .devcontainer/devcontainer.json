@@ -1,0 +1,23 @@
+{
+  "name": "OpenNebula documentation",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "node",
+  "init": true,
+  "containerEnv": {
+    "HUGO_MODULE_PROXY": "https://proxy.golang.org,direct"
+  },
+  "updateContentCommand": ["bash", ".devcontainer/prepare.sh"],
+  "waitFor": "updateContentCommand",
+  "postStartCommand": ["bash", ".devcontainer/start-preview.sh"],
+  "postAttachCommand": ["bash", ".devcontainer/start-preview.sh"],
+  "forwardPorts": [1313],
+  "portsAttributes": {
+    "1313": {
+      "label": "Documentation preview",
+      "onAutoForward": "openBrowser",
+      "protocol": "http"
+    }
+  }
+}

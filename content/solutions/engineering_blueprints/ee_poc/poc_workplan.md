@@ -8,7 +8,7 @@ weight: 1
 
 ## Infrastructure Requirements and Deployment
 
-The PoC program utilizes two methods for installing the PoC OpenNebula cloud. The recommended method is for the OpenNebula team to install in your environment using SSH/VPN.  The second option is using a custom-tailored ISO designed to simplify the deployment of a functional OpenNebula environment, enabling users to easily test-drive the platform’s core functionalities. Once the PoC cloud deployment is complete, users will be able to build and manage Virtual Machines and validate a variety of common cloud use cases.
+Once the PoC cloud deployment is complete, users will be able to build and manage Virtual Machines and validate a variety of common cloud use cases.
 
 Infrastructure requirements may vary depending on the final purpose of the infrastructure. As a minimum, customers should provide the following to deploy the OpenNebula cloud platform:
 
@@ -29,15 +29,17 @@ Infrastructure requirements may vary depending on the final purpose of the infra
 
 - Allocate a NIC port on the servers for the Management Network, and connect it to your infrastructure switch.
 
-### Option 1
+The PoC program offers two deployment methods: [Remote Deployment](#remote-deployment), in which an OpenNebula engineer installs the cloud in your target infrastructure using SSH/VPN, and [ISO Installation](#iso-installation), in which you deploy the cloud using a custom-tailored ISO. The appropriate method will be agreed during the preparation phase.
 
-For the SSH/VPN installation method by our OpenNebula engineers:
+### Remote Deployment {#remote-deployment}
+
+For the SSH/VPN installation method, our OpenNebula engineers will create a design document to guide the deployment. An assigned OpenNebula engineer will use this document to perform the deployment in your target infrastructure. This method requires:
 
 - Ubuntu 24.04 installed in the physical servers
 - Network configuration ensuring physical Hosts connectivity
 - SSH access granted to OpenNebula Systems assigned engineering team members
 
-### Option 2
+### ISO Installation {#iso-installation}
 
 For the ISO installation method:
 
@@ -56,35 +58,43 @@ Personnel who execute and operate the OpenNebula PoC are expected to possess the
    - **Virtualization management**: KVM, QEMU, libvirt/virsh
    - **Linux services configuration and operation**: Passwordless SSH configuration
 
+## How Can I Take Part in a PoC?
+
+Before starting a PoC, we hold discovery and demonstration sessions to understand your needs. Contact us by [filling in the demonstration request form](https://opennebula.io/evaluate-opennebula/#request-demo) or by email at sales@opennebula.io.
+
 ## Proof of Concept Phases
 
 {{< image path="/images/ISO/poc_diagram.png" align="center" width="90%" mb="20px">}}
 
-### 1. Request a Demo
+### 1. Success Criteria and Preparation Phase {#information-gathering-call}
 
-The first step is to request a live demo. Contact us by [filling the demonstration request form](https://opennebula.io/evaluate-opennebula/#request-demo) or by email at sales@opennebula.io.
-
-### 2. Information Gathering Call {#information-gathering-call}
-
-During this call you communicate with OpenNebula's solution architects to discuss the details of your use case and then establish timescales and criteria required to successfully complete the PoC and transition to an OpenNebula Enterprise Edition annual subscription.
+During this phase, you communicate with OpenNebula's solution architects to discuss the details of your use case and establish the timescales and criteria required to successfully complete the PoC and transition to an OpenNebula Enterprise Edition annual subscription.
 
 We will prepare a spreadsheet describing the success criteria to be used during the PoC. It will be based on the criteria in the [Success Criteria guide]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/" %}}) and will include any custom success criteria that are within the [scope of the PoC]({{% relref "solutions/engineering_blueprints/ee_poc/poc_overview/#is-running-an-opennebula-poc-for-me" %}}).
 
-Once we complete the initial arrangements, you will be contacted by an engineer to start the deployment if Option 1 is possible, or provided with a personalized, one-time link to download the ISO file prepared specifically for your deployment to perform Option 2.
+We will also agree on a schedule of weekly meetings to align on the PoC and review its progress against the agreed success criteria throughout the evaluation.
 
-### 3. Deployment Call
+Once we complete the initial arrangements, an engineer will contact you to agree on the design and start the [Remote Deployment](#remote-deployment), if that method is suitable, or provide you with a personalized, one-time link to download the ISO file prepared specifically for your [ISO Installation](#iso-installation).
 
-On the PoC kick-off date the installation will proceed with the SSH and VPN credentials shared by the potential customer. If the ISO installation method is preferred, a one-hour call will be scheduled to discuss additional details on the ISO installation process. You will be able to complete the ISO installation during the call with the support of OpenNebula Engineers, following the [ISO-based deployment guide]({{% relref "solutions/engineering_blueprints/ee_poc/ee_poc_iso/#Introduction" %}}).
+### 2. Infrastructure Readiness Phase
 
-### 4. Tutorial
+For a [Remote Deployment](#remote-deployment), you prepare the infrastructure according to the agreed design. For an [ISO Installation](#iso-installation), you prepare the infrastructure according to the [hardware and personnel requirements]({{% relref "solutions/engineering_blueprints/ee_poc/ee_poc_iso/#hardware-and-personnel-requirements" %}}).
 
-A 90 minute tutorial covering the basics of OpenNebula is included in this PoC program. You will gain  enough knowledge of the OpenNebula platform to kick-start your internal evaluation.
+Before the deployment begins, you must confirm that all required infrastructure, network configuration, access and credentials are ready.
 
-### 5. Support
+### 3. Deployment Phase
 
-Throughout the duration of the PoC, the Sales Engineering team will be the primary point of contact and will manage the testing alongside the OpenNebula engineering team who will be available through an ad-hoc mailing list to ask and solve doubts and issues you may encounter in your evaluation. This testing period will last up to a maximum of four weeks from the date you choose to start the PoC.
+On the PoC kick-off date, the installation will proceed using the SSH and VPN credentials you provided for a Remote Deployment. For an ISO Installation, a one-hour call will be scheduled to discuss the installation process. During the call, you will be able to complete the installation with the support of OpenNebula engineers by following the [ISO-based deployment guide]({{% relref "solutions/engineering_blueprints/ee_poc/ee_poc_iso/#Introduction" %}}).
 
-### 6. Wrap-up
+### 4. Knowledge Transfer Phase
+
+After the deployment, OpenNebula engineers will hand over the access credentials and provide a 90-minute tutorial covering the basics of OpenNebula in your environment. During this session, we will walk through the default success criteria and show you how to validate them, giving you the knowledge needed to begin your internal evaluation.
+
+### 5. Validation Phase
+
+You will validate the agreed default and custom success criteria with our assistance. Throughout the PoC, the Sales Engineering team will be your primary point of contact and will manage the testing alongside the OpenNebula engineering team. The engineering team will be available through an ad-hoc mailing list to answer questions and resolve issues encountered during your evaluation. This testing period will last up to four weeks from the date you choose to start the PoC.
+
+### 6. Acceptance and Wrap-up Phase
 
 As you come to the end of the PoC testing period, a wrap-up call will be scheduled with you and the OpenNebula team as an opportunity to discuss any issues, the PoC’s results, and the next steps to transition to an annual Enterprise Edition subscription. During this call, we will review the success criteria spreadsheet with you to ascertain whether the different success criteria items were correctly validated.
 <br><br>

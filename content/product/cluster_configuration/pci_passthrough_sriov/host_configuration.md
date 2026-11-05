@@ -48,16 +48,18 @@ intel_iommu=on iommu=pt
 ```
 {{% /tab %}}
 {{% tab header="AMD"%}}
+On AMD systems, the kernel normally enables IOMMU once AMD-Vi is enabled in the firmware. No additional enable parameter is usually required. Optionally, add the following parameter to use identity mappings for devices used by the Host:
+
 ```shell
-amd_iommu=on iommu=pt
+iommu=pt
 ```
 {{% /tab %}}
 {{% tab header="ARM"%}}
 Most Arm platforms enable the SMMU automatically. Refer to the platform documentation if additional kernel parameters are required.
-
-After modifying the kernel command line, regenerate the bootloader configuration using the appropriate command for your Linux distribution and reboot the host.
 {{% /tab %}}
 {{< /tabpane >}}
+
+If you modify the kernel command line, regenerate the bootloader configuration using the appropriate command for your Linux distribution and reboot the Host.
 
 ### Verification
 
