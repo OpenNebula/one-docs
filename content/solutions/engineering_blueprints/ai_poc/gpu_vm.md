@@ -3,7 +3,7 @@
 title: "Deploying a GPU-enabled Virtual Machine"
 linkTitle: "GPU-enabled VM"
 description: ""
-weight: 3
+weight: 4
 
 ---
 
@@ -128,3 +128,9 @@ Once you have confirmed that the model is loaded through the API, you can then a
 ## Next Steps
 
 Congratulations! You have now learned how to deploy a GPU-enabled Virtual Machine on OpenNebula and deploy a GPU workload through the vLLM framework. Now you can move on to [Deploying a OneKS Kubernetes Cluster]({{% relref "solutions/engineering_blueprints/ai_poc/oneks/" %}}).
+
+## Success Criteria
+
+Completing this guide fulfills the following success criteria:
+
+* [AI-SC2]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#gpu-instances" %}}): Deploy a VM with GPU resources

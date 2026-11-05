@@ -3,7 +3,7 @@
 title: "Access, Groups and Users"
 linkTitle: "Access, Groups and Users"
 description: ""
-weight: 2
+weight: 3
 
 ---
 
@@ -122,3 +122,11 @@ This warning demonstrates that the resource limit you applied for the **poc-temp
 Congratulations! You have now successfully utilized OpenNebula's multi-tenancy model to create and manage groups and tenants and apply resource quota's. You can learn more about OpenNebula's multi-tenancy functionality in the [Multi-tenancy Documentation]({{% relref "product/cloud_system_administration/multitenancy/auth_overview/" %}}).
 
 The next step in this PoC guided tour of OpenNebula's AI Factory functionality is [Deploying a GPU-enabled Virtual Machine]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_vm/" %}}).
+
+## Success Criteria
+
+Completing this guide fulfills the following success criteria:
+
+* [SC16]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#platform-administration" %}}): Create additional users
+* [SC17]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#platform-administration" %}}): Create additional groups
+* [SC20]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#platform-administration" %}}): Create and assign quota to group(s)
