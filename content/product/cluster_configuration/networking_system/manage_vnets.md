@@ -549,6 +549,8 @@ You can also manage your Virtual Networks using the [Sunstone GUI]({{% relref ".
 
 Port mirroring copies selected Virtual Machine traffic to a monitoring destination for packet capture or traffic analysis. In Sunstone, it is available for existing [Open vSwitch Virtual Networks]({{% relref "product/cluster_configuration/networking_system/openvswitch.md#openvswitch" %}}) using the `ovswitch` or `ovswitch_vxlan` driver. Mirrors are managed after the Virtual Network has been created, rather than through network creation or Virtual Network Templates.
 
+Before creating a mirror, see the [Port Mirroring guide]({{% relref "product/cluster_configuration/networking_system/port_mirroring.md" %}}) for collector prerequisites, destination settings, traffic direction, and VLAN filtering.
+
 Open **Networks -> Virtual networks**, select a network, and open its **Port Mirroring** tab. Click **Create mirror** and complete the following three steps:
 
 1. **Configuration**: Enter a name, choose `RSPAN`, `GRE`, or `ERSPAN`, and configure its destination. The destination fields depend on the selected type; ERSPAN supports types II and III.
