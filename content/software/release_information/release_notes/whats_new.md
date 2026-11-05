@@ -25,6 +25,10 @@ This page will contain the list of new features in OpenNebula 7.6.0.
 
 * Improved control of Provision lifecycle actions. OneForm now tracks Terraform and Ansible executions across service restarts, enables recovery of interrupted operations, and allows users to [cancel an active Provision operation]({{% relref "product/cluster_provisioning/cluster_operations/provision_operations.md#cancelling-an-active-operation" %}}).
 
+## OneSwap
+
+- Add [OpenVDDK support]({{% relref "software/migration_from_vmware/oneswap.md#vddk-transfer-support" %}}) as an open-source alternative to VMware VDDK, reducing vendor lock-in. Introduce `--vddk-config` to enable custom VDDK tuning for both implementations, including Delta base disk transfers [#8159](https://github.com/OpenNebula/one/issues/8159).
+
 ## Features Backported to 7.4.x
 
 Additionally, the following functionalities are present that were not in OpenNebula 7.4.0, although they debuted in subsequent maintenance releases of the 7.4.x series:
