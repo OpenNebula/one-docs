@@ -2284,11 +2284,11 @@ The third parameter must be an OpenNebula ATTRIBUTE=VALUE template, with these v
 
 ### one.vn.mirror_create
 
-- **Description**: Creates a mirror on Virtual Network. The template must contain exactly one `MIRROR` vector.
-- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the selected source VMs and the SPAN destination VM. VLAN-only capture requires a cloud administrator.
+- **Description**: Creates a mirror on a Virtual Network using the `ovswitch` or `ovswitch_vxlan` driver. The template must contain exactly one `MIRROR` vector; see the [mirror template reference]({{% relref "product/cluster_configuration/networking_system/port_mirroring.md#mirror-template" %}}). The Virtual Network must be in `READY` or `UPDATE_FAILURE` state. Changes are applied to the Hosts asynchronously.
+- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on all selected source VMs.
 - **Parameters**:
 
-| Type | Data Type  | Description                                            |
+| **Type** | **Data type** | **Description** |
 |------|------------|--------------------------------------------------------|
 | IN   | String     | The session string.                                    |
 | IN   | Int        | The Virtual Network ID.                                |
@@ -2300,11 +2300,11 @@ The third parameter must be an OpenNebula ATTRIBUTE=VALUE template, with these v
 
 ### one.vn.mirror_update
 
-- **Description**: Updates a mirror. Source membership is preserved; use the port methods to change it.
-- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the selected source VMs and the SPAN destination VM. VLAN-only capture requires a cloud administrator.
+- **Description**: Updates a mirror. Source membership is preserved in both replacement and merge mode; any supplied `PORTS` attribute is ignored. Use `one.vn.mirror_addport` and `one.vn.mirror_delport` to change membership. The Virtual Network must be in `READY` or `UPDATE_FAILURE` state. Changes are applied to the Hosts asynchronously.
+- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on all selected source VMs.
 - **Parameters**:
 
-| Type | Data Type  | Description                                                                           |
+| **Type** | **Data type** | **Description** |
 |------|------------|---------------------------------------------------------------------------------------|
 | IN   | String     | The session string.                                                                   |
 | IN   | Int        | The Virtual Network ID.                                                               |
@@ -2318,11 +2318,11 @@ The third parameter must be an OpenNebula ATTRIBUTE=VALUE template, with these v
 
 ### one.vn.mirror_addport
 
-- **Description**: Adds source VM NICs to a mirror.
-- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the selected source VMs and the SPAN destination VM.
+- **Description**: Adds source VM NICs to a mirror. The Virtual Network must be in `READY` or `UPDATE_FAILURE` state. Host updates are asynchronous. Adding an already selected port succeeds without triggering another update for that port.
+- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the source VMs specified in this request.
 - **Parameters**:
 
-| Type | Data Type  | Description                                             |
+| **Type** | **Data type** | **Description** |
 |------|------------|---------------------------------------------------------|
 | IN   | String     | The session string.                                     |
 | IN   | Int        | The Virtual Network ID.                                 |
@@ -2335,11 +2335,11 @@ The third parameter must be an OpenNebula ATTRIBUTE=VALUE template, with these v
 
 ### one.vn.mirror_delport
 
-- **Description**: Removes source VM NICs from a mirror. If no ports remain but the VLAN filter is nonempty, the mirror becomes VLAN-only rather than inactive.
-- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the remaining source VMs and the SPAN destination VM. VLAN-only capture requires a cloud administrator.
+- **Description**: Removes source VM NICs from a mirror. The Virtual Network must be in `READY` or `UPDATE_FAILURE` state. Every requested port must currently be selected. Removing the last port deactivates the mirror even if `VLANS` is nonempty; VLAN-only capture is not supported. Host cleanup is asynchronous; see the [RSPAN cache limitation]({{% relref "product/cluster_configuration/networking_system/port_mirroring.md#known-limitations" %}}).
+- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the source VMs specified in this request.
 - **Parameters**:
 
-| Type | Data Type  | Description                                             |
+| **Type** | **Data type** | **Description** |
 |------|------------|---------------------------------------------------------|
 | IN   | String     | The session string.                                     |
 | IN   | Int        | The Virtual Network ID.                                 |
@@ -2352,11 +2352,11 @@ The third parameter must be an OpenNebula ATTRIBUTE=VALUE template, with these v
 
 ### one.vn.mirror_delete
 
-- **Description**: Deletes a mirror and propagates removal of its capture configuration.
+- **Description**: Deletes a mirror definition. Its `PORTS` list must be empty; remove all source ports with `one.vn.mirror_delport` first and wait for Host cleanup to finish.
 - **Authorization**: `NET:ADMIN`.
 - **Parameters**:
 
-| Type | Data Type  | Description                                             |
+| **Type** | **Data type** | **Description** |
 |------|------------|---------------------------------------------------------|
 | IN   | String     | The session string.                                     |
 | IN   | Int        | The Virtual Network ID.                                 |
