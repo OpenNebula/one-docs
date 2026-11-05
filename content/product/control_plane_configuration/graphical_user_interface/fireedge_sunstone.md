@@ -68,7 +68,7 @@ The available Sunstone sections and their tabs are described in the following su
 
 ### Networks
 
-- **Virtual Networks Tab**: Users can see all their Virtual Networks and perform management operations such as updating, reserving, changing permissions, and more. Users can also create a new Virtual Network from this tab. For existing Open vSwitch networks, the [Port Mirroring Tab]({{% relref "product/cluster_configuration/networking_system/manage_vnets/#port-mirroring" %}}) allows users to inspect and manage mirrors.
+- **Virtual Networks Tab**: Users can see all their Virtual Networks and perform management operations such as updating, reserving, changing permissions, and more. Users can also create a new Virtual Network from this tab. For existing Open vSwitch networks, the [Port Mirroring Tab]({{% relref "product/cluster_configuration/networking_system/manage_vnets.md#port-mirroring" %}}) allows users to inspect and manage mirrors.
 - **Virtual Networks Template Tab**: Users can see all their Virtual Networks Templates and perform updates. From this tab, users can also instantiate a Virtual Network from a template. Also, users can perform some managing operations over the templates, such as: change permissions, lock and unlock, and more.
 - **Security Groups Tab**: Users can see all their Security Groups and perform managing operations such as updating, cloning, committing, changing permissions, and more. Also, users can create a new Security Group from this tab.
 

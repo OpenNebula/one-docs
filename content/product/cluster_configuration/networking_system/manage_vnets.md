@@ -549,7 +549,7 @@ You can also manage your Virtual Networks using the [Sunstone GUI]({{% relref ".
 
 ### Port Mirroring
 
-Port mirroring copies selected Virtual Machine traffic to a monitoring destination for packet capture or traffic analysis. In Sunstone, it is available for existing [Open vSwitch Virtual Networks]({{% relref "openvswitch#openvswitch" %}}) using the `ovswitch` or `ovswitch_vxlan` driver. Mirrors are managed after the Virtual Network has been created, rather than through network creation or Virtual Network Templates.
+Port mirroring copies selected Virtual Machine traffic to a monitoring destination for packet capture or traffic analysis. In Sunstone, it is available for existing [Open vSwitch Virtual Networks]({{% relref "product/cluster_configuration/networking_system/openvswitch.md#openvswitch" %}}) using the `ovswitch` or `ovswitch_vxlan` driver. Mirrors are managed after the Virtual Network has been created, rather than through network creation or Virtual Network Templates.
 
 Open **Networks -> Virtual networks**, select a network, and open its **Port Mirroring** tab. Click **Create mirror** and complete the following three steps:
 
@@ -559,6 +559,8 @@ Open **Networks -> Virtual networks**, select a network, and open its **Port Mir
 
 Select a mirror in the list to open its details alongside the parent network. The details show its settings, source interfaces, and source VLANs. Use **Add source** or the remove action on an interface to change its source membership. The toolbar provides actions to edit the mirror settings, refresh its details, or delete it. The mirror type cannot be changed when editing, and source interfaces are managed from the details rather than the settings form.
 
+To delete a mirror, remove all its source interfaces first and wait for their updates to finish. Then use **Delete mirror** and confirm the deletion. Deletion fails if any source interfaces remain selected.
+
 Changes are applied asynchronously to the affected VMs. Wait for the Virtual Network update to complete before checking captured traffic.
 
-The tab and its actions are controlled by `info-tabs.port_mirroring` in the `vnet-tab.yaml` file of each [Sunstone view]({{% relref "product/control_plane_configuration/graphical_user_interface/fireedge_sunstone#views" %}}). Enabling an action does not grant permissions: mirror management requires `ADMIN` permission on the Virtual Network, and selecting source interfaces also requires `ADMIN` permission on the referenced VMs.
+The tab and its actions are controlled by `info-tabs.port_mirroring` in the `vnet-tab.yaml` file of each [Sunstone view]({{% relref "product/control_plane_configuration/graphical_user_interface/fireedge_sunstone.md#views" %}}). Enabling an action does not grant permissions: mirror management requires `ADMIN` permission on the Virtual Network. Creating a mirror or updating its settings also requires `ADMIN` permission on all selected source VMs. Adding or removing source interfaces requires `ADMIN` permission on the VMs specified in that request.
