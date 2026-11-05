@@ -246,6 +246,11 @@ onehost sync is not performed by the core, it is done by the ruby command onehos
 | lock                 | one.vn.lock      | NET:MANAGE                                             |
 | unlock               | one.vn.unlock    | NET:MANAGE                                             |
 | recover              | one.vn.recover   | NET:MANAGE                                             |
+| mirror-create        | one.vn.mirror_create  | NET:ADMIN, VM:ADMIN                               |
+| mirror-update        | one.vn.mirror_update  | NET:ADMIN, VM:ADMIN                               |
+| mirror-addport       | one.vn.mirror_addport | NET:ADMIN, VM:ADMIN                               |
+| mirror-delport       | one.vn.mirror_delport | NET:ADMIN, VM:ADMIN                               |
+| mirror-delete        | one.vn.mirror_delete  | NET:ADMIN                                         |
 
 ### oneuser
 
@@ -2276,6 +2281,90 @@ The third parameter must be an OpenNebula ATTRIBUTE=VALUE template, with these v
 | OUT    | Int/String  | The resource ID / The error string.                               |
 | OUT    | Int         | Error code.                                                       |
 | OUT    | Int         | ID of the VNet that caused the error.                             |
+
+### one.vn.mirror_create
+
+- **Description**: Creates a mirror on a Virtual Network using the `ovswitch` or `ovswitch_vxlan` driver. The template must contain exactly one `MIRROR` vector; see the [mirror template reference]({{% relref "product/cluster_configuration/networking_system/port_mirroring.md#mirror-template" %}}). The Virtual Network must be in `READY` or `UPDATE_FAILURE` state. Changes are applied to the Hosts asynchronously.
+- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on all selected source VMs.
+- **Parameters**:
+
+| **Type** | **Data type** | **Description** |
+|------|------------|--------------------------------------------------------|
+| IN   | String     | The session string.                                    |
+| IN   | Int        | The Virtual Network ID.                                |
+| IN   | String     | Mirror template in OpenNebula attribute syntax or XML. |
+| OUT  | Boolean    | Whether the operation succeeded.                       |
+| OUT  | Int/String | The mirror ID on success / the error string on failure.|
+| OUT  | Int        | Error code.                                            |
+| OUT  | Int        | ID of the object that caused the error.                |
+
+### one.vn.mirror_update
+
+- **Description**: Updates a mirror. Source membership is preserved in both replacement and merge mode; any supplied `PORTS` attribute is ignored. Use `one.vn.mirror_addport` and `one.vn.mirror_delport` to change membership. The Virtual Network must be in `READY` or `UPDATE_FAILURE` state. Changes are applied to the Hosts asynchronously.
+- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on all selected source VMs.
+- **Parameters**:
+
+| **Type** | **Data type** | **Description** |
+|------|------------|---------------------------------------------------------------------------------------|
+| IN   | String     | The session string.                                                                   |
+| IN   | Int        | The Virtual Network ID.                                                               |
+| IN   | Int        | Mirror ID within the Virtual Network.                                                 |
+| IN   | String     | Template containing exactly one `MIRROR` vector.                                      |
+| IN   | Int        | Optional update type: `0` replaces the configuration (default); `1` merges attributes.|
+| OUT  | Boolean    | Whether the operation succeeded.                                                      |
+| OUT  | Int/String | The mirror ID on success / the error string on failure.                               |
+| OUT  | Int        | Error code.                                                                           |
+| OUT  | Int        | ID of the object that caused the error.                                               |
+
+### one.vn.mirror_addport
+
+- **Description**: Adds source VM NICs to a mirror. The Virtual Network must be in `READY` or `UPDATE_FAILURE` state. Host updates are asynchronous. Adding an already selected port succeeds without triggering another update for that port.
+- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the source VMs specified in this request.
+- **Parameters**:
+
+| **Type** | **Data type** | **Description** |
+|------|------------|---------------------------------------------------------|
+| IN   | String     | The session string.                                     |
+| IN   | Int        | The Virtual Network ID.                                 |
+| IN   | Int        | Mirror ID within the Virtual Network.                   |
+| IN   | String     | Comma-separated source ports in `VM_ID:NIC_ID` format.  |
+| OUT  | Boolean    | Whether the operation succeeded.                        |
+| OUT  | Int/String | The mirror ID on success / the error string on failure. |
+| OUT  | Int        | Error code.                                             |
+| OUT  | Int        | ID of the object that caused the error.                 |
+
+### one.vn.mirror_delport
+
+- **Description**: Removes source VM NICs from a mirror. The Virtual Network must be in `READY` or `UPDATE_FAILURE` state. Every requested port must currently be selected. Removing the last port deactivates the mirror even if `VLANS` is nonempty; VLAN-only capture is not supported. Host cleanup is asynchronous; see the [RSPAN cache limitation]({{% relref "product/cluster_configuration/networking_system/port_mirroring.md#known-limitations" %}}).
+- **Authorization**: `NET:ADMIN`, plus `VM:ADMIN` on the source VMs specified in this request.
+- **Parameters**:
+
+| **Type** | **Data type** | **Description** |
+|------|------------|---------------------------------------------------------|
+| IN   | String     | The session string.                                     |
+| IN   | Int        | The Virtual Network ID.                                 |
+| IN   | Int        | Mirror ID within the Virtual Network.                   |
+| IN   | String     | Comma-separated source ports in `VM_ID:NIC_ID` format.  |
+| OUT  | Boolean    | Whether the operation succeeded.                        |
+| OUT  | Int/String | The mirror ID on success / the error string on failure. |
+| OUT  | Int        | Error code.                                             |
+| OUT  | Int        | ID of the object that caused the error.                 |
+
+### one.vn.mirror_delete
+
+- **Description**: Deletes a mirror definition. Its `PORTS` list must be empty; remove all source ports with `one.vn.mirror_delport` first and wait for Host cleanup to finish.
+- **Authorization**: `NET:ADMIN`.
+- **Parameters**:
+
+| **Type** | **Data type** | **Description** |
+|------|------------|---------------------------------------------------------|
+| IN   | String     | The session string.                                     |
+| IN   | Int        | The Virtual Network ID.                                 |
+| IN   | Int        | Mirror ID within the Virtual Network.                   |
+| OUT  | Boolean    | Whether the operation succeeded.                        |
+| OUT  | Int/String | The mirror ID on success / the error string on failure. |
+| OUT  | Int        | Error code.                                             |
+| OUT  | Int        | ID of the object that caused the error.                 |
 
 ### one.vn.update
 
