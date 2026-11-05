@@ -195,7 +195,7 @@ Normally that means populating the file `$HOME/.one/one_auth` with `username:pas
 
 ### Optional requirements and required tools
 
-- VDDK library is recommended to improve disk transfer speeds. As of the moment of writing, the library can be downloaded from [Broadcom developer portal](https://developer.broadcom.com/sdks/vmware-virtual-disk-development-kit-vddk/latest/). VDDK version **MUST** match the vCenter version.
+- A VDDK library (VMware VDDK or OpenVDDK) is recommended to improve disk transfer speeds. VMware VDDK can be downloaded from [Broadcom developer portal](https://developer.broadcom.com/sdks/vmware-virtual-disk-development-kit-vddk/latest/); its version **MUST** match the vCenter version. See [VDDK Transfer Support](#vddk-transfer-support) for OpenVDDK.
 - It is recommended to increase the vCenter API timeout to avoid request timeouts while converting big VMs. By default this value is 120 minutes and can be changed in vCenter at "Administration -> Deployment -> Client Configuration", allowing values up to 1440 minutes (24 hours).
 - The following libraries/programs must be installed
   - `libguestfs` library, version must be >= 1.50
@@ -208,6 +208,11 @@ Ubuntu 24.04 and AlmaLinux/RHEL 9 provide up to date versions of the packages.
 <a id="vddk-transfer-support"></a>
 
 ### VDDK Transfer Support
+
+OneSwap supports two VDDK implementations:
+
+- **VMware VDDK:** VMware's proprietary Virtual Disk Development Kit.
+- **OpenVDDK:** An open-source alternative compatible with the nbdkit VDDK plugin. See the [upstream project](https://github.com/openvddk/openvddk) for installation instructions.
 
 `--vddk` transfers require the nbdkit VDDK plugin, which Debian/Ubuntu packages do not ship (on RHEL install the `nbdkit-vddk-plugin` package). To build and install it, run once on each migration host (as root):
 
@@ -234,6 +239,48 @@ oneswap convert VM_NAME --vddk /opt/vmware-vix-disklib-distrib/
 ```
 
 Delta and hybrid modes are currently not supported for vSAN-backed disks. Use full conversion with VDDK for vSAN-backed VMs.
+
+#### Optional VDDK configuration
+
+Use `--vddk-config /path/to/vddk.conf` to pass an optional configuration file to either VMware VDDK or OpenVDDK. This requires VDDK transfer mode (`--vddk` or `:vddk_path:`), and the file must exist and be readable by the user running OneSwap. Without this option, existing behavior remains unchanged.
+
+Alternatively, configure it in `/etc/one/oneswap.yaml`:
+
+```yaml
+:vddk_path: '/opt/openvddk/lib64'
+:vddk_config: '/path/to/vddk.conf'
+```
+
+For a standard VDDK transfer:
+
+```bash
+oneswap convert VM_NAME --vddk /opt/openvddk/lib64 \
+--vddk-config /path/to/vddk.conf
+```
+
+The configuration file also applies to Delta initial/base transfers on supported non-vSAN datastores. For Delta prepare:
+
+```bash
+oneswap convert VM_NAME --delta --delta-prepare \
+--vddk /opt/openvddk/lib64 --vddk-config /path/to/vddk.conf
+```
+
+Delta commit and cleanup do not use the VDDK configuration file.
+
+Example configuration for VMware VDDK:
+
+```text
+vixDiskLib.nfcAio.Session.BufSizeIn64KB = "32"
+```
+
+Example configuration for OpenVDDK:
+
+```text
+OpenVDDK.nbd.sessions = "4"
+vixDiskLib.nfcAio.Session.BufSizeIn64KB = "32"
+```
+
+The buffer value `32` corresponds to a 2 MiB NFC buffer. `OpenVDDK.nbd.sessions` controls the number of NFC sessions used for reading a disk. These are examples, not universal recommended values: more sessions and larger buffers can improve throughput but consume additional resources. Faster VMDK reads do not necessarily result in proportional improvements in total migration time. See the [OpenVDDK tuning guide](https://github.com/openvddk/openvddk/blob/main/docs/TUNING.md) for additional parameters.
 
 ### Non-root libguestfs appliance
 
@@ -454,7 +501,7 @@ There are four methods to transfer the images from vCenter/ESXi to the conversio
 - **vCenter API** (default)
   - The disks are downloaded by `virt-v2v` through the vCenter API (`vpx://`). No extra options are needed, but it is usually the slowest option.
 - **VDDK Library** (`--vddk /path/to/lib`)
-  - Use the VMware Virtual Disk Development Kit library, usually the fastest transfer method.
+  - Use VMware VDDK or OpenVDDK for potentially faster disk transfers.
   - Requires the nbdkit VDDK plugin, see [VDDK Transfer Support](#vddk-transfer-support).
   - Can be combined with `--delta` for the initial/base disk transfer on non-vSAN VMware datastores.
 - **ESXi Direct SSH transfer** (`--esxi`, `--esxi-user`, `--esxi-pass`)
@@ -489,7 +536,7 @@ oneswap convert vm-1234 $VOPTS [--fallback|--custom] [--network ID] [--datastore
 # Convert a virtual machine transferring directly from ESXi
 oneswap convert vm-1234 $VOPTS --esxi 12.34.56.79 --esxi-pass changeme123 [--esxi-user root]
 
-# Convert a vCenter virtual machine utilizing the proprietary VDDK library (usually faster)
+# Convert a vCenter virtual machine using VMware VDDK or OpenVDDK
 oneswap convert vm-1234 $VOPTS --vddk /path/to/vddk-lib
 
 # Convert without powering off the original VM (clone mode)
