@@ -9,21 +9,26 @@ weight: 2
 
 When participating in a hosted Proof of Concept trial of the OpenNebula system, you will be given access to hosted infrastructure via VPN. This guide details the steps to connect to the VPN with the credentials provided to you by your OpenNebula PoC contact.
 
-## Before You Start
+## Before Starting
 
-You connect with an OpenVPN profile file plus a personal username and password; setup takes about 5 minutes on any OS.
+This guide is part of the AI Factory PoC service provided by OpenNebula. If you are not already participant in an AI Factory PoC process, please [contact the sales team at OpenNebula](https://opennebula.io/contact/) to arrange it.
+
+You connect with an OpenVPN profile file plus a personal username and password; setup takes about 5 minutes on any OS. Your PoC contact will send you an email containing credentials to connect to the infrastructure via VPN and the credentials for 2 OpenNebula user accounts to use during the PoC. 
 
 ### What You Receive From Us
 
 * A configuration profile file ending in `.ovpn` (contains your personal certificate)  
 * Your **username**  
 * Your **password**, sent through a separate channel from the file
+* The IP address of the server hosting the OpenNebula Front-end control plane
+
+You will also receive credentials for two OpenNebula user accounts named **poc-tenant** and **poc-operator**. These are not required to complete this VPN connection guide. They will be required to log into the Sunstone web GUI after connecting via VPN at the start of the [User Access and Management Guide]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}}). 
 
 ### What You Need
 
 * An OpenVPN-compatible client (instructions per OS below)  
 * A network that allows outbound **UDP port 2000**. Some corporate or guest networks block it; see Troubleshooting.
-* Access to a Unix-like terminal (WSL on Windows)
+* Access to a Unix-like terminal (WSL on Windows) that can run commands like `curl`, `jq` or `ping`.
 
 ### What the VPN Gives You
 
@@ -35,7 +40,7 @@ You connect with an OpenVPN profile file plus a personal username and password; 
 Use **OpenVPN Connect**; no route changes are needed.
 
 1. Download and install OpenVPN Connect from [openvpn.net/client](https://openvpn.net/client/).  
-2. Open the app and choose **Import Profile** → **Upload File**.  
+2. Open the app and choose **Import Profile -> Upload File**.  
 3. Drag your `.ovpn` file into the window, or click **Browse** and select it.  
 4. Enter your **username** and click **Connect**.  
 5. Enter your **password** when prompted. Optionally tick **Save password**.  
@@ -50,7 +55,7 @@ Use **OpenVPN Connect** or **Tunnelblick**; both work without route changes.
 **Option A: OpenVPN Connect**
 
 1. Download and install OpenVPN Connect from [openvpn.net/client](https://openvpn.net/client/).  
-2. Open the app and choose **Import Profile** → **Upload File**, then drag in your `.ovpn` file.  
+2. Open the app and choose **Import Profile -> Upload File**, then drag in your `.ovpn` file.  
 3. Enter your **username**, click **Connect**, then enter your **password**.  
 4. The status turns **Connected**. Go to *Verify the connection* below.
 
@@ -58,51 +63,66 @@ Use **OpenVPN Connect** or **Tunnelblick**; both work without route changes.
 
 1. Download and install Tunnelblick from [tunnelblick.net](https://tunnelblick.net/).  
 2. Double-click your `.ovpn` file and choose **Only Me** when asked who should use it.  
-3. Click the Tunnelblick icon in the menu bar → **Connect** with the profile name.  
+3. Click the Tunnelblick icon in the menu bar **-> Connect** with the profile name.  
 4. Enter your **username** and **password**.  
-5. In **VPN Details → Settings**, keep **Route all IPv4 traffic through the VPN** unchecked (the default).
+5. In **VPN Details -> Settings**, keep **Route all IPv4 traffic through the VPN** unchecked (the default).
 
-If you use **Viscosity**, keep **Send all traffic over VPN connection** unchecked in *Edit Connection → Networking*.
+If you use **Viscosity**, keep **Send all traffic over VPN connection** unchecked in *Edit Connection -> Networking*.
 
 ## Linux
 
 On NetworkManager you must tick one routing option, otherwise you lose internet access while connected. The openvpn command line needs no changes.
 
-**Option A: NetworkManager (Ubuntu, Fedora and most desktops)**
+### Option A: NetworkManager (Ubuntu, Fedora and Most Desktops)
 
 1. Install the OpenVPN plugin:  
    * Ubuntu/Debian: sudo apt install network-manager-openvpn-gnome  
    * Fedora: sudo dnf install NetworkManager-openvpn-gnome  
-2. Open **Settings → Network → VPN → \+** → **Import from file…** and select your `.ovpn` file.  
+2. Open **Settings -> Network -> VPN -> +** **-> Import from file…** and select your `.ovpn` file.  
 3. Enter your **username** and **password** in the Identity tab.  
-4. Open the **IPv4** tab → **Routes** and tick **Use this connection only for resources on its network**. Do the same in the **IPv6** tab.  
+4. Open the **IPv4** tab **-> Routes** and tick **Use this connection only for resources on its network**. Do the same in the **IPv6** tab.  
 5. Click **Add** (or **Apply**), then switch the VPN on.
 
-Same setup from the terminal (replace \<name\> with the connection name the import prints, and \<username\> with yours):
+Same setup from the terminal (replace `<name>` with the connection name the import prints, and `<username>` with yours):
 
+```shell
 nmcli connection import type openvpn file your-profile.ovpn  
-nmcli connection modify \<name\> vpn.user-name \<username\> ipv4.never-default yes ipv6.never-default yes  
-nmcli connection up \<name\> \--ask  
-**Option B: openvpn command line**
+nmcli connection modify <name> vpn.user-name <username> ipv4.never-default yes ipv6.never-default yes  
+nmcli connection up <name> --ask  
+```
+### Option B: OpenVPN Command Line
 
-sudo apt install openvpn        \# Fedora: sudo dnf install openvpn  
-sudo openvpn \--config your-profile.ovpn  
-Enter your username and password when prompted. Keep the terminal open while you work; press Ctrl+C to disconnect.
+```shell
+sudo apt install openvpn # Fedora: sudo dnf install openvpn  
+sudo openvpn --config your-profile.ovpn  
+```
+
+Enter your username and password when prompted. Keep the terminal open while you work; press **Ctrl+C** to disconnect.
 
 ## Verify the Connection
 
-A working connection shows a route to 10.16.6.0/24 through the VPN, your normal internet still works, and the PoC endpoint we gave you answers.
+A working connection shows a route to `10.16.6.0/24` through the VPN, your normal internet still works, and the PoC endpoint we gave you answers.
 
 1. **Route to the PoC network goes through the VPN**
 
-| **OS** | **Command** | **Expected** |
-| :---- | :---- | :---- |
-| Windows (PowerShell) | route print \-4 \| findstr 10.16.6 | a 10.16.6.0 line |
-| macOS | netstat \-rn \-f inet \| grep 10.16.6 | 10.16.6 via a utun interface |
-| Linux | ip route \| grep 10.16.6 | 10.16.6.0/24 ... dev tun0 |
+   | **OS** | **Command** | **Expected** |
+   | :---- | :---- | :---- |
+   | Windows (PowerShell) | route print \-4 \| findstr 10.16.6 | a 10.16.6.0 line |
+   | macOS | netstat \-rn \-f inet \| grep 10.16.6 | 10.16.6 via a utun interface |
+   | Linux | ip route \| grep 10.16.6 | 10.16.6.0/24 ... dev tun0 |
 
-2. **Internet still works:** open any website, or run ping 1.1.1.1.  
-3. **PoC endpoint answers:** ping the IP we shared with you, or open the service in your browser (for example the OpenNebula web UI or the Kubernetes API with kubectl).
+2. **Internet still works**: Open any website, or run ping 1.1.1.1.  
+3. **PoC endpoint answers:** Ping the IP we shared with you, or open the service in your browser (for example the OpenNebula web UI or the Kubernetes API with kubectl).
+
+The information provided by your OpenNebula PoC contact includes the IP address of the OpenNebula Front-end control plane. After completing the above verification steps, direct your web browser to `http://<FRONT_END_IP>:2616`, you should see the Sunstone web interface login screen:
+
+{{< image
+  pathDark="/images/quickstart/dark/sunstone_login_page.png"
+  path="/images/quickstart/light/sunstone_login_page.png"
+  alt="Sunstone login" align="center" width="50%" mb="20px"
+>}}
+
+If you can see this login prompt, you are ready to proceed with the guides in this section, starting with [User Access and Management]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}}). 
 
 ## Troubleshooting
 
@@ -116,7 +136,7 @@ Most issues come from the local network or from another VPN running at the same 
 | Connected, but PoC IPs don't answer | Another VPN (often a corporate one) takes all traffic, or your local network also uses 10.16.6.x | Disconnect the other VPN and try again. If your network uses 10.16.6.x, contact us |
 | Other OpenVPN profile disconnects | OpenVPN Connect runs one profile at a time | Expected. Switch profiles as needed |
 
-If none of this helps, send us your OS, the client you use and a screenshot or the last lines of the client log.
+If none of this helps, contact your OpenNebula PoC contact, sending us your OS, the client you use with a screenshot or the last lines of the client log.
 
 ## Security and Support
 

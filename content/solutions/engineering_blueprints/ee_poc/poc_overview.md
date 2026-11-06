@@ -62,11 +62,4 @@ A **Cloud Deployment**, by contrast, is a professional services engagement to bu
 
 Therefore, a PoC should not be considered or handed over as a production deployment. If the customer decides to move to production after a successful PoC, the environment must go through the Cloud Deployment process.
 
-## AI Factory PoC
-
-The AI Factory PoC takes the user on a guided tour through OpenNebula's AI capabilities in a structured way, using hosted infrastructure provided by OpenNebula. After receiving instructions and credentials from your OpenNebula PoC contact, you should follow the guides in the order given below:
-
-* [Connect to the Hosted Infrastructure via VPN]({{% relref "solutions/engineering_blueprints/ai_poc/connecting/" %}})
-* [Explore OpenNebula's Multi-tenancy Model, Groups and Users]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}})
-
 

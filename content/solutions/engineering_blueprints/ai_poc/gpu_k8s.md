@@ -1,17 +1,17 @@
 ---
 
-title: "GPU-enabled Virtual Machines and Kubernetes Clusters"
+title: "GPU-enabled Virtual Machines and Kubernetes Clusters with OneKS"
 linkTitle: "GPU Kubernetes Clusters"
 description: ""
 weight: 5
 
 ---
 
-## Deploying a GPU-enabled Kubernetes Cluster with OneKS
+[OneKS]({{% relref "/platform_services/oneks/" %}})  is OpenNebula's powerful Kubernetes Cluster provisioning and management tool. It enables simple, streamlined deployment of GPU-enabled Kubernetes Clusters on OpenNebula clouds to handle AI and HPC workloads. 
 
-In this guide, you will deploy a OneKS Kubernetes Cluster and deploy a GPU workload on the K8s Cluster using kubectl.
+In this guide, you will deploy a GPU-enabled Kubernetes Cluster with OneKS and deploy a GPU workload on the Kubernetes Cluster using the [kubectl](https://kubernetes.io/docs/reference/kubectl/) command line tool.
 
-Sign in using the **poc-operator** account credentials you were provided by your OpenNebula PoC contact.
+{{< alert title="Sign In as poc-operator" type="primary" >}}To start this guide sign into Sunstone as the **poc-operator** user with the credentials given to you by your OpenNebula PoC contact.{{< /alert >}}
 
 ## Prerequisites: Install kubectl and Helm
 
@@ -50,7 +50,7 @@ curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 |
 
 ## Step 1: Create the Cluster
 
-In the top left hand corner, switch to the **User** view to reveal the Kubernetes view. Go to **Kubernetes -> K8S Clusters** and select **+ Create Kubernetes Cluster**:
+In the top left hand corner, switch to the **User** view to reveal the Kubernetes features. Go to **Kubernetes -> K8S Clusters** and select **+ Create Kubernetes Cluster**:
 
 {{< image path="/images/poc/ai_poc/light/poc_create_k8s.png" 
           pathDark="/images/poc/ai_poc/dark/poc_create_k8s.png" 
@@ -63,14 +63,14 @@ Then follow the steps of the Create Kubernetes Cluster wizard:
 alt="OneKS Create Cluster" align="center" width="90%" mb="20px" >}}
 
 * **General**: Name the Cluster, e.g. `gpu-cluster`
-* **Select Cluster**: Select the OpenNebula Cluster to Host your K8s Cluster: `0 default` 
-* **Select a public Virtual Network**: Select the public Virtual Network (`public`)
-* **Select a private Virtual Network**: Select the private Virtual Network (`private-k8s`)
+* **Select Cluster**: Select the OpenNebula Cluster to Host your K8s Cluster - **0 default** 
+* **Select a public Virtual Network**: Select the Virtual Network named **public**
+* **Select a private Virtual Network**: Reuse the Virtual Network named **public**
 * **K8s version**: Select version *1.35.0*
 * **Flavours**: Select *Single-Node Control Plane*
 * **User inputs**: No changes required
 
-You can monitor the provisioning progress int the **Kubernetes Logs** view. Proceed with the next step once the K8s Cluster has reached the RUNNING state.
+You can monitor the provisioning progress int the **Kubernetes Logs** view. The K8s Cluster will take several minutes to complete provisioning. Proceed with the next step once the K8s Cluster has reached the RUNNING state.
 
 ## Step 2: Scale the K8s Cluster
 
@@ -84,11 +84,11 @@ alt="OneKS scale Cluster" align="center" width="90%" mb="20px" >}}
 * In the **Flavours** step choose the **Large Worker Nodes** flavour 
 * In the **User inputs** step set the **Count** as 1
 
-Click **Finish** and you will see the progress in the **Logs** view. Once the node has changed from the SCALING state to RUNNING, proceed with the next step.
+Click **Finish** and you will see the scaling progress in the **Logs** view. Once the node has changed from the SCALING state to RUNNING, proceed with the next step.
 
 ### Ensure the GPU is Attached
 
-Once the new node group enters the RUNNING state, select the K8s Cluster, in the **Node Groups** tab, select the new node group in the node group list and click on the node itself in the node list:
+Once the new node group enters the RUNNING state, in **Kubernetes -> K8S Clusters** select the K8s Cluster that you just launched. In the **Node Groups** tab, select the new node group in the node group list and click on the node itself in the node list:
 
 {{< image path="/images/poc/ai_poc/light/poc_inspect_node.png" 
           pathDark="/images/poc/ai_poc/dark/poc_inspect_node.png"
@@ -104,7 +104,7 @@ If you see your GPU in this list, your K8s worker node has successfully attached
 
 ## Step 3: Copy the kubeconfig
 
-Close the details panel of the node group and go to the **Kubeconfig** tab. Copy and save the kubeconfig details into a file locally with a text editor. The kubeconfig contains the details and credentials of the K8s Cluster you have just created, it is necessary to interact with the Cluster through kubectl:
+Close the details panel of the node group and go to the **Kubeconfig** tab. Copy and save the kubeconfig details into a file named *kubeconfig* in your local machine with a text editor. The kubeconfig contains the details and credentials of the K8s Cluster you have just created, it is necessary to interact with the Cluster through kubectl:
 
 {{< image path="/images/poc/ai_poc/light/poc_kubeconfig.png" 
           pathDark="/images/poc/ai_poc/dark/poc_kubeconfig.png"
@@ -112,7 +112,7 @@ alt="OneKS inspect node GPU" align="center" width="90%" mb="20px" >}}
 
 Open a terminal on your local machine and execute the following commands:
 
-*  Export the KUBECONFIG environment variable in the terminal at the beginning of any kubectl session:
+*  Export the KUBECONFIG environment variable in the terminal at the beginning of any kubectl session to direct kubectl to the Kubenetes Cluster details and credentials:
 
     ```shell
     export KUBECONFIG="$PWD/kubeconfig"
@@ -175,7 +175,7 @@ DESCRIPTION: Install complete
 TEST SUITE: None
 ```
 
-The previous output confirms that the NVIDIA GPU Operator installed correctly. Now check gpu-operator pods:
+The previous output confirms that the NVIDIA GPU Operator installed correctly. Now check **gpu-operator** pods:
 
 ```shell
 kubectl get pods -n gpu-operator
@@ -233,7 +233,7 @@ nvidia.com/vgpu.present=false
 
 Deploy a simple CUDA vector-addition workload to verify that Kubernetes can schedule a workload onto the GPU worker and execute CUDA kernels on the attached GPU. The workload copies vectors to GPU memory, performs the addition using a CUDA kernel, copies the result back to the container, and verifies the result.
 
-Create `vector-add.yaml`
+Create a YAML file named `vector-add.yaml` with the following manifest:
 
 ```yaml
 apiVersion: batch/v1
@@ -266,7 +266,7 @@ cuda-vectoradd-m4bnc   1/1     Running             0          1s
 cuda-vectoradd-m4bnc   0/1     Completed           0          2s
 ```
 
-Exit with **Ctrl-C** then check the logs:
+Once you see **Completed**, exit with **Ctrl-C** then check the logs:
 
 ```shell
 kubectl logs job/cuda-vectoradd
@@ -304,11 +304,13 @@ If you now sign into the **poc-tenant** account, since it is in the same group a
 
 ## Next Steps
 
-Contratulations! You have now deployed a GPU-enabled Kubernetes Cluster using OneKS, installed the GPU Operator and validated it with a simple GPU workload. You can now move on to deploy more complex AI Kubernetes frameworks such as [NVIDIA Dynamo]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/nvidia_dynamo/" %}}) or the [NVIDIA KAI Scheduler]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/nvidia_kai_scheduler/" %}}).
+Contratulations! You have deployed a GPU-enabled Kubernetes Cluster using OneKS, installed the GPU Operator and validated it with a simple GPU workload. 
 
-## Success Criteria
+This concludes the AI Factory PoC guided tour. You may now want to continue with advanced AI Kubernetes deployments such as [NVIDIA Dynamo]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/nvidia_dynamo/" %}}) or the [NVIDIA KAI Scheduler]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/nvidia_kai_scheduler/" %}}).
 
-Completing this guide fulfills the following success criteria:
+## PoC Success Criteria
+
+Completing this guide fulfills the following PoC success criteria:
 
 * [AI-SC7]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#managed-kubernetes" %}}): Deploy a GPU-enabled Kubernetes Cluster
 * [AI-SC8]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#managed-kubernetes" %}}): Schedule a Kubernetes GPU Workload
