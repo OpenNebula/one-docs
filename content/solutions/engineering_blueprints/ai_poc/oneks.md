@@ -7,7 +7,7 @@ weight: 5
 
 In this guide, you will deploy a OneKS Kubernetes Cluster and deploy a GPU workload on the K8s Cluster using kubectl.
 
-Sign in using the **gpu-tenant** account credentials you were provided by your OpenNebula PoC contact.
+Sign in using the **poc-operator** account credentials you were provided by your OpenNebula PoC contact.
 
 ## Prerequisites: Install kubectl and Helm
 
@@ -287,6 +287,16 @@ Clean up by deleting the VectorAdd validation job:
 ```shell
 kubectl delete -f vector-add.yaml
 ```
+
+## Sharing the Kubernetes Cluster
+
+Using OpenNebula's multi-tenancy features, a K8s Cluster launched by OneKS can be easily shared with teammates. In the **Kubernetes -> K8S Clusters** view, click on the **gpu-cluster** you created to open its information panel. In the **Permissions** section, select the **Group** option in the **Use** column:
+
+{{< image path="/images/poc/ai_poc/light/poc_share_k8s.png" 
+          pathDark="/images/poc/ai_poc/dark/poc_share_k8s.png"
+alt="OneKS inspect node GPU" align="center" width="90%" mb="20px" >}}
+
+If you now sign into the **poc-tenant** account, since it is in the same group as **poc-operator**, you will be able to see the **gpu-cluster** K8s Cluster in **Kubernetes -> K8S Clusters** and retrieve the kubeconfig to deploy GPU workloads.  
 
 ## Next Steps
 
