@@ -1,6 +1,6 @@
 ---
 
-title: "GPU-enabled Virtual Machines and Kubernetes Clusters with OneKS"
+title: "Deploying a GPU-enabled Kubernetes Cluster with OneKS"
 linkTitle: "GPU Kubernetes Clusters"
 description: ""
 weight: 5
