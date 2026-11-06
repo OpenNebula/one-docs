@@ -2,7 +2,7 @@
 title: "Deploy OpenNebula On-prem with an ISO"
 linkTitle: "ISO-based Deployment"
 description:
-weight: 3
+weight: 5
 
 ---
 

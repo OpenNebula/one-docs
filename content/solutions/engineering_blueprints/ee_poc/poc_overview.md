@@ -61,3 +61,5 @@ A successful PoC demonstrates that OpenNebula is suitable for the customer’s r
 A **Cloud Deployment**, by contrast, is a professional services engagement to build the customer’s production-ready OpenNebula environment. It includes architecture design, infrastructure requirements, production configuration, verification, and formal documentation.
 
 Therefore, a PoC should not be considered or handed over as a production deployment. If the customer decides to move to production after a successful PoC, the environment must go through the Cloud Deployment process.
+
+

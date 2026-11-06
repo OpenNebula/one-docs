@@ -2,7 +2,7 @@
 title: "Workplan"
 linkTitle: "Workplan"
 description: "Workplan for the OpenNebula Enterprise Edition Proof of Concept."
-weight: 1
+weight: 3
 
 ---
 
