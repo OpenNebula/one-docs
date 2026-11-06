@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/group.schema.json",
+  "version": 1,
+  "provision": "../getting-started/provision.json",
+  "destroyOnSuccess": true,
+  "manifests": [
+    "overview.json",
+    "labels.json"
+  ]
+}

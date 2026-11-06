@@ -18,7 +18,7 @@ import xml.etree.ElementTree as ET
 
 MARKER = Path('/root/screenshot-lab/oneks-workflow.json')
 PRIVATE = 'private-k8s'
-CLUSTER = 'docs-screenshot-oneks'
+CLUSTER = 'k8s-cluster-1'
 WORKER = 'worker1'
 DNS = '1.1.1.1'
 

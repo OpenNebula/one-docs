@@ -1,0 +1,64 @@
+{
+  "$schema": "../../schemas/manifest.schema.json",
+  "version": 1,
+  "group": "group.json",
+  "hooks": {
+    "setup": [
+      {
+        "script": "../getting-started/scripts/prepare-theme.sh",
+        "timeout": 30
+      }
+    ],
+    "teardown": [
+      {
+        "script": "../getting-started/scripts/restore-theme.sh",
+        "timeout": 30
+      }
+    ]
+  },
+  "defaults": {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "locale": "en-US"
+  },
+  "screenshots": [
+    {
+      "id": "labels.dropdown",
+      "doc": "content/product/control_plane_configuration/graphical_user_interface/sunstone_labels.md",
+      "image": "assets/images/sunstone/labels/light/labels_dropdown.png",
+      "darkImage": "assets/images/sunstone/labels/dark/labels_dropdown.png",
+      "recipe": "recipes/labels.json",
+      "capture": "dropdown",
+      "tags": [
+        "control-plane"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "labels.create",
+      "doc": "content/product/control_plane_configuration/graphical_user_interface/sunstone_labels.md",
+      "image": "assets/images/sunstone/labels/light/create_new_label.png",
+      "darkImage": "assets/images/sunstone/labels/dark/create_new_label.png",
+      "recipe": "recipes/labels.json",
+      "capture": "create",
+      "tags": [
+        "control-plane"
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "labels.dialog",
+      "doc": "content/product/control_plane_configuration/graphical_user_interface/sunstone_labels.md",
+      "image": "assets/images/sunstone/labels/light/new_label_dialog.png",
+      "darkImage": "assets/images/sunstone/labels/dark/new_label_dialog.png",
+      "recipe": "recipes/labels.json",
+      "capture": "dialog",
+      "tags": [
+        "control-plane"
+      ],
+      "status": "draft"
+    }
+  ]
+}

@@ -76,7 +76,7 @@ class CaptureWorkflowTests(unittest.TestCase):
                             'hooks': {'teardown': [{'command': 'cleanup'}]}}
                 output = StringIO()
 
-                def inspect():
+                def inspect(prompt=''):
                     self.assertIn('Recipe failed: screenshot failed', output.getvalue())
                     self.assertEqual(events, ['screenshot'])
                     events.append('inspect')

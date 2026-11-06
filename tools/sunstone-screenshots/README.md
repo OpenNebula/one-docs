@@ -796,11 +796,12 @@ Configure `provision.example.json` for the outer (local) OpenNebula installation
 - `management_nic_id`: NIC whose IPv4 address is reachable from the runner.
 - `minione_script`: HTTP(S) URL or local path to a miniONE script, preferably
   from a pinned release/commit. For example:
-  `https://raw.githubusercontent.com/OpenNebula/minione/6cc1d37a122b3edca3e3f105c15f40f47ca33c6a/minione`.
-  The supplied provisioning configurations pin this revision because it includes
-  the OneKS TPROXY entry for port `10780`, alongside ports `5030` and `2633`.
-  The older `v7.4.0` release asset lacks that entry and is unsuitable for the
-  development build used by these labs.
+  `https://github.com/OpenNebula/minione/releases/download/v7.4.0/minione`.
+  The supplied configurations use this standard installer with version `7.4`,
+  no internal repository override, and `minione_force: false` to build the
+  screenshot baseline using public release packages. The installer release
+  identifies the script, not an exact package version; miniONE selects packages
+  available in the public 7.4 repository.
   URL downloads follow redirects and are saved as `minione` in the run directory
   before allocating a VM. The source URL and downloaded SHA-256 are recorded in
   state; installation transfers that exact copy over SSH. Download failures stop
@@ -809,10 +810,13 @@ Configure `provision.example.json` for the outer (local) OpenNebula installation
   to the configuration file; `~` works.
 - `opennebula_version`: release to install. Optional `repo_base` is passed to
   miniONE's `--repo-base`; internal repository layout must match that installer.
-  The example uses the tested Ubuntu 24.04 nightly base
+  For development captures, an example Ubuntu 24.04 nightly base is
   `http://172.20.0.1/build/7.5-nightly/ubuntu2404/repo`. miniONE appends
-  `/Ubuntu/24.04` and, in the pinned installer, derives the version from the
+  `/Ubuntu/24.04` and, in the development installer used previously, derives the version from the
   URL's `build/7.5` component, overriding `--version`.
+  When switching to development packages, select an installer compatible with
+  that build: revision `6cc1d37a122b3edca3e3f105c15f40f47ca33c6a` adds the
+  OneKS TPROXY port `10780` missing from the `v7.4.0` release asset.
 - `minione_force`: boolean, default `false`. Passes miniONE's `--force` to
   override its supported-version guard for nightly builds. This also affects
   other overridable checks and is not a guarantee of package compatibility.
@@ -1099,6 +1103,24 @@ clear stale markers. This console-only recipe has no inline guest commands.
 Add `--pause-before-step` for step-by-step inspection. Use the normal capture
 without `--skip-hooks` for a complete, reproducible page workflow.
 
+With `--keep-open-on-failure`, a failed recipe opens a `recipe-debug>` terminal
+prompt on the existing browser page, before browser logout and guest teardown.
+Enter a single-line JSON recipe step, or an array of steps, for example:
+
+```json
+{"action":"click","selector":".list-item:has-text('controlplane'):has-text('RUNNING')"}
+```
+
+Commands use the normal recipe action runner, including tab switching, hover,
+fill and inline guest commands. Type `inspect` to open Playwright Inspector;
+resume there to return to the terminal prompt. Invalid selectors/actions report
+an error and leave the prompt available. Press Enter on an empty line to finish
+inspection and run teardown. Actions affect the real lab and are not saved back
+to the recipe file. The original run remains failed; this prompt does not resume
+the remaining recipe or retroactively produce successful capture results.
+This requires starting the run with `--keep-open-on-failure`; it cannot attach
+to an older browser already waiting in the previous implementation.
+
 To restart setup after **manually cleaning the lab**, use `capture --force-workflow`
 with `--run-dir`. This archives existing OneKS, theme, Alpine and WordPress markers
 associated with recognized setup scripts in the selected manifest under
@@ -1114,7 +1136,8 @@ conflicting resources yourself first. Resource-collision and ownership checks
 still apply, and new-attempt teardown runs normally. The override is recorded
 in `capture-results.json`. It cannot be combined with `--skip-hooks`.
 Supported hooks are `prepare-oneks.sh`, `prepare-theme.sh`, `prepare-alpine.sh`
-and `prepare-wordpress.sh`; custom marker schemes require their own recovery.
+as well as `prepare-wordpress.sh` and `prepare-oneslurm.sh`; custom marker
+schemes require their own recovery.
 
 If setup reports `Previous theme marker exists`, cleanup from an earlier
 invocation did not finish. For example, local sudo authorization may have

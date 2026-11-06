@@ -137,8 +137,7 @@ def capture_screenshots(
                     if keep_open_on_failure:
                         print(f"\nRecipe failed: {exc}")
                         print("Browser is still open for inspection.")
-                        print("Press Enter here when finished to run teardown and close the browser.")
-                        input()
+                        page = _failure_debug_prompt(page)
                     raise
                 finally:
                     try:
@@ -152,6 +151,32 @@ def capture_screenshots(
                         context.close()
         finally:
             browser.close()
+
+
+def _failure_debug_prompt(page):
+    print('Enter a recipe step as JSON (or an array of steps) to run on this page.')
+    print('Type inspect for Playwright Inspector. Press Enter to run teardown and close the browser.')
+    print('Actions affect the live lab. The original run remains failed; edits are not saved to recipes.')
+    while True:
+        try:
+            line = input('recipe-debug> ')
+        except EOFError:
+            return page
+        if not line or not line.strip():
+            return page
+        try:
+            if line.strip() == 'inspect':
+                page.pause()
+                continue
+            value = json.loads(line)
+            steps = value if isinstance(value, list) else [value]
+            if not steps or any(not isinstance(step, dict) or not step.get('action') for step in steps):
+                raise CaptureError('Enter an action object or a nonempty array of action objects.')
+            for step in steps:
+                page = _run_step(page, step, {})
+                print('Action completed: ' + str(step['action']))
+        except Exception as exc:
+            print('Debug action failed: ' + str(exc))
 
 
 def _select_screenshots(

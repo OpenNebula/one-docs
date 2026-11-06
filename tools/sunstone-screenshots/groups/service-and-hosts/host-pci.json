@@ -5,8 +5,9 @@
   "screenshots": [
     {
       "id": "hosts.localhost-pci",
-      "doc": "content/product/cluster_configuration/hosts_and_clusters/pci_passthrough.md",
-      "image": "assets/images/sunstone_host_pci.png",
+      "doc": "content/product/cluster_configuration/pci_passthrough_sriov/generic_devices.md",
+      "image": "assets/images/host/light/host_pci.png",
+      "darkImage": "assets/images/host/dark/host_pci.png",
       "recipe": "recipes/host-pci.json",
       "capture": "localhost-pci",
       "status": "draft",

@@ -1,0 +1,140 @@
+{
+  "setup": [
+    {
+      "action": "goto",
+      "url": "${SUNSTONE_URL}"
+    },
+    {
+      "action": "fill",
+      "selector": "input[type='text']",
+      "value": "${SUNSTONE_USER}"
+    },
+    {
+      "action": "fill",
+      "selector": "input[type='password']",
+      "value": "${SUNSTONE_PASSWORD}"
+    },
+    {
+      "action": "click",
+      "role": "button",
+      "name": "Sign In Now",
+      "exact": true
+    },
+    {
+      "action": "waitForSelector",
+      "selector": "[data-cy='sidebar-paper']:visible"
+    }
+  ],
+  "themeSteps": {
+    "light": [
+      {
+        "action": "waitTime",
+        "timeout": 1000
+      }
+    ],
+    "dark": [
+      {
+        "action": "waitTime",
+        "timeout": 1000
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "dropdown",
+      "steps": [
+        {
+          "action": "hover",
+          "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"
+        },
+        {
+          "action": "click",
+          "selector": "[data-cy='networks']:visible"
+        },
+        {
+          "action": "click",
+          "selector": "[data-cy='main-menu-item']:visible:has-text('Virtual Networks')"
+        },
+        {
+          "action": "defocus"
+        },
+        {
+          "action": "waitForSelector",
+          "selector": "[data-cy^='vnets-']:has(:text-is('vnet'))"
+        },
+        {
+          "action": "click",
+          "selector": "[data-cy^='vnets-']:has(:text-is('vnet')) input[type='checkbox']"
+        },
+        {
+          "action": "click",
+          "selector": "div[aria-label='Labels']"
+        },
+        {
+          "action": "waitForSelector",
+          "selector": "[data-cy='label-panel']:visible"
+        }
+      ],
+      "screenshot": {
+        "selector": "body"
+      }
+    },
+    {
+      "id": "create",
+      "steps": [
+        {
+          "action": "hover",
+          "dataCy": "label-panel-create"
+        }
+      ],
+      "screenshot": {
+        "selector": "body"
+      }
+    },
+    {
+      "id": "dialog",
+      "steps": [
+        {
+          "action": "click",
+          "dataCy": "label-panel-create"
+        },
+        {
+          "action": "waitForSelector",
+          "selector": "[data-cy='label-create-dialog']:visible"
+        },
+        {
+          "action": "fill",
+          "dataCy": "label-name",
+          "value": "Production"
+        }
+      ],
+      "screenshot": {
+        "selector": "[role='dialog']:visible"
+      }
+    }
+  ],
+  "teardown": [
+    {
+      "action": "press",
+      "selector": "body",
+      "key": "Escape"
+    },
+    {
+      "action": "press",
+      "selector": "body",
+      "key": "Escape"
+    },
+    {
+      "action": "click",
+      "selector": "[data-cy='sidebar-user-menu']:visible"
+    },
+    {
+      "action": "click",
+      "selector": "[data-cy='sidebar-logout-button']:visible"
+    },
+    {
+      "action": "waitForSelector",
+      "selector": "input[type='password']"
+    }
+  ]
+}

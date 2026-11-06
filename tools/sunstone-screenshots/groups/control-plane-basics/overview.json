@@ -1,0 +1,40 @@
+{
+  "$schema": "../../schemas/manifest.schema.json",
+  "version": 1,
+  "group": "group.json",
+  "hooks": {
+    "setup": [
+      {
+        "script": "../getting-started/scripts/prepare-theme.sh",
+        "timeout": 30
+      }
+    ],
+    "teardown": [
+      {
+        "script": "../getting-started/scripts/restore-theme.sh",
+        "timeout": 30
+      }
+    ]
+  },
+  "defaults": {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "locale": "en-US"
+  },
+  "screenshots": [
+    {
+      "id": "overview.dashboard",
+      "doc": "content/getting_started/understand_opennebula/opennebula_concepts/opennebula_overview.md",
+      "image": "assets/images/sunstone/common/light/sunstone_full_dashboard.png",
+      "darkImage": "assets/images/sunstone/common/dark/sunstone_full_dashboard.png",
+      "recipe": "recipes/overview.json",
+      "capture": "dashboard",
+      "tags": [
+        "control-plane"
+      ],
+      "status": "draft"
+    }
+  ]
+}

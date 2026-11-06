@@ -15,11 +15,11 @@ MANIFEST = ROOT / 'tools/sunstone-screenshots/groups/oneks-quickstart/oneks_quic
 
 
 class ForceWorkflowTests(unittest.TestCase):
-    def archive_command(self):
+    def archive_command(self, manifest=None):
         calls = []
         token = workflow.guest_runner.set(calls.append)
         try:
-            workflow.archive_workflow_markers(json.loads(MANIFEST.read_text()))
+            workflow.archive_workflow_markers(manifest if manifest is not None else json.loads(MANIFEST.read_text()))
         finally:
             workflow.guest_runner.reset(token)
         return calls[0]['command'].split('\n', 1)[1].rsplit('SUNSTONE_ARCHIVE', 1)[0]
@@ -38,6 +38,21 @@ class ForceWorkflowTests(unittest.TestCase):
             self.assertTrue((root / 'wordpress-workflow.json').exists())
             self.assertTrue((root / 'oneks-workflow.py').exists())
             self.assertEqual((root / 'abandoned-new-attempt').stat().st_mode & 0o777, 0o700)
+
+    def test_oneslurm_archives_only_its_marker(self):
+        manifest = json.loads((ROOT / 'tools/sunstone-screenshots/groups/service-and-hosts/oneslurm.json').read_text())
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name in ('oneslurm-workflow.json', 'oneks-workflow.json', 'theme-workflow.json'):
+                (root / name).write_text(name)
+            command = self.archive_command(manifest).replace("Path('/root/screenshot-lab')", repr(root))
+            with patch.dict(os.environ, SUNSTONE_WORKFLOW_ID='slurm-retry'), redirect_stdout(StringIO()):
+                exec(command, {'PosixPath': Path})
+            self.assertFalse((root / 'oneslurm-workflow.json').exists())
+            self.assertEqual((root / 'abandoned-slurm-retry/oneslurm-workflow.json').read_text(),
+                             'oneslurm-workflow.json')
+            self.assertTrue((root / 'oneks-workflow.json').exists())
+            self.assertTrue((root / 'theme-workflow.json').exists())
 
     def test_symlink_is_refused_before_any_marker_is_moved(self):
         with TemporaryDirectory() as tmp:

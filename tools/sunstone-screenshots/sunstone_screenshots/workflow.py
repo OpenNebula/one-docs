@@ -141,6 +141,7 @@ def archive_workflow_markers(manifest):
         'prepare-alpine.sh': 'alpine-workflow.json',
         'prepare-wordpress.sh': 'wordpress-workflow.json',
         'prepare-oneks.sh': 'oneks-workflow.json',
+        'prepare-oneslurm.sh': 'oneslurm-workflow.json',
     }
     markers = sorted({markers_by_script[Path(hook['script']).name]
                       for hook in manifest.get('hooks', {}).get('setup', [])

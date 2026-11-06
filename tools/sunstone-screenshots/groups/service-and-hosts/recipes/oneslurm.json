@@ -6,6 +6,14 @@
     {"action": "click", "role": "button", "name": "Sign In Now", "exact": true},
     {"action": "waitForSelector", "selector": "[data-cy='sidebar-paper']"}
   ],
+  "themeSteps": {
+    "light": [
+      { "action": "waitTime", "timeout": 500 }
+    ],
+    "dark": [
+      { "action": "waitTime", "timeout": 500 }
+    ]
+  },
   "captures": [
     {
       "id": "oneslurm-instantiate",
@@ -17,8 +25,8 @@
         {"action": "click", "selector": "[data-cy^='marketplace-apps-']:has(:text-is('Service OneSlurm'))"},
         {"action": "waitForSelector", "selector": "[data-cy='tab-content-info']:has-text('PUBLISHER')"},
         {"action": "click", "dataCy": "action-marketapp-export"},
-        {"action": "fill", "dataCy": "export-app-configuration-name", "value": "docs-screenshot-oneslurm"},
-        {"action": "fill", "dataCy": "export-app-configuration-vmname", "value": "docs-screenshot-oneslurm"},
+        {"action": "fill", "dataCy": "export-app-configuration-name", "value": "oneslurm-service"},
+        {"action": "fill", "dataCy": "export-app-configuration-vmname", "value": "oneslurm-service"},
         {"action": "click", "dataCy": "stepper-next-button"},
         {"action": "click", "selector": "[data-cy^='datastores-']:has-text('default')"},
         {"action": "click", "selector": "[data-cy='stepper-next-button']:has-text('Finish')"},
@@ -26,20 +34,29 @@
         {"action": "click", "selector": "[data-cy='templates']:visible"},
         {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Service Templates')"},
         {"action": "defocus"},
-        {"action": "fill", "dataCy": "search-service-templates", "value": "docs-screenshot-oneslurm"},
-        {"action": "waitForSelector", "selector": "[data-cy^='service-templates-']:has-text('docs-screenshot-oneslurm')", "timeout": 900000, "refreshSelector": "button[data-cy='refresh']"},
-        {"action": "click", "selector": "[data-cy^='service-templates-']:has-text('docs-screenshot-oneslurm')"},
-        {"action": "click", "dataCy": "action-instantiate_dialog"},
+        {"action": "fill", "selector": "input[placeholder='Search Templates...']" , "value": "oneslurm-service"},
+        {"action": "waitForSelector", "selector": ".list-item:has-text('oneslurm-service')", "timeout": 900000, "refreshSelector": "button[data-cy='refresh']"},
+        {"action": "click", "selector": ".list-item:has-text('oneslurm-service')"},
+        {"action": "click", "selector": ".toggle-button-container[role='button'][aria-disabled='false']:has(svg path[d^='M6.906 4.537'])"},
         {"action": "waitForSelector", "selector": "input[data-cy='general-NAME']"},
         {"action": "waitForSelector", "selector": "input[data-cy='general-INSTANCES']"},
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "selector": "[data-cy^='vnets-']:visible:has-text('vnet')"},
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "click", "dataCy": "stepper-next-button"},
+        {"action": "waitForSelector", "selector": ".list-item:has-text('oneslurm-service'):has-text('RUNNING')", "timeout": 900000, "refreshSelector": "button[type='button']:has(svg path[d^='M21.168 8A10.003'])"},
+        {"action": "defocus"},
+        {"action": "click", "selector": ".list-item:has-text('oneslurm-service')"},
+        {"action": "click", "dataCy": "tab-roles"},
         {"action": "defocus"}
       ],
       "screenshot": {"selector": "body"}
     }
   ],
   "teardown": [
-    {"action": "click", "dataCy": "stepper-cancel-button"},
-    {"action": "click", "role": "button", "name": "Continue", "exact": true},
+    {"action": "click", "selector": "div[aria-label='Delete']"},
+    {"action": "click", "selector": "button[data-cy='dg-accept-button']"},
     {"action": "click", "selector": "[data-cy='sidebar-user-menu']:visible"},
     {"action": "click", "selector": "[data-cy='sidebar-logout-button']:visible"},
     {"action": "waitForSelector", "selector": "input[type='password']"}

@@ -22,16 +22,19 @@ DOC = 'content/getting_started/install_opennebula/evaluation/oneks_quickstart.md
 
 
 class OneKSManifestTests(unittest.TestCase):
-    def test_lab_configs_pin_the_oneks_tproxy_fixed_installer(self):
-        expected = ('https://raw.githubusercontent.com/OpenNebula/minione/'
-                    '6cc1d37a122b3edca3e3f105c15f40f47ca33c6a/minione')
+    def test_lab_configs_use_the_standard_public_74_installation(self):
+        expected = 'https://github.com/OpenNebula/minione/releases/download/v7.4.0/minione'
         configs = [BASE / 'provision.example.json',
                    BASE / 'groups/getting-started/provision.json',
                    BASE / 'groups/service-and-hosts/provision.json',
                    GROUP / 'provision.json']
         for config in configs:
             with self.subTest(config=config):
-                self.assertEqual(json.loads(config.read_text())['minione_script'], expected)
+                settings = json.loads(config.read_text())
+                self.assertEqual(settings['minione_script'], expected)
+                self.assertEqual(settings['opennebula_version'], '7.4')
+                self.assertNotIn('repo_base', settings)
+                self.assertFalse(settings['minione_force'])
 
     def test_group_and_inventory_point_to_the_same_document_and_provision(self):
         config, paths, destroy = load_group(GROUP / 'group.json', ROOT)
@@ -69,15 +72,25 @@ class OneKSManifestTests(unittest.TestCase):
         recipe = json.loads((GROUP / 'recipes/oneks-quickstart.json').read_text())
         commands = [s for c in recipe['captures'] for s in c['steps'] if s['action'] == 'guestCommand']
         self.assertEqual([s['command'].split()[-1] for s in commands],
-                         ['private', 'dns', 'cluster', 'wait-cluster', 'wait-worker'])
+                         ['private', 'dns', 'cluster'])
         self.assertTrue(all(s['command'].startswith('python3 /root/screenshot-lab/oneks-workflow.py ') for s in commands))
-        self.assertEqual(commands[-2]['timeout'], 1860)
-        self.assertEqual(commands[-1]['timeout'], 1260)
+        self.assertEqual(commands[-1]['timeout'], 60)
         self.assertEqual(recipe['teardown'][-1]['selector'], "input[type='password']")
         kubeconfig = recipe['captures'][-1]
         self.assertEqual(kubeconfig['screenshot']['maskSelectors'],
                          ["[data-cy='tab-content-kubeconfig'] .code-container"])
         self.assertEqual(kubeconfig['steps'][1]['selector'], kubeconfig['screenshot']['maskSelectors'][0])
+
+    def test_recipe_cluster_name_and_checkpoint_match_cleanup(self):
+        recipe = json.loads((GROUP / 'recipes/oneks-quickstart.json').read_text())
+        name_step = next(s for c in recipe['captures'] for s in c['steps']
+                         if s.get('action') == 'fill' and s.get('dataCy') == 'general-NAME')
+        self.assertIn('CLUSTER = ' + repr(name_step['value']),
+                      (GROUP / 'scripts/prepare-oneks.sh').read_text())
+        steps = next(c['steps'] for c in recipe['captures'] if c['id'] == 'cluster-logs')
+        checkpoint = next(i for i, s in enumerate(steps) if s.get('action') == 'guestCommand')
+        self.assertTrue(steps[checkpoint]['command'].endswith(' cluster'))
+        self.assertLess(checkpoint, next(i for i, s in enumerate(steps) if 'RUNNING' in s.get('selector', '')))
 
     def test_check_does_not_allocate_a_vm_or_create_a_run_directory(self):
         with TemporaryDirectory() as tmp, patch.object(cli.lab, 'provision') as provision:
@@ -129,7 +142,7 @@ class OneKSGuestTests(unittest.TestCase):
                           previous_networks=['0'], previous_clusters=['7'], private_id=None, cluster_id=None)
         self.public = self.network('0', 'vnet', dns='1.1.1.1')
         self.private = self.network('1', 'private-k8s')
-        self.cluster = dict(ID='8', NAME='docs-screenshot-oneks', UID='0', TEMPLATE={'CLUSTER_BODY': {
+        self.cluster = dict(ID='8', NAME='k8s-cluster-1', UID='0', TEMPLATE={'CLUSTER_BODY': {
             'state': 'RUNNING', 'deployment': {'cluster': {'id': 0}, 'networks': {
                 'public': {'id': 0}, 'private': {'id': 1}}}, 'node_groups': []}})
         self.extra_clusters = []

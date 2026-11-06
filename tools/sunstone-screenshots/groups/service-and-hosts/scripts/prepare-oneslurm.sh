@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import subprocess
 
-name = 'docs-screenshot-oneslurm'
+name = 'oneslurm-service'
 marker = Path('/root/screenshot-lab/oneslurm-workflow.json')
 if marker.exists():
     raise SystemExit('Previous OneSlurm workflow marker exists; inspect that workflow before retrying.')

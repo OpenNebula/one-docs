@@ -10,11 +10,12 @@
     {
       "id": "oneflow.oneslurm-instantiate",
       "doc": "content/product/virtual_machines_operation/multi-vm_workflows/appflow_use_cli.md",
-      "image": "assets/images/oneflow-services-create.png",
+      "image": "assets/images/oneflow/light/services/list.png",
+      "darkImage": "assets/images/oneflow/dark/services/list.png",
       "recipe": "recipes/oneslurm.json",
       "capture": "oneslurm-instantiate",
       "status": "draft",
-      "notes": "OneSlurm example of the first service-instantiation step. Cancel without deploying the service and review before replacing the current documentation image."
+      "notes": "OneSlurm example of the first service-instantiation step. Cancel without deploying the service. The current documentation asset shows the services list, so this draft workflow is not a like-for-like replacement; review the capture and documentation intent before substituting either variant."
     }
   ]
 }

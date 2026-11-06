@@ -95,10 +95,10 @@
         {"action": "guestCommand", "command": "python3 /root/screenshot-lab/oneks-workflow.py dns", "timeout": 60},
         {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
         {"action": "click", "selector": "[data-cy='sidebar-paper']:visible [data-cy='kubernetes']"},
-        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Clusters')"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('K8s Clusters')"},
         {"action": "defocus"},
         {"action": "click", "role": "button", "name": "Create Kubernetes Cluster", "exact": true},
-        {"action": "fill", "dataCy": "general-NAME", "value": "docs-screenshot-oneks"},
+        {"action": "fill", "dataCy": "general-NAME", "value": "k8s-cluster-1"},
         {"action": "defocus"}
       ],
       "screenshot": {"selector": "body"}
@@ -136,6 +136,8 @@
         {"action": "click", "dataCy": "stepper-next-button"},
         {"action": "click", "selector": "input[data-cy='kubernetes_version-KUBERNETES_VERSION']"},
         {"action": "press", "selector": "input[data-cy='kubernetes_version-KUBERNETES_VERSION']", "key": "ArrowDown"},
+        {"action": "press", "selector": "input[data-cy='kubernetes_version-KUBERNETES_VERSION']", "key": "ArrowDown"},
+        {"action": "press", "selector": "input[data-cy='kubernetes_version-KUBERNETES_VERSION']", "key": "ArrowDown"},
         {"action": "press", "selector": "input[data-cy='kubernetes_version-KUBERNETES_VERSION']", "key": "Enter"},
         {"action": "defocus"}
       ],
@@ -157,6 +159,7 @@
         {"action": "click", "selector": "button[data-cy='stepper-next-button']:has-text('Finish')"},
         {"action": "waitForSelector", "selector": "[data-cy='logs-viewer']", "timeout": 120000},
         {"action": "guestCommand", "command": "python3 /root/screenshot-lab/oneks-workflow.py cluster", "timeout": 60},
+        {"action": "waitForSelector", "selector": "[data-cy='state']:has-text('RUNNING')", "timeout": 12000000},
         {"action": "defocus"}
       ],
       "screenshot": {"selector": "body"}
@@ -164,12 +167,11 @@
     {
       "id": "cluster-vms",
       "steps": [
-        {"action": "guestCommand", "command": "python3 /root/screenshot-lab/oneks-workflow.py wait-cluster", "timeout": 1860},
         {"action": "click", "dataCy": "button-background"},
         {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
         {"action": "click", "selector": "[data-cy='instances']:visible"},
         {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('VMs')"},
-        {"action": "waitForSelector", "selector": "[data-cy^='vms-']:has-text('controlplane'):has-text('RUNNING')", "timeout": 120000, "refreshSelector": "button[data-cy='refresh']"},
+        {"action": "waitForSelector", "selector": ".list-item:has-text('controlplane'):not(:has-text('vr-')):has-text('RUNNING')", "timeout": 120000, "refreshSelector": "button[data-cy='refresh']"},
         {"action": "defocus"}
       ],
       "screenshot": {"selector": "body"}
@@ -178,9 +180,9 @@
       "id": "node-groups",
       "steps": [
         {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible .sidebar-header"},
-        {"action": "click", "selector": "[data-cy='sidebar-paper']:visible [data-cy='kubernetes']"},
-        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('Clusters')"},
-        {"action": "click", "selector": ":text-is('docs-screenshot-oneks'):visible"},
+        {"action": "hover", "selector": "[data-cy='sidebar-paper']:visible [data-cy='kubernetes']"},
+        {"action": "click", "selector": "[data-cy='main-menu-item']:visible:has-text('K8s Clusters')"},
+        {"action": "click", "selector": ":text-is('k8s-cluster-1'):visible"},
         {"action": "click", "dataCy": "tab-nodegroup"},
         {"action": "waitForSelector", "selector": "[data-cy='add-node-group']:visible:not([disabled])"},
         {"action": "defocus"}
@@ -205,9 +207,9 @@
       "steps": [
         {"action": "click", "selector": "[data-cy='modal-create-node-group'] [data-cy='stepper-next-button']:has-text('Finish')"},
         {"action": "waitForSelector", "selector": "[data-cy='button-background']", "timeout": 120000},
-        {"action": "guestCommand", "command": "python3 /root/screenshot-lab/oneks-workflow.py wait-worker", "timeout": 1260},
+        {"action": "waitForSelector", "selector": "[data-cy='state']:has-text('RUNNING')", "timeout": 1200000},
         {"action": "click", "dataCy": "button-background"},
-        {"action": "click", "selector": ":text-is('docs-screenshot-oneks'):visible"},
+        {"action": "click", "selector": ":text-is('k8s-cluster-1'):visible"},
         {"action": "click", "dataCy": "tab-nodegroup"},
         {"action": "click", "selector": "[data-cy='tab-content-nodegroup'] :text-is('worker1'):visible"},
         {"action": "waitForSelector", "selector": "[data-cy='tab-content-nodegroup']:has-text('RUNNING')", "timeout": 120000},
@@ -223,9 +225,7 @@
         {"action": "defocus"}
       ],
       "screenshot": {
-        "selector": "body",
-        "maskSelectors": ["[data-cy='tab-content-kubeconfig'] .code-container"],
-        "maskColor": "#dce5e7"
+        "selector": "body"
       }
     }
   ],
