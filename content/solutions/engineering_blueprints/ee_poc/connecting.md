@@ -3,7 +3,7 @@
 title: "Connecting to the PoC Environment via VPN"
 linkTitle: "Connecting via VPN"
 description: ""
-weight: 2
+weight: 6
 
 ---
 
