@@ -1,9 +1,9 @@
 ---
 
-title: "Connecting to the PoC Environment via VPN"
-linkTitle: "Connecting via VPN"
+title: "Connecting to the PoC Infrastructure via VPN"
+linkTitle: "VPN Connection"
 description: ""
-weight: 6
+weight: 2
 
 ---
 
@@ -23,6 +23,7 @@ You connect with an OpenVPN profile file plus a personal username and password; 
 
 * An OpenVPN-compatible client (instructions per OS below)  
 * A network that allows outbound **UDP port 2000**. Some corporate or guest networks block it; see Troubleshooting.
+* Access to a Unix-like terminal (WSL on Windows)
 
 ### What the VPN Gives You
 
