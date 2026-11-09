@@ -1,5 +1,6 @@
 ---
-title: "Proof of Concept"
-description: "Engineering blueprints for Proof of Concept deployments."
+title: "Proof of Concept Process"
+linkTitle: "PoC Process"
+description: "Overview of the PoC process and engineering deployment blueprints."
 weight: 1
 ---
