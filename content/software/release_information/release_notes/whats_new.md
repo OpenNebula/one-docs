@@ -54,4 +54,5 @@ List of new issues solved in OpenNebula 7.6.
 ### OneSwap
 
 * Fix intermittent `SSL_read: unexpected eof while reading` errors during VDDK migrations by retrieving the vCenter certificate directly after the TLS handshake, without unnecessary HTTP operations [#8105](https://github.com/OpenNebula/one/issues/8105).
+* Add TLS certificate chain and hostname verification for automatic VDDK thumbprint discovery, using the system CA trust store. Preserve `--accept-cert` for unverified connections and support DNS SNI and IP-based certificate validation [#8258](https://github.com/OpenNebula/one/issues/8258).
 * Fix insecure TLS handling in OneSwap single-stream datastore downloads by enabling certificate and hostname verification by default. Preserve `--accept-cert` for explicitly unverified connections [#8261](https://github.com/OpenNebula/one/issues/8261).
