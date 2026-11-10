@@ -81,7 +81,6 @@ The following issues have been solved in 7.4.2:
 * Fix missing `IOTHREADS` in VM `OS & CPU Features` configuration tab [#7585](https://github.com/OpenNebula/one/issues/7585).
 * Fix OneGate service role scaling from inside VMs, which could fail due to the request body being consumed before processing [#7954](https://github.com/OpenNebula/one/issues/7954).
 * Fix DRS Cluster workload optimization attempting to migrate VMs in `UNDEPLOYED` or `STOPPED` states [#8073](https://github.com/OpenNebula/one/issues/8073).
-* Fix padding oracle and target-user bypass vulnerabilities in server authentication, and increase the entropy of generated passwords.
 * Fix OneKS/Sunstone: "Cluster: Unknown (0)" for every worker [#8189](https://github.com/OpenNebula/one/issues/8189).
 * Fix an issue preventing long attribute values from being expanded in FireEdge [#8131](https://github.com/OpenNebula/one/issues/8131).
 * Fix multi-line formatting in VM descriptions [#8130](https://github.com/OpenNebula/one/issues/8130).
@@ -89,8 +88,6 @@ The following issues have been solved in 7.4.2:
 * Fix reserved VNC ports leaking when `onevm updateconf` removes `GRAPHICS` [#8201](https://github.com/OpenNebula/one/issues/8201).
 * Fix Veeam checkpoint deletion by marking deleted checkpoints invalid and rejecting incremental backups based on invalid or outdated checkpoints [#8062](https://github.com/OpenNebula/one/issues/8062).
 * Fix the “Allocated CPU” slider on the Hosts [#8208](https://github.com/OpenNebula/one/issues/8208).
-* Fix exposure of the restic datastore password in image error messages and logs when backup operations fail.
-* Fix shell command injection through malicious `MD5` or `SHA1` values in image templates [#4635](https://github.com/OpenNebula/one-ee/issues/4635).
 * Fix OneKS deployment failures when using an image datastore other than the default datastore [#8081](https://github.com/OpenNebula/one/issues/8081).
 * Fix OneKS deployment failures when using virtual networks not owned by the user [#8128](https://github.com/OpenNebula/one/issues/8128).
 * Fix failed LVM backups leaving snapshots active, and clean up obsolete snapshots from previous failed backups [#8226](https://github.com/OpenNebula/one/issues/8226).
@@ -119,6 +116,16 @@ The following issues have been solved in 7.4.2:
 * Fix Veeam backups starting after a failed backup configuration update and remaining in the starting phase after failure [#8146](https://github.com/OpenNebula/one/issues/8146).
 * Fix Veeam backup mappings becoming corrupted when parallel backups update the mapping file [#8147](https://github.com/OpenNebula/one/issues/8147).
 * Fix Virtual Network updates no longer reaching a VM after one of its multiple NICs on the same network is detached [#8228](https://github.com/OpenNebula/one/issues/8228).
+
+## Security Issues
+
+* Fix the reported Brotli vulnerability in FireEdge by updating its Node.js runtime and bundled dependencies.
+* Fix exposure of restic repository passwords in backup image error messages when backup operations fail.
+* Fix shell command injection through malicious `MD5` or `SHA1` values in image templates.
+* Fix FireEdge SSH tunnel handling that could connect a Guacamole VNC session to the wrong VM.
+* Fix stored cross-site scripting in Sunstone when displaying unsanitized Zendesk support ticket comments.
+* Fix outdated Lodash dependencies in FireEdge by upgrading to version `4.18.1`.
+* Fix padding oracle and target-user bypass vulnerabilities in server authentication, and increase the entropy of generated passwords.
 
 ---
 
