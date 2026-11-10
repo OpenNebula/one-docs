@@ -188,7 +188,7 @@ For more information about the `interactive` driver internals, see [Interactive 
 ### 4. Install and Configure the oVirtAPI Module
 
 {{< alert title="Required ports" type="warning" >}}
-Before installing `opennebula-ovirtapi`, ensure that TCP ports **80 and 443** are available for Apache on the server where oVirtAPI will run. The package installation automatically enables and restarts Apache. If another service, such as NGINX serving the OpenNebula web UI, already occupies these ports, the Apache restart fails, leaving the package half-configured and the API unavailable.
+Before starting oVirtAPI, ensure that TCP ports **80 and 443** are available on the server where it will run. oVirtAPI runs as its own service, `opennebula-ovirtapi`, and listens on both ports. If another service, such as NGINX or Apache serving the OpenNebula web UI, already occupies these ports, the `opennebula-ovirtapi` service fails to start and the API is unavailable.
 
 oVirtAPI must use ports **80 and 443**; changing its ports breaks the Veeam integration. If these ports are unavailable on the Front-end, install oVirtAPI in a separate environment, such as a VM, where both ports are available. This deployment may degrade performance.
 {{< /alert >}}
@@ -210,16 +210,28 @@ In the same configuration file, configure the OneBEX port and the port range res
 
 During installation a self-signed certificate is generated at `/etc/one/ovirtapi-ssl.crt` for encryption. You can replace this certificate with your own and change the `cert_path` configuration variable.
 
-Finally, start the service with either `systemctl start apache2` (Ubuntu/Debian) or `systemctl start httpd` (RHEL/Alma).
+The listening addresses, the certificate files, and the number of request threads are set in `/etc/one/ovirtapi-puma.rb`. The default values are suitable for most deployments.
 
-{{< alert title="Package dependency" type="warning" >}}
-In RHEL and Alma environments, you may face issues with the passenger package dependencies (`mod_passenger` and `mod_ssl`). You may add the correct repository and install the packages with the following:
+Finally, enable and start the service:
 
 ```shell
-curl --fail -sSLo /etc/yum.repos.d/passenger.repo https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo
-dnf install -y passenger mod_passenger mod_ssl
+systemctl enable --now opennebula-ovirtapi
 ```
 
+After changing `/etc/one/ovirtapi-server.yml` or `/etc/one/ovirtapi-puma.rb`, restart the service with `systemctl restart opennebula-ovirtapi`.
+
+{{< alert title="Upgrading from 7.4.1 or earlier" type="warning" >}}
+Up to OpenNebula 7.4.1, oVirtAPI ran inside Apache with Passenger. Starting with 7.4.2 it runs as the dedicated `opennebula-ovirtapi` service and no longer needs Apache or the Passenger packages.
+
+After upgrading the `opennebula-ovirtapi` package, Apache may still be running and holding ports 80 and 443, which prevents the new service from starting. If Apache was installed only for oVirtAPI, stop and disable it, then enable the new service:
+
+```shell
+systemctl disable --now apache2    # Ubuntu/Debian
+systemctl disable --now httpd      # RHEL/Alma
+systemctl enable --now opennebula-ovirtapi
+```
+
+If Apache also serves other sites on this server, move them off ports 80 and 443 instead, as oVirtAPI must keep using both ports.
 {{< /alert >}}
 
 {{< alert title="High availability" type="info" >}}
@@ -344,10 +356,7 @@ oneimage delete <IMAGE_ID>
 
 ## Logging Information
 
-The oVirtAPI server writes logs in the following paths depending on the operating system:
-
-* Ubuntu/Debian: `/var/log/apache2/error.log`
-* Alma/RHEL: `/var/log/httpd/error.log`
+The oVirtAPI server writes its logs to `/var/log/one/ovirtapi.log` on the server where it runs. Service start and stop messages are available with `journalctl -u opennebula-ovirtapi`.
 
 Additional logs for interactive backups are available on the hypervisors:
 
