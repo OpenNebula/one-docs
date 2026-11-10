@@ -121,7 +121,7 @@ Merge these settings into the existing YAML sections, preserving other settings 
 
 The Port Mirroring tab and its form routes must be enabled manually after upgrading to 7.4.2. Apply both changes below; enabling the tab alone does not register the creation and editing forms.
 
-In `sunstone/tabs/40-networks-tab.yaml`, add the **Create mirror** and **Edit mirror** entries to the existing `routes` list, immediately before the `/virtual-network/:id` detail route. The existing `VirtualNetworkDetail` route is included below to show the placement; do not add it a second time:
+In `sunstone/tab-manifest.yaml`, locate the entry with title: Networks. Within its `routes` section, after the following entry:
 
 ```yaml
     - title: Create mirror
@@ -130,9 +130,6 @@ In `sunstone/tabs/40-networks-tab.yaml`, add the **Create mirror** and **Edit mi
     - title: Edit mirror
       path: /virtual-network/:id/mirror/:mirrorId/update
       Component: CreateVirtualNetworkMirror
-    - title: Virtual networks
-      path: /virtual-network/:id
-      Component: VirtualNetworkDetail
 ```
 
 In `sunstone/views/admin/vnet-tab.yaml` and `sunstone/views/user/vnet-tab.yaml`, add the following block under the existing `info-tabs` key:
