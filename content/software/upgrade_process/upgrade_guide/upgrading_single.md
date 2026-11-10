@@ -263,6 +263,10 @@ onehost enable <host_id>
 
 If upgrading from a version earlier than 6.0, please see [Upgrading from Previous Versions]({{% relref "upgrade_from_previous_versions" %}}).
 
+### OneKS Appliance Update
+
+When upgrading from OpenNebula 7.4.0 or 7.4.1 to 7.4.2, you should [update the OneKS appliances]({{% relref "software/release_information/release_notes/resolved_issues_742/#updating-oneks-appliance-and-monitoring" %}}) to enable new functionality. 
+
 ### Testing
 
 OpenNebula will continue the monitoring and management of your previous Hosts and VMs.

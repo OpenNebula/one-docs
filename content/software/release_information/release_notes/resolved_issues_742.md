@@ -47,7 +47,7 @@ The following issues have been solved in 7.4.2:
 * Fix Restic Datastore - the password field is not masking the password [#7444](https://github.com/OpenNebula/one/issues/7444).
 * Fix missing theme colors in Sunstone quota panels and improve quota usage readability with per-metric values and progress bars [#6869](https://github.com/OpenNebula/one/issues/6869).
 * Fix update VM Template dialog fails to open on FireEdge Sunstone if the user doesn't have IMAGE permissions [#6994](https://github.com/OpenNebula/one/issues/6994).
-* Fix unable to flush offline host in Sunstone [#7407](https://github.com/OpenNebula/one/issues/7407).
+* Fix unable to flush offline Host in Sunstone [#7407](https://github.com/OpenNebula/one/issues/7407).
 * Fix security groups assignment when attaching a NIC in Sunstone [#7569](https://github.com/OpenNebula/one/issues/7569).
 * Fix missing service template instantiation dialog [#8037](https://github.com/OpenNebula/one/issues/8037).
 * Fix missing VRouter NIC attach/detach action [#7708](https://github.com/OpenNebula/one/issues/7708).
@@ -65,7 +65,7 @@ The following issues have been solved in 7.4.2:
 * Fix duplicate `SECURITY_GROUPS` attributes in Virtual Network templates on template update [#7435](https://github.com/OpenNebula/one/issues/7435).
 * Fix `onetemplate instantiate` erroneously requiring Template `CREATE` permissions [#7020](https://github.com/OpenNebula/one/issues/7020).
 * Fix truncation of snapshot and backup IDs for CLI `oneimage show` and `onevm show` commands [#8108](https://github.com/OpenNebula/one/issues/8108).
-* Fix onezone serversync to synchronize OneForm, OneKS, and FireEdge configuration files across Front-end hosts and restart the corresponding services when those files change [#8039](https://github.com/OpenNebula/one/issues/8039).
+* Fix onezone serversync to synchronize OneForm, OneKS, and FireEdge configuration files across Front-end Hosts and restart the corresponding services when those files change [#8039](https://github.com/OpenNebula/one/issues/8039).
 * Fix OneSwap conversion of Windows guests using CompactOS/WOF-compressed NTFS system files [#7342](https://github.com/OpenNebula/one/issues/7342).
 * Fix OneSwap context injection running the RHEL-specific `subscription-manager` command on RHEL-compatible distributions [#8111](https://github.com/OpenNebula/one/issues/8111).
 * Fix issues with FireEdge in federated environments, including zone switching, stale resource views, and VNC/Guacamole console access across zones. [#7310](https://github.com/OpenNebula/one/issues/7310).
@@ -80,15 +80,15 @@ The following issues have been solved in 7.4.2:
 * Fix missing CPU Model field in VM Update Configuration [#8034](https://github.com/OpenNebula/one/issues/8034).
 * Fix missing `IOTHREADS` in VM `OS & CPU Features` configuration tab [#7585](https://github.com/OpenNebula/one/issues/7585).
 * Fix OneGate service role scaling from inside VMs, which could fail due to the request body being consumed before processing [#7954](https://github.com/OpenNebula/one/issues/7954).
-* Fix DRS cluster workload optimization attempting to migrate VMs in `UNDEPLOYED` or `STOPPED` states [#8073](https://github.com/OpenNebula/one/issues/8073).
+* Fix DRS Cluster workload optimization attempting to migrate VMs in `UNDEPLOYED` or `STOPPED` states [#8073](https://github.com/OpenNebula/one/issues/8073).
 * Fix padding oracle and target-user bypass vulnerabilities in server authentication, and increase the entropy of generated passwords.
 * Fix OneKS/Sunstone: "Cluster: Unknown (0)" for every worker [#8189](https://github.com/OpenNebula/one/issues/8189).
 * Fix an issue preventing long attribute values from being expanded in FireEdge [#8131](https://github.com/OpenNebula/one/issues/8131).
 * Fix multi-line formatting in VM descriptions [#8130](https://github.com/OpenNebula/one/issues/8130).
-* Fix oned crashing when a KVM host reports a NUMA node without cores [#8133](https://github.com/OpenNebula/one/issues/8133).
+* Fix oned crashing when a KVM Host reports a NUMA node without cores [#8133](https://github.com/OpenNebula/one/issues/8133).
 * Fix reserved VNC ports leaking when `onevm updateconf` removes `GRAPHICS` [#8201](https://github.com/OpenNebula/one/issues/8201).
 * Fix Veeam checkpoint deletion by marking deleted checkpoints invalid and rejecting incremental backups based on invalid or outdated checkpoints [#8062](https://github.com/OpenNebula/one/issues/8062).
-* Fix the “Allocated CPU” slider on the hosts [#8208](https://github.com/OpenNebula/one/issues/8208).
+* Fix the “Allocated CPU” slider on the Hosts [#8208](https://github.com/OpenNebula/one/issues/8208).
 * Fix exposure of the restic datastore password in image error messages and logs when backup operations fail.
 * Fix shell command injection through malicious `MD5` or `SHA1` values in image templates [#4635](https://github.com/OpenNebula/one-ee/issues/4635).
 * Fix OneKS deployment failures when using an image datastore other than the default datastore [#8081](https://github.com/OpenNebula/one/issues/8081).
@@ -101,7 +101,7 @@ The following issues have been solved in 7.4.2:
 * Fix loss of VM firewall rules when a Security Group update is immediately followed by a commit [#8143](https://github.com/OpenNebula/one/issues/8143).
 * Fix OneDRS optimization failing with `PulpError` when VM monitoring data contains missing usage values [#8224](https://github.com/OpenNebula/one/issues/8224).
 * Fix incorrect quota limit errors when quota entries omit metrics, preventing powered-off VMs from resuming when `RUNNING_VMS` is missing [#8183](https://github.com/OpenNebula/one/issues/8183).
-* Fix potential incorrect user and group quota usage after a failed VM migration between clusters, restoring source cluster usage and releasing target cluster usage [#8191](https://github.com/OpenNebula/one/issues/8191).
+* Fix potential incorrect user and group quota usage after a failed VM migration between Clusters, restoring source Cluster usage and releasing target cluster usage [#8191](https://github.com/OpenNebula/one/issues/8191).
 * Fix S3 Marketplace image imports ignoring the configured `READ_LENGTH` chunk size [#8194](https://github.com/OpenNebula/one/issues/8194).
 * Fix CPU monitoring errors when system CPU counters do not advance and negative CPU usage when a monitored process exits during sampling [#8195](https://github.com/OpenNebula/one/issues/8195).
 * Fix removal of user-defined `ETHx_*` context variables when detaching a NIC or NIC alias with `NETWORK` not set to `YES`, and allow updating these variables with `onevm updateconf` [#8214](https://github.com/OpenNebula/one/issues/8214).
@@ -119,6 +119,16 @@ The following issues have been solved in 7.4.2:
 * Fix Veeam backups starting after a failed backup configuration update and remaining in the starting phase after failure [#8146](https://github.com/OpenNebula/one/issues/8146).
 * Fix Veeam backup mappings becoming corrupted when parallel backups update the mapping file [#8147](https://github.com/OpenNebula/one/issues/8147).
 * Fix Virtual Network updates no longer reaching a VM after one of its multiple NICs on the same network is detached [#8228](https://github.com/OpenNebula/one/issues/8228).
+
+---
+
+## Updating OneKS Appliance and Monitoring
+
+After upgrading OpenNebula from 7.4.0 or 7.4.1 to 7.4.2, delete the previously imported OneKS appliance and reimport the latest version from the Marketplace to enable the new monitoring and application management features. See [Appliance Configuration]({{% relref "platform_services/oneks/management/configuration/#appliance-configuration" %}}) for import details.
+
+These features also require enabling the `:monitor` section in `/etc/one/oneks-server.conf` and restarting the OneKS service. Follow the [Monitor Configuration]({{% relref "platform_services/oneks/management/configuration/#monitor-configuration" %}}) instructions, including the required transparent proxy settings.
+
+Reimporting the appliance does not affect existing Kubernetes Clusters. The monitor is deployed in new Clusters created after it has been enabled.
 
 ---
 
