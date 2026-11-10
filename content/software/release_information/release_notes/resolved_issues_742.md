@@ -294,7 +294,7 @@ In `sunstone/views/*/oneks-tab.yaml`, as part of the `info-tabs` attribute, add 
     enabled: true
 ```
 
-In `sunstone/tabs/90-oneks-tab.yaml`, as part of the `routes` attribute, add the following entry:
+In `sunstone/tabs/oneks-tab.yaml`, as part of the `routes` attribute, add the following entry:
 
 ```yaml
    - title: Install Application
