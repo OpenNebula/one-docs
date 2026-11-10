@@ -141,13 +141,13 @@ Reimporting the appliance does not affect existing Kubernetes Clusters. The moni
 
 ## Updating Sunstone Configuration Files
 
-After upgrading to 7.4.2, check the following settings to enable the new Sunstone functionality in the intended views. All paths below are relative to `/etc/one/fireedge/` on the OpenNebula Front-end Host.
+After upgrading to 7.4.2 and successfully completing `onecfg upgrade`, check the following settings to enable the new Sunstone functionality in the intended views. When upgrading directly from 7.4.0, also review the [Sunstone configuration updates for 7.4.1]({{% relref "software/release_information/release_notes/resolved_issues_741.md#updating-sunstone-configuration-files" %}}). All paths below are relative to `/etc/one/fireedge/` on the OpenNebula Front-end Host.
 
 Merge these settings into the existing YAML sections, preserving other settings and actions. Do not create duplicate `info-tabs` or `filters` keys.
 
 ### Enable Port Mirroring in Sunstone [#8149](https://github.com/OpenNebula/one/issues/8149)
 
-The Port Mirroring tab and its form routes must be enabled manually after upgrading to 7.4.2. Apply both changes below; enabling the tab alone does not register the creation and editing forms.
+The 7.4.2 configuration migration adds the Port Mirroring tab settings to the standard `admin`, `groupadmin`, and `user` views. Add the form routes manually, then verify the tab settings below. Enabling the tab alone does not register the creation and editing forms.
 
 In `sunstone/tab-manifest.yaml`, locate the entry with `title: Networks`. Add the **Create mirror** and **Edit mirror** entries to its existing `routes` list, immediately before the `/virtual-network/:id` detail route. The existing `VirtualNetworkDetail` route is included below to show the placement; do not add it a second time:
 
@@ -163,7 +163,7 @@ In `sunstone/tab-manifest.yaml`, locate the entry with `title: Networks`. Add th
       Component: VirtualNetworkDetail
 ```
 
-In `sunstone/views/admin/vnet-tab.yaml` and `sunstone/views/user/vnet-tab.yaml`, add the following block under the existing `info-tabs` key:
+In `sunstone/views/admin/vnet-tab.yaml` and `sunstone/views/user/vnet-tab.yaml`, verify the following block under the existing `info-tabs` key. Add any missing settings:
 
 ```yaml
 info-tabs:
@@ -177,7 +177,7 @@ info-tabs:
       mirror_delete: true
 ```
 
-In `sunstone/views/groupadmin/vnet-tab.yaml`, enable the tab with management actions disabled:
+In `sunstone/views/groupadmin/vnet-tab.yaml`, verify that the tab is enabled with management actions disabled. Add any missing settings:
 
 ```yaml
 info-tabs:
