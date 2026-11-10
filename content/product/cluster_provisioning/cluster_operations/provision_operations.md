@@ -18,8 +18,9 @@ Here you will find details on how to:
 
 * [Scale existing Provisions by adding or removing hosts](#scaling-provisions)
 * [Manage public IP assignments](#managing-public-ips)
-* [Retry or deprovision failed Provisions](#retrying-failed-provisions)
-* [Monitor and control Provision lifecycles through the CLI](#retrying-failed-provisions)
+* [Recover failed Provisions](#recovering-failed-provisions)
+* [Cancel active Provision operations](#cancelling-provision-operations)
+* [Deprovision a Cluster](#deprovisioning-a-cluster)
 
 ## Scaling Provisions
 
@@ -40,7 +41,7 @@ In the Sunstone interface, go to **Infrastructure -> Clusters** and select the C
 {{% tab header="CLI"%}}
 To increase the number of hosts in a running Provision, use `oneprovision add-host`. Alternatively, execute `oneprovision del-host` command to decrease hosts. These operations trigger an update of the infrastructure through Terraform and Ansible.
 
-Do not set `--amount` and `--host-ids` simultaneously since the operation will fail. You must choose one method of scaling at a time:
+When adding Hosts, use either `--amount` for cloud Hosts or `--hosts` for on-premises Host addresses. These options are mutually exclusive. When removing Hosts, specify their OpenNebula IDs with `--host-ids`:
 
 
 * Add Hosts:
@@ -76,28 +77,19 @@ Use the following example requests, replacing the appropriate parameters for you
 * Add Hosts
 
 ```bash
-curl -X POST "https://oneform.example.server/api/v1/provisions/<id>/scale" \
+curl -X POST "https://oneform.example.server/api/v1/provisions/<id>/hosts" \
   -u "username:password" \
   -H "Content-Type: application/json" \
   -d '{
-    "direction": "up",
-    "nodes": 2
+    "amount": 2
   }'
 ```
 
 * Remove Hosts
 
 ```bash
-curl -X POST "https://oneform.example.server/api/v1/provisions/<id>/scale" \
-  -u "username:password" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "direction": "down",
-    "nodes": [ "node1" ],
-    "opts": {
-      "force": true
-    }
-  }'
+curl -X DELETE "https://oneform.example.server/api/v1/provisions/<id>/hosts?ids=105,106" \
+  -u "username:password"
 ```
 <br>
 
@@ -140,13 +132,13 @@ For Provisions that support public networking like AWS and i3Dnet, dynamically m
 * Remove a Public IP by Address Range (AR ID)
 
   ```bash
-  oneprovision remove-ip <provision_id> <ar_id>
+  oneprovision del-ip <provision_id> --ar-id <ar_id>
   ```
 
   Example:
 
   ```bash
-  oneprovision remove-ip 42 7
+  oneprovision del-ip 42 --ar-id 7
   ```
 
 To view current IP allocations, run `oneprovision show <id>` and inspect the associated public network address ranges (ARs).
@@ -158,7 +150,7 @@ Use the following example requests, replacing the appropriate parameters for you
 * Add Public IPs
 
 ```bash
-curl -X POST "https://oneform.example.server/api/v1/provisions/<id>/add-ip" \
+curl -X POST "https://oneform.example.server/api/v1/provisions/<id>/public-network/ips" \
   -u "username:password" \
   -H "Content-Type: application/json" \
   -d '{
@@ -169,12 +161,8 @@ curl -X POST "https://oneform.example.server/api/v1/provisions/<id>/add-ip" \
 * Remove a Public IP
 
 ```bash
-curl -X POST "https://oneform.example.server/api/v1/provisions/<id>/remove-ip" \
-  -u "username:password" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "ar_id": 42
-  }'
+curl -X DELETE "https://oneform.example.server/api/v1/provisions/<id>/public-network/ips/42" \
+  -u "username:password"
 ```
 <br>
 For further details about the API, see the [OneForm API Reference]({{% relref "/product/integration_references/system_interfaces/oneform_api.md" %}}).
@@ -182,9 +170,13 @@ For further details about the API, see the [OneForm API Reference]({{% relref "/
 
 {{< /tabpane >}}
 
-## Retrying Failed Provisions
+<a id="retrying-failed-provisions"></a>
 
-Retrying a Provision is a non-destructive operation that attempts to resume from the last recoverable state within its internal lifecycle.
+## Recovering Failed Provisions
+
+OneForm persists lifecycle operations and Terraform state. After a service restart, it automatically reconstructs unfinished operations and resumes their processing. Operations already in a failure state remain available for explicit recovery.
+
+After correcting the cause of a failure, recover the Provision to retry its recorded operation. Recovery requires a failure state and a recorded operation; it can apply to provisioning, scaling, or deprovisioning.
 
 {{< tabpane text=true right=false >}}
 {{% tab header="**Interfaces**:" disabled=true /%}}
@@ -199,23 +191,25 @@ In the **Cluster Logs** view, if a Cluster installation fails. Click the **Retry
 {{% /tab %}}
 
 {{% tab header="CLI"%}}
-If a Provision fails during deployment, attempt recovery by re-triggering the failed step:
+Recover a failed Provision:
 
 ```bash
-oneprovision retry <provision_id>
+oneprovision recover <provision_id>
 ```
 
-To force a retry even if the Provision is in an unexpected state:
+To retry a failed operation with its force flag enabled, use:
 
 ```bash
-oneprovision retry <provision_id> --force
+oneprovision recover <provision_id> --force
 ```
+
+The `--force` option overrides resource protections used by the failed operation. Recovery still requires a failure state and a recorded operation.
 {{% /tab %}}
 
 {{% tab header="API"%}}
 Use the following example request, replacing the appropriate parameters for your Provision:
 ```bash
-curl -X POST "https://oneform.example.server/api/v1/provisions/<id>/retry" \
+curl -X POST "https://oneform.example.server/api/v1/provisions/<id>/recover" \
   -u "username:password" \
   -H "Content-Type: application/json" \
   -d '{}'
@@ -223,6 +217,43 @@ curl -X POST "https://oneform.example.server/api/v1/provisions/<id>/retry" \
 <br>
 
 For further details about the API, see the [OneForm API Reference]({{% relref "/product/integration_references/system_interfaces/oneform_api.md" %}}).
+{{% /tab %}}
+{{< /tabpane >}}
+
+## Cancelling Provision Operations
+
+The user who started an operation, or a member of the `oneadmin` group, can request cancellation of its active step. Cancellation is asynchronous and is available only for steps that support it. Once cancellation completes, the Provision enters the corresponding failure state. Inspect its state and resources before recovering it or deprovisioning it.
+
+{{< tabpane text=true right=false >}}
+{{% tab header="**Interfaces**:" disabled=true /%}}
+
+{{% tab header="CLI"%}}
+
+Request cancellation of the active operation:
+
+```bash
+oneprovision cancel <provision_id>
+```
+
+Inspect the Provision state with `oneprovision show <provision_id>` and follow its logs with `oneprovision logs <provision_id> --follow`. Members of the `oneadmin` group can also monitor the active job and its cancellation status:
+
+```bash
+oneprovision job <provision_id> --watch
+```
+
+{{% /tab %}}
+
+{{% tab header="API"%}}
+
+```bash
+curl -X POST "https://oneform.example.server/api/v1/provisions/<id>/cancel" \
+  -u "username:password" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+A `202 Accepted` response confirms that the request was accepted for processing. Check the Provision state and logs for the outcome.
+
 {{% /tab %}}
 {{< /tabpane >}}
 
@@ -257,7 +288,7 @@ In the Sunstone interface, go to **Infrastructure -> Clusters** and select the C
 To undeploy all the infrastructure associated with a Provision, as well as remove its corresponding OpenNebula resources, run:
 
 ```bash
-oneprovision deprovision <provision_id>
+oneprovision delete <provision_id>
 ```
 
 {{% /tab %}}
@@ -265,12 +296,8 @@ oneprovision deprovision <provision_id>
 {{% tab header="API"%}}
 
 ```bash
-curl -X POST "https://oneform.example.server/api/v1/provisions/<id>/undeploy" \
-  -u "username:password" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "force": true
-  }'
+curl -X DELETE "https://oneform.example.server/api/v1/provisions/<id>" \
+  -u "username:password"
 ```
 <br>
 
