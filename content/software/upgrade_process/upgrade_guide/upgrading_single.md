@@ -34,9 +34,19 @@ onehost disable <HOST_ID>
 
 ### Stop Services and Back up OpenNebula
 
-Stop all installed OpenNebula services as described in [Step 3](#step-3-stop-opennebula), including OneForm and OneKS when present. Then [back up the configuration files and database](#step-4-back-up-opennebula-configuration) before replacing the packages.
+Stop all installed OpenNebula services including OneForm and OneKS when present:
 
-<a id="maintenance-package-configuration"></a>
+```bash
+systemctl stop opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-form.service opennebula-ks.service
+```
+
+Then make sure every OpenNebula process is stopped. For example:
+
+```bash
+systemctl is-active opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-form.service opennebula-ks.service
+```
+
+Then [back up the configuration files and database](#step-4-back-up-opennebula-configuration) before replacing the packages.
 
 ### Upgrade Packages and Configuration
 
