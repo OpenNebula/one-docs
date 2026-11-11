@@ -149,7 +149,7 @@ Merge these settings into the existing YAML sections, preserving other settings 
 
 The 7.4.2 configuration migration adds the Port Mirroring tab settings to the standard `admin`, `groupadmin`, and `user` views. Add the form routes manually, then verify the tab settings below. Enabling the tab alone does not register the creation and editing forms.
 
-In `sunstone/tab-manifest.yaml`, locate the entry with `title: Networks`. Add the **Create mirror** and **Edit mirror** entries to its existing `routes` list, immediately before the `/virtual-network/:id` detail route. The existing `VirtualNetworkDetail` route is included below to show the placement; do not add it a second time:
+In `sunstone/tab-manifest.yaml`, locate the entry with title: Networks. Within its `routes` section, after the following entry:
 
 ```yaml
     - title: Create mirror
@@ -158,9 +158,6 @@ In `sunstone/tab-manifest.yaml`, locate the entry with `title: Networks`. Add th
     - title: Edit mirror
       path: /virtual-network/:id/mirror/:mirrorId/update
       Component: CreateVirtualNetworkMirror
-    - title: Virtual networks
-      path: /virtual-network/:id
-      Component: VirtualNetworkDetail
 ```
 
 In `sunstone/views/admin/vnet-tab.yaml` and `sunstone/views/user/vnet-tab.yaml`, verify the following block under the existing `info-tabs` key. Add any missing settings:

@@ -129,7 +129,7 @@ Remove this setting from the template's `RAW` section when deploying on these Ho
 
 Worker creation and restores [will fail](https://github.com/OpenNebula/one/issues/7949) if the VM with ID 0 doesn't exist in the database.
 
-As a workaround, update the following condition in `/usr/lib/one/ovirtapi-server/controllers/disk_controller.rb` on the oVirtAPI backup server, then restart the `apache2` or `httpd` service:
+It can be fixed by changing the line ~145 in the `/usr/lib/one/ovirtapi-server/controllers/disk_controller.rb` file (located in the oVirtAPI backup server). Then restart the oVirtAPI service: `opennebula-ovirtapi` in 7.4.2 and later, or `apache2`/`httpd` in previous versions.
 
 ```ruby
 vm_id = disk_hash['IMAGE']['VM_ID'].to_i
