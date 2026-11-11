@@ -321,6 +321,10 @@ With the following content:
 
 ### Enable OneKS Application Tab [#7302](https://github.com/OpenNebula/one/issues/7302)
 
+{{< alert title="Note" type="info" >}}
+To install and manage applications, enable the OneKS monitor as described in [Monitor Configuration]({{% relref "platform_services/oneks/management/configuration/#monitor-configuration" %}}).
+{{< /alert >}}
+
 In `sunstone/views/*/oneks-tab.yaml`, as part of the `info-tabs` attribute, add the following entry:
 
 ```yaml
