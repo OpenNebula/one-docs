@@ -61,12 +61,6 @@ These options are used when OneKS runs Kubernetes commands from the Front-end Ho
 
 ## Monitor Configuration
 
-{{< alert title="Note" type="info" >}}
-Before creating K8s Clusters with monitor support, ensure that the OneKS appliance is up to date. See [Updating the Appliance]({{% relref "platform_services/oneks/management/configuration/#updating-the-appliance" %}}) for instructions.
-
-Monitor support is configured at cluster creation time and requires a valid, enabled `:monitor` configuration. Existing K8s Clusters provisioned without monitor support cannot use monitor-backed operations. Enabling or updating `:monitor` does not add monitor support to those clusters.
-{{< /alert >}}
-
 The `:monitor` section enables the in-cluster OneKS monitor. For each new K8s Cluster created while this section is enabled, OneKS deploys the monitor Helm chart in the `kube-system` namespace. The monitor reports node and pod state, configured Kubernetes resource observations, and managed application status to the OneKS API. The monitor must be enabled for monitor-backed operations, including application installation and management.
 
 | **Attribute**                    | **Default**   | **Description** |
@@ -84,43 +78,7 @@ Add the following block to `/etc/one/oneks-server.conf`:
   :chart_version: '0.1.0'
 ```
 
-{{< alert title="Warning" type="warning" >}}
-Review the existing `:server` block in `/etc/one/oneks-server.conf` and ensure it allows the OneKS API to accept connections forwarded through TProxy:
-
-```yaml
-:server:
-  :environment: production
-  :bind: 0.0.0.0
-  :port: 10780
-```
-
-You can use the Front-end address configured in the TProxy rule instead of `0.0.0.0`. The default loopback address (`127.0.0.1`) does not accept these forwarded connections.
-{{< /alert >}}
-
-{{< alert title="Note" type="info" >}}
-The monitor `:endpoint` above uses the TProxy link-local address. Before enabling the monitor, ensure that the `:tproxy` list in `/var/lib/one/remotes/etc/vnm/OpenNebulaNetwork.conf` includes the following entries for OneGate, OpenNebula XML-RPC, and the OneKS API. Preserve any other existing entries:
-
-```yaml
-:tproxy:
-  - :remote_addr: 192.168.150.1 # Front-end IP
-    :remote_port: 5030
-    :service_port: 5030
-  - :remote_addr: 192.168.150.1 # Front-end IP
-    :remote_port: 2633
-    :service_port: 2633
-  - :remote_addr: 192.168.150.1 # Front-end IP
-    :remote_port: 10780
-    :service_port: 10780
-```
-
-Replace `192.168.150.1` with the Front-end IP address accessible from the hypervisor Hosts. Set `:remote_port` to the port on which the OneKS API listens (`:port` in the `:server` block of `oneks-server.conf`, default `10780`) to forward requests from the OneKS monitor through TProxy. Save the file, then run the following command on the Front-end as the `oneadmin` system user to synchronize the configuration with the hypervisor Hosts:
-
-```shell
-onehost sync -f
-```
-
-See [Transparent Proxy Configuration]({{% relref "platform_services/oneks/getting_started/basic_configuration/#transparent-proxy-configuration" %}}) for the required OneGate endpoint configuration.
-{{< /alert >}}
+The `:endpoint` above uses the TProxy link-local address. Configure TProxy to forward port `10780` to the OneKS API on the Front-end before enabling the monitor; see [Transparent Proxy Configuration]({{% relref "platform_services/oneks/getting_started/basic_configuration/#transparent-proxy-configuration" %}}). The OneKS API listener must bind to the Front-end address configured by that TProxy rule, or to `0.0.0.0`, instead of only to the default loopback address.
 
 ## Appliance Configuration
 
@@ -136,12 +94,6 @@ Cluster.
 By default, OneKS imports the appliance specified by the control-plane family from the OpenNebula Marketplace into the default image datastore when the service starts.
 
 If the target OpenNebula Cluster cannot access that datastore, import the OneKS appliance from the Marketplace into an alternative image datastore accessible from the target Cluster. See [OpenNebula Marketplace Appliances]({{% relref "product/virtual_machines_operation/guest_operating_systems/creating_images/#add-content-marketplace" %}}) for more details.
-
-### Updating the Appliance
-
-To update the OneKS appliance, delete its existing VM Template and appliance image from OpenNebula, then reimport the latest version of the [OneKS appliance from the OpenNebula Marketplace](https://marketplace.opennebula.io/appliance/c3ecb387-e726-49fe-975d-fa39c6d40d05). If automatic import is enabled, restart `opennebula-ks.service` after deleting both resources to import them again. Otherwise, manually download and import the appliance image and its VM Template from the OpenNebula Marketplace.
-
-The updated appliance is used only for newly created K8s Clusters. Updating it does not modify existing clusters or enable monitor support in clusters created without it.
 
 ### Air-Gapped Environments
 
