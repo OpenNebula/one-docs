@@ -8,7 +8,7 @@ A complete list of solved issues for 7.4.2 are listed in the [project developmen
 ## Upgrading to 7.4.2
 
 {{< alert title="Important" type="warning" >}}
-OpenNebula 7.4.2 includes changes to the stock configuration files and ships `onecfg` migrators from 7.4.0 to 7.4.2 and 7.4.1 to 7.4.2. After upgrading the packages, you **must run** `onecfg upgrade` on the Front-end command line to migrate your configuration, as described in the [upgrade guide]({{% relref "software/upgrade_process/upgrade_guide/upgrading_single/#upgrading-from-74x" %}}).
+OpenNebula 7.4.2 includes changes to the stock configuration files and ships `onecfg` migrators from 7.4.0 to 7.4.1 and 7.4.1 to 7.4.2. After upgrading the packages, you **must run** `onecfg upgrade` on the Front-end command line to migrate your configuration, as described in the [upgrade guide]({{% relref "software/upgrade_process/upgrade_guide/upgrading_single/#upgrading-from-74x" %}}).
 
 You may also need to update the Sunstone configuration files to expose the Sunstone features backported to 7.4.2 and 7.4.1, please see the [configuration instructions]({{% relref "software/release_information/release_notes/resolved_issues_742.md#updating-sunstone-configuration-files" %}}) at the end of this document.
 {{< /alert >}}
@@ -141,7 +141,7 @@ The following issues have been solved in 7.4.2:
 
 After upgrading OpenNebula from 7.4.0 or 7.4.1 to 7.4.2, delete the previously imported OneKS appliance and reimport the latest version from the Marketplace to enable the new monitoring and application management features. See [Appliance Configuration]({{% relref "platform_services/oneks/management/configuration/#appliance-configuration" %}}) for import details.
 
-These features also require enabling the `:monitor` section in `/etc/one/oneks-server.conf` and restarting the OneKS service. Follow the [Monitor Configuration]({{% relref "platform_services/oneks/management/configuration/#monitor-configuration" %}}) instructions, including the required transparent proxy settings.
+These features also require adding the `:monitor` section to `/etc/one/oneks-server.conf` and restarting the OneKS service. Follow the [Monitor Configuration]({{% relref "platform_services/oneks/management/configuration/#monitor-configuration" %}}) instructions, including the required transparent proxy settings.
 
 Reimporting the appliance does not affect existing Kubernetes Clusters. The monitor is deployed in new Clusters created after it has been enabled.
 
@@ -155,9 +155,9 @@ Merge these settings into the existing YAML sections, preserving other settings 
 
 ### Enable Port Mirroring in Sunstone [#8149](https://github.com/OpenNebula/one/issues/8149)
 
-The 7.4.2 configuration migration adds the Port Mirroring tab settings to the standard `admin`, `groupadmin`, and `user` views. Add the form routes manually, then verify the tab settings below. Enabling the tab alone does not register the creation and editing forms.
+Add the form routes and the tab settings below manually. Enabling the tab alone does not register the creation and editing forms.
 
-In `sunstone/tab-manifest.yaml`, locate the entry with title: Networks. Within its `routes` section, after the following entry:
+In `sunstone/tab-manifest.yaml`, locate the entry with title: Networks. Within its `routes` section, add the following entries:
 
 ```yaml
     - title: Create mirror
@@ -168,7 +168,7 @@ In `sunstone/tab-manifest.yaml`, locate the entry with title: Networks. Within i
       Component: CreateVirtualNetworkMirror
 ```
 
-In `sunstone/views/admin/vnet-tab.yaml` and `sunstone/views/user/vnet-tab.yaml`, verify the following block under the existing `info-tabs` key. Add any missing settings:
+In `sunstone/views/admin/vnet-tab.yaml` and `sunstone/views/user/vnet-tab.yaml`, add the following block under the existing `info-tabs` key:
 
 ```yaml
 info-tabs:
@@ -182,7 +182,7 @@ info-tabs:
       mirror_delete: true
 ```
 
-In `sunstone/views/groupadmin/vnet-tab.yaml`, verify that the tab is enabled with management actions disabled. Add any missing settings:
+In `sunstone/views/groupadmin/vnet-tab.yaml`, add the tab enabled with management actions disabled:
 
 ```yaml
 info-tabs:
@@ -271,7 +271,7 @@ Add the following content:
 In `sunstone/views/*/vrouter-tab.yaml`, as part of `nics` attributes after the entry:
 
 ```yaml
-   nics:
+  nics:
     enabled: true
 ```
 
@@ -283,15 +283,15 @@ Add the following content:
       nic-detach: true
 ```
 
-### Add the SPICE Console [#7667](https://github.com/OpenNebula/one/issues/7667).
+### Add the SPICE Console [#7667](https://github.com/OpenNebula/one/issues/7667)
 
 Add the file `sunstone/tabs/81-spice-tab.yaml`
 
 ```yaml
-    - title: SPICE
-      path: /spice/:id
-      sidebar: false
-      Component: Spice
+- title: SPICE
+  path: /spice/:id
+  sidebar: false
+  Component: Spice
 ```
 
 In `sunstone/views/admin/vm-tab.yaml`, `sunstone/views/cloud/vm-tab.yaml`, `sunstone/views/groupadmin/vm-tab.yaml`, and `sunstone/views/user/vm-tab.yaml`, add `spice: true` under the existing top-level `actions` key. Merge this entry with the existing actions:
@@ -328,16 +328,16 @@ To install and manage applications, enable the OneKS monitor as described in [Mo
 In `sunstone/views/*/oneks-tab.yaml`, as part of the `info-tabs` attribute, add the following entry:
 
 ```yaml
-   applications:
+  applications:
     enabled: true
 ```
 
 In `sunstone/tabs/oneks-tab.yaml`, add the following entry to the existing `routes` list, before the `/kubernetes/:id` detail route:
 
 ```yaml
-   - title: Install Application
-     path: /kubernetes/:id/applications/install
-     Component: InstallOneKsApplication
+    - title: Install Application
+      path: /kubernetes/:id/applications/install
+      Component: InstallOneKsApplication
 ```
 
 ### Configure Guacamole Connection Defaults and Enforced Settings

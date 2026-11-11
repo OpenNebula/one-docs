@@ -37,16 +37,16 @@ onehost disable <HOST_ID>
 Stop all installed OpenNebula services including OneForm and OneKS when present:
 
 ```bash
-systemctl stop opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-form.service opennebula-ks.service
+systemctl stop opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-guacd.service opennebula-form.service opennebula-ks.service
 ```
 
 Then make sure every OpenNebula process is stopped. For example:
 
 ```bash
-systemctl is-active opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-form.service opennebula-ks.service
+systemctl is-active opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-guacd.service opennebula-form.service opennebula-ks.service
 ```
 
-Then [back up the configuration files and database](#step-4-back-up-opennebula-configuration) before replacing the packages.
+Then [back up the configuration files and database](#step-4-back-up-opennebula-configuration) before replacing the packages. This procedure does not run `onedb upgrade`, so no automatic database backup is created; make sure to run `onedb backup`.
 
 ### Upgrade Packages and Configuration
 
@@ -96,12 +96,12 @@ onehost disable <HOST_ID>
 
 Stop all installed OpenNebula services, including OneFlow, OneGate, FireEdge, OneForm, and OneKS when present. Use the system tools, such as `systemctl` or `service`, as `root`. Adjust the following example to include only the services installed on your Front-end. For releases earlier than 7.0, also include `opennebula-scheduler.service` if installed:
 ```bash
-systemctl stop opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-form.service opennebula-ks.service
+systemctl stop opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-guacd.service opennebula-form.service opennebula-ks.service
 ```
 
 Then make sure every OpenNebula process is stopped. For example:
 ```bash
-systemctl is-active opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-form.service opennebula-ks.service
+systemctl is-active opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-guacd.service opennebula-form.service opennebula-ks.service
 ```
 
 {{< alert title="Important" type="info" >}}
@@ -136,7 +136,7 @@ Ubuntu/Debian
 
 ```bash
 apt-get update
-apt-get install --only-upgrade opennebula opennebula-gate opennebula-flow opennebula-fireedge opennebula-form opennebula-ks opennebula-migration python3-pyone
+apt-get install --only-upgrade opennebula opennebula-gate opennebula-flow opennebula-fireedge opennebula-form opennebula-ks opennebula-guacd opennebula-migration python3-pyone
 ```
 
 RHEL
@@ -270,7 +270,7 @@ systemctl daemon-reload
 Then start the services, adjusting the list to match those that were running before the upgrade:
 
 ```bash
-systemctl start opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-form.service opennebula-ks.service
+systemctl start opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-guacd.service opennebula-form.service opennebula-ks.service
 ```
 
 {{< alert title="Important" type="info" >}}
