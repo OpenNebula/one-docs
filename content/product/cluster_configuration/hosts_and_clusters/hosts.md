@@ -8,6 +8,8 @@ tags:
 weight: "2"
 ---
 
+<a id="hosts-guide"></a>
+
 In order to use a physical or virtual server as a Host, you must first prepare the server with a hypervisor and configure it to be added to OpenNebula as a Host, refer to the guides to prepare a [KVM node]({{% relref "software/installation_process/cluster_installation/kvm_node_installation/" %}}) or an [LXC node]({{% relref "software/installation_process/cluster_installation/lxc_node_installation/" %}}).
 
 Once you have prepared your physical or virtual nodes, you can add them to OpenNebula as Hosts. To add a Host only its hostname and type is needed.
