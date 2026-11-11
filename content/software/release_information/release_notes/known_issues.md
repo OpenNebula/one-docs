@@ -179,6 +179,27 @@ systemctl restart opennebula
 
 [ARP tables are not updated automatically](https://github.com/OpenNebula/one/issues/7935) when a leader is elected on Red Hat Enterprise Linux variants.
 
+### Slow LogDB Purge Queries
+
+In OpenNebula 7.4, periodic [LogDB purge queries](https://github.com/OpenNebula/one/issues/8260) may take several seconds to complete and have been observed alongside RAFT leader elections and replication timeouts. A direct causal relationship has not been established.
+
+The following workarounds may improve query performance:
+
+1. **Increase the InnoDB buffer pool size.** The default MariaDB value of 128 MB may be insufficient for some HA deployments. Consider increasing `innodb_buffer_pool_size` to 1–2 GB, depending on available RAM. This increases memory consumption and may require restarting MariaDB.
+
+2. **Add a composite index.** The following index improves query execution:
+
+   ```sql
+   CREATE INDEX fed_applied_log_idx
+   ON logdb (fed_index, applied, log_index);
+   ```
+
+   The additional index introduces overhead during database writes. Back up the database and apply the change consistently across HA Front-ends.
+
+3. **Reduce RAFT log retention.** Reducing `LOG_RETENTION` from 250000 to 150000 in the `RAFT` section of `oned.conf` may decrease query execution time, but also shortens the synchronization window for disconnected followers.
+
+These workarounds target LogDB query performance and may not resolve independent RAFT replication timeouts.
+
 ## OneSwap
 
 ### Conversions Fail When Preserving Guest IP Addresses
