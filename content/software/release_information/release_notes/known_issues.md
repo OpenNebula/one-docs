@@ -14,7 +14,18 @@ weight: "6"
 
 Open accepted bug reports are tracked in [GitHub](https://github.com/OpenNebula/one/issues?q=is%3Aopen%20is%3Aissue%20type%3ABug%20label%3A%22Status%3A%20Accepted%22). Check each report for affected versions.
 
-This page will be updated with relevant information about bugs affecting OpenNebula, as well as possible workarounds until a patch is officially published.
+This page describes bugs affecting OpenNebula and possible workarounds. Issues fixed in maintenance releases remain listed for users of earlier versions, including Community Edition installations. The title of each fixed issue indicates the version that resolved it.
+
+## Upgrade Overwrites the Host Fencing Script (Fixed in 7.4.1)
+
+Upgrading the OpenNebula packages [overwrites a customized](https://github.com/OpenNebula/one/issues/7996) `/var/lib/one/remotes/hooks/ft/fence_host.sh` with the stock template. If the Host error hook is configured with fencing enabled, fencing (and thus the hook) will fail after the upgrade until the file is restored.
+
+The pre-upgrade file is preserved in the configuration backup taken automatically during the package upgrade, and can be restored from there:
+
+```shell
+cp /var/lib/one/backups/config/<timestamp>-v<previous version>/var/lib/one/remotes/hooks/ft/fence_host.sh \
+   /var/lib/one/remotes/hooks/ft/fence_host.sh
+```
 
 ## VM Configuration
 
@@ -25,6 +36,16 @@ Updating only part of a VM configuration with `onevm updateconf` without `--appe
 Use `--append` for partial configuration updates and verify the resulting VM configuration before booting.
 
 ## VM Migration
+
+### Live Storage Migration with NVRAM VMs Fails (Fixed in 7.4.1)
+
+During live storage migration, a VM with NVRAM can encounter a [silent uncaught failure](https://github.com/OpenNebula/one/issues/7770) when the migration sequence runs `virsh undefine`:
+
+```default
+error: Requested operation is not valid: cannot undefine domain with nvram
+```
+
+The migration sequence must use `--keep-nvram` during the `undefine` operation.
 
 ### Recovery After a Failed Migration
 
@@ -50,7 +71,7 @@ Run `onehost sync --force` to distribute the configuration to the Hosts. This ch
 
 ## LVM Datastores
 
-### Leftover Backup Snapshots After Upgrading to 7.4.2
+### Leftover Backup Snapshots Can Cause Data Loss During Migration (Fixed in 7.4.2)
 
 Failed LVM backups in versions earlier than OpenNebula 7.4.2 can leave backup snapshots active. OpenNebula 7.4.2 [fixes failed-backup cleanup](https://github.com/OpenNebula/one/issues/8226). A subsequent successful backup cleans obsolete snapshots for the disks included in that backup. Upgrading the packages alone does not immediately remove existing snapshots.
 
@@ -104,6 +125,20 @@ Remove this setting from the template's `RAW` section when deploying on these Ho
 
 ## Veeam Backups
 
+### Worker Creation (Fixed in 7.4.1)
+
+Worker creation and restores [will fail](https://github.com/OpenNebula/one/issues/7949) if the VM with ID 0 doesn't exist in the database.
+
+As a workaround, update the following condition in `/usr/lib/one/ovirtapi-server/controllers/disk_controller.rb` on the oVirtAPI backup server, then restart the `apache2` or `httpd` service:
+
+```ruby
+vm_id = disk_hash['IMAGE']['VM_ID'].to_i
+if backup_mode == 'incremental' && vm_id > 0    # <-- Add this vm_id check
+    vm = VmController.get_one_vms(client, :vm_id => vm_id)
+    vm_hash = vm.to_hash
+    backup_ids = vm_hash.dig('VM', 'BACKUPS', 'BACKUP_IDS', 'ID')
+```
+
 ### Missing `interactive` Datastore Configuration
 
 Veeam worker deployment can fail if the required [`interactive` datastore driver configuration](https://github.com/OpenNebula/one/issues/8074) is missing from `/etc/one/oned.conf`, producing the following error:
@@ -138,6 +173,12 @@ After modifying `/etc/one/oned.conf`, restart OpenNebula:
 systemctl restart opennebula
 ```
 
+## Front-end HA
+
+### ARP Tables Not Updated on Leader Election (Fixed in 7.4.1)
+
+[ARP tables are not updated automatically](https://github.com/OpenNebula/one/issues/7935) when a leader is elected on Red Hat Enterprise Linux variants.
+
 ## OneSwap
 
 ### Conversions Fail When Preserving Guest IP Addresses
@@ -147,6 +188,12 @@ OneSwap conversions using `--network` can [fail with `undefined method '[]' for 
 As a workaround, use `--skip-ip` to skip importing IP addresses from vCenter, and configure the required addressing separately.
 
 ## Sunstone
+
+### OneForm User Inputs Form Malfunction (Fixed in 7.4.2)
+
+When provisioning a Cluster with OneForm through Sunstone, fields in the **User Inputs** step cannot be entered normally because a user interface bug causes the form content to be re-rendered after each change.
+
+As a workaround, enter the values into a notepad or code editor, then copy and paste each complete value into its field in a single operation.
 
 ### Disk Removal Disabled for Regular Users
 
