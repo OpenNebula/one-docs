@@ -14,6 +14,54 @@ weight: "3"
 {{< alert title="Important" type="info" >}}
 If you haven’t done so, please enable the [OpenNebula and needed 3rd party repositories]({{% relref "frontend_install#setup-opennebula-repos" %}}) before attempting the upgrade process.{{< /alert >}}
 
+If you are upgrading from OpenNebula 7.4.0 or 7.4.1 to 7.4.2, follow the [reduced maintenance upgrade procedure](#upgrade-74) below. If you are running 7.2.x or an earlier version, follow [Upgrading from 6.x and higher](#upgrade-from-older-releases).
+
+<a id="upgrade-74"></a>
+
+## Upgrading from 7.4.x
+
+You can upgrade directly from OpenNebula 7.4.0 or 7.4.1 to 7.4.2 without installing intermediate releases. The upgrade preserves existing users, Hosts, resources, and configurations. The database schema remains at version 7.4.0, so no database schema upgrade is required.
+
+OpenNebula 7.4.2 includes configuration migrations. You must run `onecfg upgrade` after upgrading the packages, including when upgrading directly from 7.4.0.
+
+### Check Virtual Machines and Disable Hosts
+
+Wait until no VMs are in a transient state (prolog, migrate, epilog, save), as described in [Virtual Machine Instances]({{% relref "product/virtual_machines_operation/virtual_machines/vm_instances" %}}). Disable all Hosts to stop monitoring:
+
+```bash
+onehost disable <host_id>
+```
+
+### Stop Services and Back up OpenNebula
+
+Stop all installed OpenNebula services as described in [Step 3](#step-3-stop-opennebula), including OneForm and OneKS when present. Then [back up the configuration files and database](#step-4-back-up-opennebula-configuration) before replacing the packages.
+
+<a id="maintenance-package-configuration"></a>
+
+### Upgrade Packages and Configuration
+
+Before upgrading the packages, use `onecfg status` to check that configuration migrations for your currently installed version have been completed. Resolve any pending migrations using the [Configuration Management guide]({{% relref "../configuration_management_ee/usage#cfg-usage" %}}).
+
+Update the [OpenNebula package repository](#step-5-upgrade-opennebula-packages-repository), then [upgrade all installed Front-end packages](#step-6-upgrade-to-the-new-version). Keep your modified configuration files when prompted by the package manager.
+
+Run the configuration migration:
+
+```bash
+onecfg upgrade
+```
+
+Resolve any conflicts using the [configuration upgrade instructions]({{% relref "../configuration_management_ee/usage#cfg-upgrade" %}}). Then run `onecfg status` and confirm that the configuration is up to date, with no errors or available updates.
+
+### Start Services and Complete Feature Updates
+
+[Reload the systemd unit files and start the services](#step-10-start-opennebula) that were running before the upgrade. Complete the [7.4.2 feature configuration updates](#feature-updates-742) for the features you use.
+
+### Update Hypervisors and Enable Hosts
+
+[Upgrade the hypervisor packages and synchronize the drivers](#step-12-update-the-hypervisors), then [enable all Hosts](#step-13-enable-hosts). Check the logs and resource commands as described under [Testing](#testing).
+
+<a id="upgrade-from-older-releases"></a>
+
 ## Upgrading from 6.x and higher
 
 ### Step 1. Check Virtual Machine Status
@@ -30,14 +78,14 @@ onehost disable <host_id>
 
 ### Step 3. Stop OpenNebula
 
-Stop OpenNebula and any other related services you may have running: OneFlow, OneGate and FireEdge. To stop OpenNebula, it's preferable to use the system tools, like `systemctl` or `service` running as user `root`. For example (note that `opennebula-scheduler` is no longer used in 7.0 or newer):
+Stop all installed OpenNebula services, including OneFlow, OneGate, FireEdge, OneForm, and OneKS when present. Use the system tools, such as `systemctl` or `service`, as `root`. Adjust the following example to include only the services installed on your Front-end. For releases earlier than 7.0, also include `opennebula-scheduler.service` if installed:
 ```bash
-systemctl stop opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-scheduler.service opennebula-fireedge.service
+systemctl stop opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-form.service opennebula-ks.service
 ```
 
 Then make sure every OpenNebula process is stopped. For example:
 ```bash
-systemctl is-active opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-scheduler.service opennebula-fireedge.service
+systemctl is-active opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-form.service opennebula-ks.service
 ```
 
 {{< alert title="Important" type="info" >}}
@@ -66,24 +114,26 @@ In order to be able to retrieve the packages for the latest version, you need to
 {{< alert title="Important" type="info" >}}
 When prompted by the package manager, select the option to keep your current (modified) configuration files. The upgrade of these files will be handled in the next step.{{< /alert >}}
 
+Upgrade all installed OpenNebula components. The examples below include OneForm (`opennebula-form`) and OneKS (`opennebula-ks`); omit packages that are not installed and add any other OpenNebula component packages installed on your Front-end.
+
 Ubuntu/Debian
 
 ```bash
 apt-get update
-apt-get install --only-upgrade opennebula opennebula-gate opennebula-flow opennebula-fireedge opennebula-migration python3-pyone
+apt-get install --only-upgrade opennebula opennebula-gate opennebula-flow opennebula-fireedge opennebula-form opennebula-ks opennebula-migration python3-pyone
 ```
 
 RHEL
 
 ```bash
-yum upgrade opennebula opennebula-gate opennebula-flow opennebula-fireedge opennebula-form opennebula-guacd opennebula-migration python3-pyone
+yum upgrade opennebula opennebula-gate opennebula-flow opennebula-fireedge opennebula-form opennebula-ks opennebula-guacd opennebula-migration python3-pyone
 ```
 
 SLES/openSUSE
 
 ```bash
 zypper refresh
-zypper update opennebula opennebula-gate opennebula-flow opennebula-fireedge opennebula-form opennebula-guacd opennebula-migration python313-pyone
+zypper update opennebula opennebula-gate opennebula-flow opennebula-fireedge opennebula-form opennebula-ks opennebula-guacd opennebula-migration python313-pyone
 ```
 
 {{< alert title="Warning" type="warning" >}}
@@ -195,16 +245,16 @@ Total errors found: 0
 {{< alert title="Important" type="danger" >}}
 For versions prior to 7.0, now you can safely delete `/etc/one/sunstone-views.yaml`.{{< /alert >}}
 
-Start OpenNebula and any other related services: OneFlow, OneGate and FireEdge. First reload the new systemd unit files:
+Start the OpenNebula services that were running before the upgrade, including OneFlow, OneGate, FireEdge, OneForm, and OneKS when present. First reload the new systemd unit files:
 
 ```bash
 systemctl daemon-reload
 ```
 
-Then restart the services:
+Then start the services, adjusting the list to match those that were running before the upgrade:
 
 ```bash
-systemctl start opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service
+systemctl start opennebula opennebula-flow.service opennebula-gate.service opennebula-hem.service opennebula-fireedge.service opennebula-form.service opennebula-ks.service
 ```
 
 {{< alert title="Important" type="info" >}}
@@ -262,6 +312,15 @@ onehost enable <host_id>
 ```
 
 If upgrading from a version earlier than 6.0, please see [Upgrading from Previous Versions]({{% relref "upgrade_from_previous_versions" %}}).
+
+<a id="feature-updates-742"></a>
+<a id="oneks-appliance-update"></a>
+
+### Feature Updates for 7.4.2
+
+After upgrading to 7.4.2, complete the [Sunstone configuration updates]({{% relref "software/release_information/release_notes/resolved_issues_742/#updating-sunstone-configuration-files" %}}) for the features you use. When upgrading directly from 7.4.0, also review the [Sunstone configuration updates for 7.4.1]({{% relref "software/release_information/release_notes/resolved_issues_741/#updating-sunstone-configuration-files" %}}).
+
+If you use OneKS, [update the OneKS appliance and enable monitoring]({{% relref "software/release_information/release_notes/resolved_issues_742/#updating-oneks-appliance-and-monitoring" %}}) to use the new monitoring and application management features.
 
 ### Testing
 

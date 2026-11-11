@@ -285,7 +285,7 @@ guacamole:
       disable-paste: true
       enable-sftp: false
     rdp:
-      # Requires NLA credentials and a trusted guest certificate
+      # Requires NLA credentials; ignores certificate validation errors
       security: nla
       ignore-cert: true
       enable-drive: false
@@ -294,7 +294,7 @@ guacamole:
 
 Settings are applied in the following order, with later values overriding earlier ones: `common`, the protocol section, VM/NIC settings, browser settings, and `enforced`. Browser overrides are limited to display and terminal settings and `rangeports`. Enforced settings are applied whenever a Guacamole connection opens and cannot be overridden by VM/NIC or browser settings.
 
-The default enforced settings disable clipboard copy/paste and SFTP for all three protocols. For RDP, they also disable drive and printer redirection, require Network Level Authentication (NLA), and enable certificate validation. RDP guests must support NLA, and the connection requires credentials and a guest certificate trusted by the Guacamole daemon. To change these requirements, edit `guacamole.enforced.rdp`; setting `RDP_SECURITY` in a VM does not override an enforced security mode.
+The default enforced settings disable clipboard copy/paste and SFTP for all three protocols. For RDP, they also disable drive and printer redirection and require Network Level Authentication (NLA). With `ignore-cert: true`, certificate validation errors are ignored. RDP guests must support NLA, and the connection requires credentials. Set `guacamole.enforced.rdp.ignore-cert` to `false` to require a guest certificate trusted by the Guacamole daemon. To change these requirements, edit `guacamole.enforced.rdp`; setting `RDP_SECURITY` in a VM does not override an enforced security mode.
 
 Additional connection parameters can be configured using their Guacamole parameter names. Restart the [FireEdge service]({{% relref "fireedge#fireedge-conf-service" %}}) after changing the configuration.
 
