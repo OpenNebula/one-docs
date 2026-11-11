@@ -174,6 +174,46 @@ EOT
 zypper refresh
 ```
 
+#### SUSE Linux Enterprise Server 16
+
+SUSE Linux Enterprise Server 16 requires the OpenNebula repository and the SUSE Package Hub extension. Execute the following as user `root`:
+
+```shell
+arch=$(uname -m)
+
+SUSEConnect -p PackageHub/16.0/$arch
+
+rpm --import https://downloads.opennebula.io/repo/repo2.key
+
+mkdir -p /etc/zypp/credentials.d
+cat << "EOT" > /etc/zypp/credentials.d/opennebula.conf
+username=<user>
+password=<password>
+EOT
+chmod 600 /etc/zypp/credentials.d/opennebula.conf
+
+cat << "EOT" > /etc/zypp/repos.d/opennebula.repo
+[opennebula]
+name=OpenNebula Enterprise Edition
+enabled=1
+autorefresh=1
+baseurl=https://enterprise.opennebula.io/repo/{{< release >}}/SLES/16/$basearch?credentials=opennebula.conf
+gpgkey=https://downloads.opennebula.io/repo/repo2.key
+gpgcheck=1
+repo_gpgcheck=1
+EOT
+
+zypper refresh
+```
+
+{{< alert title="Note" type="info" >}}
+The Python bindings package `python313-pyone` depends on `python313-grpcio`, which is not shipped in the SLES base product or in Package Hub, but in the SUSE Linux Enterprise High Availability Extension. To install `python313-pyone` on SLES 16, register the extension first (an additional registration code is required):
+
+```shell
+SUSEConnect -p sle-ha/16.0/$(uname -m) -r <regcode>
+```
+{{< /alert >}}
+
 #### openSUSE Leap 16.0
 
 openSUSE Leap 16.0 requires the OpenNebula repository and the openSUSE Science repository for SciPy. Execute the following as user `root`:
