@@ -8,7 +8,7 @@ A complete list of solved issues for 7.4.2 are listed in the [project developmen
 ## Upgrading to 7.4.2
 
 {{< alert title="Important" type="warning" >}}
-OpenNebula 7.4.2 includes changes to the stock configuration files and ships `onecfg` migrators from 7.4.0 to 7.4.2 and 7.4.1 to 7.4.2. After upgrading the packages, you **must run** `onecfg upgrade` on the Front-end command line to migrate your configuration, as described in the [upgrade guide]({{% relref "software/upgrade_process/upgrade_guide/upgrading_single#step-7-update-configuration-files" %}}).
+OpenNebula 7.4.2 includes changes to the stock configuration files and ships `onecfg` migrators from 7.4.0 to 7.4.2 and 7.4.1 to 7.4.2. After upgrading the packages, you **must run** `onecfg upgrade` on the Front-end command line to migrate your configuration, as described in the [upgrade guide]({{% relref "software/upgrade_process/upgrade_guide/upgrading_single/#upgrade-packages-and-configuration" %}}).
 
 You may also need to update the Sunstone configuration files to expose the Sunstone features backported to 7.4.2 and 7.4.1, please see the [configuration instructions]({{% relref "software/release_information/release_notes/resolved_issues_742.md#updating-sunstone-configuration-files" %}}) at the end of this document.
 {{< /alert >}}
@@ -127,12 +127,12 @@ The following issues have been solved in 7.4.2:
 
 ## Security Issues
 
-* Fix the reported Brotli vulnerability in FireEdge by updating its Node.js runtime and bundled dependencies.
+* Fix the reported Brotli vulnerability in FireEdge by updating its Node.js runtime and bundled dependencies ([CVE-2026-111497](https://github.com/advisories/GHSA-9v8h-qqgm-4m35)).
 * Fix exposure of restic repository passwords in backup image error messages when backup operations fail.
 * Fix shell command injection through malicious `MD5` or `SHA1` values in image templates.
 * Fix FireEdge SSH tunnel handling that could connect a Guacamole VNC session to the wrong VM.
 * Fix stored cross-site scripting in Sunstone when displaying unsanitized Zendesk support ticket comments.
-* Fix outdated Lodash dependencies in FireEdge by upgrading to version `4.18.1`.
+* Fix outdated Lodash dependencies in FireEdge by upgrading to version `4.18.1` ([CVE-2025-13465](https://github.com/advisories/GHSA-xxjr-mmjv-4gpg), [CVE-2026-4800](https://github.com/advisories/GHSA-r5fr-rjxr-66jc)).
 * Fix padding oracle and target-user bypass vulnerabilities in server authentication, and increase the entropy of generated passwords.
 
 ---
@@ -200,7 +200,7 @@ For custom views that expose Virtual Networks, add the `port_mirroring` block to
 
 Restart FireEdge and reload Sunstone in the browser after applying the changes.
 
-### Enable VM backup cancellation in Sunstone [#8069](https://github.com/OpenNebula/one/issues/8069)
+### Enable VM Backup Cancellation in Sunstone [#8069](https://github.com/OpenNebula/one/issues/8069)
 
 In `sunstone/views/admin/vm-tab.yaml`, `sunstone/views/groupadmin/vm-tab.yaml` and `sunstone/views/user/vm-tab.yaml`, add `backup-cancel: true` under `info-tabs.backup.actions`:
 
@@ -266,7 +266,7 @@ Add the following content:
       Component: CreateGroup
 ```
 
-### Expose virtual router NIC attach/detach actions [#7708](https://github.com/OpenNebula/one/issues/7708)
+### Expose Virtual Router NIC attach/detach Actions [#7708](https://github.com/OpenNebula/one/issues/7708)
 
 In `sunstone/views/*/vrouter-tab.yaml`, as part of `nics` attributes after the entry:
 
@@ -283,7 +283,7 @@ Add the following content:
       nic-detach: true
 ```
 
-### Add the SPICE console [#7667](https://github.com/OpenNebula/one/issues/7667).
+### Add the SPICE Console [#7667](https://github.com/OpenNebula/one/issues/7667).
 
 Add the file `sunstone/tabs/81-spice-tab.yaml`
 
@@ -301,7 +301,7 @@ actions:
   spice: true
 ```
 
-### Service template instantiate missing selection dialog [#8037](https://github.com/OpenNebula/one/issues/8037)
+### Service Template Instantiate Missing Selection Dialog [#8037](https://github.com/OpenNebula/one/issues/8037)
 
 In `sunstone/tab-manifest.yaml`, locate the entry with title: Instances. Under Instances entry, locate the entry with title: Instantiate Service Template and replace the content:
 
@@ -319,7 +319,7 @@ With the following content:
       Component: CreateService
 ```
 
-### Enable OneKs Application tab [#7302](https://github.com/OpenNebula/one/issues/7302)
+### Enable OneKS Application Tab [#7302](https://github.com/OpenNebula/one/issues/7302)
 
 In `sunstone/views/*/oneks-tab.yaml`, as part of the `info-tabs` attribute, add the following entry:
 
@@ -336,7 +336,7 @@ In `sunstone/tabs/oneks-tab.yaml`, add the following entry to the existing `rout
      Component: InstallOneKsApplication
 ```
 
-### Configure Guacamole connection defaults and enforced settings
+### Configure Guacamole Connection Defaults and Enforced Settings
 
 In `/etc/one/fireedge-server.conf`, add the following top-level `guacamole` section alongside the existing `guacd` section. The `guacd` section configures the daemon connection while `guacamole` configures VNC, SSH and RDP console connections. These settings replace connection defaults previously defined in FireEdge code and its Guacamole bridge.
 
@@ -391,7 +391,7 @@ Connection settings are applied in the following order, with later values overri
 
 The block above disables clipboard copy/paste and SFTP for all three protocols. For RDP, it also disables drive and printer redirection and requires Network Level Authentication (NLA). With `ignore-cert: true`, certificate validation errors are ignored. Ensure that RDP guests support NLA and provide the required credentials. Set `guacamole.enforced.rdp.ignore-cert` to `false` to require a guest certificate trusted by the Guacamole daemon. With `enforced.rdp.security: nla`, the VM's `RDP_SECURITY` setting cannot select another security mode; change the enforced policy if a different mode is required.
 
-Restart FireEdge after saving the configuration:
+Restart FireEdge on the Front-end command line after saving the configuration:
 
 ```shell
 systemctl restart opennebula-fireedge
