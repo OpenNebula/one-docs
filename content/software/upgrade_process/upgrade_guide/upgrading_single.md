@@ -29,7 +29,7 @@ OpenNebula 7.4.2 includes configuration migrations. You must run `onecfg upgrade
 Wait until no VMs are in a transient state (prolog, migrate, epilog, save), as described in [Virtual Machine Instances]({{% relref "product/virtual_machines_operation/virtual_machines/vm_instances" %}}). Disable all Hosts to stop monitoring:
 
 ```bash
-onehost disable <host_id>
+onehost disable <HOST_ID>
 ```
 
 ### Stop Services and Back up OpenNebula
@@ -60,6 +60,12 @@ Resolve any conflicts using the [configuration upgrade instructions]({{% relref 
 
 [Upgrade the hypervisor packages and synchronize the drivers](#step-12-update-the-hypervisors), then [enable all Hosts](#step-13-enable-hosts). Check the logs and resource commands as described under [Testing](#testing).
 
+### Feature Updates for 7.4.2
+
+After upgrading to 7.4.2, complete the [Sunstone configuration updates]({{% relref "software/release_information/release_notes/resolved_issues_742/#updating-sunstone-configuration-files" %}}) for the features you use. When upgrading directly from 7.4.0, also review the [Sunstone configuration updates for 7.4.1]({{% relref "software/release_information/release_notes/resolved_issues_741/#updating-sunstone-configuration-files" %}}).
+
+If you use OneKS, [update the OneKS appliance and enable monitoring]({{% relref "software/release_information/release_notes/resolved_issues_742/#updating-oneks-appliance-and-monitoring" %}}) to use the new monitoring and application management features.
+
 <a id="upgrade-from-older-releases"></a>
 
 ## Upgrading from 6.x and higher
@@ -73,7 +79,7 @@ Before proceeding, make sure you don’t have any VMs in a transient state (prol
 Set all Hosts to disable mode to stop all monitoring processes.
 
 ```bash
-onehost disable <host_id>
+onehost disable <HOST_ID>
 ```
 
 ### Step 3. Stop OpenNebula
@@ -308,19 +314,10 @@ onehost sync
 Enable all Hosts, disabled in step 2:
 
 ```bash
-onehost enable <host_id>
+onehost enable <HOST_ID>
 ```
 
 If upgrading from a version earlier than 6.0, please see [Upgrading from Previous Versions]({{% relref "upgrade_from_previous_versions" %}}).
-
-<a id="feature-updates-742"></a>
-<a id="oneks-appliance-update"></a>
-
-### Feature Updates for 7.4.2
-
-After upgrading to 7.4.2, complete the [Sunstone configuration updates]({{% relref "software/release_information/release_notes/resolved_issues_742/#updating-sunstone-configuration-files" %}}) for the features you use. When upgrading directly from 7.4.0, also review the [Sunstone configuration updates for 7.4.1]({{% relref "software/release_information/release_notes/resolved_issues_741/#updating-sunstone-configuration-files" %}}).
-
-If you use OneKS, [update the OneKS appliance and enable monitoring]({{% relref "software/release_information/release_notes/resolved_issues_742/#updating-oneks-appliance-and-monitoring" %}}) to use the new monitoring and application management features.
 
 ### Testing
 
