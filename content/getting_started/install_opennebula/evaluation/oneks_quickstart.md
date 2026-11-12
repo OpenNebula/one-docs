@@ -81,7 +81,7 @@ Select **+ Create Virtual Network** and choose **From scratch**, fill in a name 
           pathDark="/images/quickstart/dark/create_private_vnet_1.png"
 alt="OneKS Quickstart create private Vnet step 1" align="center" width="90%" mb="20px" >}}
 
-Press **Next** to proceed to the **Advanced Options** view and keep the **BRIDGED** option and activate the **User private host networking or a user-defined bridge** toggle:
+Press **Next** to proceed to the **Advanced Options** view and keep the **BRIDGED** option and activate the **User private host networking or a user-defined bridge** toggle in the **Configuration** tab:
 
 {{< image path="/images/quickstart/light/create_private_vnet_2.png" 
           pathDark="/images/quickstart/dark/create_private_vnet_2.png"
@@ -157,7 +157,7 @@ The **User Inputs** step does not require any input, press **Finish** to start t
           pathDark="/images/quickstart/dark/k8s_logs.png"
 alt="OneKS Quickstart create K8s cluster" align="center" width="90%" mb="20px" >}}
 
-The K8s Cluster may take 10-20 minutes to complete the provisioning process. You can monitor the progress by selecting your new K8s Cluster in the **Kubernetes -> K8s Cluster** list view and selecting the **Logs** tab. You can also see the evolution of your K8s Cluster in the **Instances -> Virtual Machines** view. Over the next few minutes you will see several VMs instantiate, first the *seed* VM, then the *virtual router* VM and then the *control plane* and eventually the *worker* VM. 
+The K8s Cluster may take 10-20 minutes to complete the provisioning process. You can monitor the progress by selecting your new K8s Cluster in the **Kubernetes -> K8s Cluster** list view and selecting the **Logs** tab. You can also see the evolution of your K8s Cluster in the **Instances -> Virtual Machines** view. Over the next few minutes you will see several VMs instantiate, first the *seed* VM, then the *virtual router* VM and then the *control plane* VM. 
 
 {{< image path="/images/quickstart/light/k8s_vms_view.png" 
           pathDark="/images/quickstart/dark/k8s_vms_view.png"
@@ -213,6 +213,12 @@ You are now be ready to deploy an application, download the example application 
 ```shell
 curl -O -L https://github.com/OpenNebula/one-training-files/raw/refs/heads/master/OneKE/test-app-v2-cloudflared.tar
 
+```
+
+Extract the archive:
+
+```shell
+tar -xvf test-app-v2-cloudflared.tar
 ```
 
 Then deploy the example application with kubectl:

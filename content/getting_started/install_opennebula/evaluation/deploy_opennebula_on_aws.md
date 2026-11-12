@@ -301,9 +301,10 @@ The screen will display the Sunstone Dashboard:
 
 As you can see, the Dashboard indicates the following installed components:
 
-- 1 VM template
-- 1 image
+- 2 images
 - 1 Virtual Network
+- 1 Host
+- 0 running Virtual Machines
 
 The existing Virtual Network is a bridged network attached to a local interface named `vnet`. To inspect this network, in Sunstone open the left-hand menu (hover the mouse over the left-hand sidebar), then click **Networks** --> **Virtual Networks**:
 

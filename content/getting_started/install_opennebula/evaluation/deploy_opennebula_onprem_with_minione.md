@@ -27,7 +27,7 @@ During this tutorial we will complete the following steps:
 3. Verify the installation.
 4. Instantiate a Virtual Machine (VM) with Alpine Linux.
 
-Once you have completed this tutorial, you will have an evaluation version of OpenNebula installed on your machine and you will understand how to use the [Sunstone User Interface]({{% relref fireedge_sunstone %}}) to instantiate a VM.  
+Once you have completed this tutorial, you will have an evaluation version of OpenNebula installed on your machine and you will understand how to use the [Sunstone User Interface]({{% relref fireedge_sunstone %}}) to instantiate a VM.
 
 ## Before Starting
 
@@ -47,7 +47,7 @@ sudo apt install cpu-checker
 
 ## Step 1: Verify Installation Requirements
 
-To run the miniONE script, you will need a physical server with a fresh installation of a supported operating system, with the latest software updates and without any customizations. The server will need a stable internet connection to download software packages during installation. 
+To run the miniONE script, you will need a physical server with a fresh installation of a supported operating system, with the latest software updates and without any customizations. The server will need a stable internet connection to download software packages during installation.
 
 **Supported operating systems:**
 : - RHEL/AlmaLinux 9 or 10
@@ -93,7 +93,12 @@ wget 'https://github.com/OpenNebula/minione/releases/latest/download/minione'
 wget 'https://github.com/OpenNebula/minione/releases/download/v7.2.0/minione'
 ```
 {{% /if-version %}}
-{{% if-version is="7.3" %}}
+{{% if-version is="7.4" %}}
+```bash
+wget 'https://github.com/OpenNebula/minione/releases/download/v7.4.1/minione'
+```
+{{% /if-version %}}
+{{% if-version is="7.5" %}}
 ```bash
 wget 'https://github.com/OpenNebula/minione/releases/latest/download/minione'
 ```
@@ -111,7 +116,7 @@ Now run the installation script:
 ./minione
 ```
 
-{{< alert title="Tip" type="primary" >}} miniONE will create credentials with a randomized password for logging into the Sunstone UI. You can use the `--password` option to enter a secure and memorable password of your own: `./minione --password <password>`{{< /alert >}} 
+{{< alert title="Tip" type="primary" >}} miniONE will create credentials with a randomized password for logging into the Sunstone UI. You can use the `--password` option to enter a secure and memorable password of your own: `./minione --password <password>`{{< /alert >}}
 
 The miniONE script executes the installation while logging output to the terminal. Installation usually takes between one and three minutes on most machines. Once finished, miniONE displays a report in the terminal with connection parameters and login credentials:
 
@@ -161,9 +166,10 @@ The screen will display the Sunstone Dashboard:
 
 As you can see, the Dashboard indicates the following installed components:
 
-- 1 VM template
-- 1 image
+- 2 images
 - 1 Virtual Network
+- 1 Host
+- 0 running Virtual Machines
 
 The existing Virtual Network is a bridged network attached to a local interface named `vnet`. To inspect this network, in Sunstone open the left-hand menu (hover the mouse over the left-hand sidebar), then click **Networks** --> **Virtual Networks**:
 
@@ -235,7 +241,7 @@ The green dot to the left of the VM name indicates that the VM is running. Note 
 
 ### Logging into the Virtual Machine
 
-The quickest way to log into the VM is by VNC, available directly in Sunstone. Select the Alpine Linux 3.20 VM from the list to open it's details panel. On larger screens, you will see a **Console** dropdown menu, click this and select **VNC** from the menu. On smaller screens this option will be found in the dropdown menu opened using the ellipsis icon <svg width="16px" height="16px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor" class="toggle-button-icon"><path d="M12 12.5a.5.5 0 100-1 .5.5 0 000 1zM12 20.5a.5.5 0 100-1 .5.5 0 000 1zM12 4.5a.5.5 0 100-1 .5.5 0 000 1z" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg> and Sunstone will display the VM boot messages screen directly in your browser in another tab. 
+The quickest way to log into the VM is by VNC, available directly in Sunstone. Select the Alpine Linux 3.20 VM from the list to open it's details panel. On larger screens, you will see a **Console** dropdown menu, click this and select **VNC** from the menu. On smaller screens this option will be found in the dropdown menu opened using the ellipsis icon <svg width="16px" height="16px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor" class="toggle-button-icon"><path d="M12 12.5a.5.5 0 100-1 .5.5 0 000 1zM12 20.5a.5.5 0 100-1 .5.5 0 000 1zM12 4.5a.5.5 0 100-1 .5.5 0 000 1z" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg> and Sunstone will display the VM boot messages screen directly in your browser in another tab.
 
 {{< image
   pathDark="/images/quickstart/dark/sunstone_vnc_alpine.png"
@@ -246,11 +252,11 @@ The quickest way to log into the VM is by VNC, available directly in Sunstone. S
 Log in as `root` with password `opennebula`. You can then use the command line to explore the VM and run processes:
 
 * Try running `ping 1.1.1.1` to test the internet connection
-* Try running `top` to see the processes running on the machine 
+* Try running `top` to see the processes running on the machine
 
 Congratulations! You've now installed an OpenNebula Front-end with a KVM hypervisor and Virtual Network, then deployed a VM.
 
-{{< alert title="Tip" color="primary" >}}Please note that miniONE is an evaluation version of OpenNebula and is intended for experimentation and learning. You should not use miniONE for a production cloud deployment. Please refer to the [Production Installation Guide]({{% relref installation_process %}}) for details on deploying in a production environment.{{< /alert >}} 
+{{< alert title="Tip" color="primary" >}}Please note that miniONE is an evaluation version of OpenNebula and is intended for experimentation and learning. You should not use miniONE for a production cloud deployment. Please refer to the [Production Installation Guide]({{% relref installation_process %}}) for details on deploying in a production environment.{{< /alert >}}
 
 ## Next Steps
 
@@ -262,7 +268,7 @@ Now that you have a working miniONE OpenNebula installation, we suggest that you
 
 ## SSH and Port Forwarding
 
-If you are deploying miniONE on remote infrastructure (or a VM) it may be necessary to use SSH to tunnel into the remote server and access the command line. You also need to use port forwarding in order to access the Sunstone UI through your local browser. 
+If you are deploying miniONE on remote infrastructure (or a VM) it may be necessary to use SSH to tunnel into the remote server and access the command line. You also need to use port forwarding in order to access the Sunstone UI through your local browser.
 
 In order to access the Sunstone UI, you will need to set up port forwarding on your remote machine. Choose a port that is available on your local machine, you can check this by running the following command:
 
