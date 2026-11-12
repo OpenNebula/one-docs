@@ -362,6 +362,10 @@ For the driver actions used for live and non-live snapshots, see the [Storage Dr
 {{< alert title="Warning" type="warning" >}}
 Live snapshot support can depend on `DISK/CACHE` and the installed storage driver, libvirt, and QEMU versions. Use a cache mode supported by that combination; `CACHE=writethrough` alone does not establish snapshot compatibility.{{< /alert >}}
 
+### Disk Snapshots with Incremental Backups
+
+Ceph RBD disk snapshots are compatible with incremental backups. For backup-chain behavior when reverting a snapshot, see [Ceph Disk Snapshots and Incremental Backups]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations#ceph-disk-snapshots-and-incremental-backups" %}}).
+
 ### Persistent Images and Disk Snapshots
 
 These actions support both persistent and non-persistent Images. For persistent Images, OpenNebula preserves snapshots after VM termination when the storage driver supports it and `PERSISTENT_SNAPSHOTS` is enabled. Other VMs using that Image can then use the snapshots. The `fs_lvm_ssh` driver sets `PERSISTENT_SNAPSHOTS=NO` by default. For more information, see [Snapshots]({{% relref "product/virtual_machines_operation/virtual_machines/images.md#images-snapshots" %}}) in the Images guide.

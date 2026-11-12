@@ -277,6 +277,8 @@ When using Sunstone, the deployment mode needs to be set in the Storage tab.
 
 For backup configuration and operations, see [VM Backup Operations]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations" %}}).
 
+In Ceph mode, disk snapshots can coexist with incremental backups. For automatic backup-chain resets before a disk snapshot revert, see [Ceph Disk Snapshots and Incremental Backups]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations#ceph-disk-snapshots-and-incremental-backups" %}}).
+
 Ceph full backups use qcow2 files. Incremental chains created or reset on **OpenNebula 7.0.1 or later** also use qcow2, with increments generated from RBD snapshot differences. Both are registered with `FORMAT=raw`, despite storing qcow2 files.
 
 With Restic and Rsync, `KEEP_LAST` consolidates the oldest required backups into a base and removes superseded restore points, retaining the last N backups without periodic chain resets. This involves processing backup data; Restic retrieves the required backups and uploads the consolidated base.
