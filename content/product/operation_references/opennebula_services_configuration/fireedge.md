@@ -26,6 +26,10 @@ The OpenNebula FireEdge server provides a **next-generation web-management inter
 - **Guacamole Proxy** for Sunstone to remotely access the VMs (incl., VNC, RDP, and SSH)
 - **FireEdge Sunstone**: new iteration of Sunstone written in React/Redux. Accessible through the following URL:
 
+{{< alert title="Warning" type="warning" >}}
+In version 7.4.2 you must update the `guacamole` configuration block in the `/etc/one/fireedge-server.conf` file in order to use all supported protocol features. Without this change RDP, VNC or SSH may not function properly. See [connection defaults]({{% relref "fireedge#fireedge-guacamole-connections" %}}) and [resolved issues]({{% relref "software/release_information/release_notes/resolved_issues_742.md#configure-guacamole-connection-defaults-and-enforced-settings" %}}) for reference.
+{{< /alert >}}
+
 ```default
 http://<OPENNEBULA-FRONTEND>:2616
 ```
@@ -227,6 +231,72 @@ If Guacamole is running on a different Host to the FireEdge, the following FireE
 
 - `guacd/host`
 - `guacd/port`
+
+<a id="fireedge-guacamole-connections"></a>
+
+#### Connection Defaults and Enforced Settings
+
+Configure VNC, SSH and RDP connection parameters in the top-level `guacamole` section of `/etc/one/fireedge-server.conf`. This section is separate from `guacd`, which specifies how FireEdge connects to the Guacamole daemon.
+
+| Section | Description |
+| --- | --- |
+| `guacamole.common` | Defaults shared by VNC, SSH and RDP connections. |
+| `guacamole.vnc`, `guacamole.ssh`, `guacamole.rdp` | Protocol-specific defaults. These override values in `common`. |
+| `guacamole.enforced.common` | Settings enforced for all three protocols. |
+| `guacamole.enforced.vnc`, `guacamole.enforced.ssh`, `guacamole.enforced.rdp` | Protocol-specific enforced settings. These override values in `enforced.common`. |
+
+The default configuration is:
+
+```yaml
+guacamole:
+  common:
+    width: 1024
+    height: 768
+    dpi: 96
+
+  rdp:
+    port: 3389
+    # Disable audio and microphone
+    disable-audio: true
+    enable-audio-input: false
+
+    # Display and performance
+    resize-method: display-update
+    enable-wallpaper: false
+    enable-theming: false
+    enable-font-smoothing: false
+    enable-full-window-drag: false
+    enable-desktop-composition: false
+    enable-menu-animations: false
+    disable-bitmap-caching: false
+    disable-offscreen-caching: false
+    disable-glyph-caching: false
+
+  vnc:
+    port: 5900
+
+  ssh:
+    port: 22
+
+  # Server policy, applied whenever a Guacamole connection opens
+  enforced:
+    common:
+      disable-copy: true
+      disable-paste: true
+      enable-sftp: false
+    rdp:
+      # Requires NLA credentials; ignores certificate validation errors
+      security: nla
+      ignore-cert: true
+      enable-drive: false
+      enable-printing: false
+```
+
+Settings are applied in the following order, with later values overriding earlier ones: `common`, the protocol section, VM/NIC settings, browser settings, and `enforced`. Browser overrides are limited to display and terminal settings and `rangeports`. Enforced settings are applied whenever a Guacamole connection opens and cannot be overridden by VM/NIC or browser settings.
+
+The default enforced settings disable clipboard copy/paste and SFTP for all three protocols. For RDP, they also disable drive and printer redirection and require Network Level Authentication (NLA). With `ignore-cert: true`, certificate validation errors are ignored. RDP guests must support NLA, and the connection requires credentials. Set `guacamole.enforced.rdp.ignore-cert` to `false` to require a guest certificate trusted by the Guacamole daemon. To change these requirements, edit `guacamole.enforced.rdp`; setting `RDP_SECURITY` in a VM does not override an enforced security mode.
+
+Additional connection parameters can be configured using their Guacamole parameter names. Restart the [FireEdge service]({{% relref "fireedge#fireedge-conf-service" %}}) after changing the configuration.
 
 <a id="fireedge-conf-service"></a>
 

@@ -30,13 +30,12 @@ The following table summarizes the supported backup modes for each storage syste
 |--------------|------|-------------|
 | File (qcow2) | Yes  | Yes         |
 | File (raw)   | No†  | No†         |
-| Ceph         | No†  | No†         |
+| Ceph (RBD)   | Yes  | Yes         |
 | LVM          | Yes  | Yes         |
 | NetApp       | No†  | No†         |
 | PureFA       | No†  | No†         |
 
-
-<sup>†</sup> These backup modes were supported in previous OpenNebula versions, such as 7.0 and 7.2. In OpenNebula version 7.4, they are not supported by the current OneBEX-based integration, but are planned to be supported in a future maintenance releases.
+<sup>†</sup> File (raw) and NetApp backup modes were supported in previous OpenNebula versions, such as 7.0 and 7.2. In OpenNebula version 7.4, they are not supported by the current OneBEX-based integration, but are planned to be supported in future maintenance releases.
 
 ### Volatile Disk Backups
 
@@ -58,10 +57,12 @@ If you encounter other issues or bugs, check the [Known Issues page]({{% relref 
 To ensure a compatible integration between OpenNebula and Veeam Backup, the following components and network configuration are required:
 
 - **Veeam Workers**: Deployed from the Veeam server to process backups and restores.
+- **oVirtAPI Server**: Exposes the oVirt-compatible API on TCP ports **80 (HTTP)** and **443 (HTTPS)**. These ports are required for the Veeam integration; using other ports breaks the integration. The server can run on the OpenNebula Front-end or in a separate environment, such as a VM, if these ports are unavailable on the Front-end. A separate deployment may degrade performance.
 - **OpenNebula Backup Exporter (OneBEX)**: Runs on demand on the OpenNebula hypervisors and exposes VM backup data to Veeam. See [Interactive Backup Integrations]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}) for implementation details.
 - **Veeam (interactive) Backup Datastore**: An OpenNebula `BACKUP_DS` using `DS_MAD="interactive"` and `VEEAM_DS="YES"`. This datastore coordinates Veeam backup operations and tracks backup metadata. The backup itself is stored in the Veeam repository.
 - **Management Network**: Provides connectivity between all of the following components:
      - OpenNebula Front-end
+     - oVirtAPI Server, if deployed separately
      - OpenNebula OneBEX endpoint on each hypervisor
      - All OpenNebula Hosts running VMs to be backed up
      - Veeam Server
@@ -70,6 +71,19 @@ To ensure a compatible integration between OpenNebula and Veeam Backup, the foll
 <br>
 
 {{< image path="/images/veeam/interactive_backup_veeam_architecture.svg" alt="Architecture of the OpenNebula-Veeam Backup Integration" align="center" width="90%" mb="20px" border="false" >}}
+
+### Firewall Configuration
+
+| Source        | Destination          | Port          | Service / Purpose                                  |
+|---------------|----------------------|---------------|----------------------------------------------------|
+| Veeam Server  | OpenNebula Front-end | TCP/443       | oVirtAPI (HTTPS)                                   |
+| Veeam Workers | OpenNebula Front-end | TCP/443       | oVirtAPI (HTTPS)                                   |
+| Veeam Server  | OpenNebula Hosts     | TCP/13014     | OneBEX image transfers                             |
+| Veeam Workers | OpenNebula Hosts     | TCP/13014     | OneBEX backup and restore transfers                |
+| Veeam Server  | OpenNebula Hosts     | TCP/13015     | OneBEX SSL image transfers (optional)              |
+| Veeam Workers | OpenNebula Hosts     | TCP/13015     | OneBEX SSL backup and restore transfers (optional) |
+
+The required connections are initiated by the Veeam components. Therefore, the firewall must allow traffic from the Veeam Server and Veeam Workers to the corresponding destination ports on the OpenNebula Front-end and Hosts.
 
 ## Installation and Configuration
 
@@ -107,20 +121,38 @@ If using High Availability, any changes to ``/var/lib/one/remotes/etc/onebex/one
 
 ### 2. Enable VM Guest Agent Monitoring
 
-The integration needs VM Guest Agent monitoring to be enabled. To do so set ``:enabled`` to ``true`` on the following file in the frontend:
+For Veeam to discover guest IP addresses on the correct NIC, enable the QEMU Guest Agent communication channel in each VM template with `FEATURES = [ GUEST_AGENT = "YES" ]`, and install and start the QEMU Guest Agent inside the guest. See [Enabling QEMU Guest Agent]({{% relref "product/operation_references/hypervisor_configuration/kvm_driver#enabling-qemu-guest-agent" %}}) for details.
+
+On the Front-end, edit:
 
 ```default
 /var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf
 ```
 
-Then, in the same frontend server execute the following command to propagate the remote into the KVM hosts:
+Set `:enabled` to `true` and add `:vm_guest_interfaces_b64` under the existing `:commands` section:
+
+```yaml
+:enabled: true
+:commands:
+  :vm_qemu_ping: one-$vm_id '{"execute":"guest-ping"}' --timeout 5
+  :vm_guest_interfaces_b64: >-
+    one-$vm_id '{"execute":"guest-network-get-interfaces"}' --timeout 10 |
+    ruby -rjson -rbase64 -e 'puts JSON.generate("return" =>
+    Base64.strict_encode64(JSON.parse(STDIN.read).fetch("return").to_json))'
+```
+
+Keep any other commands already configured. This command stores the guest interface list as Base64-encoded JSON in `MONITORING/VM_GUEST_INTERFACES_B64`. The list includes each interface's MAC address and IP addresses, allowing oVirtAPI to associate guest IPv4 addresses with the right VM NIC. The default `GUEST_IP_ADDRESSES` value does not include that association.
+
+Then synchronize the configuration to the KVM hosts from the Front-end:
 
 ```shell
 onehost sync --force
 ```
 
+After the next VM monitoring cycle, check `onevm show <vm-id> --json` for `MONITORING/VM_GUEST_INTERFACES_B64` on a running VM with a working guest agent.
+
 {{< alert title="High Availability" type="info" >}}
-If using High Availability, any changes to ``/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf`` need to be performed on all frontends.
+If using High Availability, make the same change to `/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf` on all Front-ends.
 {{< /alert >}}
 
 ### 3. Create the Veeam Backup Datastore
@@ -151,15 +183,21 @@ Add the datastore to each Cluster containing VMs that will be backed up by Veeam
 onecluster adddatastore <cluster-name> <datastore-name>
 ```
 
-For more information about the `interactive` driver internals, see [Interactive Backup Integrations]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration#interactive-backup-integration" %}}).
+For more information about the `interactive` driver internals, see [Interactive Backup Integrations]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
 
 ### 4. Install and Configure the oVirtAPI Module
 
-To install the oVirtAPI module, configure the OpenNebula repository on the Backup Server by following the [OpenNebula Enterprise Edition Repository Setup Guide]({{% relref "software/installation_process/frontend_installation/opennebula_repository_configuration_ee.md" %}}). Then install the `opennebula-ovirtapi` package with the relevant package manager for your OS.
+{{< alert title="Required ports" type="warning" >}}
+Before starting oVirtAPI, ensure that TCP ports **80 and 443** are available on the server where it will run. oVirtAPI runs as its own service, `opennebula-ovirtapi`, and listens on both ports. If another service, such as NGINX or Apache serving the OpenNebula web UI, already occupies these ports, the `opennebula-ovirtapi` service fails to start and the API is unavailable.
+
+oVirtAPI must use ports **80 and 443**; changing its ports breaks the Veeam integration. If these ports are unavailable on the Front-end, install oVirtAPI in a separate environment, such as a VM, where both ports are available. This deployment may degrade performance.
+{{< /alert >}}
+
+To install the oVirtAPI module, configure the OpenNebula repository on the server selected to run oVirtAPI by following the [OpenNebula Enterprise Edition Repository Setup Guide]({{% relref "software/installation_process/frontend_installation/opennebula_repository_configuration_ee.md" %}}). Then install the `opennebula-ovirtapi` package with the relevant package manager for your OS.
 
 The configuration file can be found at `/etc/one/ovirtapi-server.yml`. Change the following variables before starting the service:
 
-* `public_ip`: IP address that Veeam will use to communicate with the frontend node.
+* `public_ip`: (Required) IP address that Veeam will use to reach the oVirtAPI server. Set this to the address of the Front-end or the separate server running oVirtAPI, as appropriate. The oVirtAPI service cannot start until this value is configured.
 * `endpoint_port`: Port used by the OpenNebula RPC endpoint (defaults to 2633).
 * `backup_freeze`: (Optional) Controls which filesystem freeze mode OpenNebula requests when performing backups initiated via the oVirtAPI/Veeam integration. Valid values are `NONE`, `AGENT`, and `SUSPEND`. For details on each mode see the Backup Modes section in the backup guide: [Backup Modes]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations/#backup-modes" %}}).
 
@@ -172,16 +210,28 @@ In the same configuration file, configure the OneBEX port and the port range res
 
 During installation a self-signed certificate is generated at `/etc/one/ovirtapi-ssl.crt` for encryption. You can replace this certificate with your own and change the `cert_path` configuration variable.
 
-Finally, start the service with either `systemctl start apache2` (Ubuntu/Debian) or `systemctl start httpd` (RHEL/Alma).
+The listening addresses, the certificate files, and the number of request threads are set in `/etc/one/ovirtapi-puma.rb`. The default values are suitable for most deployments.
 
-{{< alert title="Package dependency" type="warning" >}}
-In RHEL and Alma environments, you may face issues with the passenger package dependencies (`mod_passenger` and `mod_ssl`). You may add the correct repository and install the packages with the following:
+Finally, enable and start the service:
 
 ```shell
-curl --fail -sSLo /etc/yum.repos.d/passenger.repo https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo
-dnf install -y passenger mod_passenger mod_ssl
+systemctl enable --now opennebula-ovirtapi
 ```
 
+After changing `/etc/one/ovirtapi-server.yml` or `/etc/one/ovirtapi-puma.rb`, restart the service with `systemctl restart opennebula-ovirtapi`.
+
+{{< alert title="Upgrading from 7.4.1 or earlier" type="warning" >}}
+Up to OpenNebula 7.4.1, oVirtAPI ran inside Apache with Passenger. Starting with 7.4.2 it runs as the dedicated `opennebula-ovirtapi` service and no longer needs Apache or the Passenger packages.
+
+After upgrading the `opennebula-ovirtapi` package, Apache may still be running and holding ports 80 and 443, which prevents the new service from starting. If Apache was installed only for oVirtAPI, stop and disable it, then enable the new service:
+
+```shell
+systemctl disable --now apache2    # Ubuntu/Debian
+systemctl disable --now httpd      # RHEL/Alma
+systemctl enable --now opennebula-ovirtapi
+```
+
+If Apache also serves other sites on this server, move them off ports 80 and 443 instead, as oVirtAPI must keep using both ports.
 {{< /alert >}}
 
 {{< alert title="High availability" type="info" >}}
@@ -289,23 +339,24 @@ Successful restores and restores cancelled from Veeam complete the cleanup lifec
 
 However, if a restore fails, Veeam reports the error and the incomplete OpenNebula Image remains in `LOCKED` state. In that case, remove the incomplete Image manually from OpenNebula:
 
-{{< alert title="Important" type="info" >}}
-Get the restore transfer port from the Image `PATH` attribute, which has the form `onebex://<IMAGE_DS_ID>:<PORT_ID>`, and terminate the writer process associated with that port:
+{{< alert title="Note" type="info" >}}
+Get the restore transfer port from the Image `PATH` attribute, which has the form `onebex://<IMAGE_DS_ID>:<PORT_ID>`. Send the `FINISH` frame (`0x01`) to the writer listening on that port. This stops the writer gracefully and allows OpenNebula to complete the transfer cleanup. Use a Front-end address that is reachable from the system where you run the command. If you run it directly on the Front-end, you can use `127.0.0.1`. The restore transfer port must be allowed by any intervening firewall:
 
 ```shell
-PORT=<PORT_ID>
-pgrep -f "onebex_writer.rb .* ${PORT} " | xargs -r kill -TERM
-oneimage delete --force <IMAGE_ID>
+python3 -c 'import socket, sys; s = socket.create_connection((sys.argv[1], int(sys.argv[2]))); s.sendall(b"\x01"); s.close()' <FRONTEND_ADDRESS> <PORT_ID>
+```
+
+After the writer finishes, delete the incomplete Image:
+
+```shell
+oneimage delete <IMAGE_ID>
 ```
 
 {{< /alert >}}
 
 ## Logging Information
 
-The oVirtAPI server writes logs in the following paths depending on the operating system:
-
-* Ubuntu/Debian: `/var/log/apache2/error.log`
-* Alma/RHEL: `/var/log/httpd/error.log`
+The oVirtAPI server writes its logs to `/var/log/one/ovirtapi.log` on the server where it runs. Service start and stop messages are available with `journalctl -u opennebula-ovirtapi`.
 
 Additional logs for interactive backups are available on the hypervisors:
 

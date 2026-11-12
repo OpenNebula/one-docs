@@ -51,7 +51,7 @@ For a quick view of any changes in configuration file options in maintenance rel
 - `API_LIST_ORDER`: Sets order (by ID) of elements in list API calls (e.g., `onevm list`). Values: `ASC` (ascending order) or `DESC` (descending order).
 - `CONTEXT_RESTRICTED_DIRS`: List of space-separated directories which can’t be used in `CONTEXT/FILES` attribute.
 - `CONTEXT_SAFE_DIRS`: List of space-separated directories which allow use of subdirectories from `CONTEXT_RESTRICTED_DIRS`.
-- `CONTEXT_ALLOW_ETH_UPDATES`: Allow manual updates of `CONTEXT->ETH*` values. It may lead to inconsistencies between VM NIC settings and context attributes, but it might be useful for some use cases. Default value = NO
+- `CONTEXT_ALLOW_ETH_UPDATES`: Allow manual updates of `CONTEXT->ETH*` values with `onevm updateconf` when `CONTEXT/NETWORK=YES`. This may lead to inconsistencies between VM NIC settings and context attributes. When `CONTEXT/NETWORK` is not set to `YES`, these values are managed by the user and can be updated regardless of this setting. Default value = NO.
 - `LOG`: Configure the logging system
   - `SYSTEM`: Can be either `file` (default), `syslog` or `std`.
   - `USE_VMS_LOCATION`: Defines if store VM logs in VMS_LOCATION (`/var/lib/one/vms/<VMID>/vm.log`).
@@ -426,6 +426,8 @@ These values define the datastore behavior and thus should not be modified. They
   > - `NO`: The snapshot will not be attempted to be deleted if it has children
   > - `MIXED`: Creates children snapshots from the current active (last recovered) snapshot.  This also takes into account some dependencies which can appear after a revert snapshot action in Ceph datastores
   > - `FORMAT`: Allows orphans based on the image format in a `SHARED` datastore. For `QCOW2` this acts as `NO` and for `RAW` this acts as `YES`
+- `INTERACTIVE_BACKUP`: set to `YES` if disks managed by this transfer driver support [interactive backups]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup#interactive-backup-integration" %}}) through OneBEX. Valid values are `YES` and `NO` (default).
+- `INTERACTIVE_BACKUP_FORMATS`: optional comma-separated list of image formats supported for interactive backups, for example `raw,qcow2`. Leave this attribute empty or omit it to allow all formats when `INTERACTIVE_BACKUP="YES"`.
 
 Sample configuration:
 
@@ -435,15 +437,18 @@ TM_MAD_CONF = [
     LN_TARGET     = "NONE",
     CLONE_TARGET  = "SELF",
     SHARED        = "yes",
-    ALLOW_ORPHANS = "no"
+    ALLOW_ORPHANS = "no",
+    INTERACTIVE_BACKUP = "yes"
 ]
 
 TM_MAD_CONF = [
-    NAME        = "shared",
-    LN_TARGET   = "NONE",
-    CLONE_TARGET= "SYSTEM",
-    SHARED      = "yes",
-    DS_MIGRATE  = "yes"
+    NAME                       = "shared",
+    LN_TARGET                  = "NONE",
+    CLONE_TARGET               = "SYSTEM",
+    SHARED                     = "yes",
+    DS_MIGRATE                 = "yes",
+    INTERACTIVE_BACKUP         = "yes",
+    INTERACTIVE_BACKUP_FORMATS = "qcow2"
 ]
 ```
 
@@ -476,7 +481,7 @@ Drivers to manage different Marketplaces, specialized for the storage backend.
 - `ARGUMENTS`: for the driver executable:
   - `-t` number of threads, i.e., number of simultaneous repo operations
   - `-m` Marketplace mads separated by commas
-  - `--proxy` proxy URI, if required to access the internet. For example `--proxy http://1.2.3.4:5678`
+  - `--proxy` proxy URI, if required to access the internet. For example `--proxy http://username:password@proxy.example.com:8080`. For the `one` monitor, this overrides the `HTTP_PROXY` environment variable.
   - `-w` timeout in seconds to execute external commands (default unlimited)
 
 Sample configuration:
@@ -862,6 +867,17 @@ Other logs are also available in Journald, use the following command to show the
 ```default
 # journalctl -u opennebula.service
 ```
+
+### Action Queue Warning
+
+OpenNebula drivers log a warning when the number of pending actions is greater than the number of threads available to process them. For example:
+
+```default
+Action queue size (4) is greater than the number of threads (1)
+Action queue size (5) is greater than the number of threads (1)
+```
+
+This warning indicates that actions are waiting in the driver queue. It does not mean that they have failed.If the warning is emitted continuously or the queue keeps growing, check the affected driver and its underlying service for slow operations. If the Front-end and the managed infrastructure have enough capacity, you can also increase the driver's thread count with the `-t` option in the corresponding `*_MAD` `ARGUMENTS` attribute in `/etc/one/oned.conf`. Restart the OpenNebula Daemon after changing the configuration.
 
 {{< alert title="Important" type="info" >}}
 See [Troubleshooting]({{% relref "troubleshooting#troubleshoot-additional" %}}) guide to learn about the logging of individual OpenNebula Daemon subsystems and drivers.{{< /alert >}}

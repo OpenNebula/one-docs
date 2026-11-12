@@ -12,58 +12,126 @@ weight: "6"
 
 <!--# Known Issues -->
 
-A complete list of [known issues for OpenNebula is maintained here](https://github.com/OpenNebula/one/issues?q=is%3Aopen%20is%3Aissue%20type%3ABug%20label%3A%22Status%3A%20Accepted%22%20milestone%3A%22Release%207.4%22).
+Open accepted bug reports are tracked in [GitHub](https://github.com/OpenNebula/one/issues?q=is%3Aopen%20is%3Aissue%20type%3ABug%20label%3A%22Status%3A%20Accepted%22). Check each report for affected versions.
 
-This page will be updated with relevant information about bugs affecting OpenNebula, as well as possible workarounds until a patch is officially published.
+This page describes bugs affecting OpenNebula and possible workarounds. Issues fixed in maintenance releases remain listed for users of earlier versions, including Community Edition installations. The title of each fixed issue indicates the version that resolved it.
 
-## Upgrade Overwrites the Host Fencing Script
+## Upgrade Overwrites the Host Fencing Script (Fixed in 7.4.1)
 
 Upgrading the OpenNebula packages [overwrites a customized](https://github.com/OpenNebula/one/issues/7996) `/var/lib/one/remotes/hooks/ft/fence_host.sh` with the stock template. If the Host error hook is configured with fencing enabled, fencing (and thus the hook) will fail after the upgrade until the file is restored.
 
 The pre-upgrade file is preserved in the configuration backup taken automatically during the package upgrade, and can be restored from there:
 
-```default
+```shell
 cp /var/lib/one/backups/config/<timestamp>-v<previous version>/var/lib/one/remotes/hooks/ft/fence_host.sh \
    /var/lib/one/remotes/hooks/ft/fence_host.sh
 ```
 
-## Live Storage Migration with NVRAM VMs Failure (Fixed 7.4.1)
+## VM Configuration
 
-During Live Storage Migration the virtual machine goes through a series of commands in virsh: dumpxml, define, undefine. If the virtual machine has NVRAM there is a [silent uncaught failure](https://github.com/OpenNebula/one/issues/7770):
+### Partial Updates Can Erase Secure Boot Configuration
+
+Updating only part of a VM configuration with `onevm updateconf` without `--append` can [erase omitted configuration sections](https://github.com/OpenNebula/one/issues/8231), including attributes such as `OS/FIRMWARE_SECURE` that the command cannot restore. A VM can subsequently boot without Secure Boot.
+
+Use `--append` for partial configuration updates and verify the resulting VM configuration before booting.
+
+## VM Migration
+
+### Live Storage Migration with NVRAM VMs Fails (Fixed in 7.4.1)
+
+During live storage migration, a VM with NVRAM can encounter a [silent uncaught failure](https://github.com/OpenNebula/one/issues/7770) when the migration sequence runs `virsh undefine`:
 
 ```default
 error: Requested operation is not valid: cannot undefine domain with nvram
 ```
 
-The migrate pattern should be aware of NVRAM existence and properly use --keep-nvram during the undefine operation.
+The migration sequence must use `--keep-nvram` during the `undefine` operation.
+
+### Recovery After a Failed Migration
+
+A failed VM migration can leave OpenNebula's recorded [Host](https://github.com/OpenNebula/one/issues/7662) or [System Datastore](https://github.com/OpenNebula/one/issues/8040) inconsistent with the VM's actual location. After a migration fails, verify the VM's disk locations and hypervisor state before recovering it or attempting another migration.
+
+Use `onevm recover --success` only after confirming that the operation completed. Forcing success after an incomplete transfer can cause subsequent migration cleanup to delete the remaining disk copy. See [Recover from VM Failure]({{% relref "product/operation_references/opennebula_services_configuration/troubleshooting.md#ftguide-virtual-machine-failures" %}}) for recovery options.
+
+## Host Monitoring
+
+### Long-Term Forecasting Can Block Monitoring
+
+Long-term resource forecasting in OpenNebula 7.4 EE can [keep a KVM Host monitoring cycle busy for hours](https://github.com/OpenNebula/one/issues/8257). Host monitoring timestamps stop advancing while VM monitoring continues.
+
+To prevent subsequent long-term calculations, set `enabled` to `false` under `host` > `forecast_far` in `/var/lib/one/remotes/etc/im/kvm-probes.d/forecast.conf`, preserving the other configuration values:
+
+```yaml
+host:
+  forecast_far:
+    enabled: false
+```
+
+Run `onehost sync --force` to distribute the configuration to the Hosts. This change does not stop a calculation that is already running.
 
 ## LVM Datastores
 
-### Leftover Backup Snapshots Can Cause Data Loss During Migration (Fixed 7.4.2)
+### Leftover Backup Snapshots Can Cause Data Loss During Migration (Fixed in 7.4.2)
 
-LVM VMs created before OpenNebula 7.4.2 can retain snapshot overlays after a backup operation, particularly after an interactive backup. Migrating an affected VM while its thin pool is active on the destination Host can load stale thin-pool metadata and cause guest data loss.
+Failed LVM backups in versions earlier than OpenNebula 7.4.2 can leave backup snapshots active. OpenNebula 7.4.2 [fixes failed-backup cleanup](https://github.com/OpenNebula/one/issues/8226). A subsequent successful backup cleans obsolete snapshots for the disks included in that backup. Upgrading the packages alone does not immediately remove existing snapshots.
 
-Before migrating one of these VMs, verify that its LVM thin pools are inactive on the destination Host. VMs created with OpenNebula 7.4.2 or later are not affected. After upgrading to 7.4.2, running a new backup of an older VM also removes the leftover snapshots on the source Host and prevents this issue.
+Before migrating an affected VM, verify that its LVM thin pools are inactive on the destination Host. Migrating while its thin pool is active there can load stale metadata and cause guest data loss. After upgrading, run a new backup that includes the affected disks to clean their obsolete snapshots on the source Host.
 
 ### Image Imports Use `/var/tmp`
 
 The LVM Image Datastore driver [ignores `STAGING_DIR`](https://github.com/OpenNebula/one/issues/8114) during image imports and writes the temporary image to `/var/tmp/one_img<ID>.<random>`. When `BRIDGE_LIST` is configured, this path is on the selected bridge Host. Otherwise, it is on the Front-end Host. This affects both RAW and QCOW2 image imports.
 
-Before importing an image, ensure that `/var/tmp` on the applicable Host has enough free space for the complete image. A failed or interrupted download can leave a partial `one_img...` file in `/var/tmp`. After confirming that no image import is using it, remove the stale file to recover the occupied space.
+Before importing an image, ensure that `/var/tmp` on the applicable Host has enough free space for the complete image. A [failed or interrupted download](https://github.com/OpenNebula/one/issues/8187) can leave a partial `one_img...` file in `/var/tmp`. After confirming that no image import is using it, remove the stale file to recover the occupied space.
 
-## Frontend HA
+## Ceph Datastores
 
-- [ARP tables are not updated automatically](https://github.com/OpenNebula/one/issues/7920) when a leader is elected in Red Hat Enterprise Linux OS variants.
+### Failed Image Imports Leave Temporary Files
+
+Failed or interrupted image imports can [leave temporary files in `STAGING_DIR`](https://github.com/OpenNebula/one/issues/8187) on the selected bridge Host. QCOW2 conversions may require space for both the downloaded image and a RAW temporary copy.
+
+Before retrying an import, check the staging directory on the bridge Host. Remove leftover files only after confirming that no active import uses them.
+
+## NetApp Datastores
+
+### Multiple Aggregates Cause Image Imports to Fail
+
+Configuring more than one aggregate in `NETAPP_AGGREGATES` can [cause image imports to fail](https://github.com/OpenNebula/one/issues/8239). ONTAP creates a FlexGroup volume, and the subsequent LUN creation fails, sometimes with a misleading minimum-size error.
+
+Configure a single aggregate UUID per datastore.
+
+## PureFA Datastores
+
+### Same-Host Transfers Can Leave Disk Links Missing
+
+VM deployment from a PureFA datastore can [fail with a missing `disk.N` path](https://github.com/OpenNebula/one/issues/8222) when a disk link or clone operation has the same source and destination Host. The driver can report the transfer as successful without scanning for the device or creating its symlink.
+
+Verify the device mapping and symlink before retrying deployment.
+
+## Networking
+
+### Overlapping Updates Can Fail
+
+Network, port-mirroring, or Security Group updates can [fail for a VM while another NIC operation is in progress](https://github.com/OpenNebula/one/issues/8246), leaving the VM in `ERROR_VMS` with the requested change unapplied.
+
+Avoid overlapping these operations. For failed Security Group updates, wait for the NIC operation to finish and retry with `onesecgroup commit <SG_ID> --recover`.
+
+## LXC
+
+### AppArmor Settings Prevent Deployment on RHEL 10
+
+LinuxContainers Marketplace templates containing `lxc.apparmor.profile` can [fail to start on RHEL 10 Hosts](https://github.com/OpenNebula/one/issues/7391) because their LXC packages lack AppArmor support.
+
+Remove this setting from the template's `RAW` section when deploying on these Hosts.
 
 ## Veeam Backups
 
-### Worker Creation
+### Worker Creation (Fixed in 7.4.1)
 
 Worker creation and restores [will fail](https://github.com/OpenNebula/one/issues/7949) if the VM with ID 0 doesn't exist in the database.
 
-It can be fixed by changing the line ~145 in the `/usr/lib/one/ovirtapi-server/controllers/disk_controller.rb` file (located in the oVirtAPI backup server). Then restart the apache2/httpd service.
+It can be fixed by changing the line ~145 in the `/usr/lib/one/ovirtapi-server/controllers/disk_controller.rb` file (located in the oVirtAPI backup server). Then restart the oVirtAPI service: `opennebula-ovirtapi` in 7.4.2 and later, or `apache2`/`httpd` in previous versions.
 
-```
+```ruby
 vm_id = disk_hash['IMAGE']['VM_ID'].to_i
 if backup_mode == 'incremental' && vm_id > 0    # <-- Add this vm_id check
     vm = VmController.get_one_vms(client, :vm_id => vm_id)
@@ -73,7 +141,7 @@ if backup_mode == 'incremental' && vm_id > 0    # <-- Add this vm_id check
 
 ### Missing `interactive` Datastore Configuration
 
-The required `interactive` [datastore driver configuration](https://github.com/OpenNebula/one/issues/8074) in `/etc/one/oned.conf`. In this case, Veeam worker deployment can fail with:
+Veeam worker deployment can fail if the required [`interactive` datastore driver configuration](https://github.com/OpenNebula/one/issues/8074) is missing from `/etc/one/oned.conf`, producing the following error:
 
 ```default
 Datastore driver 'interactive' not available
@@ -111,27 +179,6 @@ systemctl restart opennebula
 
 [ARP tables are not updated automatically](https://github.com/OpenNebula/one/issues/7935) when a leader is elected on Red Hat Enterprise Linux variants.
 
-### Slow LogDB Purge Queries
-
-In OpenNebula 7.4, periodic [LogDB purge queries](https://github.com/OpenNebula/one/issues/8260) may take several seconds to complete and have been observed alongside RAFT leader elections and replication timeouts. A direct causal relationship has not been established.
-
-The following workarounds may improve query performance:
-
-1. **Increase the InnoDB buffer pool size.** The default MariaDB value of 128 MB may be insufficient for some HA deployments. Consider increasing `innodb_buffer_pool_size` to 1–2 GB, depending on available RAM. This increases memory consumption and may require restarting MariaDB.
-
-2. **Add a composite index.** The following index improves query execution:
-
-   ```sql
-   CREATE INDEX fed_applied_log_idx
-   ON logdb (fed_index, applied, log_index);
-   ```
-
-   The additional index introduces overhead during database writes. Back up the database and apply the change consistently across HA Front-ends.
-
-3. **Reduce RAFT log retention.** Reducing `LOG_RETENTION` from 250000 to 150000 in the `RAFT` section of `oned.conf` may decrease query execution time, but also shortens the synchronization window for disconnected followers.
-
-These workarounds target LogDB query performance and may not resolve independent RAFT replication timeouts.
-
 ## OneSwap
 
 ### Conversions Fail When Preserving Guest IP Addresses
@@ -142,73 +189,140 @@ As a workaround, use `--skip-ip` to skip importing IP addresses from vCenter, an
 
 ## Sunstone
 
-### OneForm User Inputs Form Malfunction
+### OneForm User Inputs Form Malfunction (Fixed in 7.4.2)
 
 When provisioning a Cluster with OneForm through Sunstone, fields in the **User Inputs** step cannot be entered normally because a user interface bug causes the form content to be re-rendered after each change.
 
-As a workaround, enter the values into a notepad or code editor then copy and paste each complete value into each field in a single operation.
+As a workaround, enter the values into a notepad or code editor, then copy and paste each complete value into its field in a single operation.
 
-### VM Actions Missing in the Group Admin View
+### Disk Removal Disabled for Regular Users
 
-Some VM actions are not displayed in the **Group Admin** view because the config file `/etc/one/fireedge/sunstone/views/groupadmin/vm-tab.yaml` uses legacy action names.
+In OpenNebula 7.4.2, Sunstone can [disable disk removal when a regular user edits a VM Template](https://github.com/OpenNebula/one/issues/8248), even when the disk attributes in the original template are not restricted. The check uses the extended template, which includes restricted attributes such as `ORIGINAL_SIZE`.
 
-As a workaround, edit the file and substitute the legacy action names as follows, preserving all other existing entries:
+### Cleared VM Group Field Prevents Instantiation
 
-```diff
- actions:
--  migrate_live: true
-+  live-migrate: true
+Clearing the **VM Group** field after entering a value can [block VM instantiation with `VM Group ID must be a string type`](https://github.com/OpenNebula/one/issues/8250).
 
- info-tabs:
-   info:
-     capacity_panel:
-       actions:
--        resize_capacity: true
-+        resize: true
-   storage:
-     actions:
--      attach_disk:
--        enabled: true
-+      disk-attach-image: true
-+      disk-attach-volatile: true
-       disk-detach: true
--      snapshot_disk_create: true
--      snapshot_disk_rename: true
--      snapshot_disk_revert: true
--      snapshot_disk_delete: true
--      resize_disk: true
--      disk_saveas:
--        enabled: true
-+      disk-snapshot-create: true
-+      disk-snapshot-rename: true
-+      disk-snapshot-revert: true
-+      disk-snapshot-delete: true
-+      disk-resize: true
-+      disk-saveas: true
-   network:
-     actions:
--      attach_nic: true
--      detach_nic: true
--      update_nic: true
--      attach_secgroup: true
--      detach_secgroup: true
-+      nic-attach: true
-+      nic-detach: true
-+      nic-update: true
-+      sg-attach: true
-+      sg-detach: true
-   sched_actions:
-     actions:
--      sched_action_create: true
--      sched_action_update: true
--      sched_action_delete: true
-+      sched-add: true
-+      sched-update: true
-+      sched-delete: true
-       charter_create: true
-```
+Cancel the instantiation wizard and start again, leaving the field untouched if no VM Group is required.
 
-After updating and saving the file, restart the FireEdge service:
+### Legacy Configuration Keys in Sunstone Views
+
+Several Sunstone view files [use legacy action and tab keys](https://github.com/OpenNebula/one/issues/7766). These mismatches can hide or disable controls.
+
+As a workaround, edit the affected files and replace the legacy action names in red with the updated names in green as follows, preserving all other existing entries. Paths are relative to `/etc/one/fireedge/sunstone/views/`:
+
+* `/admin/backupjobs-tab.yaml`
+
+  ```diff
+  info-tabs:
+    sched_actions:
+      actions:
+  -      sched_action_create: true
+  -      sched_action_update: true
+  -      sched_action_delete: true
+  +      sched-add: true
+  +      sched-update: true
+  +      sched-delete: true
+  ```
+
+* `/cloud/vm-tab.yaml`
+
+  ```diff
+  actions:
+  -  migrate_live: false
+  +  live-migrate: false
+
+  info-tabs:
+    storage:
+      actions:
+  -      disk-attach:
+  -        enabled: true
+  +      disk-attach-image: true
+  +      disk-attach-volatile: true
+        disk-detach: true
+        disk-resize: true
+  -      disk_saveas:
+  -        enabled: true
+  +      disk-saveas: true
+  ```
+
+* `/groupadmin/group-tab.yaml`
+
+  ```diff
+  info-tabs:
+  -  'VLAN Group':
+  +  vlanrules:
+      enabled: true
+  ```
+
+* `/groupadmin/vm-group-tab.yaml`
+
+  ```diff
+  info-tabs:
+    info:
+      ownership_panel:
+        actions:
+  -        cgrp: true
+  +        chgrp: true
+  ```
+
+* `/groupadmin/vm-tab.yaml`
+
+  ```diff
+  actions:
+  -  migrate_live: true
+  +  live-migrate: true
+
+  info-tabs:
+    info:
+      capacity_panel:
+        actions:
+  -        resize_capacity: true
+  +        resize: true
+    storage:
+      actions:
+  -      attach_disk:
+  -        enabled: true
+  +      disk-attach-image: true
+  +      disk-attach-volatile: true
+        disk-detach: true
+  -      snapshot_disk_create: true
+  -      snapshot_disk_rename: true
+  -      snapshot_disk_revert: true
+  -      snapshot_disk_delete: true
+  -      resize_disk: true
+  -      disk_saveas:
+  -        enabled: true
+  +      disk-snapshot-create: true
+  +      disk-snapshot-rename: true
+  +      disk-snapshot-revert: true
+  +      disk-snapshot-delete: true
+  +      disk-resize: true
+  +      disk-saveas: true
+    network:
+      actions:
+  -      attach_nic: true
+  -      detach_nic: true
+  -      update_nic: true
+  -      attach_secgroup: true
+  -      detach_secgroup: true
+  +      nic-attach: true
+  +      nic-detach: true
+  +      nic-update: true
+  +      sg-attach: true
+  +      sg-detach: true
+    sched_actions:
+      actions:
+  -      sched_action_create: true
+  -      sched_action_update: true
+  -      sched_action_delete: true
+  +      sched-add: true
+  +      sched-update: true
+  +      sched-delete: true
+        charter_create: true
+  ```
+
+After updating and saving the affected files, restart the FireEdge service:
 
 ```shell
 systemctl restart opennebula-fireedge

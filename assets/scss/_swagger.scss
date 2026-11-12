@@ -379,12 +379,34 @@ $swagger-code-neutral-tokens: ("punctuation", "operator") !default;
     .scheme-container,
     .model-box-control,
     .tabitem,
-    .tablinks,
-    .highlight-code,
-    .microlight,
-    .renderedMarkdown pre > code {
+    .tablinks {
       border-radius: var(--swagger-radius) !important;
+    }
+
+    .opblock,
+    .responses-inner,
+    .model-box,
+    .scheme-container,
+    .highlight-code {
       overflow: hidden !important;
+    }
+
+    .highlight-code,
+    .microlight {
+      border-radius: var(--swagger-radius) !important;
+    }
+
+    .microlight,
+    .renderedMarkdown pre,
+    .model-example pre {
+      overflow: auto !important;
+      white-space: pre !important;
+      word-break: normal !important;
+    }
+
+    .renderedMarkdown pre > code {
+      min-width: max-content;
+      overflow: visible !important;
     }
 
     // Active states

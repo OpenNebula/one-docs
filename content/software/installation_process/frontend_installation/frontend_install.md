@@ -349,6 +349,27 @@ The list below shows the ports used by OpenNebula. These ports need to be open f
 | `9925`        | Front-end        | Front-end              | Prometheus OpenNebula Exporter (oned API metrics)                                             |
 | `9926`        | Front-end        | Hypervisors            | Prometheus Libvirt Exporter (KVM hypervisor metrics)                                          |
 
+|     Port      | Description                                                  |
+|---------------|--------------------------------------------------------------|
+| `22`          | Front-end Host SSH server                                    |
+| `2474`        | OneFlow server                                               |
+| `2616`        | Next-generation GUI server FireEdge                          |
+| `2633`        | Main OpenNebula Daemon (oned), XML-RPC API endpoint          |
+| `4124`        | Monitoring daemon (both TCP/UDP)                             |
+| `5030`        | OneGate server                                               |
+| `29876`       | noVNC Proxy Server                                           |
+| `5900+`       | VNC Server ports on Hosts for VMs. See VNC_PORTS             |
+| `49152-49215` | Host-Host port communication required for KVM live migrations|
+| `3000`        | Grafana server (Web UI)                                      |
+| `9090`        | Prometheus server API/Web UI                                 |
+| `9093`        | Prometheus Alertmanager API                                  |
+| `9100`        | Prometheus Node Exporter (host metrics)                      |
+| `9104`        | Prometheus MySQL/MariaDB Exporter                            |
+| `9475`        | Prometheus Open vSwitch (OVS) Exporter                       |
+| `9633`        | Prometheus Smartctl (disk status) Exporter                   |
+| `9845`        | Prometheus LVM Exporter                                      |
+| `9925`        | Prometheus OpenNebula Exporter (oned API metrics)            |
+| `9926`        | Prometheus Libvirt Exporter (KVM hypervisor metrics)         |
 
 {{< alert title="Note" type="info" >}}
 These are only the default ports. Each component can be configured to bind to specific ports or use a HTTP Proxy.{{< /alert >}}

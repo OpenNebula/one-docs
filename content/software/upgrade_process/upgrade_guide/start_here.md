@@ -35,10 +35,10 @@ ERROR: Configurations metadata are outdated.
 ```
 {{< /alert >}}
 
-{{< alert title="Note about 7.4.1" type="info" >}}
-Maintenance releases (`X.Y.Z`) usually do not change the configuration files, so `onecfg upgrade` simply confirms that the configuration is up to date. **OpenNebula 7.4.1 is an exception**: it ships `onecfg` migrators from 7.4.0 to 7.4.1, and `onecfg upgrade` must be run to migrate the configuration to the new version. See [Step 7 of the upgrade guide]({{% relref "upgrading_single#step-7-update-configuration-files" %}}) for details.
+{{< alert title="Note about 7.4.1 and 7.4.2" type="info" >}}
+Maintenance releases (`X.Y.Z`) usually do not change the configuration files. **OpenNebula 7.4.1 and 7.4.2 are exceptions**: they ship `onecfg` migrators from 7.4.0 to 7.4.1 and from 7.4.1 to 7.4.2. Run `onecfg upgrade` and resolve any conflicts before continuing. You can upgrade directly from 7.4.0 to 7.4.2; `onecfg` applies both migrations in sequence. See [Upgrading from 7.4.x]({{% relref "upgrading_single#upgrade-74" %}}) for the maintenance upgrade procedure.
 
-To enable some of the Sunstone backported features in 7.4.1, you also need to complete the [configuration update detailed in Resolved Issues 7.4.1]({{% relref "software/release_information/release_notes/resolved_issues_741.md#updating-sunstone-configuration-files" %}}).
+After the configuration upgrade succeeds, complete the manual [Sunstone configuration updates for 7.4.2]({{% relref "software/release_information/release_notes/resolved_issues_742.md#updating-sunstone-configuration-files" %}}) for the features you use. When upgrading from 7.4.0, also review the [Sunstone configuration updates for 7.4.1]({{% relref "software/release_information/release_notes/resolved_issues_741.md#updating-sunstone-configuration-files" %}}).
 {{< /alert >}}
 
 <a id="upgrade-guides"></a>
@@ -59,8 +59,8 @@ When upgrading your OpenNebula infrastructure, you do not need to execute a mass
 
 To ensure stability and minimize disruption, follow these best practice recommendations:
 
-1. **Keep Running VMs as They Are**: Do not update the context packages of currently running VMs during an infrastructure upgrade. The new OpenNebula version will continue to manage them without issue.  
-2. **Update Context on Golden Images**: Update the contextualization packages on your customized "golden" images and templates. This ensures that all *new* VMs provisioned after the upgrade will utilize the latest contextualization features. 
+1. **Keep Running VMs as They Are**: Do not update the context packages of currently running VMs during an infrastructure upgrade. The new OpenNebula version will continue to manage them without issue.
+2. **Update Context on Golden Images**: Update the contextualization packages on your customized "golden" images and templates. This ensures that all *new* VMs provisioned after the upgrade will utilize the latest contextualization features.
 3. **Targeted Updates for Running VMs**: Only update the context package on an actively running VM if you specifically need a new feature introduced in the newer context version, or if you need to resolve a known bug that impacts that specific VM.
 
 You can find the installation and upgrade instructions in the one-apps wiki for [Linux](https://github.com/OpenNebula/one-apps/wiki/linux_installation) and [Windows](https://github.com/OpenNebula/one-apps/wiki/win_installation) guest VMs.

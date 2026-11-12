@@ -30,7 +30,7 @@ If you are upgrading from version 6.2+ use `onezone disable <zone_id>` to make s
 
 You need to stop all the nodes in the cluster to upgrade them at the same time. Start with the followers and leave the leader until the end.
 
-Stop OpenNebula and any other related services you may have running: OneFlow, OneGate & FireEdge. It’s preferable to use the system tools, like `systemctl` or `service` as `root` in order to stop the services.
+Stop OpenNebula and any other related services you may have running: OneFlow, OneGate, FireEdge, OneForm, and OneKS. It’s preferable to use the system tools, like `systemctl` or `service` as `root` in order to stop the services.
 
 {{< alert title="Important" type="info" >}}
 If you are running FireEdge service behind Apache/Nginx, please also stop the Apache/Nginx service.{{< /alert >}} 
@@ -40,7 +40,9 @@ Make sure that every OpenNebula process is stopped. The output of `systemctl lis
 
 ## Step 4. Upgrade the Leader
 
-Upgrade the leader Front-end as described in steps 4 to 9 of [Upgrading Single Front-end]({{% relref "upgrading_single" %}}).
+When upgrading from 7.4.0 or 7.4.1 to 7.4.2, back up the configuration and database, then apply the [Front-end package and configuration updates]({{% relref "upgrading_single#maintenance-package-configuration" %}}). No database schema upgrade is needed. Keep the services stopped until Step 7 below.
+
+For upgrades from earlier versions, follow steps 4 to 9 of [Upgrading Single Front-end]({{% relref "upgrading_single#upgrade-from-older-releases" %}}).
 
 Then, create a database backup to replicate the upgraded state to the followers:
 
@@ -53,7 +55,7 @@ mysql -u user -h server -P port db_name < backup_file
 
 ## Step 5. Upgrade OpenNebula in the Followers
 
-Upgrade the HA followers as described in steps 4 to 9 of [Upgrading Single Front-end]({{% relref "upgrading_single" %}}).
+On every follower, back up the configuration and database, then apply the same updates as on the leader. For upgrades from 7.4.0 or 7.4.1 to 7.4.2, use the [Front-end package and configuration updates]({{% relref "upgrading_single#maintenance-package-configuration" %}}); for earlier versions, follow steps 4 to 9 of [Upgrading Single Front-end]({{% relref "upgrading_single#upgrade-from-older-releases" %}}). Keep the services stopped until Step 7 below.
 
 ## Step 6. Replicate Database and Configuration
 
@@ -84,7 +86,7 @@ $ chown -R oneadmin:oneadmin /var/lib/one/remotes/etc
 
 ## Step 7. Start OpenNebula in the Leader and Followers
 
-Start OpenNebula and any other related services: OneFlow, OneGate & FireEdge. It’s preferable to use the system tools, like `systemctl` or `service` as `root` in order to stop the services.
+Start OpenNebula and any other related services: OneFlow, OneGate, FireEdge, OneForm, and OneKS. It’s preferable to use the system tools, like `systemctl` or `service` as `root` in order to start the services.
 
 {{< alert title="Important" type="info" >}}
 If you are running FireEdge service behind Apache/Nginx, please also start the Apache/Nginx service.{{< /alert >}} 
@@ -93,6 +95,16 @@ If you are running FireEdge service behind Apache/Nginx, please also start the A
 
 At this point the `onezone show` command should display all the followers active and in sync with the leader.
 
+If you disabled the zone in Step 2, re-enable it through that zone’s endpoint before enabling the Hosts:
+
+```bash
+onezone enable <zone_id>
+```
+
+After upgrading to 7.4.2 and re-enabling the zone, complete the [feature configuration updates]({{% relref "upgrading_single#feature-updates-742" %}}). Apply service configuration changes on each Front-end where the corresponding services are installed.
+
 ## Step 9. Update the Hypervisors
 
-Finally, upgrade the hypervisors and enable them as described in Steps 11-13 in the [Upgrading Single Front-end Deployments]({{% relref "upgrading_single#upgrade-single" %}}) guide.
+For upgrades from 7.4.0 or 7.4.1 to 7.4.2, [update the hypervisor packages and synchronize the drivers]({{% relref "upgrading_single#step-12-update-the-hypervisors" %}}), then enable the Hosts disabled in Step 2.
+
+For upgrades from earlier versions, upgrade the hypervisors and enable them as described in Steps 11-13 in the [Upgrading Single Front-end Deployments]({{% relref "upgrading_single#step-11-restore-custom-probes" %}}) guide.

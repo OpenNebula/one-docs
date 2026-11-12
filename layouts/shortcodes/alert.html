@@ -14,6 +14,6 @@
     </div>
   {{ end }}
   <div class="alert-body">
-    {{ .Inner | markdownify }}
+      {{ .Inner | .Page.RenderString }}
   </div>  
 </div>
