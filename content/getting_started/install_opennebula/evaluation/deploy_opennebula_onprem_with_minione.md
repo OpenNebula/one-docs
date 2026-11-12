@@ -78,29 +78,14 @@ sudo -i
 
 Download miniONE, run:
 
-{{% if-version is="7.0" %}}
-```bash
-wget 'https://github.com/OpenNebula/minione/releases/download/v7.0.1/minione'
-```
-{{% /if-version %}}
-{{% if-version is="7.1" %}}
-```bash
-wget 'https://github.com/OpenNebula/minione/releases/latest/download/minione'
-```
-{{% /if-version %}}
-{{% if-version is="7.2" %}}
-```bash
-wget 'https://github.com/OpenNebula/minione/releases/download/v7.2.0/minione'
-```
-{{% /if-version %}}
-{{% if-version is="7.3" %}}
-```bash
-wget 'https://github.com/OpenNebula/minione/releases/latest/download/minione'
-```
-{{% /if-version %}}
 {{% if-version is="7.4" %}}
 ```bash
-wget 'https://github.com/OpenNebula/minione/releases/download/v7.4.0/minione'
+wget 'https://github.com/OpenNebula/minione/releases/download/v7.4.1/minione'
+```
+{{% /if-version %}}
+{{% if-version is="7.5" %}}
+```bash
+wget 'https://github.com/OpenNebula/minione/releases/latest/download/minione'
 ```
 {{% /if-version %}}
 
@@ -166,9 +151,10 @@ The screen will display the Sunstone Dashboard:
 
 As you can see, the Dashboard indicates the following installed components:
 
-- 1 VM template
-- 1 image
+- 2 images
 - 1 Virtual Network
+- 1 Host
+- 0 running Virtual Machines
 
 The existing Virtual Network is a bridged network attached to a local interface named `vnet`. To inspect this network, in Sunstone open the left-hand menu (hover the mouse over the left-hand sidebar), then click **Networks** --> **Virtual Networks**:
 
