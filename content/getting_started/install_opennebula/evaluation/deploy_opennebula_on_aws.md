@@ -38,7 +38,7 @@ To complete this tutorial, you need to login to a remote Linux AWS instance via 
 
 ## Step 1. Prepare a Virtual Machine Instance in AWS
 
-If you don't already have an AWS account, [create one](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/). Login to the AWS console then Navigate to the [EC2 dashboard](https://console.aws.amazon.com/ec2) and [choose your region](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html). 
+If you don't already have an AWS account, [create one](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/). Login to the AWS console then Navigate to the [EC2 dashboard](https://console.aws.amazon.com/ec2) and [choose your region](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html).
 
 Click on **Launch instance**, this will take you to the [Launch Instance Wizard](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-launch-instance-wizard.html). In the name and tags section enter an appropriate and memorable name such as `minione-test`:
 
@@ -64,10 +64,10 @@ Choose the `c5.metal` instance type:
   alt="Instance type" align="center" width="90%" mb="20px"
 >}}
 
-If you don't already have a key pair (a `.pem` or `.ppk` file), select **Create new key pair** in the **Key pair (login)** section. Choose a sensible name for the key pair, it cannot be renamed later. You may either use your name or a context such as `minione-admin`. Select EC25519 for **Key pair type** and choose the format: 
+If you don't already have a key pair (a `.pem` or `.ppk` file), select **Create new key pair** in the **Key pair (login)** section. Choose a sensible name for the key pair, it cannot be renamed later. You may either use your name or a context such as `minione-admin`. Select EC25519 for **Key pair type** and choose the format:
 
 * `.pem` (Linux/Mac)
-* `.ppk` (Windows with PuTTY). 
+* `.ppk` (Windows with PuTTY).
 
 {{< image
   pathDark="/images/quickstart/dark/minione_aws_key_pair.png"
@@ -101,7 +101,7 @@ In the **Configure storage** section select **80 GiB** of `gp3` storage. You do 
   alt="Configure storage" align="center" width="90%" mb="20px"
 >}}
 
-Now click **Launch instance**. AWS will now schedule your instance. Note that `c5.metal` instances can take several minutes to be scheduled depending on availability and account settings. Contact your DevOps team or system administrator if you have trouble launching your instance. 
+Now click **Launch instance**. AWS will now schedule your instance. Note that `c5.metal` instances can take several minutes to be scheduled depending on availability and account settings. Contact your DevOps team or system administrator if you have trouble launching your instance.
 
 ## Step 2. Access the AWS Instance through SSH
 
@@ -123,7 +123,7 @@ ssh 3.143.176.142 -l ubuntu -i ~/.ssh/minione-admin.pem
 
 ### Windows:
 
-Open a command prompt 
+Open a command prompt
 
 ```bash
 putty.exe ubuntu@<public IP of the AWS instance> -i <PEM file>
@@ -159,7 +159,7 @@ Diagnostics:
   The currently running kernel version is not the expected kernel version 6.8.0-1014-aws.
 ```
 
-In this example, a restart is required to upgrade to kernel version `6.8.0-1014-aws`. 
+In this example, a restart is required to upgrade to kernel version `6.8.0-1014-aws`.
 
 If you receive a message indicating that the kernel is up-to-date, you may skip the following restart procedure and continue with step 4. Otherwise, to restart the VM, run:
 
@@ -192,22 +192,12 @@ sudo -i
 
 Download the miniONE installation script to your current directory:
 
-{{% if-version is="7.0" %}}
+{{% if-version is="7.4" %}}
 ```bash
-wget 'https://github.com/OpenNebula/minione/releases/download/v7.0.1/minione'
+wget 'https://github.com/OpenNebula/minione/releases/download/v7.4.2/minione'
 ```
 {{% /if-version %}}
-{{% if-version is="7.1" %}}
-```bash
-wget 'https://github.com/OpenNebula/minione/releases/latest/download/minione'
-```
-{{% /if-version %}}
-{{% if-version is="7.2" %}}
-```bash
-wget 'https://github.com/OpenNebula/minione/releases/download/v7.2.0/minione'
-```
-{{% /if-version %}}
-{{% if-version is="7.3" %}}
+{{% if-version is="7.5" %}}
 ```bash
 wget 'https://github.com/OpenNebula/minione/releases/latest/download/minione'
 ```
@@ -225,7 +215,7 @@ Run the miniONE installation script:
 ./minione
 ```
 
-{{< alert title="Tip" type="primary" >}} miniONE will create credentials with a randomized password for logging into the Sunstone UI. You can use the `--password` option to enter a secure and memorable password of your own: `./minione --password <password>`{{< /alert >}} 
+{{< alert title="Tip" type="primary" >}} miniONE will create credentials with a randomized password for logging into the Sunstone UI. You can use the `--password` option to enter a secure and memorable password of your own: `./minione --password <password>`{{< /alert >}}
 
 The miniONE script executes the installation while logging output to the terminal. Installation usually takes between one and three minutes. Once finished, miniONE displays a report in the terminal with connection parameters and login credentials:
 
@@ -380,7 +370,7 @@ The green dot to the left of the VM name indicates that the VM is running. Note 
 
 ### Logging into the Virtual Machine
 
-The quickest way to log into the VM is by VNC, available directly in Sunstone. Select the Alpine Linux 3.20 VM from the list to open it's details panel. On larger screens, you will see a **Console** dropdown menu, click this and select **VNC** from the menu. On smaller screens this option will be found in the dropdown menu opened using the ellipsis icon <svg width="16px" height="16px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor" class="toggle-button-icon"><path d="M12 12.5a.5.5 0 100-1 .5.5 0 000 1zM12 20.5a.5.5 0 100-1 .5.5 0 000 1zM12 4.5a.5.5 0 100-1 .5.5 0 000 1z" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg> and Sunstone will display the VM boot messages screen directly in your browser in another tab. 
+The quickest way to log into the VM is by VNC, available directly in Sunstone. Select the Alpine Linux 3.20 VM from the list to open it's details panel. On larger screens, you will see a **Console** dropdown menu, click this and select **VNC** from the menu. On smaller screens this option will be found in the dropdown menu opened using the ellipsis icon <svg width="16px" height="16px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor" class="toggle-button-icon"><path d="M12 12.5a.5.5 0 100-1 .5.5 0 000 1zM12 20.5a.5.5 0 100-1 .5.5 0 000 1zM12 4.5a.5.5 0 100-1 .5.5 0 000 1z" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg> and Sunstone will display the VM boot messages screen directly in your browser in another tab.
 
 {{< image
   pathDark="/images/quickstart/dark/sunstone_vnc_alpine.png"
@@ -391,11 +381,11 @@ The quickest way to log into the VM is by VNC, available directly in Sunstone. S
 Login as root with password `opennebula`. You can then use the command line to explore the VM and run processes:
 
 * Try running `ping 1.1.1.1` to test the internet connection
-* Try running `top` to see the processes running on the machine 
+* Try running `top` to see the processes running on the machine
 
 Congratulations! You've now installed an OpenNebula Front-end on an AWS instance with a KVM hypervisor and Virtual Network, then deployed a VM.
 
-{{< alert title="Tip" type="primary" >}}Please note that miniONE is an evaluation version of OpenNebula and is intended for experimentation and learning. You should not use miniONE for a production cloud deployment. Please refer to the [Production Installation Guide](/software/installation_process.md) for details on deploying in a production environment.{{< /alert >}} 
+{{< alert title="Tip" type="primary" >}}Please note that miniONE is an evaluation version of OpenNebula and is intended for experimentation and learning. You should not use miniONE for a production cloud deployment. Please refer to the [Production Installation Guide](/software/installation_process.md) for details on deploying in a production environment.{{< /alert >}}
 
 ## Next Steps
 
