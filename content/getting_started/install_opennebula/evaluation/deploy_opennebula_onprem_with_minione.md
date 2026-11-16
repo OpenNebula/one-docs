@@ -80,7 +80,7 @@ Download miniONE, run:
 
 {{% if-version is="7.4" %}}
 ```bash
-wget 'https://github.com/OpenNebula/minione/releases/download/v7.4.1/minione'
+wget 'https://github.com/OpenNebula/minione/releases/download/v7.4.2/minione'
 ```
 {{% /if-version %}}
 {{% if-version is="7.5" %}}
