@@ -71,7 +71,27 @@ Run `onehost sync --force` to distribute the configuration to the Hosts. This ch
 
 ## LVM Datastores
 
-### Leftover Backup Snapshots Can Cause Data Loss During Migration (Fixed in 7.4.2)
+### Concurrent Backup Locking
+
+Backup operations using the `lvm` and `fs_lvm_ssh` Transfer Manager drivers may not consistently apply the shared LVM locking mechanism. As reported in [issue #8282](https://github.com/OpenNebula/one/issues/8282), backups accessing the same volume group can interfere with each other, particularly during incremental backup snapshot activation and thin-pool metadata snapshot reservation, inspection, and release.
+
+As a workaround to prevent backups from overlapping, set the following in `/etc/one/oned.conf`:
+
+```default
+MAX_BACKUPS = 1
+```
+
+Restart OpenNebula for the change to take effect:
+
+```shell
+systemctl restart opennebula
+```
+
+This limit applies to scheduled VM backups and Backup Jobs, including manually started Backup Jobs. Avoid starting direct VM backups through `onevm backup`, Sunstone, or the API: these requests bypass the limit and can overlap with other backups. Use scheduled VM backups or Backup Jobs instead.
+
+This workaround does not coordinate backups with other storage operations. For the `lvm` driver, also avoid running migrations or other operations that modify the same volume group while a backup is in progress.
+
+### Leftover Backup Snapshots Can Cause Data Loss During Migration (Fixed 7.4.2)
 
 Failed LVM backups in versions earlier than OpenNebula 7.4.2 can leave backup snapshots active. OpenNebula 7.4.2 [fixes failed-backup cleanup](https://github.com/OpenNebula/one/issues/8226). A subsequent successful backup cleans obsolete snapshots for the disks included in that backup. Upgrading the packages alone does not immediately remove existing snapshots.
 
