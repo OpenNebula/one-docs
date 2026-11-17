@@ -39,6 +39,26 @@ The migrate pattern should be aware of NVRAM existence and properly use --keep-n
 
 ## LVM Datastores
 
+### Concurrent Backup Locking
+
+Backup operations using the `lvm` and `fs_lvm_ssh` Transfer Manager drivers may not consistently apply the shared LVM locking mechanism. As reported in [issue #8282](https://github.com/OpenNebula/one/issues/8282), backups accessing the same volume group can interfere with each other, particularly during incremental backup snapshot activation and thin-pool metadata snapshot reservation, inspection, and release.
+
+As a workaround to prevent backups from overlapping, set the following in `/etc/one/oned.conf`:
+
+```default
+MAX_BACKUPS = 1
+```
+
+Restart OpenNebula for the change to take effect:
+
+```shell
+systemctl restart opennebula
+```
+
+This limit applies to scheduled VM backups and Backup Jobs, including manually started Backup Jobs. Avoid starting direct VM backups through `onevm backup`, Sunstone, or the API: these requests bypass the limit and can overlap with other backups. Use scheduled VM backups or Backup Jobs instead.
+
+This workaround does not coordinate backups with other storage operations. For the `lvm` driver, also avoid running migrations or other operations that modify the same volume group while a backup is in progress.
+
 ### Leftover Backup Snapshots Can Cause Data Loss During Migration (Fixed 7.4.2)
 
 LVM VMs created before OpenNebula 7.4.2 can retain snapshot overlays after a backup operation, particularly after an interactive backup. Migrating an affected VM while its thin pool is active on the destination Host can load stale thin-pool metadata and cause guest data loss.
