@@ -217,6 +217,8 @@ Ubuntu 24.04 and AlmaLinux/RHEL 9 provide up to date versions of the packages.
 
 The script builds the nbdkit version matching the installed distro package and copies only the VDDK plugin into nbdkit's plugin directory. It requires internet access, or an internal mirror via the `NBDKIT_REPO_URL` environment variable.
 
+[OpenVDDK](https://github.com/openvddk/openvddk) can be used as a drop-in replacement for VMware VDDK with OneSwap 7.4, without requiring any changes to OneSwap.
+
 VDDK mode is also required for VMware vSAN-backed VMDKs. vSAN disks are object-backed and are not available through the classic vCenter datastore `*-flat.vmdk` download path used by the non-VDDK and hybrid transfer modes.
 
 VDDK can also be used with `--delta` for the initial/base disk transfer on non-vSAN VMware datastores.
