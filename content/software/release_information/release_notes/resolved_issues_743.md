@@ -27,3 +27,4 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 * Fix failure of `onegroup create` CLI command with empty `--resource` parameter [#7458](https://github.com/OpenNebula/one/issues/7458).
 -->
 
+* Fix Veeam upload transfers being reported as `transferring` before the OneBEX writer is ready [#8274](https://github.com/OpenNebula/one/issues/8274).
