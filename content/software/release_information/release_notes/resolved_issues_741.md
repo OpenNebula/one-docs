@@ -1,6 +1,7 @@
 ---
 title: "Resolved Issues in 7.4.1 (EE + CE)"
 date: "2026-09-09"
+weight: 741
 ---
 
 Issues tracked for 7.4.1 are listed in the [project development portal](https://github.com/OpenNebula/one/milestone/94?closed=1).

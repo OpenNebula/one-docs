@@ -1,9 +1,10 @@
-<!-- Update verision numbers X.Y.Z, date and milestone number -->
-
 ---
 title: "Resolved Issues in 7.4.3 (EE)"
 date: "2026-11-13"
+weight: 743
 ---
+
+<!-- Update verision numbers X.Y.Z, date and milestone number -->
 
 A complete list of solved issues for 7.4.3 are listed in the [project development portal](https://github.com/OpenNebula/one/milestone/97).
 
@@ -20,6 +21,8 @@ Include a high level description and a link to the documentation explaining the 
 ## Resolved Issues
 
 The following issues have been solved in 7.4.3:
+
+* Fix limited visibility of CPU models for non-admin users during VM template creation [#7723](https://github.com/OpenNebula/one/issues/7723).
 
 <!-- item structure
 One line per issue starting with "Fix ...". Descrive the issue so the user understands the fix. Add link to GH. Example:
