@@ -245,7 +245,7 @@ zypper update opennebula-node-<hypervisor>
 Note that the `<hypervisor>` tag should be replaced by the name of the corresponding hypervisor (i.e., `kvm` or `lxc`).{{< /alert >}}
 
 {{< alert title="Important" type="info" >}}
-For KVM hypervisor it’s also necessary to restart the libvirt service{{< /alert >}}
+For KVM hypervisor it’s also necessary to restart the libvirt service: `systemctl restart virtqemud` on AlmaLinux/RHEL and SLES/openSUSE, or `systemctl restart libvirtd` on Debian/Ubuntu.{{< /alert >}}
 
 {{< alert title="Important" type="warning" >}}
 Do not sync the drivers (`onehost sync`) before the `opennebula-node` packages are upgraded on the Host: the drivers are now copied to `/var/lib/one-remotes` and execute helper commands from `/usr/libexec/one` — both locations are created by the new node packages.{{< /alert >}}
