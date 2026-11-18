@@ -311,7 +311,7 @@ zypper update opennebula-node-<hypervisor>
 Note that the `<hypervisor>` tag should be replaced by the name of the corresponding hypervisor (i.e., `kvm` or `lxc`).{{< /alert >}}
 
 {{< alert title="Important" type="info" >}}
-For KVM hypervisor it’s also necessary to restart the libvirt service{{< /alert >}}
+For KVM hypervisor it’s also necessary to restart the libvirt service: `systemctl restart virtqemud` on AlmaLinux/RHEL and SLES/openSUSE, or `systemctl restart libvirtd` on Debian/Ubuntu. On AlmaLinux/RHEL, upgrading from 7.2.x switches the node from the monolithic `libvirtd` to the modular libvirt daemons; see the [Compatibility Guide]({{% relref "compatibility#modular-libvirt" %}}).{{< /alert >}}
 
 Then update the virtualization, storage, and networking drivers. As the `oneadmin` user, execute:
 
