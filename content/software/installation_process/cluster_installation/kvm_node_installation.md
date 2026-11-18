@@ -104,7 +104,7 @@ For further configuration check the specific [guide]({{% relref "kvm_driver#kvmg
 ## Step 3. Host OS Security Configuration (Optional)
 
 {{< alert title="Warning" type="warning" >}}
-If you are performing an upgrade skip this and the next steps and go back to the upgrade document.{{< /alert >}}
+If you are performing an upgrade skip this and the next steps and return to the upgrade document.{{< /alert >}}
 
 ### Disable SELinux on AlmaLinux/RHEL
 
@@ -131,11 +131,12 @@ setsebool -P virt_use_nfs on
 Depending on the type of OpenNebula deployment, the AppArmor can block some operations initiated by the OpenNebula Front-end, which results in a failure of the particular operation.  It’s **not recommended to disable** the apparmor on production environments, as it degrades the security of your server, but to investigate and work around each individual problem. A good starting point is [AppArmor HowToUse Guide](https://wiki.debian.org/AppArmor/HowToUse/). The administrator might disable the AppArmor to temporarily work around the problem or on non-production deployments the steps for disabling it can be found [here](https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor).
 
 {{< alert title="Note" type="info" >}}
-Depending on your OpenNebula deployment type, the following lines might be required at `/etc/apparmor.d/abstractions/libvirt-qemu` profile:{{< /alert >}}
+Depending on your OpenNebula deployment type, the following lines might be required in the `/etc/apparmor.d/abstractions/libvirt-qemu` profile:
 
 ```shell
 /var/lib/one/datastores/** rwk,
 ```
+{{< /alert >}}
 
 <a id="kvm-local"></a>
 
@@ -167,7 +168,7 @@ You should prepare and further manage the list of Host SSH public keys of your n
 You’ll need to update and redistribute file with Host keys every time any Host is reinstalled or its keys are regenerated.{{< /alert >}}
 
 {{< alert title="Important" type="info" >}}
-If [default SSH configuration]({{% relref "advanced_ssh_usage#node-ssh-config" %}}) shipped with OpenNebula is used, the SSH client automatically accepts Host keys on the first connection. That makes this step optional, as the `known_hosts` will be incrementally automatically generated on your infrastructure when the various connections happen. While this simplifies the initial deployment, it lowers the security of your infrastructure. We highly recommend populating `known_hosts` on your infrastructure in controlled manner!{{< /alert >}}
+If the [default SSH configuration]({{% relref "advanced_ssh_usage#node-ssh-config" %}}) shipped with OpenNebula is used, the SSH client automatically accepts Host keys on the first connection. That makes this step optional, as the `known_hosts` will be incrementally automatically generated on your infrastructure when the various connections happen. While this simplifies the initial deployment, it lowers the security of your infrastructure. We highly recommend populating `known_hosts` on your infrastructure more carefully!{{< /alert >}}
 
 Make sure you are logged in on your Front-end and run the commands as `oneadmin`, e.g., by typing:
 
