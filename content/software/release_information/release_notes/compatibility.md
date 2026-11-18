@@ -52,6 +52,16 @@ ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula -s /var/lib/one
 
 Then run `systemctl daemon-reload`.
 
+<a id="modular-libvirt"></a>
+
+## Modular libvirt Daemons on AlmaLinux/RHEL
+
+Starting with OpenNebula 7.4, the `opennebula-node-kvm` package on AlmaLinux/RHEL 9 and 10 uses the modular libvirt daemons (`virtqemud`, `virtnetworkd`, `virtnodedevd`, `virtsecretd`, `virtstoraged`) with systemd socket activation instead of the monolithic `libvirtd`. Upgrading the package on a KVM node disables the `libvirtd` service and sockets and enables the modular daemon sockets. The OpenNebula settings previously written to `/etc/libvirt/libvirtd.conf` (`auth_unix_ro`, `auth_unix_rw`, `unix_sock_group`, `unix_sock_ro_perms`, `unix_sock_rw_perms`) are now written to `/etc/libvirt/virtqemud.conf`. Settings in `/etc/libvirt/qemu.conf` are unchanged. The package no longer adds `oneadmin` to the `libvirt` group on AlmaLinux/RHEL 10.
+
+If you customized `/etc/libvirt/libvirtd.conf` on your KVM nodes, move the relevant settings to `/etc/libvirt/virtqemud.conf` (or to the configuration file of the corresponding modular daemon) and restart the daemon with `systemctl restart virtqemud`. Use `virtqemud` instead of `libvirtd` when restarting libvirt or checking its logs, e.g. `journalctl -u virtqemud`.
+
+SLES/openSUSE nodes already used the modular daemons. Debian/Ubuntu nodes still use the monolithic `libvirtd`.
+
 ## Template Instantiation Permissions
 
 A bug was identified in Template instantiation where `CREATE` permissions on the Template object were erroneously required. This requirement has been dropped, now it requires only `USE` permissions on the Template. Users with default ACL rules are unaffected.

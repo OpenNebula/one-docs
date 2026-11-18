@@ -115,7 +115,13 @@ swtpm_group = "oneadmin"
 chown -R oneadmin:oneadmin /var/lib/swtpm-localca/
 ```
 
-3. Restart libvirtd. For example:
+3. Restart the libvirt daemon that manages QEMU. On AlmaLinux/RHEL and SLES/openSUSE, which use the modular libvirt daemons:
+
+```shell
+systemctl restart virtqemud
+```
+
+On Debian/Ubuntu, which use the monolithic libvirt daemon:
 
 ```shell
 systemctl restart libvirtd
