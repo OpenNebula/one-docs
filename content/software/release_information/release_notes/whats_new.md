@@ -97,6 +97,7 @@ Thank you to our incredible community and partners for your continued support in
 ## Packaging
 
 * Added [OpenNebula packages for for Ubuntu 26.04 (Resolute Raccoon)]({{% relref "software/installation_process/frontend_installation/opennebula_repository_configuration_ce/#debianubuntu" %}}).
+* KVM nodes on AlmaLinux/RHEL 9 and 10 now use the [modular libvirt daemons]({{% relref "compatibility#modular-libvirt" %}}) (`virtqemud` and others) with systemd socket activation instead of the monolithic `libvirtd`.
 
 ## OneSwap
 
