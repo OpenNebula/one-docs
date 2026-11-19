@@ -731,7 +731,7 @@ To implement and register another storage backend, see [Developing OneBEX Export
 | `rbd` | Ceph RBD disks | Direct RBD reads | Exposes the prepared Ceph RBD snapshot directly. Full backups return the full image extent, while incremental backups return the changed extents between RBD snapshots. |
 
 {{< alert title="Note" type="info" >}}
-The `nbd` and `rbd` exporter reads disk data with the `nbdsh` tool from the `python3-libnbd` package. This package is installed automatically as a dependency of `opennebula-node-kvm` on all supported platforms except SLES 15, where it is not available in the SUSE repositories. To use the `nbd` or `nbd` exporter on SLES 15 hosts, install `python3-libnbd` manually, for example from the openSUSE Leap 15.6 repositories, together with the matching `libnbd0` package. {{< /alert >}}
+The `nbd` and `rbd` exporter reads disk data with the `nbdsh` tool from the `python3-libnbd` package. This package is installed automatically as a dependency of `opennebula-node-kvm` on all supported platforms except SLES 15, where it is not available in the SUSE repositories. To use the `nbd` or `rbd` exporter on SLES 15 hosts, install `python3-libnbd` manually, for example from the openSUSE Leap 15.6 repositories, together with the matching `libnbd0` package. {{< /alert >}}
 
 ## Example: Backing Up and Restoring a VM with OneBEX
 
