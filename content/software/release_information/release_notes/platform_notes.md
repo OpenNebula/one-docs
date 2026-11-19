@@ -132,6 +132,12 @@ More information: [one-apps wiki](https://github.com/OpenNebula/one-apps/wiki)
 | Restic backup backend         | 0.17.3    | [Backup Datastore: Restic]({{% relref "../../../product/cluster_configuration/backup_system/restic.md#vm-backups-restic" %}})                                        |
 | Veeam B&R                     | >=13.0    | [Veeam Backup (EE)]({{% relref "../../../product/cluster_configuration/backup_system/veeam.md" %}}) |
 
+### VMware Migration
+
+| **Component** | **Supported Platform Versions** | **More information** |
+|---------------|---------------------------------|----------------------|
+| OneSwap       | VMware vSphere 8.x and 9.x       | [Migrating VMs with OneSwap]({{% relref "software/migration_from_vmware/oneswap" %}}) |
+
 ### Sunstone
 
 | **Browser**   | **Version**     |
