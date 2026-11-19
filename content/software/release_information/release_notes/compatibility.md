@@ -67,6 +67,8 @@ systemctl edit virtqemud.socket      # e.g. [Socket] SocketGroup=oneadmin, Socke
 systemctl restart virtqemud.socket virtqemud-ro.socket virtqemud.service
 ```
 
+Starting with OpenNebula 7.4.3, the package limits read-write access to `virtqemud` to the `oneadmin` group with the systemd drop-in `/usr/lib/systemd/system/virtqemud.socket.d/50-opennebula.conf` (`SocketGroup=oneadmin`, `SocketMode=0770`) and re-creates the socket on upgrade. Read-only access stays open to all local users, as in the libvirt defaults.
+
 If the node accepted remote libvirt connections over TCP or TLS (`qemu+tcp://` or `qemu+tls://`), note that the upgrade stops these listeners and does not enable replacements. With the modular daemons, remote connections are handled by `virtproxyd`. Move the related settings (e.g., `auth_tcp`, `auth_tls`, `key_file`, `cert_file`, `ca_file`, `crl_file`, `tls_allowed_dn_list`, `sasl_allowed_username_list`) from `libvirtd.conf` to `/etc/libvirt/virtproxyd.conf`, apply any `ListenStream` overrides of `libvirtd-tcp.socket` or `libvirtd-tls.socket` to `virtproxyd-tcp.socket` or `virtproxyd-tls.socket`, and enable the required listener, e.g. `systemctl enable --now virtproxyd-tls.socket`. The OpenNebula drivers connect over SSH (`qemu+ssh://`) by default and are not affected.
 
 SLES/openSUSE nodes already used the modular daemons. Debian/Ubuntu nodes still use the monolithic `libvirtd`.

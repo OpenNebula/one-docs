@@ -70,9 +70,9 @@ yum -y install opennebula-node-kvm
 ```
 
 {{< alert title="Note" type="info" >}}
-On AlmaLinux/RHEL 9 and 10, OpenNebula uses the modular libvirt daemons with systemd socket activation. The package configures `/etc/libvirt/virtqemud.conf` and `/etc/libvirt/qemu.conf`, disables the monolithic `libvirtd` service and sockets, enables and starts the modular daemon sockets, and restarts `virtqemud` if its configuration changed, so no manual restart is needed. If you later modify `virtqemud.conf` or `qemu.conf`, apply the changes with `systemctl restart virtqemud`.
+On AlmaLinux/RHEL 9 and 10, OpenNebula uses the modular libvirt daemons with systemd socket activation. The package configures `/etc/libvirt/virtqemud.conf` and `/etc/libvirt/qemu.conf`, disables the monolithic `libvirtd` service and sockets, enables and starts the modular daemon sockets, and restarts `virtqemud` when needed, so no manual restart is required. If you later modify `virtqemud.conf` or `qemu.conf`, apply the changes with `systemctl restart virtqemud`.
 
-With socket activation, the `unix_sock_group`, `unix_sock_ro_perms` and `unix_sock_rw_perms` options in `virtqemud.conf` have no effect. To change the socket ownership or permissions, override `SocketGroup` and `SocketMode` with `systemctl edit virtqemud.socket` and apply the change with `systemctl restart virtqemud.socket virtqemud.service`.{{< /alert >}}
+Read-write access to `virtqemud` is limited to the `oneadmin` group by the systemd drop-in `/usr/lib/systemd/system/virtqemud.socket.d/50-opennebula.conf`. With socket activation, the `unix_sock_group`, `unix_sock_ro_perms` and `unix_sock_rw_perms` options in `virtqemud.conf` have no effect. To change the socket ownership or permissions, override `SocketGroup` and `SocketMode` with `systemctl edit virtqemud.socket` and apply the change with `systemctl restart virtqemud.socket virtqemud.service`. Read-only access stays open to all local users, as in the libvirt defaults.{{< /alert >}}
 
 For further configuration, check the specific [guide]({{% relref "kvm_driver#kvmg" %}}).
 
@@ -100,9 +100,9 @@ zypper install opennebula-node-kvm
 ```
 
 {{< alert title="Note" type="info" >}}
-On SLES/openSUSE, OpenNebula uses the modular libvirt daemons with systemd socket activation. The package configures `/etc/libvirt/virtqemud.conf` and `/etc/libvirt/qemu.conf`, disables the monolithic `libvirtd` service and sockets, enables and starts the modular daemon sockets, and restarts `virtqemud` if its configuration changed, so no manual restart is needed. If you later modify `virtqemud.conf` or `qemu.conf`, apply the changes with `systemctl restart virtqemud`.
+On SLES/openSUSE, OpenNebula uses the modular libvirt daemons with systemd socket activation. The package configures `/etc/libvirt/virtqemud.conf` and `/etc/libvirt/qemu.conf`, disables the monolithic `libvirtd` service and sockets, enables and starts the modular daemon sockets, and restarts `virtqemud` when needed, so no manual restart is required. If you later modify `virtqemud.conf` or `qemu.conf`, apply the changes with `systemctl restart virtqemud`.
 
-With socket activation, the `unix_sock_group`, `unix_sock_ro_perms` and `unix_sock_rw_perms` options in `virtqemud.conf` have no effect. To change the socket ownership or permissions, override `SocketGroup` and `SocketMode` with `systemctl edit virtqemud.socket` and apply the change with `systemctl restart virtqemud.socket virtqemud.service`.{{< /alert >}}
+Read-write access to `virtqemud` is limited to the `oneadmin` group by the systemd drop-in `/usr/lib/systemd/system/virtqemud.socket.d/50-opennebula.conf`. With socket activation, the `unix_sock_group`, `unix_sock_ro_perms` and `unix_sock_rw_perms` options in `virtqemud.conf` have no effect. To change the socket ownership or permissions, override `SocketGroup` and `SocketMode` with `systemctl edit virtqemud.socket` and apply the change with `systemctl restart virtqemud.socket virtqemud.service`. Read-only access stays open to all local users, as in the libvirt defaults.{{< /alert >}}
 
 For further configuration check the specific [guide]({{% relref "kvm_driver#kvmg" %}}).
 
