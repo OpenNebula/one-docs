@@ -56,9 +56,18 @@ Then run `systemctl daemon-reload`.
 
 ## Modular libvirt Daemons on AlmaLinux/RHEL
 
-Starting with OpenNebula 7.4, the `opennebula-node-kvm` package on AlmaLinux/RHEL 9 and 10 uses the modular libvirt daemons (`virtqemud`, `virtnetworkd`, `virtnodedevd`, `virtsecretd`, `virtstoraged`) with systemd socket activation instead of the monolithic `libvirtd`. Upgrading the package on a KVM node disables the `libvirtd` service and sockets and enables the modular daemon sockets. The OpenNebula settings previously written to `/etc/libvirt/libvirtd.conf` (`auth_unix_ro`, `auth_unix_rw`, `unix_sock_group`, `unix_sock_ro_perms`, `unix_sock_rw_perms`) are now written to `/etc/libvirt/virtqemud.conf`. Settings in `/etc/libvirt/qemu.conf` are unchanged. The package no longer adds `oneadmin` to the `libvirt` group on AlmaLinux/RHEL 10.
+Starting with OpenNebula 7.4, the `opennebula-node-kvm` package on AlmaLinux/RHEL 9 and 10 uses the modular libvirt daemons (`virtqemud`, `virtnetworkd`, `virtnodedevd`, `virtsecretd`, `virtstoraged`) with systemd socket activation instead of the monolithic `libvirtd`. Upgrading the package on a KVM node disables the `libvirtd` service and all its sockets, including `libvirtd-tcp.socket` and `libvirtd-tls.socket`, and enables the modular daemon sockets. The OpenNebula settings previously written to `/etc/libvirt/libvirtd.conf` are now written to `/etc/libvirt/virtqemud.conf`. Settings in `/etc/libvirt/qemu.conf` are unchanged. The package no longer adds `oneadmin` to the `libvirt` group on AlmaLinux/RHEL 10.
 
-If you customized `/etc/libvirt/libvirtd.conf` on your KVM nodes, move the relevant settings to `/etc/libvirt/virtqemud.conf` (or to the configuration file of the corresponding modular daemon) and restart the daemon with `systemctl restart virtqemud`. Use `virtqemud` instead of `libvirtd` when restarting libvirt or checking its logs, e.g. `journalctl -u virtqemud`.
+If you customized `/etc/libvirt/libvirtd.conf` on your KVM nodes, move the daemon settings, such as the authentication options `auth_unix_ro` and `auth_unix_rw`, to `/etc/libvirt/virtqemud.conf` (or to the configuration file of the corresponding modular daemon) and restart the daemon with `systemctl restart virtqemud`. Use `virtqemud` instead of `libvirtd` when restarting libvirt or checking its logs, e.g. `journalctl -u virtqemud`.
+
+With socket activation, the socket options `unix_sock_group`, `unix_sock_ro_perms` and `unix_sock_rw_perms` have no effect in `virtqemud.conf` (nor did they in `libvirtd.conf`). The ownership and permissions of the sockets are set by the `SocketGroup` and `SocketMode` options of the socket units: `virtqemud.socket` for the read-write socket and `virtqemud-ro.socket` for the read-only one. If you restricted the `libvirtd.socket` or `libvirtd-ro.socket` units, apply the same overrides to the `virtqemud` units, for example:
+
+```shell
+systemctl edit virtqemud.socket      # e.g. [Socket] SocketGroup=oneadmin, SocketMode=0770
+systemctl restart virtqemud.socket virtqemud-ro.socket virtqemud.service
+```
+
+If the node accepted remote libvirt connections over TCP or TLS (`qemu+tcp://` or `qemu+tls://`), note that the upgrade stops these listeners and does not enable replacements. With the modular daemons, remote connections are handled by `virtproxyd`. Move the related settings (e.g., `auth_tcp`, `auth_tls`, `key_file`, `cert_file`, `ca_file`, `crl_file`, `tls_allowed_dn_list`, `sasl_allowed_username_list`) from `libvirtd.conf` to `/etc/libvirt/virtproxyd.conf`, apply any `ListenStream` overrides of `libvirtd-tcp.socket` or `libvirtd-tls.socket` to `virtproxyd-tcp.socket` or `virtproxyd-tls.socket`, and enable the required listener, e.g. `systemctl enable --now virtproxyd-tls.socket`. The OpenNebula drivers connect over SSH (`qemu+ssh://`) by default and are not affected.
 
 SLES/openSUSE nodes already used the modular daemons. Debian/Ubuntu nodes still use the monolithic `libvirtd`.
 
