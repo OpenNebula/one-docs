@@ -58,6 +58,26 @@ More information on hooks [here]({{% relref "../../../product/integration_refere
 Network errors can cause a Host to be reported as unavailable while its VMs are still running. Recovering those VMs on another Host could start a second instance of each VM. You may use any fencing mechanism appropriate for your infrastructure by invoking it from `fence_host.sh` to ensure the original VMs can no longer run before recovery proceeds.
 {{< /alert >}}
 
+## Manual VM Recovery and Split-Brain Prevention
+
+When a Host enters the `ERROR` state due to a monitoring failure, its VMs may transition to the `UNKNOWN` state. However, this does not necessarily mean that the Host has failed or that the VMs have stopped running on the original hypervisor.
+
+OpenNebula allows administrators to manually migrate or reschedule VMs in the `UNKNOWN` state to facilitate recovery from Host failures. Unlike recovery through the Host error hook, these manual operations do not automatically invoke the configured Host fencing mechanism.
+
+{{< alert title="Warning" type="warning" >}}
+**Manually migrating or rescheduling VMs in the `UNKNOWN` state without ensuring that the original instances have stopped can lead to split-brain and severe data corruption.**
+
+This is particularly dangerous when using shared storage backends, such as Ceph, shared LVM (`fs_lvm*`), or the `shared` transfer driver (e.g., NFS), where multiple Hosts may access the same writable VM disks.
+
+Before initiating manual recovery, administrators must ensure that the original VM instances are no longer running. This can be achieved through proper Host fencing or another reliable mechanism that prevents concurrent access to the same VM disks.
+
+**The `ERROR` Host state or `UNKNOWN` VM state alone does not guarantee that the original VM instances have stopped.**
+{{< /alert >}}
+
+Administrators should also be aware that a Host may enter the `ERROR` state after a rescheduling request has been submitted but before the scheduler processes it. Therefore, the safety of a recovery operation must not be assumed solely based on the Host or VM state when the operation was initially requested.
+
+For automated recovery, configure the Host error hook with proper fencing as described in [Enabling Fencing](#enabling-fencing).
+
 ## Tuning HA responsiveness
 
 This HA mechanism is based on the Host state monitoring. How long the Host takes to be reported in `ERROR` is crucial for how quickly you want the VMs to be available.
