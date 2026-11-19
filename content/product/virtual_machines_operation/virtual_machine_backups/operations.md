@@ -61,9 +61,17 @@ In order to save space in the backup system, RAW disk backups are converted and 
 - Incremental backups are only available for KVM and qcow2/RBD disks
 - Live backups are only supported for KVM
 - Attaching a disk to a VM that had an incremental backup previously made will yield an error. The –reset option for the backup operation is required to recreate a new incremental chain
-- Incremental backups on VMs with disk or system snapshots is not supported
+- Incremental backups do not support VM system snapshots. Disk snapshots can coexist with incremental backups only for Ceph RBD disks (`TM_MAD=ceph`, `TYPE=RBD`), as described below.
 - For Ceph retention requirements, see [Backup Format and Retention]({{% relref "product/cluster_configuration/storage_system/ceph_ds#backup-format-and-retention" %}}).
 - Interactive backups only support datastores using the `local`, `shared` and `lvm*` TM drivers.
+
+### Ceph Disk Snapshots and Incremental Backups
+
+Ceph RBD disk snapshots can be created and deleted while incremental backups are configured. Creating a disk snapshot does not reset the current backup chain.
+
+Before reverting a disk selected for incremental backups, OpenNebula automatically resets the VM's incremental backup chain. The next backup creates a new full base for **all selected disks**; subsequent backups are incremental again. No manual `--reset` is required.
+
+Previously stored backups remain available according to the configured retention policy. Reverting a disk that is not selected for backup does not reset the chain. The VM must be powered off to revert a disk snapshot.
 
 ## Preparing VMs for Backups
 
