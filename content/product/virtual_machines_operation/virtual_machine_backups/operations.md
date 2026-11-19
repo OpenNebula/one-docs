@@ -39,8 +39,8 @@ The `INTERACTIVE` backup workflow is reserved for supported third-party integrat
 
 For interactive backup integrations, OpenNebula supports:
 
-- **Full interactive backups** for file-based `qcow2` disks and disks on LVM datastores.
-- **Incremental interactive backups** for file-based `qcow2` disks and disks on LVM datastores using **CBT** mode only.
+- **Full interactive backups** for file-based `qcow2` disks, disks on LVM datastores, and Ceph RBD disks.
+- **Incremental interactive backups** for file-based `qcow2` disks, disks on LVM datastores, and Ceph RBD disks using **CBT** mode only.
 
 Interactive incremental backups do not support the `SNAPSHOT` increment mode.
 {{< /alert >}}
@@ -63,7 +63,7 @@ In order to save space in the backup system, RAW disk backups are converted and 
 - Attaching a disk to a VM that had an incremental backup previously made will yield an error. The –reset option for the backup operation is required to recreate a new incremental chain
 - Incremental backups on VMs with disk or system snapshots is not supported
 - For Ceph retention requirements, see [Backup Format and Retention]({{% relref "product/cluster_configuration/storage_system/ceph_ds#backup-format-and-retention" %}}).
-- Interactive backups only support datastores using the `local`, `shared` and `lvm*` TM drivers.
+- Interactive backups only support datastores using the `local`, `shared`, `lvm*`, and `ceph` TM drivers.
 
 ## Preparing VMs for Backups
 
