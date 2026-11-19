@@ -70,7 +70,7 @@ yum -y install opennebula-node-kvm
 ```
 
 {{< alert title="Note" type="info" >}}
-On AlmaLinux/RHEL 9 and 10, OpenNebula uses the modular libvirt daemons with systemd socket activation. The package configures `/etc/libvirt/virtqemud.conf` and `/etc/libvirt/qemu.conf`, disables the monolithic `libvirtd` service and sockets, enables and starts the modular daemon sockets, and restarts `virtqemud` if its configuration changed, so no manual restart is needed. If you later modify the libvirt configuration, apply it with `systemctl restart virtqemud`.{{< /alert >}}
+On AlmaLinux/RHEL 9 and 10, OpenNebula uses the modular libvirt daemons with systemd socket activation. The package configures `/etc/libvirt/virtqemud.conf` and `/etc/libvirt/qemu.conf`, disables the monolithic `libvirtd` service and sockets, enables and starts the modular daemon sockets, and restarts `virtqemud` if its configuration changed, so no manual restart is needed. If you later modify either configuration file, apply it with `systemctl restart virtqemud`. For socket permissions and remote listeners, see [Customizing Modular libvirt Configuration](#kvm-modular-libvirt).{{< /alert >}}
 
 For further configuration, check the specific [guide]({{% relref "kvm_driver#kvmg" %}}).
 
@@ -95,9 +95,55 @@ zypper install opennebula-node-kvm
 ```
 
 {{< alert title="Note" type="info" >}}
-On SLES/openSUSE, OpenNebula uses the modular libvirt daemons with systemd socket activation. The package configures `/etc/libvirt/virtqemud.conf` and `/etc/libvirt/qemu.conf`, disables the monolithic `libvirtd` service and sockets, enables and starts the modular daemon sockets, and restarts `virtqemud` if its configuration changed, so no manual restart is needed. If you later modify the libvirt configuration, apply it with `systemctl restart virtqemud`.{{< /alert >}}
+On SLES/openSUSE, OpenNebula uses the modular libvirt daemons with systemd socket activation. The package configures `/etc/libvirt/virtqemud.conf` and `/etc/libvirt/qemu.conf`, disables the monolithic `libvirtd` service and sockets, enables and starts the modular daemon sockets, and restarts `virtqemud` if its configuration changed, so no manual restart is needed. If you later modify either configuration file, apply it with `systemctl restart virtqemud`. For socket permissions and remote listeners, see [Customizing Modular libvirt Configuration](#kvm-modular-libvirt).{{< /alert >}}
 
 For further configuration check the specific [guide]({{% relref "kvm_driver#kvmg" %}}).
+
+<a id="kvm-modular-libvirt"></a>
+
+### Customizing Modular libvirt Configuration
+
+The following instructions apply to AlmaLinux/RHEL and SLES/openSUSE nodes using modular libvirt daemons. Run the commands as `root` on each affected KVM node.
+
+#### UNIX Socket Permissions
+
+With systemd socket activation, `unix_sock_group`, `unix_sock_ro_perms`, and `unix_sock_rw_perms` in `virtqemud.conf` are ignored. When migrating custom settings from `libvirtd.conf`, configure socket ownership and permissions in systemd socket unit overrides instead. Use `SocketGroup` for the group owner and `SocketMode` for the permissions: `virtqemud.socket` controls read-write access, and `virtqemud-ro.socket` controls read-only access. The authentication settings `auth_unix_ro` and `auth_unix_rw` remain in `virtqemud.conf`.
+
+For example, to restrict both QEMU sockets to `root` and members of the `oneadmin` group, create `/etc/systemd/system/virtqemud.socket.d/override.conf` and `/etc/systemd/system/virtqemud-ro.socket.d/override.conf`, creating the directories if necessary. Put the following content in each file:
+
+```ini
+[Socket]
+SocketGroup=oneadmin
+SocketMode=0770
+```
+
+Reload systemd and stop the QEMU daemon and its socket units before starting them again:
+
+```shell
+systemctl daemon-reload
+systemctl stop virtqemud.service virtqemud.socket virtqemud-ro.socket
+systemctl start virtqemud.socket virtqemud-ro.socket
+systemctl start virtqemud.service
+```
+
+Apply equivalent overrides to the corresponding socket units if you customize access to other modular daemons. See the [libvirt systemd integration documentation](https://libvirt.org/daemons.html#modular-systemd-integration) for the configuration mapping.
+
+#### Remote TCP/TLS Listeners
+
+`virtqemud` accepts connections through local UNIX sockets. Remote libvirt API connections over TCP/TLS are handled by `virtproxyd`. The OpenNebula package disables the old `libvirtd` listeners but does not enable replacement `virtproxyd` listeners.
+
+If your nodes previously accepted remote TCP/TLS connections, migrate the applicable authentication and certificate settings from `/etc/libvirt/libvirtd.conf` to `/etc/libvirt/virtproxyd.conf`. With socket activation, configure custom listening addresses and ports through `ListenStream` overrides for `virtproxyd-tls.socket` or `virtproxyd-tcp.socket`; the `listen_tls`, `listen_tcp`, `listen_addr`, `tls_port`, and `tcp_port` settings in `virtproxyd.conf` do not control these sockets. To replace the default listening address or port, clear it with an empty `ListenStream=` before adding the replacement value.
+
+For example, after configuring the TLS certificates and authentication, enable the proxy's UNIX and TLS sockets and restart the proxy to read its configuration:
+
+```shell
+systemctl unmask virtproxyd.service virtproxyd.socket virtproxyd-ro.socket virtproxyd-admin.socket virtproxyd-tls.socket
+systemctl daemon-reload
+systemctl enable --now virtproxyd.socket virtproxyd-tls.socket
+systemctl restart virtproxyd.service
+```
+
+When changing a listener that is already active, reload systemd, stop `virtproxyd.service` and the affected socket units, then start those units again. Use TLS for encrypted remote access. To retain an existing TCP listener, configure its authentication and replace `virtproxyd-tls.socket` with `virtproxyd-tcp.socket` in the commands above. See the [libvirt migration instructions](https://libvirt.org/daemons.html#switching-to-modular-daemons) and [virtproxyd manual](https://libvirt.org/manpages/virtproxyd.html#socket-activation-mode).
 
 <a id="kvm-os-security"></a>
 
