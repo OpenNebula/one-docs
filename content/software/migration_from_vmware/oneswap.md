@@ -523,6 +523,25 @@ All four methods move the disk data through the OneSwap server. For VMs stored o
 
 A custom conversion option (`--custom`) is also provided, which is only recommended as a fallback, that does not use virt-v2v. It relies on RbVmomi2, using `qemu-img` and `virt-customize`/`guestfish` to prepare the image for OpenNebula. It can be useful for guest distributions which are not supported by virt-v2v or which fail to convert, but it does not support Windows guests. With `--fallback`, OneSwap first attempts the virt-v2v conversion and automatically retries with the custom conversion process if it fails. `--fallback` and `--custom` cannot be combined.
 
+### TLS Certificate Verification
+
+OneSwap uses different TLS verification mechanisms depending on the connection type:
+
+| Component | Certificate verification |
+|-----------|--------------------------|
+| vCenter API (SOAP/REST) | Certificates and hostnames are verified by default using Ruby/OpenSSL. |
+| virt-v2v (`vpx://`) | Certificate verification is handled by libvirt and can be disabled with `--accept-cert`. |
+| VDDK thumbprint discovery | The vCenter certificate and hostname are verified before retrieving the thumbprint, unless `--accept-cert` is used. |
+| VMware VDDK / OpenVDDK | The selected VDDK library validates connections using the supplied certificate thumbprint. |
+| Single-stream datastore downloads | curl verifies certificates by default; `--accept-cert` disables verification. |
+| Hybrid striped downloads | HTTP Range probes and parallel workers use the same curl TLS verification policy. |
+
+For production, use certificates issued by a trusted CA and ensure the vCenter hostname or IP address matches the certificate. Ruby/OpenSSL, curl, and libvirt may use different CA trust configurations.
+
+{{< alert color="warning" title="Certificate verification" >}}
+`--accept-cert` (or `:accept_cert: true` in `oneswap.yaml`) disables TLS certificate verification for supported VMware connections. This is insecure and should only be used when certificate verification cannot be configured. It does not disable VDDK thumbprint validation or control NetApp Shift TLS verification.
+{{< /alert >}}
+
 ### Converting Virtual Machines
 
 The basic conversion of a single VM only requires the VM name and the vCenter credentials (which can also be stored in `/etc/one/oneswap.yaml`):
