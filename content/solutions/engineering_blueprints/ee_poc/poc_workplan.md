@@ -1,9 +1,8 @@
 ---
-title: "Workplan"
+title: "Planning and Executing an OpenNebula PoC"
 linkTitle: "Workplan"
 description: "Workplan for the OpenNebula Enterprise Edition Proof of Concept."
 weight: 3
-
 ---
 
 ## Infrastructure Requirements and Deployment

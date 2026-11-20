@@ -1,6 +1,6 @@
 ---
 
-title: "Deploying a GPU-enabled Kubernetes Cluster with OneKS"
+title: "Deploying GPU-enabled Kubernetes Clusters"
 linkTitle: "GPU Kubernetes Clusters"
 description: ""
 weight: 5
@@ -11,7 +11,15 @@ weight: 5
 
 In this guide, you will deploy a GPU-enabled Kubernetes Cluster with OneKS and deploy a GPU workload on the Kubernetes Cluster using the [kubectl](https://kubernetes.io/docs/reference/kubectl/) command line tool.
 
-{{< alert title="Sign In as poc-operator" type="primary" >}}To start this guide sign into Sunstone as the **poc-operator** user with the credentials given to you by your OpenNebula PoC contact.{{< /alert >}}
+## Before Starting
+
+You will be using the following OpenNebula user account for this guide, ensure you have the credentials at hand:
+
+* **llm-tenant-admin**
+
+This user has been preconfigured with the necessary permissions to complete this guide. The necessary templates to launch a GPU-enabled OneKS Kubernetes Cluster have been prepared  for the user. This user also sees the **LLM Tenant** view, which allows access to the Kubernetes Cluster and OneLLM management functionality needed to launch and manage the GPU-enabled Kubernetes Cluster and deploy LLM models for inferencing. 
+
+Log in with your **llm-tenant-admin** account using the credentials you received before starting step 1.
 
 ## Prerequisites: Install kubectl and Helm
 
@@ -50,7 +58,7 @@ curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 |
 
 ## Step 1: Create the Cluster
 
-In the top left hand corner, switch to the **User** view to reveal the Kubernetes features. Go to **Kubernetes -> K8S Clusters** and select **+ Create Kubernetes Cluster**:
+Go to **Kubernetes -> K8S Clusters** and select **+ Create Kubernetes Cluster**:
 
 {{< image path="/images/poc/ai_poc/light/poc_create_k8s.png" 
           pathDark="/images/poc/ai_poc/dark/poc_create_k8s.png" 
@@ -62,15 +70,19 @@ Then follow the steps of the Create Kubernetes Cluster wizard:
           pathDark="/images/poc/ai_poc/dark/poc_name_cluster.png" 
 alt="OneKS Create Cluster" align="center" width="90%" mb="20px" >}}
 
-* **General**: Name the Cluster, e.g. `gpu-cluster`
+* **General**: Name the Cluster, e.g. `gpu-cluster` or `inference-cluster`
 * **Select Cluster**: Select the OpenNebula Cluster to Host your K8s Cluster - **0 default** 
-* **Select a public Virtual Network**: Select the Virtual Network named **public**
-* **Select a private Virtual Network**: Reuse the Virtual Network named **public**
+* **Select a public Virtual Network**: Select the Virtual Network named **llm-tenant-public**
+* **Select a private Virtual Network**: Select the Virtual Network named **llm-tenant-private**
 * **K8s version**: Select version *1.35.0*
 * **Flavours**: Select *Single-Node Control Plane*
 * **User inputs**: No changes required
 
-You can monitor the provisioning progress int the **Kubernetes Logs** view. The K8s Cluster will take several minutes to complete provisioning. Proceed with the next step once the K8s Cluster has reached the RUNNING state.
+Click **Finish** in the final step to start the provisioning process. You can monitor the provisioning progress int the **Kubernetes Logs** view. The K8s Cluster will take several minutes to complete provisioning. Proceed with the next step once the K8s Cluster reaches the RUNNING state:
+
+{{< image path="/images/poc/ai_poc/light/poc_k8s_running.png" 
+          pathDark="/images/poc/ai_poc/dark/poc_k8s_running.png"
+alt="OneKS inspect node GPU" align="center" width="90%" mb="20px" >}}
 
 ## Step 2: Scale the K8s Cluster
 
@@ -80,11 +92,16 @@ Once the K8s Cluster has entered the RUNNING state, go to **Kubernetes -> K8S Cl
           pathDark="/images/poc/ai_poc/dark/poc_scale_k8s.png" 
 alt="OneKS scale Cluster" align="center" width="90%" mb="20px" >}}
 
-* In the **General** step enter a name, e.g. `gpu-worker`
-* In the **Flavours** step choose the **Large Worker Nodes** flavour 
+* In the **General** step enter a name, e.g. `gpu-worker` or `inference-worker`
+* In the **Family** step choose the **OneLLM Workers** family 
+* In the **Flavours** step choose the **Medium OneLLM Worker Nodes** flavour 
 * In the **User inputs** step set the **Count** as 1
 
-Click **Finish** and you will see the scaling progress in the **Logs** view. Once the node has changed from the SCALING state to RUNNING, proceed with the next step.
+Click **Finish** and you will see the scaling progress in the **Logs** view. Once the node has changed from the SCALING state to RUNNING, proceed with the next step:
+
+{{< image path="/images/poc/ai_poc/light/poc_k8s_node_running.png" 
+          pathDark="/images/poc/ai_poc/dark/poc_k8s_node_running.png"
+alt="OneKS inspect node GPU" align="center" width="90%" mb="20px" >}}
 
 ### Ensure the GPU is Attached
 
@@ -100,11 +117,19 @@ This will open the node's details view. In the **PCI** tab, you should see the G
           pathDark="/images/poc/ai_poc/dark/poc_node_gpu.png"
 alt="OneKS inspect node GPU" align="center" width="90%" mb="20px" >}}
 
+In this case we see the hexadecimal PCI device codes for an NVIDIA L40S:
+
+* **Class**: 0302
+* **Device**: 26b9
+* **Vendor**: 10de
+
 If you see your GPU in this list, your K8s worker node has successfully attached to the GPU.
 
 ## Step 3: Copy the kubeconfig
 
-Close the details panel of the node group and go to the **Kubeconfig** tab. Copy and save the kubeconfig details into a file named *kubeconfig* in your local machine with a text editor. The kubeconfig contains the details and credentials of the K8s Cluster you have just created, it is necessary to interact with the Cluster through kubectl:
+The kubeconfig contains the details and credentials of the K8s Cluster you have just created, it is necessary to interact with the Cluster through kubectl.
+
+Close the details panel of the node group and go to the **Kubeconfig** tab. Copy and save the kubeconfig details into a file named *kubeconfig* in your local machine with a text editor:
 
 {{< image path="/images/poc/ai_poc/light/poc_kubeconfig.png" 
           pathDark="/images/poc/ai_poc/dark/poc_kubeconfig.png"
@@ -136,7 +161,9 @@ Wait until both the control-plane node and the worker node report `Ready` before
 
 This confirms that the K8s Cluster is operating properly and kubectl can access it.
 
-## Step 4: Install the NVIDIA GPU Operator
+## Step 4: Install the NVIDIA GPU Operator (Optional)
+
+{{< alert title="This section is optional" type="primary" >}}If you are moving on to the **OneLLM** deployment in the following guide, it is not necessary to install the NVIDIA GPU Operator. You can advance to step 6.{{< /alert >}} 
 
 Add the NVIDIA Helm repo:
 
@@ -229,7 +256,9 @@ nvidia.com/vgpu.present=false
 ...
 ```
 
-## Step 5: Validate with VectorAdd
+## Step 5: Validate with VectorAdd (Optional)
+
+{{< alert title="This section is optional" type="primary" >}}If you are moving on to the **OneLLM** deployment in the following guide, it is not necessary to install or validate the NVIDIA GPU Operator. You can advance to step 6.{{< /alert >}} 
 
 Deploy a simple CUDA vector-addition workload to verify that Kubernetes can schedule a workload onto the GPU worker and execute CUDA kernels on the attached GPU. The workload copies vectors to GPU memory, performs the addition using a CUDA kernel, copies the result back to the container, and verifies the result.
 
@@ -292,15 +321,30 @@ Clean up by deleting the VectorAdd validation job:
 kubectl delete -f vector-add.yaml
 ```
 
-## Sharing the Kubernetes Cluster
+If you are continuing with the OneLLM deployment guides, you need to [uninstall the NVIDIA GPU Operator]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/ai_ready_k8s/#optional-undeploy-the-nvidia-gpu-operator" %}}) before proceeding to the next step.
 
-Using OpenNebula's multi-tenancy features, a K8s Cluster launched by OneKS can be easily shared with teammates. In the **Kubernetes -> K8S Clusters** view, click on the **gpu-cluster** you created to open its information panel. In the **Permissions** section, select the **Group** option in the **Use** column:
 
-{{< image path="/images/poc/ai_poc/light/poc_share_k8s.png" 
-          pathDark="/images/poc/ai_poc/dark/poc_share_k8s.png"
+## Step 6: Check the Operator View
+
+Go to the **Instances VMs** view. You will see their the various VMs that have been provisioned for the K8s Cluster, each serving a different role. They should be named similarly to the following:
+
+* **Virtual Router**: `vr-controlplane-general-*`
+* **Control Plane**: `controlplane-general-*`
+* **K8s Worker**: `nodegroup-onellm-*`
+
+{{< image path="/images/poc/ai_poc/light/poc_k8s_vms.png" 
+          pathDark="/images/poc/ai_poc/dark/poc_k8s_vms.png"
 alt="OneKS inspect node GPU" align="center" width="90%" mb="20px" >}}
 
-If you now sign into the **poc-tenant** account, since it is in the same group as **poc-operator**, you will be able to see the **gpu-cluster** K8s Cluster in **Kubernetes -> K8S Clusters** and retrieve the kubeconfig to deploy GPU workloads.  
+Note that you do not see the vLLM VM that you launched in the previous guide since the resources of the **vm-tenant-admin** and **llm-tenant-admin** are isolated.
+
+Now sign out of the **llm-tenant-admin** account (or open a separate browser session) and sign into the **ncp-operator** account. Go to **Instances -> VMs**:
+
+{{< image path="/images/poc/ai_poc/light/poc_operator_vms.png" 
+          pathDark="/images/poc/ai_poc/dark/poc_operator_vms.png"
+alt="OneKS inspect node GPU" align="center" width="90%" mb="20px" >}}
+
+Since the **ncp-operator** has administrative privileges, they have visibility over the resources (including VMs, Clusters, Virtual Networks, Templates, etc.) of other users and, depending upon configuration, create, delete or modify resources of other users. Administrative users can also set quotas for users to limit their access to resources, including restricting the number of VMs, CPU limits, and even GPU allocation.  
 
 ## Next Steps
 
