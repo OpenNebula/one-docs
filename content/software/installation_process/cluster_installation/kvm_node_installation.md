@@ -63,12 +63,16 @@ rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhe
 
 #### Install OpenNebula KVM Node Package
 
-Execute the following commands to install the OpenNebula KVM Node package and restart libvirt to use the OpenNebula-provided configuration file:
+Execute the following command to install the OpenNebula KVM Node package:
 
 ```shell
 yum -y install opennebula-node-kvm
-systemctl restart libvirtd
 ```
+
+{{< alert title="Note" type="info" >}}
+On AlmaLinux/RHEL 9 and 10, OpenNebula uses the modular libvirt daemons with systemd socket activation. The package configures `/etc/libvirt/virtqemud.conf` and `/etc/libvirt/qemu.conf`, disables the monolithic `libvirtd` service and sockets, enables and starts the modular daemon sockets, and restarts `virtqemud` when needed, so no manual restart is required. If you later modify `virtqemud.conf` or `qemu.conf`, apply the changes with `systemctl restart virtqemud`.
+
+Read-write access to `virtqemud` is limited to the `oneadmin` group by the systemd drop-in `/usr/lib/systemd/system/virtqemud.socket.d/50-opennebula.conf`. With socket activation, the `unix_sock_group`, `unix_sock_ro_perms` and `unix_sock_rw_perms` options in `virtqemud.conf` have no effect. To change the socket ownership or permissions, override `SocketGroup` and `SocketMode` with `systemctl edit virtqemud.socket` and apply the change with `systemctl restart virtqemud.socket virtqemud.service`. Read-only access stays open to all local users, as in the libvirt defaults.{{< /alert >}}
 
 For further configuration, check the specific [guide]({{% relref "kvm_driver#kvmg" %}}).
 
@@ -82,6 +86,9 @@ apt-get -y install opennebula-node-kvm
 systemctl restart libvirtd
 ```
 
+{{< alert title="Note" type="info" >}}
+On Debian/Ubuntu, OpenNebula uses the monolithic `libvirtd` daemon. Read-write access to libvirt is limited to the `libvirt` group by the distribution's `libvirtd.socket` unit, and the package adds `oneadmin` to this group. Read-only access stays open to all local users, as in the distribution defaults.{{< /alert >}}
+
 For further configuration check the specific [guide]({{% relref "kvm_driver#kvmg" %}}).
 
 ### Installing on SLES/openSUSE
@@ -92,6 +99,11 @@ Execute the following command to install the OpenNebula KVM Node package:
 zypper install opennebula-node-kvm
 ```
 
+{{< alert title="Note" type="info" >}}
+On SLES/openSUSE, OpenNebula uses the modular libvirt daemons with systemd socket activation. The package configures `/etc/libvirt/virtqemud.conf` and `/etc/libvirt/qemu.conf`, disables the monolithic `libvirtd` service and sockets, enables and starts the modular daemon sockets, and restarts `virtqemud` when needed, so no manual restart is required. If you later modify `virtqemud.conf` or `qemu.conf`, apply the changes with `systemctl restart virtqemud`.
+
+Read-write access to `virtqemud` is limited to the `oneadmin` group by the systemd drop-in `/usr/lib/systemd/system/virtqemud.socket.d/50-opennebula.conf`. With socket activation, the `unix_sock_group`, `unix_sock_ro_perms` and `unix_sock_rw_perms` options in `virtqemud.conf` have no effect. To change the socket ownership or permissions, override `SocketGroup` and `SocketMode` with `systemctl edit virtqemud.socket` and apply the change with `systemctl restart virtqemud.socket virtqemud.service`. Read-only access stays open to all local users, as in the libvirt defaults.{{< /alert >}}
+
 For further configuration check the specific [guide]({{% relref "kvm_driver#kvmg" %}}).
 
 <a id="kvm-os-security"></a>
@@ -99,7 +111,7 @@ For further configuration check the specific [guide]({{% relref "kvm_driver#kvmg
 ## Step 3. Host OS Security Configuration (Optional)
 
 {{< alert title="Warning" type="warning" >}}
-If you are performing an upgrade skip this and the next steps and go back to the upgrade document.{{< /alert >}} 
+If you are performing an upgrade skip this and the next steps and return to the upgrade document.{{< /alert >}}
 
 ### Disable SELinux on AlmaLinux/RHEL
 
@@ -112,7 +124,7 @@ SELINUX=disabled
 After the change you have to reboot the machine.
 
 {{< alert title="Note" type="info" >}}
-Depending on your OpenNebula deployment type, the following may be required on your SELinux-enabled nodes:{{< /alert >}} 
+Depending on your OpenNebula deployment type, the following may be required on your SELinux-enabled nodes:{{< /alert >}}
 
 * package `util-linux` newer than 2.23.2-51 installed
 * SELinux boolean `virt_use_nfs` enabled (with datastores on NFS):
@@ -126,11 +138,12 @@ setsebool -P virt_use_nfs on
 Depending on the type of OpenNebula deployment, the AppArmor can block some operations initiated by the OpenNebula Front-end, which results in a failure of the particular operation.  It’s **not recommended to disable** the apparmor on production environments, as it degrades the security of your server, but to investigate and work around each individual problem. A good starting point is [AppArmor HowToUse Guide](https://wiki.debian.org/AppArmor/HowToUse/). The administrator might disable the AppArmor to temporarily work around the problem or on non-production deployments the steps for disabling it can be found [here](https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor).
 
 {{< alert title="Note" type="info" >}}
-Depending on your OpenNebula deployment type, the following lines might be required at `/etc/apparmor.d/abstractions/libvirt-qemu` profile:{{< /alert >}} 
+Depending on your OpenNebula deployment type, the following lines might be required in the `/etc/apparmor.d/abstractions/libvirt-qemu` profile:
 
 ```shell
 /var/lib/one/datastores/** rwk,
 ```
+{{< /alert >}}
 
 <a id="kvm-local"></a>
 
@@ -144,7 +157,7 @@ The OpenNebula Front-end connects to the hypervisor nodes using SSH. The followi
 - from Front-end to hypervisor node with another connection within back to Front-end (for data copy back).
 
 {{< alert title="Important" type="info" >}}
-It must be ensured that Front-end and all nodes **can connect to each other** over SSH without manual intervention.{{< /alert >}} 
+It must be ensured that Front-end and all nodes **can connect to each other** over SSH without manual intervention.{{< /alert >}}
 
 When OpenNebula server package is installed on the Front-end, a SSH key pair is automatically generated for the `oneadmin` user into `/var/lib/one/.ssh/id_rsa` and `/var/lib/one/.ssh/id_rsa.pub`, the public key is also added into `/var/lib/one/.ssh/authorized_keys`. It happens only if these files don’t exist yet, existing files (e.g., leftovers from previous installations) are not touched! For new installations, the [default SSH configuration]({{% relref "advanced_ssh_usage#node-ssh-config" %}}) is placed for the `oneadmin` from `/usr/share/one/ssh` into `/var/lib/one/.ssh/config`.
 
@@ -159,10 +172,10 @@ To learn more about the SSH, read the [Advanced SSH Usage]({{% relref "advanced_
 You should prepare and further manage the list of Host SSH public keys of your nodes (a.k.a. `known_hosts`) so that all communicating parties know the identity of the other sides. The file is located in `/var/lib/one/.ssh/known_hosts` and we can use the command `ssh-keyscan` to manually create it. It should be executed on your Front-end under the `oneadmin` user and copied on all your nodes.
 
 {{< alert title="Important" type="info" >}}
-You’ll need to update and redistribute file with Host keys every time any Host is reinstalled or its keys are regenerated.{{< /alert >}} 
+You’ll need to update and redistribute file with Host keys every time any Host is reinstalled or its keys are regenerated.{{< /alert >}}
 
 {{< alert title="Important" type="info" >}}
-If [default SSH configuration]({{% relref "advanced_ssh_usage#node-ssh-config" %}}) shipped with OpenNebula is used, the SSH client automatically accepts Host keys on the first connection. That makes this step optional, as the `known_hosts` will be incrementally automatically generated on your infrastructure when the various connections happen. While this simplifies the initial deployment, it lowers the security of your infrastructure. We highly recommend populating `known_hosts` on your infrastructure in controlled manner!{{< /alert >}} 
+If the [default SSH configuration]({{% relref "advanced_ssh_usage#node-ssh-config" %}}) shipped with OpenNebula is used, the SSH client automatically accepts Host keys on the first connection. That makes this step optional, as the `known_hosts` will be incrementally automatically generated on your infrastructure when the various connections happen. While this simplifies the initial deployment, it lowers the security of your infrastructure. We highly recommend populating `known_hosts` on your infrastructure more carefully!{{< /alert >}}
 
 Make sure you are logged in on your Front-end and run the commands as `oneadmin`, e.g., by typing:
 
@@ -213,7 +226,7 @@ If you need to distribute `oneadmin`’s private SSH key on your nodes, proceed 
 scp -p /var/lib/one/.ssh/id_rsa <node1>:/var/lib/one/.ssh/
 scp -p /var/lib/one/.ssh/id_rsa <node2>:/var/lib/one/.ssh/
 scp -p /var/lib/one/.ssh/id_rsa <node3>:/var/lib/one/.ssh/
-```{{< /alert >}}  
+```{{< /alert >}}
 
 ### C. Validate Connections
 
@@ -289,7 +302,7 @@ ip link show master br1
 ```
 
 {{< alert title="Note" type="info" >}}
-Remember that this is only required in the Hosts, not in the Front-end. Also remember that the exact name of the resources is not important (`br0`, `br1`, etc…), however it’s important that the bridges and NICs have the same name in all the Hosts.{{< /alert >}} 
+Remember that this is only required in the Hosts, not in the Front-end. Also remember that the exact name of the resources is not important (`br0`, `br1`, etc…), however it’s important that the bridges and NICs have the same name in all the Hosts.{{< /alert >}}
 
 <a id="kvm-storage"></a>
 
@@ -308,7 +321,7 @@ In this step, we’ll register the hypervisor node we have configured above into
 Learn more in [Hosts and Clusters Management]({{% relref "product/cluster_configuration/hosts_and_clusters/overview#hostsubsystem" %}}).
 
 {{< alert title="Note" type="info" >}}
-If the Host turns to `err` state instead of `on`, check OpenNebula log `/var/log/one/oned.log`. The problem might be with connecting over SSH.{{< /alert >}} 
+If the Host turns to `err` state instead of `on`, check OpenNebula log `/var/log/one/oned.log`. The problem might be with connecting over SSH.{{< /alert >}}
 
 {{< tabpane text=true right=false >}}
 {{% tab header="**Interfaces**:" disabled=true /%}}
