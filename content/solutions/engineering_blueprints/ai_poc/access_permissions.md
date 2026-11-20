@@ -1,7 +1,7 @@
 ---
 
-title: "User Access and Management in OpenNebula"
-linkTitle: "User Access and Management"
+title: "Managing Users, Groups and Access Permissions"
+linkTitle: "Multitenancy"
 description: ""
 weight: 3
 
