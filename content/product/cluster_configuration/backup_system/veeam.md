@@ -121,7 +121,7 @@ If using High Availability, any changes to ``/var/lib/one/remotes/etc/onebex/one
 
 ### 2. Enable VM Guest Agent Monitoring
 
-For Veeam to discover guest IP addresses on the correct NIC, enable the QEMU Guest Agent communication channel in each VM template with `FEATURES = [ GUEST_AGENT = "YES" ]`, and install and start the QEMU Guest Agent inside the guest. See [Enabling QEMU Guest Agent]({{% relref "product/operation_references/hypervisor_configuration/kvm_driver#enabling-qemu-guest-agent" %}}) for details.
+To report guest IP addresses and operating system information to Veeam, enable the QEMU Guest Agent communication channel in each VM template with `FEATURES = [ GUEST_AGENT = "YES" ]`, and install and start the QEMU Guest Agent inside the guest. See [Enabling QEMU Guest Agent]({{% relref "product/operation_references/hypervisor_configuration/kvm_driver#enabling-qemu-guest-agent" %}}) for details.
 
 On the Front-end, edit:
 
@@ -129,7 +129,7 @@ On the Front-end, edit:
 /var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf
 ```
 
-Set `:enabled` to `true` and add `:vm_guest_interfaces_b64` under the existing `:commands` section:
+Set `:enabled` to `true` and add `:vm_guest_interfaces_b64` and `:vm_guest_osinfo_b64` under the existing `:commands` section:
 
 ```yaml
 :enabled: true
@@ -139,9 +139,16 @@ Set `:enabled` to `true` and add `:vm_guest_interfaces_b64` under the existing `
     one-$vm_id '{"execute":"guest-network-get-interfaces"}' --timeout 10 |
     ruby -rjson -rbase64 -e 'puts JSON.generate("return" =>
     Base64.strict_encode64(JSON.parse(STDIN.read).fetch("return").to_json))'
+  :vm_guest_osinfo_b64: >-
+    one-$vm_id '{"execute":"guest-get-osinfo"}' --timeout 10 |
+    ruby -rjson -rbase64 -e 'reply = (JSON.parse(STDIN.read) rescue nil);
+    info = reply["return"] if reply.is_a?(Hash);
+    puts JSON.generate("return" => (info.is_a?(Hash) ? Base64.strict_encode64(info.to_json) : ""))'
 ```
 
-Keep any other commands already configured. This command stores the guest interface list as Base64-encoded JSON in `MONITORING/VM_GUEST_INTERFACES_B64`. The list includes each interface's MAC address and IP addresses, allowing oVirtAPI to associate guest IPv4 addresses with the right VM NIC. The default `GUEST_IP_ADDRESSES` value does not include that association.
+Keep any other commands already configured. The `:vm_guest_interfaces_b64` command stores the guest interface list as Base64-encoded JSON in `MONITORING/VM_GUEST_INTERFACES_B64`. The list includes each interface's MAC address and IP addresses, allowing oVirtAPI to associate guest IPv4 addresses with the right VM NIC. The default `GUEST_IP_ADDRESSES` value does not include that association.
+
+The `:vm_guest_osinfo_b64` command stores guest OS information in `MONITORING/VM_GUEST_OSINFO_B64`. An oVirtAPI version that supports guest OS reporting exposes this information as `guest_operating_system`. Veeam records the OS family in new restore points and uses it to select the Linux or Windows mount environment for file-level restore.
 
 Then synchronize the configuration to the KVM hosts from the Front-end:
 
@@ -149,7 +156,7 @@ Then synchronize the configuration to the KVM hosts from the Front-end:
 onehost sync --force
 ```
 
-After the next VM monitoring cycle, check `onevm show <vm-id> --json` for `MONITORING/VM_GUEST_INTERFACES_B64` on a running VM with a working guest agent.
+After the next VM monitoring cycle, run `onevm show <vm-id> --json` on a VM with a running guest agent. Check that `MONITORING/VM_GUEST_INTERFACES_B64` and `MONITORING/VM_GUEST_OSINFO_B64` contain values. Create a new backup before testing file-level restore with the updated OS information.
 
 {{< alert title="High Availability" type="info" >}}
 If using High Availability, make the same change to `/var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf` on all Front-ends.
