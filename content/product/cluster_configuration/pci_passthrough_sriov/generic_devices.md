@@ -122,6 +122,25 @@ PCI = [
 
 Devices belonging to the same IOMMU group must be assigned together to the same Virtual Machine, as described in the [VFIO Device Ownership section]({{% relref "product/cluster_configuration/pci_passthrough_sriov/host_configuration#vfio-device-ownership" %}}).
 
+## Preserving PCIe Switch Topology
+
+Use `SWITCH` in the Virtual Machine Template to place PCI passthrough devices behind a shared PCIe switch in the guest. Each device in a group must specify a `SHORT_ADDRESS`. OpenNebula requires all devices assigned the same label to be behind the same physical switch on the Host.
+
+Run `onehost show <host> -x` and inspect the devices under `HOST_SHARE/PCI_DEVICES`. Select devices with the same `PCIE_SWITCH` value, then assign them the same `SWITCH` label in the Virtual Machine Template:
+
+```default
+OS = [ ARCH = "x86_64", MACHINE = "q35" ]
+
+PCI = [ SHORT_ADDRESS = "14:00.0", SWITCH = "lab" ]
+PCI = [ SHORT_ADDRESS = "15:00.0", SWITCH = "lab" ]
+```
+
+Use a different label for each PCIe switch represented in the guest. In a Virtual Machine that uses `SWITCH`, unlabeled PCI devices are each connected to a separate PCIe root port. After deployment, run `lspci -tv` in the guest to verify the switch branches.
+
+Use the [Rank Scheduler]({{% relref "product/cloud_system_administration/scheduler/rank_scheduler#scheduler-rank" %}}) for automatic initial placement. A Virtual Machine remains in `PENDING` if no Host has the requested devices and switch topology.
+
+`SWITCH` is supported only on KVM. On x86_64, the Virtual Machine must use Q35; on AArch64, it must use the `virt` machine type with UEFI and ACPI. Virtual Machines with `SWITCH` cannot use `ROOT = "dedicated"` or KVM `RAW` overrides. Their PCI topology is fixed at deployment, so PCI device attachment and detachment, rescheduling, and cross-Host migration are not supported.
+
 ## Scheduling
 
 OpenNebula deploys the Virtual Machine only on a Host that has every requested PCI device available. If no Host satisfies the request, the Virtual Machine remains pending and the Scheduler log reports that no suitable Host was found.
