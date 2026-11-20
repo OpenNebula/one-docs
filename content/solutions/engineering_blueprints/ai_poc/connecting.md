@@ -22,7 +22,7 @@ You connect with an OpenVPN profile file plus a personal username and password; 
 * Your **password**, sent through a separate channel from the file
 * The IP address of the server hosting the OpenNebula Front-end control plane
 
-You will also receive credentials for two OpenNebula user accounts named **poc-tenant** and **poc-operator**. These are not required to complete this VPN connection guide. They will be required to log into the Sunstone web GUI after connecting via VPN at the start of the [User Access and Management Guide]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}}). 
+You will also receive credentials for two OpenNebula user accounts named **ncp-operator** and **vm-tenant-admin** and **llm-tenant-admin**. These are not required to complete this VPN connection guide. They will be required to log into the Sunstone web GUI after connecting via VPN at the start of the [User Access and Management Guide]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}}). 
 
 ### What You Need
 

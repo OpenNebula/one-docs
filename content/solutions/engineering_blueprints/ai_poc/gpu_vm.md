@@ -5,15 +5,23 @@ description: ""
 weight: 4
 ---
 
-Having explored OpenNebula's multi-tenancy model in the [previous guide]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions" %}}), you can now move on to exploring OpenNebula's AI capabilities by deploying a GPU-enabled Virtual Machine. 
+Having explored OpenNebula's multitenancy model in the [previous guide]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions" %}}), you can now move on to exploring OpenNebula's AI capabilities by deploying a GPU-enabled Virtual Machine. 
 
 This guide uses the OpenNebula [vLLM Appliance](https://github.com/OpenNebula/one-apps/wiki/vllm_intro), which enables the deployment of a low-latency, high-throughput LLM inferencing engine capable of hosting many different LLM models. 
 
-{{< alert title="Sign In as poc-tenant" type="primary" >}}To start this guide sign into Sunstone as the **poc-tenant** user with the credentials given to you by your OpenNebula PoC contact.{{< /alert >}} 
+## Before Starting
 
-## Step 1: Find and Import the vLLM Appliance
+You will be using the following OpenNebula user account for this guide, ensure you have the credentials at hand:
 
-Go to **Storage -> Apps**, search for the **service_Vllm** appliance and import it. Leave the name as it is and select the **default** datastore during the import wizard:
+* **vm-tenant-admin**
+
+This user has been preconfigured with the necessary permissions to complete this guide. A VM template has also been prepared to launch a GPU-enabled VM capable of deploying an LLM model for inference. This user also sees the **VM Tenant** view, which allows access to the VM template and VM management functionality needed to launch and manage the GPU-enabled VM. 
+
+Log in with your **vm-tenant-admin** account using the credentials you received before starting step 1. 
+
+## Step 1: Find the vLLM Template
+
+Go to **Template -> VM Templates** and find the **vllm** template:
 
 {{< image
   pathDark="/images/poc/ai_poc/dark/poc_vllm_template.png"
@@ -21,29 +29,17 @@ Go to **Storage -> Apps**, search for the **service_Vllm** appliance and import 
   alt="POC operator view" align="center" width="90%" mb="20px"
 >}}
 
-## Step 2: Update the Template to Attach the GPU
+## Step 2: Instantiate the vLLM Template
 
-Go to **Templates -> VM Templates** and select the **service_Vllm** template, then press update (the pencil icon):
+In **Templates -> VM Templates** select the **vllm** template and press the play icon to instantiate it:
 
 {{< image
-  pathDark="/images/poc/ai_poc/dark/poc_update_template.png"
-  path="/images/poc/ai_poc/light/poc_update_template.png"
+  pathDark="/images/poc/ai_poc/dark/poc_instantiate_vllm.png"
+  path="/images/poc/ai_poc/light/poc_instantiate_vllm.png"
   alt="POC operator view" align="center" width="90%" mb="20px"
 >}}
 
-Click **Next** in the wizard to progress to the **Advanced options** step. Select the **PCI Devices** tab and select **+ Attach PCI Device**, choose the GPU device available in your PoC environment from the drop-down menu:
-
-{{< image
-  pathDark="/images/poc/ai_poc/dark/poc_attach_pci.png"
-  path="/images/poc/ai_poc/light/poc_attach_pci.png"
-  alt="POC operator view" align="center" width="90%" mb="20px"
->}}
-
-Press **Continue** in the **Attach PCI device** dialog then press **Next** and then **Finish** to complete the update template wizard. 
-
-## Step 3: Instantiate the vLLM Template
-
-In **Templates -> VM Templates** select the **service_Vllm** template and press the play icon to instantiate it. Give the VM instance a name and press **Next** to the **User inputs** step. 
+Give the VM instance a name, e.g. **vLLM** and press **Next** to the **User inputs** step. 
 
 In this example, we want to use a non-default LLM model for inference. In the **MODEL** section of the **User inputs** page replace the default **Qwen/Qwen2.5-1.5B-Instruct** model with **HuggingFaceTB/SmolLM2-1.7B-Instruct**:
 
@@ -53,17 +49,15 @@ In this example, we want to use a non-default LLM model for inference. In the **
   alt="POC operator view" align="center" width="90%" mb="20px"
 >}}
 
-Press **Next** to progress to the **Advanced options** step, in the **Network** tab, select **Attach NIC**. Press **Next** in the first step of the **Attach NIC** wizard, then select the **public** network so that the vLLM VM has a publicly available IP.
+Press **Next** and then **Finish** to deploy the VM. You will see the **Instances -> VMs** view, where you will see your VM go through the various provisioning stages. Once it is RUNNING, click on the vLLM machine item in the list to open its details panel. Click on the PCI tab and you will see the attached GPU (in this case the hexadecimal PCI device codes):
 
 {{< image
-  pathDark="/images/poc/ai_poc/dark/poc_attach_nic.png"
-  path="/images/poc/ai_poc/light/poc_attach_nic.png"
+  pathDark="/images/poc/ai_poc/dark/poc_pci_device.png"
+  path="/images/poc/ai_poc/light/poc_pci_device.png"
   alt="POC operator view" align="center" width="90%" mb="20px"
 >}}
 
-In the **Network values** and **Select QoS** steps, do not alter the default settings, press **Next** and then **Finish** to complete the network settings. Then press **Finish** to deploy the VM. You will see the **Instances -> VMs** view, where you will see your VM boot.
-
-## Step 4: Query the vLLM API and Try the Chat
+## Step 3: Query the vLLM API and Try the Chat
 
 In **Instances -> VMs**, wait until the VM has reached the RUNNING state:
 
@@ -127,9 +121,9 @@ Once you have confirmed that the model is loaded through the API, you can then a
   alt="POC operator view" align="center" width="80%" mb="20px"
 >}}
 
-## Step 5: Try Cycling the vLLM Appliance
+## Step 4: Try Cycling the vLLM Appliance
 
-Go back to **Instances -> VMs** and find the vLLM Appliance instance in the list. Click on the list item to open its information panel. Open the **VM state** drop-down menu and select **Reboot**:
+Go back to **Instances -> VMs** and find the vLLM Appliance instance in the list. Click on the list item to open its information panel. Open the **VM state** drop-down menu and select **Poweroff**:
 
 {{< image
   pathDark="/images/poc/ai_poc/dark/poc_vllm_reboot.png"
@@ -137,9 +131,17 @@ Go back to **Instances -> VMs** and find the vLLM Appliance instance in the list
   alt="POC operator view" align="center" width="90%" mb="20px"
 >}}
 
-The status will remain RUNNING, however, the VM itself is rebooting the OS. Try querying the API as you did in step 4 shortly after ordering the reboot (within 1-2 minutes). You will find that for a few minutes after rebooting, the API and web chat will not work as expected. After a few minutes, it should return to normal behavior, confirming that the vLLM appliance has successfully rebooted, re-attached to the GPU and the vLLM framework has loaded the model again.
+Once the VM has reached the POWEROFF state, try querying the API or the web chat as you did in step 3, you will find that the API won't respond, since the vLLM appliance is now powered down.
 
-You can also try a similar experiment by cycling the VM with the **Poweroff** operation followed by **Resume**.
+Now from the **VM state** dropdown select **Resume**:
+
+{{< image
+  pathDark="/images/poc/ai_poc/dark/poc_vllm_resume.png"
+  path="/images/poc/ai_poc/light/poc_vllm_resume.png"
+  alt="POC operator view" align="center" width="90%" mb="20px"
+>}}
+
+The VM will power up and reboot, after a few minutes, you should be able to query the API and access the web chat again as you did in step 3.
 
 ## Next Steps
 

@@ -1,24 +1,29 @@
 ---
 
-title: "User Access and Management in OpenNebula"
-linkTitle: "User Access and Management"
+title: "Managing Users, Groups and Access Permissions"
+linkTitle: "Multitenancy"
 description: ""
 weight: 3
 
 ---
 
-OpenNebula's multi-tenancy model enables AI-ready clouds to be managed in a secure and flexible manner. Users can be allocated different privileges and access rights and be granted access to different resources. Users can be allocated super-admin level rights with the capacity to modify most aspects of cloud architecture down to simple tenant access levels only allowed to create, modify or consume specifically allocated resources. 
+OpenNebula's multitenancy model enables AI-ready clouds to be managed in a secure and flexible manner. Users can be allocated different privileges and access rights and be granted access to different resources. Users can be allocated super-admin level rights with the capacity to modify most aspects of cloud architecture down to simple tenant access levels only allowed to create, modify or consume specifically allocated resources. 
 
-This guide demonstrates how OpenNebula's multi-tenancy functionality works with a step-by-step tutorial through creating and managing users and groups. 
+This guide demonstrates how OpenNebula's multitenancy functionality works with a step-by-step tutorial through creating and managing users and groups. 
 
 ## Before Starting
 
 To complete this guide, you need to first be connected via VPN to hosted infrastructure provided by OpenNebula as part of an AI Factory PoC process. If you are not connected via VPN, please follow the [Connection Guide]({{% relref "solutions/engineering_blueprints/ai_poc/connecting/" %}}). If you are not already participating in a PoC process, please [contact the OpenNebula sales team](https://opennebula.io/contact/).
 
-You will be given credentials via email for the following two OpenNebula user accounts, make sure to have them at hand:
+You will be using the following OpenNebula user account for this guide, ensure you have the credentials at hand:
 
-* **poc-operator**
-* **poc-tenant**
+* **ncp-operator**
+
+The **ncp-operator** user has been preconfigured with the permissions necessary to:
+
+* Create users
+* Create groups
+* Apply resource quotas
 
 {{< alert title="Tip" type="info" >}}
 You need to switch regularly between different accounts in Sunstone during the course of this guide. To avoid repeatedly signing in and out you can use an incognito window or a different browser.
@@ -26,13 +31,13 @@ You need to switch regularly between different accounts in Sunstone during the c
 
 ## Step 1: Sign In
 
-Sign into Sunstone with the **poc-operator** account credentials. Ensure the **Admin group** view is activated (in the top left corner) and go to **System -> Groups**. Click on the **poc-tenants** group in the list to open its information panel. Verify that in the **Users** tab you can see the **Add users** and **Edit administrators** buttons and that the **Admin** column of the **poc-operator** row of the user table shows **Yes**. This verifies that you have group management permissions:
+Sign into Sunstone with the **ncp-operator** account credentials. Ensure the **Admin group** view is activated (in the top left corner) and go to **System -> Groups**. Click on the **vm-tenant** group in the list to open its information panel. Verify that in the **Users** tab you can see the **Add users** and **Edit administrators** buttons and that the **Admin** column of the **ncp-operator** row of the user table shows **Yes**. This verifies that you have group management permissions:
 
 
 {{< image
-  pathDark="/images/poc/ai_poc/dark/poc_operator_groups.png"
-  path="/images/poc/ai_poc/light/poc_operator_groups.png"
-  alt="POC operator view" align="center" width="90%" mb="20px"
+  pathDark="/images/poc/ai_poc/dark/ncp_operator_groups.png"
+  path="/images/poc/ai_poc/light/ncp_operator_groups.png"
+  alt="NCP operator view" align="center" width="90%" mb="20px"
 >}}
 
 ## Step 2: Create a Temporary Group and User
@@ -40,8 +45,8 @@ Sign into Sunstone with the **poc-operator** account credentials. Ensure the **A
 Close the **poc-tenants** group details and select **+ Create Group**. Name the group **poc-temp-group**. Leave the default settings and step through the group creation wizard with the **Next** button, then in the last step click **Finish**.
 
 {{< image
-  pathDark="/images/poc/ai_poc/dark/poc_operator_create_group.png"
-  path="/images/poc/ai_poc/light/poc_operator_create_group.png"
+  pathDark="/images/poc/ai_poc/dark/ncp_operator_create_group.png"
+  path="/images/poc/ai_poc/light/ncp_operator_create_group.png"
   alt="POC operator create group" align="center" width="90%" mb="20px"
 >}}
 
@@ -67,7 +72,7 @@ Return to **System -> Groups**. Select the **poc-temp-group** and verify that th
 
 ## Step 4: Test the Resource Limit
 
-Sign out of the **poc-operator** account or in a separate browser window sign into the **poc-temp-user** account with the credentials you recorded in step 2. Go to **Storage -> Apps** and search for the **Alpine Linux 3.24** appliance. Import it:
+Sign out of the **ncp-operator** account or in a separate browser window sign into the **poc-temp-user** account with the credentials you recorded in step 2. Go to **Storage -> Apps** and search for the **Alpine Linux 3.24** appliance. Import it:
 
 {{< image
   pathDark="/images/poc/ai_poc/dark/poc_alpine.png"
@@ -101,7 +106,7 @@ Click **Next** leave the **Advanced options** as they are and click **Finish**. 
   alt="POC Alpine template instantiate" align="center" width="90%" mb="20px"
 >}}
 
-This warning demonstrates that the resource limit you applied for the **poc-temp-group** of one Virtual Machine has been enforced by OpenNebula's multi-tenancy functionality. In the **Instances -> VMs** view you will see the single VM that was successfully launched within the group's resource quota:
+This warning demonstrates that the resource limit you applied for the **poc-temp-group** of one Virtual Machine has been enforced by OpenNebula's multitenancy functionality. In the **Instances -> VMs** view you will see the single VM that was successfully launched within the group's resource quota:
 
 {{< image
   pathDark="/images/poc/ai_poc/dark/poc_single_vm.png"
@@ -111,7 +116,7 @@ This warning demonstrates that the resource limit you applied for the **poc-temp
 
 ## Next Steps
 
-Congratulations! You have now successfully utilized OpenNebula's multi-tenancy model to create and manage groups and tenants and apply resource quotas. You can learn more about OpenNebula's multi-tenancy functionality in the [Multi-tenancy Documentation]({{% relref "product/cloud_system_administration/multitenancy/auth_overview/" %}}).
+Congratulations! You have now successfully utilized OpenNebula's multitenancy model to create and manage groups and tenants and apply resource quotas. You can learn more about OpenNebula's multitenancy functionality in the [Multitenancy Documentation]({{% relref "product/cloud_system_administration/multitenancy/auth_overview/" %}}).
 
 You can now proceed to the next step in this PoC guided tour of OpenNebula's AI Factory functionality in the [Deploying a GPU-enabled Virtual Machine Guide]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_vm/" %}}).
 
