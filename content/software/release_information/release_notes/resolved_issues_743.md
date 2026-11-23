@@ -31,3 +31,4 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 -->
 
 * Fix Veeam upload transfers being reported as `transferring` before the OneBEX writer is ready [#8274](https://github.com/OpenNebula/one/issues/8274).
+* Fix concurrent updates of Virtual Network, port mirroring and Security Group when a VM is temporarily busy with another operation [#8246](https://github.com/OpenNebula/one/issues/8246).
