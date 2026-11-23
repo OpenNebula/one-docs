@@ -23,6 +23,7 @@ Include a high level description and a link to the documentation explaining the 
 The following issues have been solved in 7.4.3:
 
 * Fix limited visibility of CPU models for non-admin users during VM template creation [#7723](https://github.com/OpenNebula/one/issues/7723).
+* Fix pagination in VM list mode [#8046](https://github.com/OpenNebula/one/issues/8046).
 
 <!-- item structure
 One line per issue starting with "Fix ...". Descrive the issue so the user understands the fix. Add link to GH. Example:
