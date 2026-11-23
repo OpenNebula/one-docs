@@ -793,6 +793,10 @@ Configure `provision.example.json` for the outer (local) OpenNebula installation
   This currently covers APT guests only; other distributions are logged as
   skipped. The configuration and masks persist in the guest, including across
   reboots. Use this only for disposable screenshot labs, not production VMs.
+- `install_timeout`: installation command timeout in seconds, default `7200`
+  (two hours), allowing time for Alpine and OneKS image downloads. The supplied
+  provisioning configurations use this limit. Changes apply to new runs;
+  an already running installer keeps its original timeout.
 - `management_nic_id`: NIC whose IPv4 address is reachable from the runner.
 - `minione_script`: HTTP(S) URL or local path to a miniONE script, preferably
   from a pinned release/commit. For example:

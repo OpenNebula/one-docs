@@ -18,14 +18,14 @@ class OneSlurmFixtureTests(unittest.TestCase):
         self.marker = Path(self.temp.name) / 'oneslurm.json'
 
     def marker_data(self, **changes):
-        data = {'name': 'docs-screenshot-oneslurm', 'workflow_id': 'current', 'previous_ids': ['1']}
+        data = {'name': 'oneslurm-service', 'workflow_id': 'current', 'previous_ids': ['1']}
         data.update(changes)
         self.marker.write_text(json.dumps(data))
 
     def pool(self, templates):
         return json.dumps({'DOCUMENT_POOL': {'DOCUMENT': templates}})
 
-    def template(self, template_id=2, name='docs-screenshot-oneslurm'):
+    def template(self, template_id=2, name='oneslurm-service'):
         return {'ID': template_id, 'NAME': name, 'TEMPLATE': {'BODY': {'roles': []}}}
 
     def execute(self, filename, results):
@@ -43,7 +43,7 @@ class OneSlurmFixtureTests(unittest.TestCase):
     def test_prepare_records_existing_ids_and_handles_empty_pool(self):
         self.execute('prepare-oneslurm.sh', [self.pool(None)])
         self.assertEqual(json.loads(self.marker.read_text()), {
-            'name': 'docs-screenshot-oneslurm', 'workflow_id': 'current', 'previous_ids': []})
+            'name': 'oneslurm-service', 'workflow_id': 'current', 'previous_ids': []})
 
     def test_prepare_refuses_existing_named_service(self):
         with self.assertRaisesRegex(SystemExit, 'already exists'):

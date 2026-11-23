@@ -14,5 +14,5 @@
   "minione_password": null,
   "sunstone_port": 80,
   "boot_timeout": 600,
-  "install_timeout": 1800
+  "install_timeout": 7200
 }

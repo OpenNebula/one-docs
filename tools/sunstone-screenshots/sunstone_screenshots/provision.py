@@ -174,7 +174,7 @@ def configuration(path):
                     'its public key must be authorized for ssh_user in the VM template.'
                     if key == 'ssh_key' else ' Use a file readable by the user running this command.')
             raise ProvisionError(f'{key} is not readable: {candidate}.{hint}') from exc
-    for key, default in (('boot_timeout', 600), ('install_timeout', 1800), ('sunstone_port', 80)):
+    for key, default in (('boot_timeout', 600), ('install_timeout', 7200), ('sunstone_port', 80)):
         cfg[key] = int(cfg.get(key, default))
         if cfg[key] <= 0:
             raise ProvisionError(f'{key} must be positive')
