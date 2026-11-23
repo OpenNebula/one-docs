@@ -244,10 +244,10 @@ If the ovirtapi module is going to be configured in High Availability mode, the 
 
 If using SSL, an NGINX proxy needs to be setup on all hosts. If an Image Transfer is attempted by Veeam against a non-configured host while the `onebex_port_ssl` variable is defined, the backup will fail.
 
-First, you will need to create a certificate for the host. This certificate needs to be signed by the CA authority used by the ovirtAPI server (defined as `cert_path` in the configuration file.). To make this task easier, a script is provided at `/usr/lib/one/ovirtapi-server/scripts/generate_certificate.sh`. You can run it with:
+First, create a certificate for the host. The certificate must be signed by the CA used by the oVirtAPI server (defined as `cert_path` in the configuration file). Download [`generate_certificate.sh` from the OpenNebula GitHub repository](https://github.com/OpenNebula/one/blob/master/src/ovirtapi/scripts/generate_certificate.sh), then run the following command from the directory where you saved it:
 
 ```shell
-./generate_certs.sh -n <hostname> -c <ca-certificate> -k <ca-key> -C <destination-host-cert> -K <destination-host-key>
+bash generate_certificate.sh -n <hostname> -c <ca-certificate> -k <ca-key> -C <destination-host-cert> -K <destination-host-key>
 ```
 
 After generating the certificate, copy it to the respective host. We recommend storing it in `/etc/one`.
