@@ -1,5 +1,6 @@
 ---
 title: "OpenNebula Key Features"
+linkTitle: "Key Features"
 date: "2025-02-17"
 description:
 categories: [Introduction, Overview]
@@ -9,7 +10,7 @@ type: docs
 weight: "3"
 ---
 
-OpenNebula offers a simple but feature-rich and flexible solution to build and manage data center virtualization and virtualization, enterprise clouds, and AI infrastructure. This guide summarizes the capabilities available through OpenNebula {{< version >}} and its documented integrations.
+OpenNebula offers a simple but feature-rich and flexible solution to build and manage data center virtualization, enterprise clouds, and AI infrastructure. This guide summarizes the capabilities available through OpenNebula {{< version >}} and its documented integrations.
 
 To learn more about the infrastructure platforms and services supported in each version of OpenNebula, please refer to the [Platform Notes]({{% relref "software/release_information/release_notes/platform_notes.md" %}}) for each version.
 
@@ -117,8 +118,8 @@ Integrated and third-party backup solutions ensure data protection and recovery.
 
 * Built-in Backup: Full and incremental VM backups using supported CBT (Changed Block Tracking) or snapshot modes, with scheduled Backup Jobs and selected-disk protection. Available backup modes depend on the source datastore.
 * Backup Repositories: Restic and Rsync backup datastores, including S3 and S3-compatible object storage with Restic. Backup Jobs provide scheduling and retention controls.
-* OpenNebula Backup Exporter (OneBEX): Exposes full and CBT incremental disk data to interactive third-party backup integrations. Version 7.4 adds Ceph RBD support and improves transfer handling.
-* Veeam Integration: Agentless image-level backup and restore through an oVirt-compatible API and OneBEX. In 7.4, full and CBT incremental backup support covers qcow2, LVM, and Ceph RBD disks; Veeam stores the backups in its repositories.
+* OpenNebula Backup Exporter (OneBEX): Exposes full and CBT incremental disk data to interactive third-party backup integrations. Version {{< version >}} adds Ceph RBD support and improves transfer handling.
+* Veeam Integration: Agentless image-level backup and restore through an oVirt-compatible API and OneBEX. In {{< version >}}, full and CBT incremental backup support covers qcow2, LVM, and Ceph RBD disks; Veeam stores the backups in its repositories.
 
 ## Cloud and Workload Orchestration
 
@@ -136,7 +137,7 @@ Advanced scheduling and resource optimization ensure efficient use of compute an
 
 * Live Migration: Moves running VMs between compatible Hosts for maintenance or load balancing, subject to the VM, CPU, device, and storage configuration.
 * Enhanced VM Compatibility (EVC): Uses compatible CPU models to support migration across Hosts with compatible processor features; it does not remove cross-architecture or device restrictions.
-* Storage Live Migration: Moves VM storage between supported LVM and file-based datastores. In 7.4, LVM and thin-LVM migration pauses the guest during memory transfer and storage handover.
+* Storage Live Migration: Moves VM storage between supported LVM and file-based datastores. In {{< version >}}, LVM and thin-LVM migration pauses the guest during memory transfer and storage handover.
 * Distributed Resource Scheduler (OneDRS): Generates and executes Cluster-level optimization plans with manual, partially automated, or fully automated migration workflows, including Host and datastore balancing.
 * Predictive Optimization: Combines monitored and forecast resource usage to optimize Cluster workload distribution and generate proactive migration recommendations.
 * Storage Balancing: OneDRS considers datastore space utilization alongside other resource objectives. Storage migrations are enabled explicitly and remain subject to datastore and VM compatibility.
@@ -215,7 +216,7 @@ Distribute and reuse cloud-ready applications within and across organizations.
 Redesigned interface for administrators and end users, with clearer navigation, updated forms, richer resource views, and side-drawer inspection.
 
 * Dynamic Tabs: Modular interface views for efficient navigation and operation.
-* VM Console: Secure, browser-based remote access through VNC, RDP, and SSH, with SPICE console support for KVM VMs added in 7.4.
+* VM Console: Secure, browser-based remote access through VNC, RDP, and SSH, with SPICE console support for KVM VMs added in {{< version >}}.
 * White Labeling: Customizable branding and visual identity for organizations.
 * Self-Service Cloud View: Simplified interface for end users and developers.
 * Group Admin View: Delegated administration for project or departmental management.
@@ -233,7 +234,7 @@ Extensible and open architecture designed for seamless interoperability.
 
 Comprehensive tools and workflows to enable a smooth transition from VMware environments to OpenNebula with minimal downtime and configuration effort.
 
-* OneSwap: Streamlines migration from VMware with batch conversion, Windows OS profiles, and delta synchronization to reduce cutover downtime. Version 7.4 adds VDDK transport for delta migrations, excluding vSAN-backed VMs, plus machine-type and CPU-feature options.
+* OneSwap: Streamlines migration from VMware with batch conversion, Windows OS profiles, and delta synchronization to reduce cutover downtime. Version {{< version >}} adds VDDK transport for delta migrations, excluding vSAN-backed VMs, plus machine-type and CPU-feature options.
 * OVA Import: Enables import of supported OVA appliances and templates to simplify workload onboarding, subject to guest and virtual hardware compatibility.
 * Controlled Cutover: Migration workflows reduce disruption through preparation, automated conversion, and delta synchronization, followed by planned cutover and validation of migrated workloads.
 
