@@ -227,3 +227,96 @@ server {
 
 {{< alert title="Note" type="info" >}}
 As you can see in the configuration the **location** is in `/fireedge`, that means that it is a path of your domain `<YOUR_DOMAIN>/fireedge`. If you want the FireEdge to be in the root you must change it to `/`{{< /alert >}} 
+
+<a id="xmlrpc-tls-proxy"></a>
+
+<!--# Securing XML-RPC endpoint with TLS -->
+
+#### Securing XML-RPC endpoint with TLS
+
+By default, OpenNebula XML-RPC works in the port 2633 in plain HTTP protocol. To encrypt end-to-end transport a reverse proxy must be configured. This is recommended because otherwise, authentication information (token or username:password) and all other operations, will be transferred unencrypted and can be eavesdropped.
+
+OpenNebula CLI, API bindings (Ruby, Python, etc.), Terraform provider, etc. support TLS access.
+
+**NGINX**
+
+- A sample `onexmlrpc.org` virtual Host is shown below:
+
+```default
+# No squealing.
+server_tokens off;
+
+#### OpenNebula FireEdge upstream
+upstream one-xml-rpc {
+        server 127.0.0.1:2633;
+}
+
+#### cloudserver.org HTTPS virtual host
+#### OpenNebula encrypted XML-RPC access will run on port 8633
+server {
+        listen 8663;
+        server_name cloudserver.org;
+
+        ### SSL Parameters
+        ssl on;
+        ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
+        ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
+
+        location / {
+                proxy_pass http://one-xml-rpc;
+                proxy_redirect off;
+                log_not_found off;
+                proxy_buffering off;
+                proxy_cache_bypass $http_upgrade;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "upgrade";
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Forwarded-FOR $proxy_add_x_forwarded_for;
+                access_log off;
+        }
+}
+```
+
+**Apache**
+
+- A sample `onexmlrpc.conf` virtual Host is shown below. It can be placed on the `sites-available` and symlinked to `sites-enabled`, as any other apache site file.
+
+```default
+<IfModule ssl_module>
+  Listen 8633
+</IfModule>
+
+<IfModule mod_gnutls.c>
+  Listen 8633
+</IfModule>
+
+<VirtualHost *:8633>
+  ServerName cloudserver.org
+
+  SSLEngine on
+  SSLCertificateKeyFile /etc/ssl/private/opennebula-key.pem
+  SSLCertificateFile /etc/ssl/certs/opennebula-certchain.pem
+
+  SSLProtocol All -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+  SSLHonorCipherOrder On
+  SSLCompression off
+  SSLCipherSuite 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256'
+
+  ProxyRequests     off
+  ProxyPreserveHost on
+
+  ProxyPass        / http://localhost:2633/
+  ProxyPassReverse / http://localhost:2633/
+
+  <Location />
+      Order deny,allow
+      Allow from all
+  </Location>
+</VirtualHost>
+```
+
+{{< alert title="Note" type="info" >}}
+To use the CLI with the secure endpoint, the client must set up the variable `ONE_XMLRPC` accordingly, i.e. `ONE_XMLRPC="https://cloudserver.org:8633"`
+{{< /alert >}}
