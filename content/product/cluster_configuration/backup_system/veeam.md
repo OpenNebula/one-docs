@@ -129,7 +129,7 @@ On the Front-end, edit:
 /var/lib/one/remotes/etc/im/kvm-probes.d/guestagent.conf
 ```
 
-Set `:enabled` to `true` and add `:vm_guest_interfaces_b64` and `:vm_guest_osinfo_b64` under the existing `:commands` section:
+Set `:enabled` to `true`. The default configuration includes `:vm_guest_interfaces_b64` and `:vm_guest_osinfo_b64`. If either entry is missing from your file, use the example below to add it under the existing `:commands` section.
 
 ```yaml
 :enabled: true
@@ -137,8 +137,10 @@ Set `:enabled` to `true` and add `:vm_guest_interfaces_b64` and `:vm_guest_osinf
   :vm_qemu_ping: one-$vm_id '{"execute":"guest-ping"}' --timeout 5
   :vm_guest_interfaces_b64: >-
     one-$vm_id '{"execute":"guest-network-get-interfaces"}' --timeout 10 |
-    ruby -rjson -rbase64 -e 'puts JSON.generate("return" =>
-    Base64.strict_encode64(JSON.parse(STDIN.read).fetch("return").to_json))'
+    ruby -rjson -rbase64 -e 'reply = (JSON.parse(STDIN.read) rescue nil);
+    info = reply["return"] if reply.is_a?(Hash);
+    puts JSON.generate("return" => (info.is_a?(Array) ? Base64.strict_encode64(info.to_json) : ""))'
+
   :vm_guest_osinfo_b64: >-
     one-$vm_id '{"execute":"guest-get-osinfo"}' --timeout 10 |
     ruby -rjson -rbase64 -e 'reply = (JSON.parse(STDIN.read) rescue nil);
