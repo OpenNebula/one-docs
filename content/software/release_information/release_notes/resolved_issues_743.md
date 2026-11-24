@@ -23,6 +23,7 @@ Include a high level description and a link to the documentation explaining the 
 The following issues have been solved in 7.4.3:
 
 * Fix limited visibility of CPU models for non-admin users during VM template creation [#7723](https://github.com/OpenNebula/one/issues/7723).
+* Fix disable option for estricted attributes [#8248](https://github.com/OpenNebula/one/issues/8248).
 * Fix pagination in VM list mode [#8046](https://github.com/OpenNebula/one/issues/8046).
 * Fix Group admin user cannot edit his own group in Sunstone [#8162](https://github.com/OpenNebula/one/issues/8162).
 * Fix LDAP authentication and `oneuser login` failures when usernames contain uppercase and special letters [#7377](https://github.com/OpenNebula/one/issues/7377).
