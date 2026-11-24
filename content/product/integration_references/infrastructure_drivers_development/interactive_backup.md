@@ -926,11 +926,22 @@ For additional configuration details, see the [OpenNebula VM Backup Operations](
     onebex://<IMAGE_DS_ID>:<PORT_ID>
     ```
 
-    For example, using an available restore port `49001` and Image Datastore `1`:
+    For example, using an available restore port `4007` and Image Datastore `1`, create an Image template named `restored_image.tmpl`:
+
+    ```text
+    NAME="restored_image"
+    PATH="onebex://1:4007"
+    TYPE="OS"
+    SIZE="4096"
+    FROM_BACKUP_DS="100"
+    ```
+
+    `SIZE` specifies the expected restored virtual size in MiB: `4096` MiB (4 GiB) in this example. `FROM_BACKUP_DS` identifies the interactive Backup Datastore, here `100`. Backup Datastore `100` does not store the restored disk: disk data arrives over TCP and is stored in the destination Image Datastore.
+
+    Create the Image using this template:
 
     ```shell
-    oneimage create --datastore 1 --name restored-vm132-disk0 \
-      --type OS --path 'onebex://1:49001'
+    oneimage create restored_image.tmpl --datastore 1
     ```
 
     The port must be available and assigned to this restore session. Inspect the newly created Image with `oneimage show <IMAGE_ID>` to confirm its `PATH` and restore port. OpenNebula starts a TCP restore writer on the **Front-end**; the Image remains `LOCKED` while data is being received.
