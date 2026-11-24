@@ -7,15 +7,15 @@ weight: 3
 
 ---
 
-OpenNebula's multitenancy model enables AI-ready clouds to be managed in a secure and flexible manner. Users can be allocated different privileges and access rights and be granted access to different resources. Users can be allocated super-admin level rights with the capacity to modify most aspects of cloud architecture down to simple tenant access levels only allowed to create, modify or consume specifically allocated resources. 
+OpenNebula's multitenancy model enables AI-ready clouds to be managed in a secure and flexible manner. Users can be allocated different privileges and access rights and be granted access to different resources. Users can be allocated super-admin level rights with the capacity to modify most aspects of cloud architecture down to simple tenant access levels, only allowed to create, modify or consume specifically allocated resources. 
 
 This guide demonstrates how OpenNebula's multitenancy functionality works with a step-by-step tutorial through creating and managing users and groups. 
 
 ## Before Starting
 
-To complete this guide, you need to first be connected via VPN to hosted infrastructure provided by OpenNebula as part of an AI Factory PoC process. If you are not connected via VPN, please follow the [Connection Guide]({{% relref "solutions/engineering_blueprints/ai_poc/connecting/" %}}). If you are not already participating in a PoC process, please [contact the OpenNebula sales team](https://opennebula.io/contact/).
+To complete this guide, you need to first be connected via VPN to hosted infrastructure provided by OpenNebula as part of an AI Factory PoC service. If you are not connected via VPN, please follow the [Connection Guide]({{% relref "solutions/engineering_blueprints/ai_poc/connecting/" %}}). If you are not already participating in a PoC process, please [contact the OpenNebula sales team](https://opennebula.io/contact/).
 
-You will be using the following OpenNebula user account for this guide, ensure you have the credentials at hand:
+You will be using the following preconfigured OpenNebula user account for this guide, ensure you have the credentials at hand:
 
 * **ncp-operator**
 
@@ -26,12 +26,12 @@ The **ncp-operator** user has been preconfigured with the permissions necessary 
 * Apply resource quotas
 
 {{< alert title="Tip" type="info" >}}
-You need to switch regularly between different accounts in Sunstone during the course of this guide. To avoid repeatedly signing in and out you can use an incognito window or a different browser.
+You need to switch between different accounts in Sunstone during the course of this guide. To avoid repeatedly signing in and out you can use an incognito window or a different browser.
 {{< /alert >}}
 
 ## Step 1: Sign In
 
-Sign into Sunstone with the **ncp-operator** account credentials. Ensure the **Admin group** view is activated (in the top left corner) and go to **System -> Groups**. Click on the **vm-tenant** group in the list to open its information panel. Verify that in the **Users** tab you can see the **Add users** and **Edit administrators** buttons and that the **Admin** column of the **ncp-operator** row of the user table shows **Yes**. This verifies that you have group management permissions:
+Sign into Sunstone with the **ncp-operator** account credentials. Ensure the **Admin** view is activated (in the top left corner) and go to **System -> Groups**. Click on the **vm-tenant** group in the list to open its information panel. Verify that in the **Users** tab you can see the **Add users** and **Edit administrators** buttons. This verifies that you have group management permissions for this group:
 
 
 {{< image
@@ -40,9 +40,11 @@ Sign into Sunstone with the **ncp-operator** account credentials. Ensure the **A
   alt="NCP operator view" align="center" width="90%" mb="20px"
 >}}
 
+The user list shows that this group currently has one member, **vm-tenant-admin**, and that user also has group administration permissions. 
+
 ## Step 2: Create a Temporary Group and User
 
-Close the **poc-tenants** group details and select **+ Create Group**. Name the group **poc-temp-group**. Leave the default settings and step through the group creation wizard with the **Next** button, then in the last step click **Finish**.
+Close the **vm-tenant** group details and select **+ Create Group**. Name the group **poc-temp-group**. Leave the default settings and step through the group creation wizard with the **Next** button, in the last step click **Finish**:
 
 {{< image
   pathDark="/images/poc/ai_poc/dark/ncp_operator_create_group.png"
@@ -50,7 +52,7 @@ Close the **poc-tenants** group details and select **+ Create Group**. Name the 
   alt="POC operator create group" align="center" width="90%" mb="20px"
 >}}
 
-After creating the group, you will see the group in the list in the **System -> Groups** view. Click on the item in the list to open the information panel. Now go to **System -> Users** and press **+ Create User**:
+After creating the group, you will see the group in the list in the **System -> Groups** view (click on the refresh icon if not). Click on the **poc-temp-group** item in the list to open the information panel and inspect the details. Now go to **System -> Users** and press **+ Create User**:
 
 {{< image
   pathDark="/images/poc/ai_poc/dark/poc_temp_user.png"
@@ -58,7 +60,7 @@ After creating the group, you will see the group in the list in the **System -> 
   alt="POC operator create user" align="center" width="90%" mb="20px"
 >}}
 
-Name the user **poc-temp-user** and leave the authentication type as **core**. Input a secure password and keep a note of it. Press **Next** then select the **poc-temp-group** as the **Primary Group**. Press **Next**, but do not select a **Secondary Group**, it is not mandatory. Click **Finish**. 
+Name the user **poc-temp-user** and leave the authentication type as **core**. Input a secure password and keep a note of it. Press **Next** then select the **poc-temp-group** as the **Primary Group**. Press **Next**, do not select a **Secondary Group**, it is not mandatory. Click **Finish**. 
 
 ## Step 3: Assign a Resource Quota to the Temporary Group
 
@@ -80,9 +82,9 @@ Sign out of the **ncp-operator** account or in a separate browser window sign in
   alt="POC Alpine template" align="center" width="90%" mb="20px"
 >}}
 
-Leave the name as is is, press **Next** and choose the **default** datastore in the import wizard and click **Finish**.
+Leave the name as it is, press **Next** and choose the **default** datastore in the import wizard then click **Finish**.
 
-Go to **Templates -> VM Templates** and select the **Alpine Linux 3.24** template, click on it and then click on the play icon to instantiate it:
+Go to **Templates -> VM Templates** and select the **Alpine Linux 3.24** template, click on it, then click on the play icon to instantiate it:
 
 {{< image
   pathDark="/images/poc/ai_poc/dark/poc_instantiate.png"
@@ -90,7 +92,7 @@ Go to **Templates -> VM Templates** and select the **Alpine Linux 3.24** templat
   alt="POC Alpine template instantiate" align="center" width="90%" mb="20px"
 >}}
 
-Name the VM and set the **Number of instances** to 2:
+Name the VM, e.g. **Test VM** and set the **Number of instances** to 2:
 
 {{< image
   pathDark="/images/poc/ai_poc/dark/poc_vm_name.png"
@@ -98,7 +100,7 @@ Name the VM and set the **Number of instances** to 2:
   alt="POC Alpine template instantiate" align="center" width="90%" mb="20px"
 >}}
 
-Click **Next** leave the **Advanced options** as they are and click **Finish**. You will see the following warning:
+Click **Next**. Leave the **Advanced options** as they are then click **Finish**. You will see the following warning:
 
 {{< image
   pathDark="/images/poc/ai_poc/dark/poc_vm_limit.png"
@@ -114,9 +116,21 @@ This warning demonstrates that the resource limit you applied for the **poc-temp
   alt="POC Alpine template instantiate" align="center" width="90%" mb="20px"
 >}}
 
+## Step 5: Power Off and Resume the Virtual Machine
+
+In the **Instances -> VMs** view, select the newly launched VM in the list to open its details panel. In the **VM state** dropdown menu, select **Poweroff**:
+
+{{< image
+  pathDark="/images/poc/ai_poc/dark/poc_vm_power_cycle.png"
+  path="/images/poc/ai_poc/light/poc_vm_power_cycle.png"
+  alt="POC Alpine template instantiate" align="center" width="90%" mb="20px"
+>}}
+
+You will see the VM advance through **Shutdown Power off** to **Poweroff** in the **State** field. Once in the **Poweroff** state select **Resume** from the **VM state** dropdown. You will see the state progress through **Boot power off** to **Running**.  
+
 ## Next Steps
 
-Congratulations! You have now successfully utilized OpenNebula's multitenancy model to create and manage groups and tenants and apply resource quotas. You can learn more about OpenNebula's multitenancy functionality in the [Multitenancy Documentation]({{% relref "product/cloud_system_administration/multitenancy/auth_overview/" %}}).
+Congratulations! You have now successfully utilized OpenNebula's multitenancy model to create and manage groups and tenants and apply resource quotas and launched a Virtual Machine. You can learn more about OpenNebula's multitenancy functionality in the [Multitenancy Documentation]({{% relref "product/cloud_system_administration/multitenancy/auth_overview/" %}}).
 
 You can now proceed to the next step in this PoC guided tour of OpenNebula's AI Factory functionality in the [Deploying a GPU-enabled Virtual Machine Guide]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_vm/" %}}).
 
@@ -127,3 +141,4 @@ Completing this guide fulfills the following PoC success criteria:
 * [SC16]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#platform-administration" %}}): Create additional users
 * [SC17]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#platform-administration" %}}): Create additional groups
 * [SC20]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#platform-administration" %}}): Create and assign quota to group(s)
+* [SC14]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#virtual-machine-administration" %}}): Use of power options on a VM (Start / Stop / Reboot / etc.)
