@@ -24,11 +24,11 @@ The following issues have been solved in 7.4.3:
 
 * Fix limited visibility of CPU models for non-admin users during VM template creation [#7723](https://github.com/OpenNebula/one/issues/7723).
 * Fix disable option for estricted attributes [#8248](https://github.com/OpenNebula/one/issues/8248).
-
-<!-- item structure
-One line per issue starting with "Fix ...". Descrive the issue so the user understands the fix. Add link to GH. Example:
-
-* Fix failure of `onegroup create` CLI command with empty `--resource` parameter [#7458](https://github.com/OpenNebula/one/issues/7458).
--->
-
+* Fix pagination in VM list mode [#8046](https://github.com/OpenNebula/one/issues/8046).
+* Fix Group admin user cannot edit his own group in Sunstone [#8162](https://github.com/OpenNebula/one/issues/8162).
+* Fix LDAP authentication and `oneuser login` failures when usernames contain uppercase and special letters [#7377](https://github.com/OpenNebula/one/issues/7377).
 * Fix Veeam upload transfers being reported as `transferring` before the OneBEX writer is ready [#8274](https://github.com/OpenNebula/one/issues/8274).
+* Fix YAML parsing failures in OneBEX, OneKS, and OneForm with Psych 3.0.2 on SLES 15 SP7 [#8291](https://github.com/OpenNebula/one/issues/8291).
+* Fix slow LogDB purges that block Raft replication in high-availability deployments [#8260](https://github.com/OpenNebula/one/issues/8260).
+* Fix incremental backups failing when a VM has an unselected RAW disk [#8281](https://github.com/OpenNebula/one/issues/8281).
+* Fix Ceph datastore monitoring reporting the metadata pool capacity instead of the erasure-coded data pool capacity [#8234](https://github.com/OpenNebula/one/issues/8234).
