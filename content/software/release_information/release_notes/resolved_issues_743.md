@@ -22,12 +22,12 @@ Include a high level description and a link to the documentation explaining the 
 
 The following issues have been solved in 7.4.3:
 
-* Fix limited visibility of CPU models for non-admin users during VM template creation [#7723](https://github.com/OpenNebula/one/issues/7723).
-
 <!-- item structure
 One line per issue starting with "Fix ...". Descrive the issue so the user understands the fix. Add link to GH. Example:
 
 * Fix failure of `onegroup create` CLI command with empty `--resource` parameter [#7458](https://github.com/OpenNebula/one/issues/7458).
 -->
 
+* Fix limited visibility of CPU models for non-admin users during VM template creation [#7723](https://github.com/OpenNebula/one/issues/7723).
+* Fix LDAP authentication and `oneuser login` failures when usernames contain uppercase and special letters [#7377](https://github.com/OpenNebula/one/issues/7377).
 * Fix Veeam upload transfers being reported as `transferring` before the OneBEX writer is ready [#8274](https://github.com/OpenNebula/one/issues/8274).
