@@ -936,7 +936,7 @@ For additional configuration details, see the [OpenNebula VM Backup Operations](
     FROM_BACKUP_DS="100"
     ```
 
-    `SIZE` specifies the expected restored virtual size in MiB: `4096` MiB (4 GiB) in this example. `FROM_BACKUP_DS` identifies the interactive Backup Datastore, here `100`. Backup Datastore `100` does not store the restored disk; disk data arrives over TCP and is stored in the destination Image Datastore.
+    `SIZE` specifies the expected restored virtual size in MiB: `4096` MiB (4 GiB) in this example. `FROM_BACKUP_DS` identifies the interactive Backup Datastore, here `100`. Backup Datastore `100` does not store the restored disk: disk data arrives over TCP and is stored in the destination Image Datastore.
 
     Create the Image using this template:
 
