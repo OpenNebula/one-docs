@@ -31,3 +31,4 @@ One line per issue starting with "Fix ...". Descrive the issue so the user under
 * Fix limited visibility of CPU models for non-admin users during VM template creation [#7723](https://github.com/OpenNebula/one/issues/7723).
 * Fix LDAP authentication and `oneuser login` failures when usernames contain uppercase and special letters [#7377](https://github.com/OpenNebula/one/issues/7377).
 * Fix Veeam upload transfers being reported as `transferring` before the OneBEX writer is ready [#8274](https://github.com/OpenNebula/one/issues/8274).
+* Fix slow LogDB purges that block Raft replication in high-availability deployments [#8260](https://github.com/OpenNebula/one/issues/8260).
