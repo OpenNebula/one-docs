@@ -9,7 +9,9 @@ weight: 5
 
 [OneKS]({{% relref "/platform_services/oneks/" %}})  is OpenNebula's powerful Kubernetes Cluster provisioning and management tool. It enables simple, streamlined deployment of GPU-enabled Kubernetes Clusters on OpenNebula clouds to handle AI and HPC workloads. 
 
-In this guide, you will deploy a GPU-enabled Kubernetes Cluster with OneKS and deploy a GPU workload on the Kubernetes Cluster using the [kubectl](https://kubernetes.io/docs/reference/kubectl/) command line tool.
+In this guide, you will deploy a GPU-enabled Kubernetes Cluster with OneKS and deploy a GPU workload on the Kubernetes Cluster using the [kubectl](https://kubernetes.io/docs/reference/kubectl/) command line tool. 
+
+The sections marked as *optional* involve the installation of the NVIDIA GPU operator. The following OneLLM guides install the GPU Operator as part of OneLLM, therefore you may choose to skip these parts if you are planning to progress with the OneLLM guides.  
 
 ## Before Starting
 
@@ -17,11 +19,11 @@ You will be using the following OpenNebula user account for this guide, ensure y
 
 * **llm-tenant-admin**
 
-This user has been preconfigured with the necessary permissions to complete this guide. The necessary templates to launch a GPU-enabled OneKS Kubernetes Cluster have been prepared  for the user. This user also sees the **LLM Tenant** view, which allows access to the Kubernetes Cluster and OneLLM management functionality needed to launch and manage the GPU-enabled Kubernetes Cluster and deploy LLM models for inferencing. 
+This user has been preconfigured with the necessary permissions to complete this guide. The necessary templates to launch a GPU-enabled OneKS Kubernetes Cluster have also  been prepared  for the user. This user sees the **LLM Tenant** view, which allows access to the Kubernetes Cluster and OneLLM management functionality needed to launch and manage the GPU-enabled Kubernetes Cluster and deploy LLM models for inferencing. 
 
 Log in with your **llm-tenant-admin** account using the credentials you received before starting step 1.
 
-## Prerequisites: Install kubectl and Helm
+## Prerequisites: Install kubectl and Helm Locally
 
 On your local machine, download the latest patch release for Kubernetes 1.35:
 
@@ -78,13 +80,19 @@ alt="OneKS Create Cluster" align="center" width="90%" mb="20px" >}}
 * **Flavours**: Select *Single-Node Control Plane*
 * **User inputs**: No changes required
 
+{{< alert title="This section is optional" type="primary" >}}Note that the *Cluster* you select in the second step is not a K8s Cluster, it is an OpenNebula Cluster, which is a logical collection of compute resources to handle virtualized workloads. The K8s Cluster will run as a guest workload within this OpenNebula Cluster.{{< /alert >}} 
+
 Click **Finish** in the final step to start the provisioning process. You can monitor the provisioning progress int the **Kubernetes Logs** view. The K8s Cluster will take several minutes to complete provisioning. Proceed with the next step once the K8s Cluster reaches the RUNNING state:
 
 {{< image path="/images/poc/ai_poc/light/poc_k8s_running.png" 
           pathDark="/images/poc/ai_poc/dark/poc_k8s_running.png"
 alt="OneKS inspect node GPU" align="center" width="90%" mb="20px" >}}
 
+Once this step is complete, your K8s Cluster has a virtual router and a control plane. 
+
 ## Step 2: Scale the K8s Cluster
+
+Now you need to scale the Cluster to add a GPU-attached worker node for handling GPU workloads. The worker node template has been pre-prepared to attach to the GPU.
 
 Once the K8s Cluster has entered the RUNNING state, go to **Kubernetes -> K8S Clusters**, select the K8s Cluster in the list to open its details panel then select the **Node Groups** tab, click **+ Create Node Group**:
 
@@ -123,11 +131,11 @@ In this case we see the hexadecimal PCI device codes for an NVIDIA L40S:
 * **Device**: 26b9
 * **Vendor**: 10de
 
-If you see your GPU in this list, your K8s worker node has successfully attached to the GPU.
+If you see your GPU in this list, your K8s worker node has successfully attached to the GPU. You now have a K8s Cluster with a GPU-attached worker node ready for GPU workloads. 
 
 ## Step 3: Copy the kubeconfig
 
-The kubeconfig contains the details and credentials of the K8s Cluster you have just created, it is necessary to interact with the Cluster through kubectl.
+The kubeconfig contains the details and credentials of the K8s Cluster you have just created, it is necessary to interact with the K8s Cluster through kubectl.
 
 Close the details panel of the node group and go to the **Kubeconfig** tab. Copy and save the kubeconfig details into a file named *kubeconfig* in your local machine with a text editor:
 
@@ -165,44 +173,35 @@ This confirms that the K8s Cluster is operating properly and kubectl can access 
 
 {{< alert title="This section is optional" type="primary" >}}If you are moving on to the **OneLLM** deployment in the following guide, it is not necessary to install the NVIDIA GPU Operator. You can advance to step 6.{{< /alert >}} 
 
-Add the NVIDIA Helm repo:
+The NVIDIA GPU Operator automates the deployment and management of the GPU software stack on Kubernetes. Installing it on a OneKS cluster with GPU-enabled worker nodes makes GPU resources available to containerized AI/ML and other GPU-accelerated workloads.
 
-```shell
-helm repo add nvidia https://helm.ngc.nvidia.com/nvidia \
-&& helm repo update
-```
+In the **Kubernetes -> K8S Clusters** view select the K8s Cluster to open its details panel. Open the **Applications** tab and select **Install Application**:
 
-Install the NVIDIA GPU Operator, this command may require a few minutes:
+{{< image path="/images/poc/ai_poc/light/poc_k8s_app_tab.png" 
+          pathDark="/images/poc/ai_poc/dark/poc_k8s_app_tab.png"
+alt="OneKS inspect node GPU" align="center" width="90%" mb="20px" >}}
 
-```shell
-# create gpu-operator namespace
-kubectl create ns gpu-operator
+Choose the **NVIDIA GPU Operator** and click **Next**:
 
-# allow the privileged workloads required by GPU Operator
-kubectl label --overwrite ns gpu-operator \
-    pod-security.kubernetes.io/enforce=privileged
+{{< image path="/images/poc/ai_poc/light/poc_gpu_op_app.png" 
+          pathDark="/images/poc/ai_poc/dark/poc_gpu_op_app.png"
+alt="OneKS inspect node GPU" align="center" width="90%" mb="20px" >}}
 
-# install NVIDIA GPU Operator
-helm install --wait --generate-name \
-    -n gpu-operator \
-    nvidia/gpu-operator \
-    --version=v26.7.0 \
-    --set cdi.nriPluginEnabled=true
-```
+Set a name for the **Release name** and the **Target namespace**, e.g. **gpu-operator** (they can be the same):
 
-After a few minutes you should receive output like this:
+{{< image path="/images/poc/ai_poc/light/poc_name_app.png" 
+          pathDark="/images/poc/ai_poc/dark/poc_name_app.png"
+alt="OneKS inspect node GPU" align="center" width="90%" mb="20px" >}}
 
-```default
-NAME: gpu-operator-1790086490
-LAST DEPLOYED: Tue Sep 22 14:14:51 2026
-NAMESPACE: gpu-operator
-STATUS: deployed
-REVISION: 1
-DESCRIPTION: Install complete
-TEST SUITE: None
-```
+Click **Finish** to install the NVIDIA GPU Operator:
 
-The previous output confirms that the NVIDIA GPU Operator installed correctly. Now check **gpu-operator** pods:
+{{< image path="/images/poc/ai_poc/light/poc_installing_app.png" 
+          pathDark="/images/poc/ai_poc/dark/poc_installing_app.png"
+alt="OneKS inspect node GPU" align="center" width="90%" mb="20px" >}}
+
+The GPU Operator should be installed within a few minutes. Wait until the K8s Cluster status returns to RUNNING (try refreshing the view if it appears stuck).
+
+Now from your local command line, run the following kubectl command to check the status of the GPU Operator:
 
 ```shell
 kubectl get pods -n gpu-operator
@@ -226,7 +225,7 @@ nvidia-driver-daemonset-bxbz9                                     1/1     Runnin
 nvidia-operator-validator-hzsrc                                   1/1     Running     0          7m34s
 ```
 
-Check the worker node, first identify the node name with `kubectl get nodes` as above then describe the node:
+All the pods should reach the **Running** or **Completed** status before continuing. Repeat the above command until all the pods are ready. Now inspect the worker node. First identify the node name with `kubectl get nodes` as above then describe the node with the following command:
 
 ```shell
 kubectl describe node <kubernetes_workload_node_name>
@@ -255,6 +254,8 @@ nvidia.com/mps.capable=false
 nvidia.com/vgpu.present=false
 ...
 ```
+
+Seeing this output validates that the GPU Operator has been successfully installed and has found the GPU.
 
 ## Step 5: Validate with VectorAdd (Optional)
 
@@ -321,12 +322,13 @@ Clean up by deleting the VectorAdd validation job:
 kubectl delete -f vector-add.yaml
 ```
 
-If you are continuing with the OneLLM deployment guides, you need to [uninstall the NVIDIA GPU Operator]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/ai_ready_k8s/#optional-undeploy-the-nvidia-gpu-operator" %}}) before proceeding to the next step.
+If you are continuing with the OneLLM deployment guides, you should uninstall the GPU Operator. In the **Applications** tab of your K8s Cluster, click on the GPU Operator item in the application list, this will open the applications details panel. In the top right hand corner, click on the trash can icon to uninstall it. 
 
+## Step 6: Check the Operator View (Optional)
 
-## Step 6: Check the Operator View
+If your hosted infrastructure includes more than one GPU and you did not delete the vLLM appliance that you instantiated in the [previous guide]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_vm/" %}}) you can examine the isolation of tenant resources by contrasting the resources visible to **llm-tenant-admin** and **ncp-operator**.
 
-Go to the **Instances VMs** view. You will see their the various VMs that have been provisioned for the K8s Cluster, each serving a different role. They should be named similarly to the following:
+Go to the **Instances -> VMs** view. You will see there the various VMs that have been provisioned for the K8s Cluster, each serving a different role. They should be named similarly to the following:
 
 * **Virtual Router**: `vr-controlplane-general-*`
 * **Control Plane**: `controlplane-general-*`
@@ -348,9 +350,11 @@ Since the **ncp-operator** has administrative privileges, they have visibility o
 
 ## Next Steps
 
-Contratulations! You have deployed a GPU-enabled Kubernetes Cluster using OneKS, installed the GPU Operator and validated it with a simple GPU workload. 
+Contratulations! You have deployed a GPU-enabled Kubernetes Cluster using OneKS, installed the GPU Operator and validated it with a simple GPU workload. With the GPU Operator installed on a OneKS Cluster, you can deploy AI/ML or HPC workloads including LLMs for inferencing. 
 
-This concludes the AI Factory PoC guided tour. You may now want to continue with advanced AI Kubernetes deployments such as [NVIDIA Dynamo]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/nvidia_dynamo/" %}}) or the [NVIDIA KAI Scheduler]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/nvidia_kai_scheduler/" %}}).
+You can now continue to the following OneLLM PoC guides to proceed with the AI-Factory Guided Evaluation.
+
+Alternatively, you could continue with advanced AI Kubernetes deployments such as [NVIDIA Dynamo]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/nvidia_dynamo/" %}}) or the [NVIDIA KAI Scheduler]({{% relref "solutions/ai_factory_blueprints/containerized_ai_execution/nvidia_kai_scheduler/" %}}).
 
 ## PoC Success Criteria
 

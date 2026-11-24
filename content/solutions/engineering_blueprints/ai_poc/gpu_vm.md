@@ -39,7 +39,7 @@ In **Templates -> VM Templates** select the **vllm** template and press the play
   alt="POC operator view" align="center" width="90%" mb="20px"
 >}}
 
-Give the VM instance a name, e.g. **vLLM** and press **Next** to the **User inputs** step. 
+Give the VM instance a name, e.g. **vLLM** and press **Next** to advance to the **User inputs** step. 
 
 In this example, we want to use a non-default LLM model for inference. In the **MODEL** section of the **User inputs** page replace the default **Qwen/Qwen2.5-1.5B-Instruct** model with **HuggingFaceTB/SmolLM2-1.7B-Instruct**:
 
@@ -49,7 +49,9 @@ In this example, we want to use a non-default LLM model for inference. In the **
   alt="POC operator view" align="center" width="90%" mb="20px"
 >}}
 
-Press **Next** and then **Finish** to deploy the VM. You will see the **Instances -> VMs** view, where you will see your VM go through the various provisioning stages. Once it is RUNNING, click on the vLLM machine item in the list to open its details panel. Click on the PCI tab and you will see the attached GPU (in this case the hexadecimal PCI device codes):
+Press **Next** and then **Finish** to deploy the VM. You will see the **Instances -> VMs** view, where you will see your VM go through the various provisioning stages. 
+
+Once it is RUNNING, click on the vLLM machine item in the list to open its details panel. Click on the **PCI** tab and you will see the attached GPU (in this case the hexadecimal PCI device codes for an NVIDIA L40S):
 
 {{< image
   pathDark="/images/poc/ai_poc/dark/poc_pci_device.png"
@@ -59,7 +61,7 @@ Press **Next** and then **Finish** to deploy the VM. You will see the **Instance
 
 ## Step 3: Query the vLLM API and Try the Chat
 
-In **Instances -> VMs**, wait until the VM has reached the RUNNING state:
+In **Instances -> VMs**, click on the **vLLM** item in the list to open it's details panel. Wait until the VM has reached the RUNNING state and take a note of its IP address:
 
 {{< image
   pathDark="/images/poc/ai_poc/dark/poc_vllm_running.png"
@@ -67,15 +69,15 @@ In **Instances -> VMs**, wait until the VM has reached the RUNNING state:
   alt="POC operator view" align="center" width="90%" mb="20px"
 >}}
 
-Take a note of the **IP Address** of the machine and use it to execute the following commands (replace <VLLM_VM_IP> with the IP you noted):
-
-Query the model:
+Use the IP address of the vLLM VM to execute the following command (replace `<VLLM_VM_IP>` with the IP you noted) to query the model:
 
 ```shell
 curl http://<VLLM_VM_IP>:8000/v1/models | jq .
 ```
 
+{{< alert title="Note" type="info" >}}
 You may receive *Connection refused* warnings on the command line, this does not necessarily indicate a problem, it most likely means that the vLLM API is still initializing. If you continue to have connection problems after 10 mins, please message your OpenNebula PoC contact.
+{{< /alert >}}
 
 Eventually you will receive a response similar to the following:
 
@@ -112,7 +114,9 @@ Eventually you will receive a response similar to the following:
 }
 ```
 
-If the response `data` attribute is an empty list, it most likely means that the model has not loaded. A large model may take time to download. Keep querying the API until you see a similar response.
+{{< alert title="Note" type="info" >}}
+If the response `data` attribute is an empty list, it most likely means that the model has not loaded. A large model may take time to download. Keep querying the API until you see a similar response with a non-empty `data` attribute.
+{{< /alert >}}
 
 Once you have confirmed that the model is loaded through the API, you can then access the web chat. Visit `http://<VLLM_VM_IP>:5000` in a separate browser tab and enter a prompt:
 
@@ -121,7 +125,7 @@ Once you have confirmed that the model is loaded through the API, you can then a
   alt="POC operator view" align="center" width="80%" mb="20px"
 >}}
 
-## Step 4: Try Cycling the vLLM Appliance
+## Step 4: Try Cycling the vLLM Appliance (Optional)
 
 Go back to **Instances -> VMs** and find the vLLM Appliance instance in the list. Click on the list item to open its information panel. Open the **VM state** drop-down menu and select **Poweroff**:
 
@@ -147,7 +151,7 @@ The VM will power up and reboot, after a few minutes, you should be able to quer
 
 Congratulations! You have deployed a GPU-enabled Virtual Machine on OpenNebula and deployed an LLM GPU workload through the vLLM framework. 
 
-Before moving onto the next guide, you should terminate the vLLM instance to ensure that the GPU is free for the Kubernetes Cluster you will deploy. In **Instances -> VMs**, select the vLLM VM instance and select the **Delete** option with the red dustbin icon:
+**If you are using a server with only one available GPU**: Before moving onto the next guide, you should terminate the vLLM instance to ensure that the GPU is free for the Kubernetes Cluster you will deploy. In **Instances -> VMs**, select the vLLM VM instance and select the **Delete** option with the red dustbin icon:
 
 {{< image
   pathDark="/images/poc/ai_poc/dark/poc_delete.png"
@@ -155,10 +159,10 @@ Before moving onto the next guide, you should terminate the vLLM instance to ens
   alt="POC operator view" align="center" width="50%" mb="20px"
 >}}
 
-From the drop-down menu select **Terminate**, then confirm termination in the modal dialog. Wait until the VM is fully terminated before moving to the next step. Note that **Poweroff** and **Suspend** actions do not necessarily free up a VM's resources, it is necessary to use the termination action to ensure the resources are free.
+From the drop-down menu select **Terminate**, then confirm termination in the modal dialog. Wait until the VM is fully terminated before moving to the next guide. Note that **Poweroff** and **Suspend** actions do not necessarily free up a VM's resources, it is necessary to use the termination action to ensure the resources are free.
 
 
-You can now move on to [Deploying a OneKS Kubernetes Cluster]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_k8s/" %}}).
+You can now move on to the next guide: [Deploying a OneKS Kubernetes Cluster]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_k8s/" %}}).
 
 ## PoC Success Criteria
 
