@@ -273,6 +273,18 @@ When creating a VM Template you can choose to deploy the disks using the default
 
 When using Sunstone, the deployment mode needs to be set in the Storage tab.
 
+### Tune VM Disk Provisioning
+
+Set these optional attributes at the top level of the VM template, outside the `DISK` vector:
+
+```default
+CEPH_FULL_COPY = "YES"
+CEPH_RBD_CONCURRENT_MANAGEMENT_OPS = "20"
+```
+
+* `CEPH_FULL_COPY`: In Ceph mode, use `rbd copy` instead of a copy-on-write (CoW) clone for non-persistent RBD format 2 disks. The new disk is independent of the parent snapshot, but copying can increase deployment time and storage usage. The default is `NO`. Persistent disks, legacy RBD images that are already copied, and disks exported in SSH mode are unaffected.
+* `CEPH_RBD_CONCURRENT_MANAGEMENT_OPS`: Positive integer passed as `--rbd-concurrent-management-ops` to the Ceph driver's `rbd` commands during disk provisioning in either deployment mode. Ceph applies it to operations that support it, such as copying or exporting an image. If unset, the Ceph client uses its configured value (10 by default).
+
 ## Backup Format and Retention
 
 For backup configuration and operations, see [VM Backup Operations]({{% relref "product/virtual_machines_operation/virtual_machine_backups/operations" %}}).
@@ -292,7 +304,7 @@ It is necessary to register each image only once, then it can be deployed using 
 
 ### Ceph Mode (Default)
 
-In this mode, Virtual Machines will use the same Image rbd volumes for their disks (persistent images), or a new snapshots of the image created in the form `one-<IMAGE ID>-<VM ID>-<DISK ID>` (non-persistent images).
+In this mode, persistent disks use the original RBD image volume. For non-persistent RBD format 2 disks, OpenNebula creates a CoW clone of the image snapshot by default or an independent copy if `CEPH_FULL_COPY` is enabled. The resulting disk is named `one-<IMAGE ID>-<VM ID>-<DISK ID>`.
 
 For example, consider a system using an Image and System Datastore backed by a Ceph pool named `one`. The pool with one Image (ID `0`) and two Virtual Machines `14` and `15` using this Image as virtual disk `0` would be similar to:
 
