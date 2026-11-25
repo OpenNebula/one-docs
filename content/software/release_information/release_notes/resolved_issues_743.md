@@ -36,3 +36,4 @@ The following issues have been solved in 7.4.3:
 * Fix Ceph datastore monitoring reporting the metadata pool capacity instead of the erasure-coded data pool capacity [#8234](https://github.com/OpenNebula/one/issues/8234).
 * Fix OneBEX TM client connection issues when an HTTP proxy is configured or the server listens on a wildcard address [#8298](https://github.com/OpenNebula/one/issues/8298).
 * Fix concurrent LVM backups and storage operations interfering with each other [#8282](https://github.com/OpenNebula/one/issues/8282).
+* Fix images remaining in `DELETE` when multiple images are deleted concurrently [#8312](https://github.com/OpenNebula/one/issues/8312).
