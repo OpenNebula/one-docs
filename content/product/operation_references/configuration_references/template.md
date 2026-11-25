@@ -265,6 +265,17 @@ The hypervisor column states that the attribute is **O**ptional, **M**andatory, 
 | `DISCARD`                                                                                                                                                                                         | Controls what’s done with with trim commands to the disk, the values can be `ignore` or `discard`.                                                                                                                                                                                                                                      | O (only with virtio-scsi)                                                                          | -                                                                                                 |
 | `SERIAL`                                                                                                                                                                                          | If present, a serial number will be added to virtual hard drive. If set to `auto`, the serial number will be generated automatically. (<vm_id>-<disk_id>) If set to a specific value, that value will be used as the serial number.                                                                                                     | O                                                                                                  | -                                                                                                 |
 
+### Ceph Disk Provisioning
+
+Set these optional attributes at the top level of the VM template:
+
+| Attribute | Description |
+|-----------|-------------|
+| `CEPH_FULL_COPY` | Set to `YES` to create independent copies of non-persistent RBD format 2 disks instead of copy-on-write clones in Ceph mode. Defaults to `NO`. |
+| `CEPH_RBD_CONCURRENT_MANAGEMENT_OPS` | Positive integer that overrides Ceph's `rbd_concurrent_management_ops` setting for the driver's `rbd` commands during disk provisioning. If omitted, the Ceph client configuration is unchanged. |
+
+See [Tune VM Disk Provisioning]({{% relref "ceph_ds#tune-vm-disk-provisioning" %}}) for details.
+
 <a id="template-volatile-disks-section"></a>
 
 ### Volatile DISKS
