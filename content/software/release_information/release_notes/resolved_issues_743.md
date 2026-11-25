@@ -18,6 +18,8 @@ Include a high level description and a link to the documentation explaining the 
 * Add per-VM live migration options through [`MIGRATE_AUTO_CONVERGE` and `MIGRATE_COMPRESSED`]({{% relref "/product/operation_references/configuration_references/template#template-features" %}}) VM template attributes. Administrators can now tune auto-convergence and memory compression only for selected KVM VMs, improving migration reliability and bandwidth usage without changing global driver defaults.
 -->
 
+* Add [Ceph VM disk provisioning options]({{% relref "/product/cluster_configuration/storage_system/ceph_ds#tune-vm-disk-provisioning" %}}) to create independent copies of non-persistent RBD format 2 disks and configure concurrent RBD management operations. Administrators can tune disk provisioning for their storage setup using the `CEPH_FULL_COPY` and `CEPH_RBD_CONCURRENT_MANAGEMENT_OPS` VM template attributes.
+
 ## Resolved Issues
 
 The following issues have been solved in 7.4.3:
