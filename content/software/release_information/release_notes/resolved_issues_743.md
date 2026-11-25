@@ -32,3 +32,4 @@ The following issues have been solved in 7.4.3:
 * Fix slow LogDB purges that block Raft replication in high-availability deployments [#8260](https://github.com/OpenNebula/one/issues/8260).
 * Fix incremental backups failing when a VM has an unselected RAW disk [#8281](https://github.com/OpenNebula/one/issues/8281).
 * Fix Ceph datastore monitoring reporting the metadata pool capacity instead of the erasure-coded data pool capacity [#8234](https://github.com/OpenNebula/one/issues/8234).
+* Fix default guad configuration allows overwriting files [#4582](https://github.com/OpenNebula/one-ee/issues/4582).
