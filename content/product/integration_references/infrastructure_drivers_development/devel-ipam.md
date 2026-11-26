@@ -222,3 +222,7 @@ AR = [
 ```
 
 Any VM (or VNET reservation) from IPAM Network will contact the IPAM using your drivers.
+
+## BlueCat IPAM Integration
+
+For an example of integrating OpenNebula with an external IP address management system, see the [BlueCat IPAM Integration]({{% relref "solutions/integration_blueprints/bluecat_ipam" %}}) blueprint.
