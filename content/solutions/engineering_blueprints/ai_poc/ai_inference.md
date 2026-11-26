@@ -10,18 +10,18 @@ aliases:
 
 Use **OneLLM** to deploy models on Kubernetes, **LiteLLM** to manage consumer access, and **Grafana** to inspect request performance. The NCP operator prepares the tenant resources, the tenant administrator provides the inference service, and the end user consumes assigned models.
 
-| Role | Interface | Work |
+| **Role** | **Interface** | **Work** |
 | --- | --- | --- |
 | NCP operator | Sunstone **Admin** view | Prepare the tenant, networks and resource access, and make the PoC platform available. |
-| Tenant administrator | Sunstone **AI Operator view**, LiteLLM administrator UI and Grafana | Create both Kubernetes clusters, deploy models, assign consumer access, configure policies and inspect metrics. |
+| Tenant administrator | Sunstone **AI Operator view**, LiteLLM administrator UI and Grafana | Create both Kubernetes Clusters, deploy models, assign consumer access, configure policies and inspect metrics. |
 | End user | LiteLLM UI and API | Create personal virtual API keys, use the Playground or API, and review usage. |
 
-This procedure uses two OneKS Kubernetes clusters:
+This procedure uses two OneKS Kubernetes Clusters:
 
-| Cluster | Applications | Workers |
+| **Cluster** | **Applications** | **Workers** |
 | --- | --- | --- |
-| Service cluster | LiteLLM, PostgreSQL, Prometheus and Grafana | General-purpose CPU workers |
-| Inference cluster | OneLLM Ready, KServe, vLLM and the inference gateway | OneLLM workers with a GPU |
+| Service Cluster | LiteLLM, PostgreSQL, Prometheus and Grafana | General-purpose CPU workers |
+| Inference Cluster | OneLLM Ready, KServe, vLLM and the inference gateway | OneLLM workers with a GPU |
 
 Requests follow this path: **End user -> LiteLLM -> inference gateway -> model deployment**. The OneKS monitor publishes ready deployments to LiteLLM. Prometheus collects LiteLLM request metrics, and Grafana displays them.
 
@@ -38,10 +38,10 @@ Follow [Multitenancy]({{% relref "solutions/engineering_blueprints/ai_poc/access
 1. Create the tenant group and its administrator, for example `llm-tenant` and `llm-tenant-admin`.
 2. Assign **AI Operator view** to the group members and group administrator, with the resource-creation permissions required by OneLLM.
 3. Complete the shared [OneKS and OneLLM network preparation]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/#kubernetes-services-oneks-and-onellm" %}}). Prepare the public IPv4 and ETHER ranges and the private network.
-4. Assign the intended hosts, datastores and networks through the tenant VDC. Remove the tenant from the default VDC and grant access to the selected physical OpenNebula cluster as described in that guide.
-5. Set quotas for both Kubernetes clusters, their control planes, workers and router VMs. Include the required GPU allocation.
+4. Assign the intended Hosts, datastores and networks through the tenant VDC. Remove the tenant from the default VDC and grant access to the selected physical OpenNebula Cluster as described in that guide.
+5. Set quotas for both Kubernetes Clusters, their control planes, workers and router VMs. Include the required GPU allocation.
 
-The LiteLLM service address must be reachable from the inference cluster. LiteLLM must be able to reach the inference gateway. Browser-facing service addresses must be reachable through the PoC VPN.
+The LiteLLM service address must be reachable from the inference Cluster. LiteLLM must be able to reach the inference gateway. Browser-facing service addresses must be reachable through the PoC VPN.
 
 {{< image
   path="/images/poc/ai_poc/token_factory/ai-operator-view-assignment.png"
@@ -59,7 +59,7 @@ Use the [OneKS appliance access procedure]({{% relref "solutions/engineering_blu
 
 Sign into Sunstone as **llm-tenant-admin**. The account opens with **AI Operator view**. Create the infrastructure in Sunstone, then manage consumers in the **LiteLLM administrator UI**.
 
-The procedure uses a CPU Kubernetes cluster for services and a separate GPU Kubernetes cluster for inference.
+The procedure uses a CPU Kubernetes Cluster for services and a separate GPU Kubernetes Cluster for inference.
 
 ### Before Starting
 
@@ -71,7 +71,7 @@ Sign into Sunstone with the tenant administrator account.
 
 Open **Kubernetes -> K8S Clusters** and click **Create Kubernetes Cluster**. Use the following settings:
 
-| Setting | Value |
+| **Setting** | **Value** |
 | --- | --- |
 | Name | `litellm` |
 | Public virtual network | `llm-public` |
@@ -87,7 +87,7 @@ Complete the wizard and wait for **RUNNING**.
 
 Open **Node Groups** and create the CPU worker:
 
-| Setting | Value |
+| **Setting** | **Value** |
 | --- | --- |
 | Node group name | `cpu-pool` |
 | Family | **General Purpose** |
@@ -144,7 +144,7 @@ Finish the node-group wizard and wait for **RUNNING**.
   alt="LiteLLM cluster and cpu-pool worker Running" align="center" width="90%" mb="20px"
 >}}
 
-Open the cluster's **Kubeconfig** tab. Save its contents as `litellm-kubeconfig`, then run:
+Open the Cluster's **Kubeconfig** tab. Save its contents as `litellm-kubeconfig`, then run:
 
 ```bash
 export LITELLM_KUBECONFIG="$PWD/litellm-kubeconfig"
@@ -156,9 +156,9 @@ Confirm that the control-plane node and worker are **Ready**.
 
 ### Step 2: Install the LiteLLM Application
 
-Open the cluster's **Applications** tab. Start the installation wizard and select **LiteLLM v1.108.4**.
+Open the Cluster's **Applications** tab. Start the installation wizard and select **LiteLLM v1.108.4**.
 
-| Setting | Value for this procedure |
+| **Setting** | **Value for this procedure** |
 | --- | --- |
 | Release name | `litellm` |
 | Target namespace | `litellm` |
@@ -197,7 +197,7 @@ kubectl --kubeconfig "$LITELLM_KUBECONFIG" -n litellm get service litellm
 
 Wait until **EXTERNAL-IP** contains an IP address or hostname. Record these URLs:
 
-| URL | Purpose |
+| **URL** | **Purpose** |
 | --- | --- |
 | `http://<LITELLM_ADDRESS>:4000` | Management and inference API base URL |
 | `http://<LITELLM_ADDRESS>:4000/ui/` | Administrator and end-user UI |
@@ -223,9 +223,9 @@ Sign in as `admin` with the master key.
 
 ### Step 3: Create the OneLLM Inference Cluster
 
-Create a second Kubernetes cluster with these settings:
+Create a second Kubernetes Cluster with these settings:
 
-| Setting | Value |
+| **Setting** | **Value** |
 | --- | --- |
 | Name | `inference` |
 | Public / private networks | `llm-public` / `llm-private` |
@@ -238,7 +238,7 @@ Create a second Kubernetes cluster with these settings:
 
 Wait for **RUNNING**, then create the GPU node group:
 
-| Setting | Value |
+| **Setting** | **Value** |
 | --- | --- |
 | Node group name | `gpu-pool` |
 | Family | **OneLLM Workers** |
@@ -248,9 +248,9 @@ Wait for **RUNNING**, then create the GPU node group:
 | Memory | `65536` MiB (64 GiB) |
 | Disk size | `262144` MiB (256 GiB) |
 
-Wait for the node group and cluster to return to **RUNNING**. The selected worker profile includes the GPU passthrough.
+Wait for the node group and Cluster to return to **RUNNING**. The selected worker profile includes the GPU passthrough.
 
-Save the cluster kubeconfig as `onellm-kubeconfig`:
+Save the Cluster kubeconfig as `onellm-kubeconfig`:
 
 ```bash
 export ONELLM_KUBECONFIG="$PWD/onellm-kubeconfig"
@@ -295,9 +295,9 @@ kubectl --kubeconfig "$ONELLM_KUBECONFIG" get nodes
 
 ### Step 4: Install OneLLM Ready and Connect LiteLLM
 
-Open the inference cluster's **Applications** tab. Select **OneLLM Ready v0.1.0** and enter:
+Open the inference Cluster's **Applications** tab. Select **OneLLM Ready v0.1.0** and enter:
 
-| Setting | Value for this procedure |
+| **Setting** | **Value for this procedure** |
 | --- | --- |
 | Release name | `onellm` |
 | Target namespace | `onellm-system` |
@@ -336,7 +336,7 @@ Complete the wizard and wait for **Ready**.
 
 In Sunstone, open **OneLLM -> Models** and start the creation wizard.
 
-| Field | Value |
+| **Field** | **Value** |
 | --- | --- |
 | Name | `gemma4` |
 | Publisher | `Google` |
@@ -369,11 +369,11 @@ A private or gated model requires a Hugging Face token with the necessary reposi
 
 Open **OneLLM -> Deployments** and start the creation wizard.
 
-| Field | Value |
+| **Field** | **Value** |
 | --- | --- |
 | Name | `gemma4` |
 | Model | `gemma4` |
-| Cluster | The `inference` Kubernetes cluster |
+| Cluster | The `inference` Kubernetes Cluster |
 | Engine | `vllm` |
 | Orchestrator | `kserve` |
 | CPU | `4` |
@@ -519,7 +519,7 @@ See the [key and team router-settings guide](https://docs.litellm.ai/docs/proxy/
 
 ### Step 9: Inspect Performance in Grafana
 
-The LiteLLM application installs Prometheus and Grafana in the **service cluster**. Prometheus collects the authenticated LiteLLM metrics endpoint every 15 seconds. No separate dashboard installation is required for this procedure.
+The LiteLLM application installs Prometheus and Grafana in the **service Cluster**. Prometheus collects the authenticated LiteLLM metrics endpoint every 15 seconds. No separate dashboard installation is required for this procedure.
 
 #### Find Grafana and Sign In
 
@@ -554,7 +554,7 @@ Select a time range that includes the requests, such as **Last 30 minutes**, the
 
 Use the **model** filter for the requested public model name. Use the **user** filter for the LiteLLM user identity. Select **All** to compare models or users. An identity can appear as a user ID rather than the account email.
 
-| Panel | Interpretation |
+| **Panel** | **Interpretation** |
 | --- | --- |
 | Request throughput by model | Request rate observed by LiteLLM, in requests per second |
 | Output token throughput | Aggregate output tokens per second for the selected traffic |
@@ -571,14 +571,14 @@ Delete model deployments from **OneLLM -> Deployments** in Sunstone. Their corre
 
 ### Troubleshooting
 
-| Symptom | What to check |
+| **Symptom** | **What to check** |
 | --- | --- |
 | A network, datastore or image is absent in Sunstone | Ask the platform operator to check tenant sharing and permissions. |
 | A LoadBalancer address remains pending | Ask the platform operator to check cloud-controller configuration and the network's available address range. |
 | LiteLLM waits for storage | Check general-worker readiness, available disk, generic Longhorn and PVC status. Do not add OneLLM storage labels to solve a service-cluster catalog mismatch. |
 | OneLLM waits for GPU readiness | Check passthrough, the OneLLM worker profile and GPU Operator workloads. |
 | Deployment remains pending or fails to load | Check GPU/RAM/disk capacity, model access, download logs and serving conditions. |
-| Deployment runs but is absent in LiteLLM | Check the LiteLLM API URL and master key in the OneLLM Ready settings, and connectivity between the clusters. |
+| Deployment runs but is absent in LiteLLM | Check the LiteLLM API URL and master key in the OneLLM Ready settings, and connectivity between the Clusters. |
 | LiteLLM cannot call the backend | Check that LiteLLM can reach the inference gateway address. |
 | User cannot see or call the model | Check Personal Models and the key's Models list. Sunstone permissions do not configure these lists. |
 | User cannot create a personal key | Check the internal_user role and personal-key permissions. Team keys require separate team permissions. |
@@ -703,7 +703,7 @@ unset LITELLM_API_KEY
 
 A successful response includes the assistant's text in `choices[0].message.content`. Do not put the key into a shared script, screenshot or support message.
 
-Use the LiteLLM address, not the inference cluster's gateway address. Your virtual API key does not authenticate directly to that backend gateway.
+Use the LiteLLM address, not the inference Cluster's gateway address. Your virtual API key does not authenticate directly to that backend gateway.
 
 ### Step 6: Review Your Usage
 
@@ -717,7 +717,7 @@ This guide uses consumption counts rather than costs. For request-performance an
 
 ### Troubleshooting
 
-| Symptom | Action |
+| **Symptom** | **Action** |
 | --- | --- |
 | Invitation does not open | Ask for a valid link with a reachable service origin. Connect to the VPN if required. |
 | Personal key creation is unavailable | Ask the administrator to check your role and personal-key permissions. |

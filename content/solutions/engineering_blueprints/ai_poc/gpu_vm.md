@@ -7,7 +7,7 @@ weight: 4
 
 Use this guide to provide a GPU-enabled virtual machine with the vLLM appliance. The NCP operator prepares the service, the tenant administrator deploys and manages the VM, and the end user sends requests through the API or web chat.
 
-| Role | Interface | Work |
+| **Role** | **Interface** | **Work** |
 | --- | --- | --- |
 | NCP operator | Sunstone **Admin** view | Import the appliance, configure its GPU template, and grant tenant access. |
 | Tenant administrator | Sunstone **VMs view** | Create and manage the GPU VM, select a model, and provide the service addresses. |
@@ -19,7 +19,7 @@ Connect to the PoC VPN as described in the [Connection Guide]({{% relref "soluti
 
 This guide uses `vm-tenant` and `vm-tenant-admin` as example names. Use the names configured for your tenant.
 
-The assigned host must have a GPU available for PCI passthrough. Have the compatible image/system datastores and tenant network ready. Use the GPU type and VM capacity supplied for your PoC.
+The assigned Host must have a GPU available for PCI passthrough. Have the compatible image/system datastores and tenant network ready. Use the GPU type and VM capacity supplied for your PoC.
 
 ## NCP Operator
 
@@ -29,7 +29,7 @@ Sign into Sunstone as **ncp-operator**. This account needs permission to import 
 
 1. Open **Storage -> Apps**.
 2. Enter `vllm` in the search bar.
-3. Select the appliance that matches the assigned host's hypervisor and CPU architecture, for example **KVM** and **x86_64**. Open its details.
+3. Select the appliance that matches the assigned Host's hypervisor and CPU architecture, for example **KVM** and **x86_64**. Open its details.
 
 {{< image
   path="/images/poc/ai_poc/gpu_as_a_service/marketplace-search.png"
@@ -64,11 +64,11 @@ In the import wizard:
 
 ### Configure the GPU VM Template
 
-1. Open **Infrastructure -> Hosts**, select the assigned GPU host and open **PCI**. Record the available GPU's vendor, device and class identifiers.
+1. Open **Infrastructure -> Hosts**, select the assigned GPU Host and open **PCI**. Record the available GPU's vendor, device and class identifiers.
 2. Return to **Templates -> VM Templates**, select `vllm` and open its update form.
 3. Set the CPU, memory and disk capacity required by the model that the tenant will run.
 4. Under **Advanced options -> PCI Devices**, click **Attach PCI device**.
-5. Select the GPU's vendor, device and class identifiers. The scheduler can then select an available matching GPU on an assigned host.
+5. Select the GPU's vendor, device and class identifiers. The scheduler can then select an available matching GPU on an assigned Host.
 6. Under **Network**, attach a NIC and select the tenant virtual network.
 7. Keep the appliance's contextualization inputs and save the template.
 
@@ -82,7 +82,7 @@ In the import wizard:
   alt="Select the tenant network for the template NIC" align="center" width="90%" mb="20px"
 >}}
 
-See [Generic PCI Devices]({{% relref "product/cluster_configuration/pci_passthrough_sriov/generic_devices/#selecting-a-pci-device-in-sunstone" %}}) for the template controls and [NVIDIA GPU Passthrough]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough/" %}}) for host requirements. Host passthrough configuration must already be complete.
+See [Generic PCI Devices]({{% relref "product/cluster_configuration/pci_passthrough_sriov/generic_devices/#selecting-a-pci-device-in-sunstone" %}}) for the template controls and [NVIDIA GPU Passthrough]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough/" %}}) for Host requirements. Host passthrough configuration must already be complete.
 
 ### Grant the Tenant Access
 
@@ -97,7 +97,7 @@ Grant access to the **tenant group**, so that its users can use the prepared tem
 7. Review the rule and save it.
 8. Create a rule for each required disk image. Use the same tenant group, resource type **Image**, that image's individual ID, right **USE**, and the same zone.
 
-| Subject | Resource | Right |
+| **Subject** | **Resource** | **Right** |
 | --- | --- | --- |
 | Tenant group | Specific vLLM VM template (`TEMPLATE`) | `USE` |
 | Tenant group | Each disk image used by the template (`IMAGE`) | `USE` |
@@ -263,7 +263,7 @@ Open the supplied chat URL, for example `http://<VLLM_VM_IP>:5000`. Enter a prom
 
 ## Next Steps
 
-Use the [OneKS Guide]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_k8s/" %}}) for GPU workloads on Kubernetes, or the [OneLLM Guide]({{% relref "solutions/engineering_blueprints/ai_poc/ai_inference/" %}}) for model deployments with LiteLLM.
+Continue to the [OneKS Guide]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_k8s/" %}}) for GPU workloads on Kubernetes, or the [OneLLM Guide]({{% relref "solutions/engineering_blueprints/ai_poc/ai_inference/" %}}) for model deployments with LiteLLM.
 
 ## PoC Success Criteria
 

@@ -5,12 +5,12 @@ description: ""
 weight: 5
 ---
 
-Use [OneKS]({{% relref "platform_services/oneks/" %}}) to provide a Kubernetes cluster with a GPU worker. The NCP operator prepares access to the appliance, the tenant administrator manages the cluster, and the end user runs GPU workloads with `kubectl`.
+Use [OneKS]({{% relref "platform_services/oneks/" %}}) to provide a Kubernetes Cluster with a GPU worker. The NCP operator prepares access to the appliance, the tenant administrator manages the Cluster, and the end user runs GPU workloads with `kubectl`.
 
-| Role | Interface | Work |
+| **Role** | **Interface** | **Work** |
 | --- | --- | --- |
 | NCP operator | Sunstone **Admin** view | Prepare the tenant resources and grant access to the OneKS appliance template and image. |
-| Tenant administrator | Sunstone **OneKS view** and `kubectl` | Create the cluster and GPU worker, install GPU Operator, and provide Kubernetes access. |
+| Tenant administrator | Sunstone **OneKS view** and `kubectl` | Create the Cluster and GPU worker, install GPU Operator, and provide Kubernetes access. |
 | End user | `kubectl` | Submit a GPU workload, read its result, and delete the workload. |
 
 ## Before Starting
@@ -19,7 +19,7 @@ Connect to the PoC VPN as described in the [Connection Guide]({{% relref "soluti
 
 This guide uses `k8s-tenant` and `k8s-tenant-admin` as example names. Use the names and network settings supplied for your tenant.
 
-The PoC must provide an available GPU, a worker flavour configured for GPU passthrough, and the **NVIDIA GPU Operator** application. The tenant administrator and end user need `kubectl` on their local machines. Follow the [Kubernetes installation instructions](https://kubernetes.io/docs/tasks/tools/) for your operating system. Use a client version compatible with the cluster.
+The PoC must provide an available GPU, a worker flavour configured for GPU passthrough, and the **NVIDIA GPU Operator** application. The tenant administrator and end user need `kubectl` on their local machines. Follow the [Kubernetes installation instructions](https://kubernetes.io/docs/tasks/tools/) for your operating system. Use a client version compatible with the Cluster.
 
 For LLM inference through LiteLLM, follow [Token Factory (OneLLM)]({{% relref "solutions/engineering_blueprints/ai_poc/ai_inference/" %}}). That service uses OneLLM Ready to install its GPU software stack. This page describes the standalone Kubernetes service.
 
@@ -40,7 +40,7 @@ The appliance template and images can remain owned by the NCP operator. Use ACLs
 
 In **System -> ACLs**, create a rule with these settings:
 
-| Field | Value |
+| **Field** | **Value** |
 | --- | --- |
 | Users | **A group**: `k8s-tenant` |
 | Resources | **Virtual Machine Template** |
@@ -73,7 +73,7 @@ Confirm that the summary grants the tenant group **Use** on that image in the se
   alt="Grant the Kubernetes tenant group USE on image ID 27 in zone 0" align="center" width="90%" mb="20px"
 >}}
 
-Give the tenant administrator the account credentials, public and private network names, and available GPU worker flavour. Tenant creation and infrastructure allocation are covered in Multitenancy.
+Give the tenant administrator the account credentials, public and private network names, and available GPU worker flavour. Tenant creation and infrastructure allocation are covered in [Multitenancy]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}}).
 
 ## Tenant Administrator
 
@@ -96,7 +96,7 @@ Open **Kubernetes -> K8S Clusters** and click **Create Kubernetes Cluster**.
 6. Review **User inputs**. For this example, use one control-plane VM with **8192 MiB** of memory.
 7. Click **Finish**.
 
-If the wizard asks for an OpenNebula cluster, select the physical cluster assigned to the tenant. This is the infrastructure where the Kubernetes VMs will run.
+If the wizard asks for an OpenNebula Cluster, select the physical Cluster assigned to the tenant. This is the infrastructure where the Kubernetes VMs will run.
 
 {{< image
   path="/images/poc/ai_poc/kubernetes_as_a_service/cluster-general.png"
@@ -123,7 +123,7 @@ If the wizard asks for an OpenNebula cluster, select the physical cluster assign
   alt="Review the control-plane VM count and resource inputs" align="center" width="90%" mb="20px"
 >}}
 
-Follow provisioning in **Logs**. Wait until the cluster is **Running** before adding a worker. At this stage, OneKS has created the cluster router and control plane.
+Follow provisioning in **Logs**. Wait until the Cluster is **Running** before adding a worker. At this stage, OneKS has created the Cluster router and control plane.
 
 {{< image
   path="/images/poc/ai_poc/kubernetes_as_a_service/cluster-running.png"
@@ -132,7 +132,7 @@ Follow provisioning in **Logs**. Wait until the cluster is **Running** before ad
 
 ### Step 2: Add a GPU Worker
 
-Select the cluster and open **Node Groups**. Click **Create Node Group**.
+Select the Cluster and open **Node Groups**. Click **Create Node Group**.
 
 {{< image
   path="/images/poc/ai_poc/kubernetes_as_a_service/node-groups.png"
@@ -144,7 +144,7 @@ Select the cluster and open **Node Groups**. Click **Create Node Group**.
 3. Select **Large OneLLM Worker Nodes** as the flavour.
 4. Set **Count** to `1` and review the CPU, memory and disk inputs.
 5. Click **Finish** and follow progress in **Logs**.
-6. Wait until the cluster and node group return to **Running**.
+6. Wait until the Cluster and node group return to **Running**.
 
 {{< image
   path="/images/poc/ai_poc/kubernetes_as_a_service/worker-family.png"
@@ -170,7 +170,7 @@ Open the node group's VM and select **PCI**. Confirm that the assigned GPU appea
 
 ### Step 3: Retrieve the Administrative Kubeconfig
 
-Return to the cluster details and open **Kubeconfig**. Copy the configuration and save it on your laptop as `oneks-admin.conf`.
+Return to the Cluster details and open **Kubeconfig**. Copy the configuration and save it on your laptop as `oneks-admin.conf`.
 
 {{< image
   path="/images/poc/ai_poc/kubernetes_as_a_service/admin-kubeconfig.png"
@@ -187,11 +187,11 @@ kubectl get nodes
 
 Wait until the control plane and worker both show **Ready**. OneKS can report the VM as Running while Kubernetes is still initializing the node.
 
-Keep this administrative kubeconfig for cluster management. Step 5 describes end-user access.
+Keep this administrative kubeconfig for Cluster management. Step 5 describes end-user access.
 
 ### Step 4: Install NVIDIA GPU Operator
 
-Open **Applications** in the cluster details and click **Install Application**.
+Open **Applications** in the Cluster details and click **Install Application**.
 
 {{< image
   path="/images/poc/ai_poc/kubernetes_as_a_service/applications.png"
@@ -212,7 +212,7 @@ Set **Release name** and **Target namespace** to `gpu-operator`. Enable **Create
   alt="Configure the GPU Operator release name and target namespace" align="center" width="90%" mb="20px"
 >}}
 
-Wait until the application is **Ready** and the cluster is **Running**.
+Wait until the application is **Ready** and the Cluster is **Running**.
 
 {{< image
   path="/images/poc/ai_poc/kubernetes_as_a_service/gpu-operator-ready.png"
@@ -350,6 +350,6 @@ For LLM model deployment and consumption through LiteLLM, use the separate [Toke
 
 Completing this guide covers these PoC success criteria:
 
-* [AI-SC7]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#managed-kubernetes" %}}): Deploy a GPU-enabled Kubernetes cluster.
+* [AI-SC7]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#managed-kubernetes" %}}): Deploy a GPU-enabled Kubernetes Cluster.
 * [AI-SC8]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#managed-kubernetes" %}}): Schedule a Kubernetes GPU workload.
 * [AI-SC9]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#managed-kubernetes" %}}): Validate NVIDIA GPU Operator integration.
