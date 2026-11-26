@@ -4,6 +4,8 @@
 
 baseURL = "https://docs.opennebula.io/devel/"
 
+timeout = "6000s"
+
 #######
 
 capitalizeListTitles = "false"
