@@ -75,6 +75,15 @@ apt-get install --only-upgrade opennebula opennebula-gate opennebula-flow openne
 
 RHEL
 
+On AlmaLinux 9 and RHEL 9 the OpenNebula packages require Ruby 3.3, which replaces the default Ruby 3.0 of the distribution. When upgrading from OpenNebula 7.4 or older, enable the `ruby:3.3` module stream first. Ruby is then upgraded together with the OpenNebula packages:
+
+```bash
+dnf -y module enable ruby:3.3
+```
+
+{{< alert title="Important" type="warning" >}}
+Without the `ruby:3.3` module stream enabled, the upgrade fails on unresolved dependencies with a message similar to `package ruby-libs-3.3... is filtered out by modular filtering`. No package is changed in that case: enable the stream and run the upgrade again. Do not use the `--nobest` or `--skip-broken` options suggested by the package manager, the OpenNebula packages would only be skipped and left in the old version.{{< /alert >}}
+
 ```bash
 yum upgrade opennebula opennebula-gate opennebula-flow opennebula-fireedge opennebula-form opennebula-guacd opennebula-migration python3-pyone
 ```
@@ -229,6 +238,12 @@ apt-get install --only-upgrade opennebula-node-<hypervisor>
 ```
 
 RHEL
+
+On AlmaLinux 9 and RHEL 9 enable the `ruby:3.3` module stream first, the same way as on the Front-end:
+
+```bash
+dnf -y module enable ruby:3.3
+```
 
 ```bash
 yum upgrade opennebula-node-<hypervisor>

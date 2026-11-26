@@ -53,6 +53,17 @@ rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhe
 {{% /tab %}}
 {{< /tabpane >}}
 
+<a id="frontend-ruby-el9"></a>
+
+On AlmaLinux 9 and RHEL 9 the default Ruby version (3.0) is too old for OpenNebula, which requires Ruby 3.3 from the `ruby:3.3` module stream. Enable the stream before installing the packages:
+
+```shell
+dnf -y module enable ruby:3.3
+```
+
+{{< alert title="Note" type="info" >}}
+This step is not needed on AlmaLinux 10 and RHEL 10. The same applies to the hypervisor Nodes running AlmaLinux 9 or RHEL 9.{{< /alert >}}
+
 ## Step 3. Installing the Software
 
 Available packages for OpenNebula clients, the Front-end and hypervisor nodes:
