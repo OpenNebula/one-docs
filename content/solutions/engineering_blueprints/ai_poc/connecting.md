@@ -13,7 +13,7 @@ When participating in a hosted Proof of Concept trial of the OpenNebula system, 
 
 This guide is part of the AI Factory PoC service provided by OpenNebula. If you are not already participant in an AI Factory PoC process, please [contact the sales team at OpenNebula](https://opennebula.io/contact/) to arrange it.
 
-You connect with an OpenVPN profile file plus a personal username and password; setup takes about 5 minutes on any OS. Your PoC contact will send you an email containing credentials to connect to the infrastructure via VPN and the credentials for 2 OpenNebula user accounts to use during the PoC. 
+You connect with an OpenVPN profile file plus a personal username and password; setup takes about 5 minutes on any OS. Your PoC contact will send you the VPN credentials and the credentials for the OpenNebula **ncp-operator** account.
 
 ### What You Receive From Us
 
@@ -22,7 +22,7 @@ You connect with an OpenVPN profile file plus a personal username and password; 
 * Your **password**, sent through a separate channel from the file
 * The IP address of the server hosting the OpenNebula Front-end control plane
 
-You will also receive credentials for two OpenNebula user accounts named **ncp-operator** and **vm-tenant-admin** and **llm-tenant-admin**. These are not required to complete this VPN connection guide. They will be required to log into the Sunstone web GUI after connecting via VPN at the start of the [User Access and Management Guide]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}}). 
+After connecting to the VPN, use **ncp-operator** to sign into Sunstone. Follow [Creating and Configuring Tenants]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}}) to create the tenant groups and their administrator accounts.
 
 ### What You Need
 
@@ -122,7 +122,7 @@ The information provided by your OpenNebula PoC contact includes the IP address 
   alt="Sunstone login" align="center" width="50%" mb="20px"
 >}}
 
-If you can see this login prompt, you are ready to proceed with the guides in this section, starting with [User Access and Management]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}}). 
+If you can see this login prompt, continue with [Creating and Configuring Tenants]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}}).
 
 ## Troubleshooting
 

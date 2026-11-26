@@ -1,172 +1,271 @@
 ---
-title: "Deploying a GPU-enabled Virtual Machine"
-linkTitle: "GPU Virtual Machines"
+title: "GPU as a Service"
+linkTitle: "GPU as a Service"
 description: ""
 weight: 4
 ---
 
-Having explored OpenNebula's multitenancy model in the [previous guide]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions" %}}), you can now move on to exploring OpenNebula's AI capabilities by deploying a GPU-enabled Virtual Machine. 
+Use this guide to provide a GPU-enabled virtual machine with the vLLM appliance. The NCP operator prepares the service, the tenant administrator deploys and manages the VM, and the end user sends requests through the API or web chat.
 
-This guide uses the OpenNebula [vLLM Appliance](https://github.com/OpenNebula/one-apps/wiki/vllm_intro), which enables the deployment of a low-latency, high-throughput LLM inferencing engine capable of hosting many different LLM models. 
+| Role | Interface | Work |
+| --- | --- | --- |
+| NCP operator | Sunstone **Admin** view | Import the appliance, configure its GPU template, and grant tenant access. |
+| Tenant administrator | Sunstone **VMs view** | Create and manage the GPU VM, select a model, and provide the service addresses. |
+| End user | vLLM API or web chat | Send inference requests to the deployed model. |
 
 ## Before Starting
 
-You will be using the following OpenNebula user account for this guide, ensure you have the credentials at hand:
+Connect to the PoC VPN as described in the [Connection Guide]({{% relref "solutions/engineering_blueprints/ai_poc/connecting/" %}}). The **ncp-operator** must complete [Multitenancy]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}}) for the VM service. This creates the group, administrator, network, VDC and quotas.
 
-* **vm-tenant-admin**
+This guide uses `vm-tenant` and `vm-tenant-admin` as example names. Use the names configured for your tenant.
 
-This user has been preconfigured with the necessary permissions to complete this guide. A VM template has also been prepared to launch a GPU-enabled VM capable of deploying an LLM model for inference. This user also sees the **VM Tenant** view, which allows access to the VM template and VM management functionality needed to launch and manage the GPU-enabled VM. 
+The assigned host must have a GPU available for PCI passthrough. Have the compatible image/system datastores and tenant network ready. Use the GPU type and VM capacity supplied for your PoC.
 
-Log in with your **vm-tenant-admin** account using the credentials you received before starting step 1. 
+## NCP Operator
 
-## Step 1: Find the vLLM Template
+Sign into Sunstone as **ncp-operator**. This account needs permission to import Marketplace appliances, edit VM templates, and create ACL rules.
 
-Go to **Template -> VM Templates** and find the **vllm** template:
+### Import the vLLM Appliance
 
-{{< image
-  pathDark="/images/poc/ai_poc/dark/poc_vllm_template.png"
-  path="/images/poc/ai_poc/light/poc_vllm_template.png"
-  alt="POC operator view" align="center" width="90%" mb="20px"
->}}
-
-## Step 2: Instantiate the vLLM Template
-
-In **Templates -> VM Templates** select the **vllm** template and press the play icon to instantiate it:
+1. Open **Storage -> Apps**.
+2. Enter `vllm` in the search bar.
+3. Select the appliance that matches the assigned host's hypervisor and CPU architecture, for example **KVM** and **x86_64**. Open its details.
 
 {{< image
-  pathDark="/images/poc/ai_poc/dark/poc_instantiate_vllm.png"
-  path="/images/poc/ai_poc/light/poc_instantiate_vllm.png"
-  alt="POC operator view" align="center" width="90%" mb="20px"
+  path="/images/poc/ai_poc/gpu_as_a_service/marketplace-search.png"
+  alt="Search for vLLM in Sunstone Marketplace Apps and select the matching architecture" align="center" width="90%" mb="20px"
 >}}
 
-Give the VM instance a name, e.g. **vLLM** and press **Next** to advance to the **User inputs** step. 
-
-In this example, we want to use a non-default LLM model for inference. In the **MODEL** section of the **User inputs** page replace the default **Qwen/Qwen2.5-1.5B-Instruct** model with **HuggingFaceTB/SmolLM2-1.7B-Instruct**:
+Click **Import** to open **Download App to OpenNebula**.
 
 {{< image
-  pathDark="/images/poc/ai_poc/dark/poc_llm_model.png"
-  path="/images/poc/ai_poc/light/poc_llm_model.png"
-  alt="POC operator view" align="center" width="90%" mb="20px"
+  path="/images/poc/ai_poc/gpu_as_a_service/marketplace-import-action.png"
+  alt="Open the vLLM Marketplace appliance details and click Import" align="center" width="90%" mb="20px"
 >}}
 
-Press **Next** and then **Finish** to deploy the VM. You will see the **Instances -> VMs** view, where you will see your VM go through the various provisioning stages. 
+In the import wizard:
 
-Once it is RUNNING, click on the vLLM machine item in the list to open its details panel. Click on the **PCI** tab and you will see the attached GPU (in this case the hexadecimal PCI device codes for an NVIDIA L40S):
+1. Set the image name and VM template name, for example `vllm`.
+2. Enable **Export associated VM templates/images**.
+3. Select the image datastore available to the tenant through its VDC.
+4. Complete the import and wait for the image to become **READY**.
+5. Open **Templates -> VM Templates** and find the imported template.
+6. Record its ID and the image IDs referenced by its disks. You will use them when granting tenant access.
 
 {{< image
-  pathDark="/images/poc/ai_poc/dark/poc_pci_device.png"
-  path="/images/poc/ai_poc/light/poc_pci_device.png"
-  alt="POC operator view" align="center" width="90%" mb="20px"
+  path="/images/poc/ai_poc/gpu_as_a_service/appliance-import.png"
+  alt="Import vLLM and its associated VM template" align="center" width="90%" mb="20px"
 >}}
-
-## Step 3: Query the vLLM API and Try the Chat
-
-In **Instances -> VMs**, click on the **vLLM** item in the list to open it's details panel. Wait until the VM has reached the RUNNING state and take a note of its IP address:
 
 {{< image
-  pathDark="/images/poc/ai_poc/dark/poc_vllm_running.png"
-  path="/images/poc/ai_poc/light/poc_vllm_running.png"
-  alt="POC operator view" align="center" width="90%" mb="20px"
+  path="/images/poc/ai_poc/gpu_as_a_service/appliance-datastore.png"
+  alt="Select the tenant-compatible image datastore for the appliance" align="center" width="90%" mb="20px"
 >}}
 
-Use the IP address of the vLLM VM to execute the following command (replace `<VLLM_VM_IP>` with the IP you noted) to query the model:
+### Configure the GPU VM Template
 
-```shell
-curl http://<VLLM_VM_IP>:8000/v1/models | jq .
+1. Open **Infrastructure -> Hosts**, select the assigned GPU host and open **PCI**. Record the available GPU's vendor, device and class identifiers.
+2. Return to **Templates -> VM Templates**, select `vllm` and open its update form.
+3. Set the CPU, memory and disk capacity required by the model that the tenant will run.
+4. Under **Advanced options -> PCI Devices**, click **Attach PCI device**.
+5. Select the GPU's vendor, device and class identifiers. The scheduler can then select an available matching GPU on an assigned host.
+6. Under **Network**, attach a NIC and select the tenant virtual network.
+7. Keep the appliance's contextualization inputs and save the template.
+
+{{< image
+  path="/images/poc/ai_poc/gpu_as_a_service/template-gpu.png"
+  alt="Select the GPU vendor, device and class for the VM template" align="center" width="90%" mb="20px"
+>}}
+
+{{< image
+  path="/images/poc/ai_poc/gpu_as_a_service/template-network.png"
+  alt="Select the tenant network for the template NIC" align="center" width="90%" mb="20px"
+>}}
+
+See [Generic PCI Devices]({{% relref "product/cluster_configuration/pci_passthrough_sriov/generic_devices/#selecting-a-pci-device-in-sunstone" %}}) for the template controls and [NVIDIA GPU Passthrough]({{% relref "product/cluster_configuration/pci_passthrough_sriov/nvidia_gpu_passthrough/" %}}) for host requirements. Host passthrough configuration must already be complete.
+
+### Grant the Tenant Access
+
+Grant access to the **tenant group**, so that its users can use the prepared template and its disk images.
+
+1. Open **System -> ACLs** and click **Create ACL**.
+2. Choose **From Form**.
+3. Set **Apply this rule to** to **A group** and select `vm-tenant`.
+4. Select **Virtual Machine Template** as the resource type.
+5. Set **Scope** to **Identifier** and enter the imported template ID.
+6. Select **USE** as the right and the zone that contains the template.
+7. Review the rule and save it.
+8. Create a rule for each required disk image. Use the same tenant group, resource type **Image**, that image's individual ID, right **USE**, and the same zone.
+
+| Subject | Resource | Right |
+| --- | --- | --- |
+| Tenant group | Specific vLLM VM template (`TEMPLATE`) | `USE` |
+| Tenant group | Each disk image used by the template (`IMAGE`) | `USE` |
+
+Keep the operator as the owner of these resources. For tenant-exclusive access, check existing group/other permissions and ACLs. Remove unintended grants and preserve intentional sharing. Permissions and ACL rules grant access cumulatively.
+
+Template access and image access are both required to create a VM. The tenant also needs VM creation permission and the infrastructure access assigned through its VDC.
+
+See [Managing ACL Rules]({{% relref "product/cloud_system_administration/multitenancy/chmod/#manage-acl" %}}) for resource scope and rule syntax.
+
+{{< image
+  path="/images/poc/ai_poc/gpu_as_a_service/acl-tenant-group.png"
+  alt="Select the tenant group as the ACL subject" align="center" width="90%" mb="20px"
+>}}
+
+{{< image
+  path="/images/poc/ai_poc/gpu_as_a_service/acl-template-summary.png"
+  alt="Review the tenant group USE rule for the specific vLLM template" align="center" width="90%" mb="20px"
+>}}
+
+{{< image
+  path="/images/poc/ai_poc/gpu_as_a_service/acl-image-summary.png"
+  alt="Review the tenant group USE rule for the vLLM disk image" align="center" width="90%" mb="20px"
+>}}
+
+Give the tenant administrator the Sunstone address and account credentials.
+
+## Tenant Administrator
+
+Sign into Sunstone as **vm-tenant-admin**. The **VMs view** provides access to VM templates and VM management.
+
+{{< image
+  path="/images/poc/ai_poc/gpu_as_a_service/tenant-view.png"
+  alt="Tenant administrator signed into the VMs view" align="center" width="90%" mb="20px"
+>}}
+
+### Add Your SSH Public Key
+
+Add your SSH public key to the tenant administrator's profile **before you instantiate the VM**. The appliance uses this key to give you SSH access for administration and troubleshooting.
+
+1. Open the user menu at the bottom left and select **Profile Settings**.
+2. Select **Security** and find the **SSH key** section.
+3. Click the edit icon beside **SSH public key**.
+4. Paste your public key from the laptop, for example the contents of `~/.ssh/id_ed25519.pub`.
+5. Press **Enter** to save it and confirm that the public key is displayed.
+
+Keep the matching private key on your laptop. Use it to connect to the VM over SSH after deployment.
+
+{{< image
+  path="/images/poc/ai_poc/gpu_as_a_service/tenant-ssh-key.png"
+  alt="Add the tenant administrator SSH public key under Profile Settings and Security before VM creation" align="center" width="90%" mb="20px"
+>}}
+
+### Create the GPU VM
+
+1. Open **Templates -> VM Templates** and select the shared `vllm` template.
+2. Click **Instantiate**.
+3. Enter a VM name, for example `vllm_engine`.
+4. Check the selected capacity against the model requirements and the tenant quota.
+5. Continue to **User inputs**.
+6. Set the API port, for example `8000`, and enable **Deploy a web application to interact with the model** if you need the browser chat.
+7. Set the Hugging Face model ID. The example uses the appliance's default `Qwen/Qwen2.5-1.5B-Instruct`.
+8. Supply a Hugging Face authentication token only if the selected model requires one.
+9. Complete the wizard and wait for the VM to reach **RUNNING**.
+
+{{< image
+  path="/images/poc/ai_poc/gpu_as_a_service/tenant-template.png"
+  alt="Shared vLLM template available to the tenant administrator" align="center" width="90%" mb="20px"
+>}}
+
+{{< image
+  path="/images/poc/ai_poc/gpu_as_a_service/vm-create.png"
+  alt="Set the GPU VM name and capacity" align="center" width="90%" mb="20px"
+>}}
+
+{{< image
+  path="/images/poc/ai_poc/gpu_as_a_service/model-inputs.png"
+  alt="Set the vLLM model, API port and web application inputs" align="center" width="90%" mb="20px"
+>}}
+
+The model must fit the GPU memory, VM memory and disk capacity assigned to the service. Model download and initialization can continue after the VM reaches **RUNNING**.
+
+### Check the VM and Provide the Service Addresses
+
+1. Open **Instances -> VMs** and select the new VM.
+2. Confirm that it is **RUNNING** and record its IP address.
+3. Open **PCI** and confirm that the assigned GPU is attached.
+4. Give the end user the API address, model ID and web chat address.
+
+For the example ports, the addresses are:
+
+* API base URL: `http://<VLLM_VM_IP>:8000/v1`.
+* Web chat: `http://<VLLM_VM_IP>:5000`.
+
+Use the ports configured for the appliance. Complete the end-user checks below before handing over a ready service.
+
+{{< image
+  path="/images/poc/ai_poc/gpu_as_a_service/vm-running.png"
+  alt="Running GPU VM owned by the tenant administrator" align="center" width="90%" mb="20px"
+>}}
+
+{{< image
+  path="/images/poc/ai_poc/gpu_as_a_service/vm-pci.png"
+  alt="Running tenant VM with its attached GPU in the PCI tab" align="center" width="90%" mb="20px"
+>}}
+
+### Manage the VM
+
+To stop and start the VM, use **Poweroff** and **Resume** in the VM actions. The inference service is unavailable while the VM is off. After resuming, allow time for the model to initialize.
+
+When the service is no longer required, select the VM's **Delete** action and choose **Terminate**. Wait for termination to complete. If your PoC has one GPU, terminate this VM before assigning that GPU to another VM or a Kubernetes worker.
+
+## End User
+
+Get the API base URL, model ID and web chat address from the tenant administrator. Connect to the PoC VPN. Use a browser for the chat and `curl` for API requests.
+
+### Check the Available Model
+
+Replace `<VLLM_VM_IP>` with the supplied VM address:
+
+```bash
+export VLLM_API_URL="http://<VLLM_VM_IP>:8000/v1"
+curl -fsS "$VLLM_API_URL/models"
 ```
 
-{{< alert title="Note" type="info" >}}
-You may receive *Connection refused* warnings on the command line, this does not necessarily indicate a problem, it most likely means that the vLLM API is still initializing. If you continue to have connection problems after 10 mins, please message your OpenNebula PoC contact.
-{{< /alert >}}
+Wait until the service responds and the `data` list contains the model. A connection error can occur while the appliance is starting. Ask the tenant administrator to check the service if initialization does not complete.
 
-Eventually you will receive a response similar to the following:
+A model entry contains its ID, for example:
 
 ```json
 {
   "object": "list",
   "data": [
-    {
-      "id": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
-      "object": "model",
-      "created": 1793869992,
-      "owned_by": "vllm",
-      "root": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
-      "parent": null,
-      "max_model_len": 1024,
-      "permission": [
-        {
-          "id": "modelperm-8b3c55714a9139cc",
-          "object": "model_permission",
-          "created": 1793869992,
-          "allow_create_engine": false,
-          "allow_sampling": true,
-          "allow_logprobs": true,
-          "allow_search_indices": false,
-          "allow_view": true,
-          "allow_fine_tuning": false,
-          "organization": "*",
-          "group": null,
-          "is_blocking": false
-        }
-      ]
-    }
+    {"id": "Qwen/Qwen2.5-1.5B-Instruct", "object": "model"}
   ]
 }
 ```
 
-{{< alert title="Note" type="info" >}}
-If the response `data` attribute is an empty list, it most likely means that the model has not loaded. A large model may take time to download. Keep querying the API until you see a similar response with a non-empty `data` attribute.
-{{< /alert >}}
+### Send an Inference Request
 
-Once you have confirmed that the model is loaded through the API, you can then access the web chat. Visit `http://<VLLM_VM_IP>:5000` in a separate browser tab and enter a prompt:
+Use the model ID returned by `/v1/models`. This example uses `Qwen/Qwen2.5-1.5B-Instruct`:
 
-{{< image
-  path="/images/poc/ai_poc/vllm_chat.png"
-  alt="POC operator view" align="center" width="80%" mb="20px"
->}}
+```bash
+curl -fsS "$VLLM_API_URL/chat/completions" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "messages": [{"role": "user", "content": "What is OpenNebula?"}],
+    "max_tokens": 128
+  }'
+```
 
-## Step 4: Try Cycling the vLLM Appliance (Optional)
+The response contains the model's answer under `choices[0].message.content`.
 
-Go back to **Instances -> VMs** and find the vLLM Appliance instance in the list. Click on the list item to open its information panel. Open the **VM state** drop-down menu and select **Poweroff**:
+### Use the Web Chat
 
-{{< image
-  pathDark="/images/poc/ai_poc/dark/poc_vllm_reboot.png"
-  path="/images/poc/ai_poc/light/poc_vllm_reboot.png"
-  alt="POC operator view" align="center" width="90%" mb="20px"
->}}
-
-Once the VM has reached the POWEROFF state, try querying the API or the web chat as you did in step 3, you will find that the API won't respond, since the vLLM appliance is now powered down.
-
-Now from the **VM state** dropdown select **Resume**:
+Open the supplied chat URL, for example `http://<VLLM_VM_IP>:5000`. Enter a prompt and wait for the answer.
 
 {{< image
-  pathDark="/images/poc/ai_poc/dark/poc_vllm_resume.png"
-  path="/images/poc/ai_poc/light/poc_vllm_resume.png"
-  alt="POC operator view" align="center" width="90%" mb="20px"
+  path="/images/poc/ai_poc/gpu_as_a_service/end-user-chat.png"
+  alt="An end user receives an answer from the vLLM web chat" align="center" width="90%" mb="20px"
 >}}
-
-The VM will power up and reboot, after a few minutes, you should be able to query the API and access the web chat again as you did in step 3.
 
 ## Next Steps
 
-Congratulations! You have deployed a GPU-enabled Virtual Machine on OpenNebula and deployed an LLM GPU workload through the vLLM framework. 
-
-**If you are using a server with only one available GPU**: Before moving onto the next guide, you should terminate the vLLM instance to ensure that the GPU is free for the Kubernetes Cluster you will deploy. In **Instances -> VMs**, select the vLLM VM instance and select the **Delete** option with the red dustbin icon:
-
-{{< image
-  pathDark="/images/poc/ai_poc/dark/poc_delete.png"
-  path="/images/poc/ai_poc/light/poc_delete.png"
-  alt="POC operator view" align="center" width="50%" mb="20px"
->}}
-
-From the drop-down menu select **Terminate**, then confirm termination in the modal dialog. Wait until the VM is fully terminated before moving to the next guide. Note that **Poweroff** and **Suspend** actions do not necessarily free up a VM's resources, it is necessary to use the termination action to ensure the resources are free.
-
-
-You can now move on to the next guide: [Deploying a OneKS Kubernetes Cluster]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_k8s/" %}}).
+Use the [OneKS Guide]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_k8s/" %}}) for GPU workloads on Kubernetes, or the [OneLLM Guide]({{% relref "solutions/engineering_blueprints/ai_poc/ai_inference/" %}}) for model deployments with LiteLLM.
 
 ## PoC Success Criteria
 
-Completing this guide fulfills the following PoC success criteria:
-
-* [AI-SC2]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#gpu-instances" %}}): Deploy a VM with GPU resources
-* [SC14]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#virtual-machine-administration" %}}): Use of power options on a VM (Start / Stop / Reboot / etc.)
+* [AI-SC2]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#gpu-instances" %}}): Deploy a VM with GPU resources.
+* [SC14]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#virtual-machine-administration" %}}): Use VM power actions.
