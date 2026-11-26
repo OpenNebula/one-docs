@@ -487,22 +487,38 @@ A fallback directs requests to another model when the primary backend fails.
 
 #### Prepare the Fallback Model
 
-Use another ready OneLLM deployment as the fallback. To create one, repeat Step 5 with the deployment name `gemma4-backup`. You can reuse the same model artifact. Wait for **RUNNING** and automatic publication in LiteLLM.
+Use another ready OneLLM deployment as the fallback. To create one, repeat Step 5 with the deployment name `fallback`. You can reuse the same model artifact. Wait for **RUNNING** and automatic publication in LiteLLM.
 
 Both deployments must fit the available GPU and RAM capacity. If only one GPU is available, your PoC contact must first configure GPU sharing and suitable model memory budgets.
 
-Add `gemma4-backup` to the user's **Personal Models** and the key's **Models** list.
+Add `fallback` to the user's **Personal Models** and the key's **Models** list.
 
 #### Set the Global Fallback
 
-Open **Settings -> Router Settings -> Fallbacks** in the LiteLLM administrator UI.
+Open **Settings -> Router Settings** in the LiteLLM administrator UI.
 
-1. Click **Add Fallbacks**.
-2. Select `gemma4` as **Primary Model**.
-3. Add `gemma4-backup` to the **Fallback Chain**.
-4. Click **Save All Configurations**.
+{{< image
+  path="/images/poc/ai_poc/token_factory/litellm-router-settings.png"
+  alt="Open Router Settings in the LiteLLM administrator UI" align="center" width="90%" mb="20px"
+>}}
 
-> **Screenshot reference ADMIN-12:** the primary model, ordered fallback chain and saved global mapping.
+Select **Fallbacks**, then click **Add Fallbacks**.
+
+{{< image
+  path="/images/poc/ai_poc/token_factory/litellm-fallbacks.png"
+  alt="Select the Fallbacks tab and click Add Fallbacks" align="center" width="90%" mb="20px"
+>}}
+
+In **Configure Model Fallbacks**:
+
+1. Select `gemma4` as **Primary Model**.
+2. Add `fallback` to the **Fallback Chain**.
+3. Click **Save All Configurations**.
+
+{{< image
+  path="/images/poc/ai_poc/token_factory/litellm-fallback-configuration.png"
+  alt="Configure gemma4 with fallback as the first model in its fallback chain" align="center" width="90%" mb="20px"
+>}}
 
 #### Set a Key-Specific Fallback
 
@@ -514,8 +530,6 @@ Open **Settings -> Router Settings -> Fallbacks** in the LiteLLM administrator U
 Key router settings take precedence over team settings, which take precedence over global defaults. Team router settings provide another scope when you use teams.
 
 See the [key and team router-settings guide](https://docs.litellm.ai/docs/proxy/keys_teams_router_settings) for additional options.
-
-> **Screenshot reference ADMIN-13:** a key's Router Settings with its fallback chain.
 
 ### Step 9: Inspect Performance in Grafana
 
@@ -661,9 +675,9 @@ Open **Playground** and use the chat interface.
 3. Paste your key into the masked **Enter custom Virtual Key** field.
 4. Keep **Custom Proxy Base URL** on the LiteLLM installation supplied by your administrator.
 5. Select `gemma4`.
-6. Send: `Reply with just the number: what is 1 + 1?`
+6. Send: `What is OpenNebula`
 
-The answer should contain `2`; wording can vary. This request uses your virtual API key rather than relying only on the UI session.
+The model should return a description of OpenNebula. This request uses your virtual API key rather than relying only on the UI session.
 
 To test with your signed-in account, select **Current UI Session**. To test a particular API key, select **Virtual Key** as described above.
 
@@ -692,9 +706,9 @@ curl --fail-with-body "$LITELLM_BASE_URL/v1/chat/completions" \
   -d '{
     "model": "gemma4",
     "messages": [
-      {"role": "user", "content": "Reply with just the number: what is 1 + 1?"}
+      {"role": "user", "content": "What is OpenNebula"}
     ],
-    "max_tokens": 32,
+    "max_tokens": 256,
     "temperature": 0
   }'
 
@@ -711,9 +725,10 @@ Open **Usage** and select **Your Usage**. Choose a time range that includes your
 
 In **Overview**, select **Tokens** or **Requests** for the daily-usage chart. Use **Model Activity** to inspect a particular model. Records can take a short time to appear after completion.
 
-> **Screenshot reference USER-05:** token/request usage charts for the consumer and a selected model.
-
-This guide uses consumption counts rather than costs. For request-performance analysis across models, ask your administrator to use the Grafana dashboard. LiteLLM's usage view and the Grafana performance view serve different purposes.
+{{< image
+  path="/images/poc/ai_poc/token_factory/litellm-user-usage.png"
+  alt="LiteLLM end-user usage summary and daily token chart" align="center" width="90%" mb="20px"
+>}}
 
 ### Troubleshooting
 
@@ -728,5 +743,3 @@ This guide uses consumption counts rather than costs. For request-performance an
 | HTTP `429` | Wait for the rate-limit window and reduce traffic. Ask which user, key or team limit applies. Do not create keys to bypass a user-wide limit. |
 | Backend or timeout error | Report the public model name, time and request identifier to the administrator, without the key. |
 | Usage is not visible yet | Check the time range and Your Usage selection, then allow processing time and refresh. |
-
-The administrator's [model access, limits and fallback procedures](#tenant-administrator) explain the service controls.
