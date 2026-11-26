@@ -111,3 +111,18 @@ In OpenNebula 7.4.2, `onezone serversync` also synchronizes `/etc/one/oneform-se
 ## Veeam Incremental Checkpoints
 
 OpenNebula 7.4.2 marks deleted oVirtAPI checkpoints invalid and rejects incremental backups based on invalid or outdated checkpoints. Custom integrations must use the latest OpenNebula checkpoint. If that checkpoint has been invalidated or is unavailable, request a new full backup instead.
+
+## Ruby 3.3 on AlmaLinux 9 and RHEL 9
+
+Starting with OpenNebula 7.4.3, the packages for AlmaLinux 9 and RHEL 9 are built for Ruby 3.3 instead of the distribution default Ruby 3.0. Ruby 3.3 comes from the `ruby:3.3` module stream of the AppStream repository, which has to be enabled before the installation or upgrade of the Front-end and the hypervisor Nodes:
+
+```shell
+dnf -y module enable ruby:3.3
+```
+
+Take into account the following:
+
+* The module stream replaces the system Ruby, i.e., `/usr/bin/ruby` is Ruby 3.3 after the upgrade. Review any other Ruby software running on the Front-end and the hypervisor Nodes.
+* The upgrade fails on unresolved dependencies if the stream is not enabled, see the [upgrade guide]({{% relref "upgrading_single#upgrade-single" %}}).
+* Custom drivers, hooks and other integrations running on the Front-end need to be compatible with Ruby 3.3.
+* The hypervisor Nodes need Ruby 3.3 as well, the Node packages depend on the bundled Ruby gems built for it.
