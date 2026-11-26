@@ -5,11 +5,11 @@
   border-radius: 8px;
   border-collapse: separate;
   border-spacing: 0;
-  overflow: hidden;
+  overflow-x: auto;
   border: var(--border-width-sm, 1px) solid var(--table-border-color);
-  display: table;
+  display: block;
   table-layout: auto !important;
-  width: auto;
+  width: fit-content;
   max-width: 100%;
 }
 
