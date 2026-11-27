@@ -111,3 +111,11 @@ In OpenNebula 7.4.2, `onezone serversync` also synchronizes `/etc/one/oneform-se
 ## Veeam Incremental Checkpoints
 
 OpenNebula 7.4.2 marks deleted oVirtAPI checkpoints invalid and rejects incremental backups based on invalid or outdated checkpoints. Custom integrations must use the latest OpenNebula checkpoint. If that checkpoint has been invalidated or is unavailable, request a new full backup instead.
+
+<a id="sles15-ruby34"></a>
+
+## Ruby 3.4 on SUSE Linux Enterprise Server 15
+
+Starting with OpenNebula 7.4.3, the packages for SUSE Linux Enterprise Server 15 run on Ruby 3.4 (`ruby3.4` package from the Basesystem module, available since SP7) instead of the distribution default Ruby 2.5. The new Ruby is installed automatically as a package dependency and all OpenNebula services, commands, and drivers use it, so no action is required.
+
+The system default `/usr/bin/ruby` remains Ruby 2.5. Custom Ruby scripts, hooks, or drivers that load the OpenNebula Ruby libraries must be run with `/usr/bin/ruby.ruby3.4`.
