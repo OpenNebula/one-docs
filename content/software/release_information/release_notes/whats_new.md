@@ -55,6 +55,7 @@ List of new issues solved in OpenNebula 7.6.
 * Fix groupadmin vm configuration file [#7766](https://github.com/OpenNebula/one/issues/7766).
 * Fix Host monitoring and driver failures caused by inconsistent remote script paths and cleanup of `/var/tmp/one` [#7899](https://github.com/OpenNebula/one/issues/7899).
 * Fix deployment failures for KVM VMs with `FIRMWARE="UEFI"` on ARM64 and x86_64 hosts running SUSE Linux Enterprise Server [#8315](https://github.com/OpenNebula/one/issues/8315).
+* Fix KVM Hosts going into `ERROR` state after several months of libvirt daemon uptime. The KVM monitoring probes opened a new libvirt connection for every `virsh` call, eventually exhausting an internal libvirt counter. The probes now use the libvirt Ruby bindings with a single connection per probe run [#8209](https://github.com/OpenNebula/one/issues/8209).
 
 ### OneSwap
 
