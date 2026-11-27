@@ -323,11 +323,57 @@ dialogs:
     backup: true
 ```
 
+### Configure Advanced VM Filters
+
+The `filters` section in a tab file enables the standard filters supported by that resource table. The Virtual Machines table can also filter by attributes from the complete VM data, including attributes that are not displayed as columns.
+
+Advanced filter definitions are stored separately from view files in `/etc/one/fireedge/sunstone/filters`. FireEdge associates a filter file with a tab through its `resource_name`: the filename is the lowercase resource name followed by `.yaml`. For example:
+
+| **View resource** | **Advanced filter file** |
+| ----------------- | ------------------------ |
+| `resource_name: VM` | `/etc/one/fireedge/sunstone/filters/vm.yaml` |
+| `resource_name: VM-TEMPLATE` | `/etc/one/fireedge/sunstone/filters/vm-template.yaml` |
+
+Filter files are optional. If FireEdge does not find a file for a resource, it continues loading the view with only its standard filters.
+
+The VM filter file contains a YAML list. Each entry supports the following fields:
+
+| **Field**   | **Required** | **Description** |
+| ----------- | ------------ | --------------- |
+| `label` | Yes | Name displayed in the filter selector. Labels are displayed as written and are not translated. |
+| `path`  | Yes | Path to the attribute in the VM data, such as `TEMPLATE/VCPU` or `USER_TEMPLATE/ENVIRONMENT`. The path also serves as the internal identifier. |
+| `type`  | Yes | Attribute type. Supported values are `text` and `number`. |
+
+For example, the following configuration makes the Virtual CPUs and Environment attributes searchable:
+
+```yaml
+# /etc/one/fireedge/sunstone/filters/vm.yaml
+---
+- label: Virtual CPUs
+  path: TEMPLATE/VCPU
+  type: number
+
+- label: Environment
+  path: USER_TEMPLATE/ENVIRONMENT
+  type: text
+```
+
+The available operators are defined by Sunstone according to the attribute type; they are not configured in the YAML file:
+
+| **Type** | **Available operators** |
+| -------- | ----------------------- |
+| `text` | **Is exactly**, **Starts with**, **Ends with**, and **Contains**. Text comparisons are case-insensitive. |
+| `number` | **Between**, **Is exactly**, **At least**, and **At most**. Numeric values can be negative or decimal. **Between** includes both limits. |
+
+When Sunstone requests `/fireedge/api/sunstone/views`, FireEdge adds the matching definitions to `filters.advanced` without replacing the standard filters from the view file. The VM list evaluates the advanced filters in the browser against the complete VM record. Multiple advanced filters and the standard filters are combined using `AND`, so a VM must satisfy every applied filter.
+
+After editing `vm.yaml`, reload Sunstone so it requests the view configuration again. Open **Instances -> VMs**, open the **Filters** drawer, and select **Add attribute filter** under **Template attributes**.
+
 ### Create new view
 
 To create a new view:
 
-> 1. Create a folder with the name of the view in `/etc/one/fireedge/sunstone/views`.
-> 2. Add the yaml files for each tab that the view will show.
-> 3. Configure `sunstone-views.yaml` if needed.
-> 4. Update or create a group to use the new view.
+1. Create a folder with the name of the view in `/etc/one/fireedge/sunstone/views`.
+2. Add the YAML files for each tab that the view will show.
+3. Configure `sunstone-views.yaml` if needed.
+4. Update or create a group to use the new view.
