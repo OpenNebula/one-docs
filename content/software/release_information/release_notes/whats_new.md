@@ -36,6 +36,10 @@ This page will contain the list of new features in OpenNebula 7.6.0.
 
 - Add [OpenVDDK support]({{% relref "software/migration_from_vmware/oneswap.md#vddk-transfer-support" %}}) as an open-source alternative to VMware VDDK, reducing vendor lock-in. Introduce `--vddk-config` to enable custom VDDK tuning for both implementations, including Delta base disk transfers [#8159](https://github.com/OpenNebula/one/issues/8159).
 
+## Packaging
+
+- OpenNebula packages for SUSE Linux Enterprise Server 15 now use Ruby 3.4 instead of the distribution default Ruby 2.5 (see the [Compatibility Guide]({{% relref "compatibility#sles15-ruby34" %}})).
+
 ## Features Backported to 7.4.x
 
 Additionally, the following functionalities are present that were not in OpenNebula 7.4.0, although they debuted in subsequent maintenance releases of the 7.4.x series:
