@@ -1,6 +1,6 @@
 ---
-title: "Token Factory (OneLLM)"
-linkTitle: "Token Factory (OneLLM)"
+title: "Token Factory"
+linkTitle: "Token Factory"
 description: ""
 weight: 6
 aliases:
@@ -8,7 +8,7 @@ aliases:
   - /solutions/engineering_blueprints/ai_poc/ai_inference/end_user/
 ---
 
-Use **OneLLM** to deploy models on Kubernetes, **LiteLLM** to manage consumer access, and **Grafana** to inspect request performance. The NCP operator prepares the tenant resources, the tenant administrator provides the inference service, and the end user consumes assigned models.
+Use **OneLLM** to provide Token Factory on OneKS Kubernetes clusters. Deploy models with OneLLM, manage consumer access with **LiteLLM**, and inspect request performance with **Grafana**. The NCP operator prepares the tenant resources, the tenant administrator provides the inference service, and the end user consumes assigned models.
 
 | **Role** | **Interface** | **Work** |
 | --- | --- | --- |
@@ -33,15 +33,17 @@ Sign into Sunstone as **ncp-operator**. Prepare the shared infrastructure before
 
 ### Step 1: Prepare the Tenant
 
-Follow [Multitenancy]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}}) for the **OneLLM** service profile:
+Follow [Multitenancy]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}}) for the **Token Factory** service profile:
 
 1. Create the tenant group and its administrator, for example `llm-tenant` and `llm-tenant-admin`.
 2. Assign **AI Operator view** to the group members and group administrator, with the resource-creation permissions required by OneLLM.
 3. Complete the shared [OneKS and OneLLM network preparation]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/#kubernetes-services-oneks-and-onellm" %}}). Prepare the public IPv4 and ETHER ranges and the private network.
-4. Assign the intended Hosts, datastores and networks through the tenant VDC. Remove the tenant from the default VDC and grant access to the selected physical OpenNebula Cluster as described in that guide.
+4. Assign the intended Hosts, datastores and networks through the tenant VDC. Grant access to the selected physical OpenNebula Cluster as described in that guide.
 5. Set quotas for both Kubernetes Clusters, their control planes, workers and router VMs. Include the required GPU allocation.
 
 The LiteLLM service address must be reachable from the inference Cluster. LiteLLM must be able to reach the inference gateway. Browser-facing service addresses must be reachable through the PoC VPN.
+
+The supplied PoC profile uses an NVIDIA L40S with three time-sliced GPU resources and a vLLM GPU memory utilization of `0.3` per deployment. Use the supplied OneLLM worker profile for the model and fallback examples.
 
 {{< image
   path="/images/poc/ai_poc/token_factory/ai-operator-view-assignment.png"
@@ -340,8 +342,8 @@ In Sunstone, open **OneLLM -> Models** and start the creation wizard.
 | --- | --- |
 | Name | `gemma4` |
 | Publisher | `Google` |
-| Description | `Quantized instruction model for the inference evaluation` |
-| Source | `huggingface` |
+| Description | Leave empty |
+| Source | **Huggingface** |
 | `reference` | `google/gemma-4-E2B-it-qat-w4a16-ct` |
 | `revision` | `main` |
 | `token` | Enter a token if repository access requires it; otherwise leave empty |
@@ -440,18 +442,33 @@ You can also assign models during invitation through **Personal Key Creation**.
   alt="Invite an internal user and leave email delivery disabled" align="center" width="90%" mb="20px"
 >}}
 
-After the user completes onboarding, open that user in **Internal Users** and select **Details -> Edit Settings**. Add `gemma4` under **Personal Models** and save the settings before the user creates a key or tests the model. Use specific models for restricted access. **All Proxy Models** grants broader access. Repeat this procedure when you need to change access later.
-
-An existing virtual API key can have a narrower model list. After you grant another model to the user, check the key's **Models** list too.
+After the user completes onboarding, open that user in **Internal Users**. Select **Details**, then click **Edit Settings**.
 
 {{< image
   path="/images/poc/ai_poc/token_factory/litellm-user-details.png"
   alt="Open the invited user details and Edit Settings" align="center" width="90%" mb="20px"
 >}}
 
+Under **Personal Models**, select `gemma4` and save the settings. Complete this assignment before the user creates a key or tests the model. Select specific models for restricted access. Repeat this procedure when you need to change access later.
+
+{{< image
+  path="/images/poc/ai_poc/token_factory/litellm-user-model-limits.png"
+  alt="Select gemma4 under Personal Models in the user's Edit Settings form" align="center" width="90%" mb="20px"
+>}}
+
+The same form contains the RPM and TPM fields used in Step 7. An existing virtual API key can have a narrower model list; after granting another model, check the key's **Models** list too.
+
 The OpenNebula tenant account and the LiteLLM consumer account are independent.
 
 With the new account, the user follows the [End User section](#end-user) to create a personal virtual API key and test `gemma4`.
+
+#### Check Consumer Model Access
+
+To validate separate model permissions, repeat Step 5 to create a second deployment named `gemma4-b`. Invite a second consumer, for example `tenant2@example.com`. Assign only `gemma4` to the first consumer and only `gemma4-b` to the second consumer.
+
+Ask each consumer to use their personal key with the command-line request in the End User section. A request for their assigned model must return HTTP `200`. Repeat with the same key and the other deployment's public name; it must return HTTP `403`. Use the actual second deployment so that the check tests access to an existing model.
+
+These checks validate LiteLLM consumer model permissions. OpenNebula tenant resources are assigned separately through Multitenancy. Run the checks within the configured RPM and TPM limits.
 
 ### Step 7: Configure Request and Token Limits
 
@@ -466,11 +483,6 @@ With the new account, the user follows the [End User section](#end-user) to crea
 5. Save the settings.
 
 These limits apply across the user's personal keys.
-
-{{< image
-  path="/images/poc/ai_poc/token_factory/litellm-user-model-limits.png"
-  alt="Assign gemma4 as Personal Model and set TPM 10000 and RPM 2" align="center" width="90%" mb="20px"
->}}
 
 #### Set Key Limits
 
@@ -489,7 +501,7 @@ A fallback directs requests to another model when the primary backend fails.
 
 Use another ready OneLLM deployment as the fallback. To create one, repeat Step 5 with the deployment name `fallback`. You can reuse the same model artifact. Wait for **RUNNING** and automatic publication in LiteLLM.
 
-Both deployments must fit the available GPU and RAM capacity. If only one GPU is available, your PoC contact must first configure GPU sharing and suitable model memory budgets.
+Use the supplied GPU-sharing and memory-budget settings described in the NCP Operator section. Keep one replica per deployment and ensure that the models fit the available GPU and RAM capacity.
 
 Add `fallback` to the user's **Personal Models** and the key's **Models** list.
 
@@ -579,6 +591,18 @@ Use the **model** filter for the requested public model name. Use the **user** f
 | Failed requests per second | Request failures recorded by LiteLLM |
 | Output tokens by user and model | Token totals grouped by the exported consumer and requested-model labels |
 
+#### Check GPU-backed Inference
+
+Use the inference cluster's kubeconfig to observe its GPU while an end user sends model requests from the Playground or API:
+
+```bash
+kubectl --kubeconfig "$ONELLM_KUBECONFIG" -n gpu-operator \
+  exec daemonset/nvidia-driver-daemonset -c nvidia-driver-ctr -- \
+  nvidia-smi --query-gpu=name,memory.total,memory.used,utilization.gpu --format=csv
+```
+
+Repeat the command during requests and record GPU memory use and utilization. The PoC GPU is an NVIDIA L40S. This check observes the inference worker; the LiteLLM Grafana dashboard shows requests through the gateway.
+
 ### Model Deployment Deletion
 
 Delete model deployments from **OneLLM -> Deployments** in Sunstone. Their corresponding LiteLLM entries are removed automatically through background synchronization.
@@ -666,27 +690,27 @@ The key's model list can be narrower than your account's permissions. If the adm
 
 A personal key is not a team key. Team keys have separate team membership and key-creation requirements. Ask your administrator before changing scope.
 
-### Step 4: Test the Key in Playground
+### Step 4: Test a Model in Playground
 
 Open **Playground** and use the chat interface.
 
 1. Open **Configurations**.
-2. Set **Virtual Key Source** to **Virtual Key**.
-3. Paste your key into the masked **Enter custom Virtual Key** field.
-4. Keep **Custom Proxy Base URL** on the LiteLLM installation supplied by your administrator.
+2. Set **Virtual Key Source** to **Current UI Session**.
+3. Leave **Custom Proxy Base URL** empty to use the current LiteLLM installation.
+4. Select `/v1/chat/completions` as **Endpoint Type**.
 5. Select `gemma4`.
 6. Send: `What is OpenNebula`
 
-The model should return a description of OpenNebula. This request uses your virtual API key rather than relying only on the UI session.
-
-To test with your signed-in account, select **Current UI Session**. To test a particular API key, select **Virtual Key** as described above.
+The model should return a description of OpenNebula. This test uses your signed-in LiteLLM account.
 
 {{< image
   path="/images/poc/ai_poc/token_factory/litellm-user-playground.png"
   alt="Successful gemma4 response using Current UI Session in the LiteLLM Playground" align="center" width="90%" mb="20px"
 >}}
 
-If the model list is empty, confirm that the key was entered and that both your account and key permit the model. Refresh after the administrator changes access.
+To test a particular key instead, select **Virtual Key** and paste the key into **Enter custom Virtual Key**. The command-line procedure below also tests your personal key.
+
+If the model list is empty, ask the administrator to confirm your **Personal Models**. In **Virtual Key** mode, also check the key's allowed models. Refresh after access changes.
 
 The [LiteLLM Playground guide](https://docs.litellm.ai/docs/proxy/model_compare_ui) describes additional test options.
 
@@ -721,7 +745,7 @@ Use the LiteLLM address, not the inference Cluster's gateway address. Your virtu
 
 ### Step 6: Review Your Usage
 
-Open **Usage** and select **Your Usage**. Choose a time range that includes your requests.
+Open **Usage** and choose a time range that includes your requests.
 
 In **Overview**, select **Tokens** or **Requests** for the daily-usage chart. Use **Model Activity** to inspect a particular model. Records can take a short time to appear after completion.
 
@@ -736,10 +760,21 @@ In **Overview**, select **Tokens** or **Requests** for the daily-usage chart. Us
 | --- | --- |
 | Invitation does not open | Ask for a valid link with a reachable service origin. Connect to the VPN if required. |
 | Personal key creation is unavailable | Ask the administrator to check your role and personal-key permissions. |
-| Model is absent from Your Models | Ask the administrator to assign the model to your Personal Models. |
-| Model is listed but absent in Playground | Enter the virtual key, check its allowed models and refresh. |
+| Model is absent from Models + Endpoints | Ask the administrator to assign the model to your Personal Models. |
+| Model is listed but absent in Playground | Check the selected Virtual Key Source and its allowed models, then refresh. |
 | HTTP `401` | Check that the key is correct, active and not expired or revoked. |
 | HTTP `403` | Check the public model name and ask the administrator to verify account/key model permissions. |
 | HTTP `429` | Wait for the rate-limit window and reduce traffic. Ask which user, key or team limit applies. Do not create keys to bypass a user-wide limit. |
 | Backend or timeout error | Report the public model name, time and request identifier to the administrator, without the key. |
-| Usage is not visible yet | Check the time range and Your Usage selection, then allow processing time and refresh. |
+| Usage is not visible yet | Check the time range in Usage, then allow processing time and refresh. |
+
+## PoC Success Criteria
+
+Use the [Token Factory success criteria]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#token-factory" %}}) to record the evaluation results:
+
+* [AI-SC13]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#token-factory" %}}): Deploy an LLM Inference Service. Confirm that the OneLLM deployment reaches **RUNNING**.
+* [AI-SC14]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#token-factory" %}}): Access the Inference API. Send an authorized request with a personal key and confirm a successful response.
+* [AI-SC15]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#token-factory" %}}): Validate Tenant Isolation for Inference Services. The allowed-model and denied-model checks verify LiteLLM consumer permissions. Complete the separate OpenNebula tenant/resource and direct-backend isolation checks before marking the full criterion complete.
+* [AI-SC16]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#token-factory" %}}): Validate GPU-backed Inference. Observe the inference GPU while requests are active.
+* [AI-SC17]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#token-factory" %}}): Measure Token Usage. Check each consumer's token records in LiteLLM.
+* [AI-SC18]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#token-factory" %}}): Monitor the Inference Service. Inspect request metrics in Grafana and GPU activity on the inference worker.

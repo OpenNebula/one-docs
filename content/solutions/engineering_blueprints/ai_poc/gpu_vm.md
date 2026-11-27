@@ -68,8 +68,8 @@ In the import wizard:
 2. Return to **Templates -> VM Templates**, select `vllm` and open its update form.
 3. Set the CPU, memory and disk capacity required by the model that the tenant will run.
 4. Under **Advanced options -> PCI Devices**, click **Attach PCI device**.
-5. Select the GPU's vendor, device and class identifiers. The scheduler can then select an available matching GPU on an assigned Host.
-6. Under **Network**, attach a NIC and select the tenant virtual network.
+5. Keep **Specific device** disabled. Select the assigned GPU under **Device name**. Confirm that **Device**, **Vendor** and **Class** match the Host's GPU, then click **Continue**. The scheduler can then select an available matching GPU on an assigned Host.
+6. Under **Network**, attach a NIC and select the tenant virtual network. Complete the remaining steps in the NIC wizard.
 7. Keep the appliance's contextualization inputs and save the template.
 
 {{< image
@@ -185,12 +185,19 @@ The model must fit the GPU memory, VM memory and disk capacity assigned to the s
 1. Open **Instances -> VMs** and select the new VM.
 2. Confirm that it is **RUNNING** and record its IP address.
 3. Open **PCI** and confirm that the assigned GPU is attached.
-4. Give the end user the API address, model ID and web chat address.
+4. Connect from your laptop with the private key that matches the public key in your profile. For the example profile key, replace `<VLLM_VM_IP>` with the VM address and run:
+
+   ```bash
+   ssh -i "$HOME/.ssh/id_ed25519" "root@<VLLM_VM_IP>" nvidia-smi
+   ```
+
+   Confirm that the command lists the assigned GPU and its memory. If the GPU is not detected, ask the NCP operator to check the passthrough configuration before continuing.
+5. Give the end user the API base URL and model ID. If you enabled the web application, also give the end user its address.
 
 For the example ports, the addresses are:
 
 * API base URL: `http://<VLLM_VM_IP>:8000/v1`.
-* Web chat: `http://<VLLM_VM_IP>:5000`.
+* Web chat, if enabled: `http://<VLLM_VM_IP>:5000`.
 
 Use the ports configured for the appliance. Complete the end-user checks below before handing over a ready service.
 
@@ -206,20 +213,20 @@ Use the ports configured for the appliance. Complete the end-user checks below b
 
 ### Manage the VM
 
-To stop and start the VM, use **Poweroff** and **Resume** in the VM actions. The inference service is unavailable while the VM is off. After resuming, allow time for the model to initialize.
+To stop the VM, select **Poweroff** in the VM actions and wait for **POWEROFF**. To start it again, select **Resume** and wait for **RUNNING**. The inference service is unavailable while the VM is off. Allow time for the model to initialize, then repeat the available-model and inference-request checks below.
 
 When the service is no longer required, select the VM's **Delete** action and choose **Terminate**. Wait for termination to complete. If your PoC has one GPU, terminate this VM before assigning that GPU to another VM or a Kubernetes worker.
 
 ## End User
 
-Get the API base URL, model ID and web chat address from the tenant administrator. Connect to the PoC VPN. Use a browser for the chat and `curl` for API requests.
+Get the API base URL and model ID from the tenant administrator. Connect to the PoC VPN and use `curl` for API requests. If the administrator supplies a web chat address, you can also use a browser.
 
 ### Check the Available Model
 
-Replace `<VLLM_VM_IP>` with the supplied VM address:
+Set `VLLM_API_URL` to the API base URL supplied by the tenant administrator, including the configured port and `/v1`, for example `http://<VLLM_VM_IP>:8000/v1`:
 
 ```bash
-export VLLM_API_URL="http://<VLLM_VM_IP>:8000/v1"
+export VLLM_API_URL="<API_BASE_URL>"
 curl -fsS "$VLLM_API_URL/models"
 ```
 
@@ -254,7 +261,7 @@ The response contains the model's answer under `choices[0].message.content`.
 
 ### Use the Web Chat
 
-Open the supplied chat URL, for example `http://<VLLM_VM_IP>:5000`. Enter a prompt and wait for the answer.
+If the web application is enabled, open the supplied chat URL, for example `http://<VLLM_VM_IP>:5000`. Enter a prompt and wait for the answer.
 
 {{< image
   path="/images/poc/ai_poc/gpu_as_a_service/end-user-chat.png"
@@ -263,7 +270,7 @@ Open the supplied chat URL, for example `http://<VLLM_VM_IP>:5000`. Enter a prom
 
 ## Next Steps
 
-Continue to the [OneKS Guide]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_k8s/" %}}) for GPU workloads on Kubernetes, or the [OneLLM Guide]({{% relref "solutions/engineering_blueprints/ai_poc/ai_inference/" %}}) for model deployments with LiteLLM.
+Continue to [Kubernetes as a Service]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_k8s/" %}}) for GPU workloads on Kubernetes, or [Token Factory]({{% relref "solutions/engineering_blueprints/ai_poc/ai_inference/" %}}) for shared model access through LiteLLM.
 
 ## PoC Success Criteria
 

@@ -1,5 +1,5 @@
 ---
-title: "Kubernetes as a Service with OneKS"
+title: "Kubernetes as a Service"
 linkTitle: "Kubernetes as a Service"
 description: ""
 weight: 5
@@ -21,7 +21,7 @@ This guide uses `k8s-tenant` and `k8s-tenant-admin` as example names. Use the na
 
 The PoC must provide an available GPU, a worker flavour configured for GPU passthrough, and the **NVIDIA GPU Operator** application. The tenant administrator and end user need `kubectl` on their local machines. Follow the [Kubernetes installation instructions](https://kubernetes.io/docs/tasks/tools/) for your operating system. Use a client version compatible with the Cluster.
 
-For LLM inference through LiteLLM, follow [Token Factory (OneLLM)]({{% relref "solutions/engineering_blueprints/ai_poc/ai_inference/" %}}). That service uses OneLLM Ready to install its GPU software stack. This page describes the standalone Kubernetes service.
+For LLM inference through LiteLLM, follow [Token Factory]({{% relref "solutions/engineering_blueprints/ai_poc/ai_inference/" %}}). That service uses OneLLM Ready to install its GPU software stack. This page describes the standalone Kubernetes service.
 
 ## NCP Operator
 
@@ -31,10 +31,10 @@ Sign into Sunstone as **ncp-operator**. Complete the shared [Kubernetes network 
 
 1. Open **Templates -> VM Templates** and find the OneKS appliance template supplied for the PoC.
 2. Record its template ID.
-3. Open its disk configuration and record the ID of each backing image.
-4. Confirm that these images are **READY** and stored in an image datastore available to the tenant through its VDC.
+3. Open **Storage -> Images**, find the OneKS appliance image and record its image ID.
+4. Confirm that the image is **READY** and stored in an image datastore available to the tenant through its VDC.
 
-The appliance template and images can remain owned by the NCP operator. Use ACLs to give the tenant access.
+The appliance template and image can remain owned by the NCP operator. Use ACLs to give the tenant access.
 
 ### Grant the Tenant Appliance Access
 
@@ -48,18 +48,35 @@ In **System -> ACLs**, create a rule with these settings:
 | Rights | **Use** |
 | Zone | The zone that contains the appliance |
 
-Review the summary and click **Finish**. Use the template ID from your installation, for example `88`.
+Use the template ID from your installation, for example `88`.
+
+{{< image
+  path="/images/poc/ai_poc/kubernetes_as_a_service/acl-template-group.png"
+  alt="Select A group and the k8s-tenant group as the ACL subject" align="center" width="90%" mb="20px"
+>}}
+
+{{< image
+  path="/images/poc/ai_poc/kubernetes_as_a_service/acl-template-resource.png"
+  alt="Select Virtual Machine Template as the ACL resource type" align="center" width="90%" mb="20px"
+>}}
+
+{{< image
+  path="/images/poc/ai_poc/kubernetes_as_a_service/acl-template-identifier.png"
+  alt="Select Identifier scope and enter the OneKS appliance template ID 88" align="center" width="90%" mb="20px"
+>}}
+
+Review the summary and click **Finish**.
 
 {{< image
   path="/images/poc/ai_poc/kubernetes_as_a_service/acl-template-summary.png"
   alt="Grant the Kubernetes tenant USE access to the OneKS appliance template" align="center" width="90%" mb="20px"
 >}}
 
-Create a second rule for each backing image. Keep **A group** set to `k8s-tenant`, select **Image**, set **Resource identifier** to **Identifier**, enter the image ID, and grant **Use** in the same zone.
+Create a second rule for the OneKS appliance image. Keep **A group** set to `k8s-tenant`, select **Image**, set **Resource identifier** to **Identifier**, enter the image ID, and grant **Use** in the same zone.
 
 For an operator-owned image, use its specific ID. Selecting the tenant under resource scope **Group** grants access to tenant-owned images and does not share this appliance image.
 
-The image example selects **Identifier** and enters image ID `27`. Use the image ID recorded from your appliance template.
+The image example selects **Identifier** and enters image ID `27`. Use the image ID recorded from **Storage -> Images**.
 
 {{< image
   path="/images/poc/ai_poc/kubernetes_as_a_service/acl-image-identifier.png"
@@ -93,10 +110,16 @@ Open **Kubernetes -> K8S Clusters** and click **Create Kubernetes Cluster**.
 3. Select the private network, for example `k8s-private`.
 4. Select the Kubernetes version. For this example, use `v1.35.0`.
 5. Select **Single-Node Control Plane** for this PoC.
-6. Review **User inputs**. For this example, use one control-plane VM with **8192 MiB** of memory.
+6. Review **User inputs** with the example values below.
 7. Click **Finish**.
 
-If the wizard asks for an OpenNebula Cluster, select the physical Cluster assigned to the tenant. This is the infrastructure where the Kubernetes VMs will run.
+| **User input** | **Example value** |
+| --- | --- |
+| Count | `1` |
+| CPU | `2` |
+| Virtual CPU | `2` |
+| Memory | `8192` MiB |
+| Disk Size | `16384` MiB |
 
 {{< image
   path="/images/poc/ai_poc/kubernetes_as_a_service/cluster-general.png"
@@ -142,9 +165,16 @@ Select the Cluster and open **Node Groups**. Click **Create Node Group**.
 1. Enter a name, for example `gpu-pool`.
 2. Select **OneLLM Workers** as the GPU-enabled family.
 3. Select **Large OneLLM Worker Nodes** as the flavour.
-4. Set **Count** to `1` and review the CPU, memory and disk inputs.
+4. Set **Count** to `1` and review the remaining example inputs below.
 5. Click **Finish** and follow progress in **Logs**.
-6. Wait until the Cluster and node group return to **Running**.
+
+| **User input** | **Example value** |
+| --- | --- |
+| Count | `1` |
+| CPU | `16` |
+| Virtual CPU | `16` |
+| Memory | `32768` MiB |
+| Disk Size | `131072` MiB |
 
 {{< image
   path="/images/poc/ai_poc/kubernetes_as_a_service/worker-family.png"
@@ -161,35 +191,16 @@ Select the Cluster and open **Node Groups**. Click **Create Node Group**.
   alt="Create one GPU worker with the assigned CPU, memory and disk resources" align="center" width="90%" mb="20px"
 >}}
 
-Open the node group's VM and select **PCI**. Confirm that the assigned GPU appears in the device list. An NVIDIA L40S has vendor `10de`, device `26b9` and class `0302`.
+When the node group's VM is **Running**, open it and select **PCI**. The Cluster can still show **Scaling** while OneKS completes worker provisioning. Confirm that the assigned GPU appears in the device list. An NVIDIA L40S has vendor `10de`, device `26b9` and class `0302`.
 
 {{< image
   path="/images/poc/ai_poc/kubernetes_as_a_service/worker-pci.png"
   alt="GPU device attached to the Kubernetes worker VM" align="center" width="90%" mb="20px"
 >}}
 
-### Step 3: Retrieve the Administrative Kubeconfig
+Wait until the Cluster and node group return to **Running** before continuing.
 
-Return to the Cluster details and open **Kubeconfig**. Copy the configuration and save it on your laptop as `oneks-admin.conf`.
-
-{{< image
-  path="/images/poc/ai_poc/kubernetes_as_a_service/admin-kubeconfig.png"
-  alt="OneKS Kubeconfig tab and copy action for the tenant administrator" align="center" width="90%" mb="20px"
->}}
-
-In the directory that contains the file, run:
-
-```shell
-chmod 600 oneks-admin.conf
-export KUBECONFIG="$PWD/oneks-admin.conf"
-kubectl get nodes
-```
-
-Wait until the control plane and worker both show **Ready**. OneKS can report the VM as Running while Kubernetes is still initializing the node.
-
-Keep this administrative kubeconfig for Cluster management. Step 5 describes end-user access.
-
-### Step 4: Install NVIDIA GPU Operator
+### Step 3: Install NVIDIA GPU Operator
 
 Open **Applications** in the Cluster details and click **Install Application**.
 
@@ -219,6 +230,25 @@ Wait until the application is **Ready** and the Cluster is **Running**.
   alt="NVIDIA GPU Operator application Ready in the Kubernetes cluster" align="center" width="90%" mb="20px"
 >}}
 
+### Step 4: Retrieve the Administrative Kubeconfig
+
+Return to the Cluster details and open **Kubeconfig**. Copy the configuration and save it on your laptop as `oneks-admin.conf`.
+
+{{< image
+  path="/images/poc/ai_poc/kubernetes_as_a_service/admin-kubeconfig.png"
+  alt="OneKS Kubeconfig tab and copy action for the tenant administrator" align="center" width="90%" mb="20px"
+>}}
+
+In the directory that contains the file, run:
+
+```shell
+chmod 600 oneks-admin.conf
+export KUBECONFIG="$PWD/oneks-admin.conf"
+kubectl get nodes
+```
+
+Wait until the control plane and worker both show **Ready**. OneKS can report the VM as Running while Kubernetes is still initializing the node.
+
 Check the GPU software and resources with the administrative kubeconfig:
 
 ```shell
@@ -229,9 +259,13 @@ kubectl get nodes \
 
 Wait for the running GPU Operator workloads to become Ready. Validation Pods can finish with **Completed** status. The GPU worker must report a positive value for `nvidia.com/gpu` before the user submits the test.
 
+Keep this administrative kubeconfig for Cluster management. Step 5 describes end-user access.
+
 ### Step 5: Provide End-User Access
 
 Use [Multi-tenant Access to OneKS Managed Kubernetes Clusters]({{% relref "platform_services/oneks/management/multi_tenant/" %}}) to prepare the user's Kubernetes identity, namespace, permissions and kubeconfig.
+
+In that procedure, use `oneks-admin.conf` wherever it shows `admin.conf`. Use your assigned namespace, for example `gpu-workloads`, instead of `tenant-acme`. Create independent user credentials and save the user's kubeconfig as `oneks-user.conf` for this guide.
 
 For the VectorAdd procedure, the user needs permission to create, get, list, watch, patch, update and delete Jobs; get, list and watch Pods and Events; and read Pod logs in the assigned namespace. These permissions belong in Kubernetes RBAC. A Sunstone view does not grant Kubernetes API access.
 
@@ -296,7 +330,7 @@ kubectl -n "$WORKLOAD_NAMESPACE" apply -f vector-add.yaml
 kubectl -n "$WORKLOAD_NAMESPACE" get pods -l job-name=cuda-vectoradd -w
 ```
 
-The Pod changes to **Completed**. The PoC test produced this output:
+The Pod changes to **Completed**. Example output:
 
 ```default
 NAME                   READY   STATUS              RESTARTS   AGE
@@ -344,7 +378,7 @@ This removes the test Job and its Pod and releases the GPU resource for another 
 
 The tenant administrator can manage node groups and applications in OneKS. End users can submit other workloads within their assigned Kubernetes permissions and available resources.
 
-For LLM model deployment and consumption through LiteLLM, use the separate [Token Factory (OneLLM)]({{% relref "solutions/engineering_blueprints/ai_poc/ai_inference/" %}}).
+For LLM model deployment and consumption through LiteLLM, use the separate [Token Factory]({{% relref "solutions/engineering_blueprints/ai_poc/ai_inference/" %}}).
 
 ## PoC Success Criteria
 

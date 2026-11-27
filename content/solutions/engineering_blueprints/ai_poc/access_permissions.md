@@ -5,7 +5,7 @@ description: ""
 weight: 3
 ---
 
-This guide shows how to create tenants for three services in OpenNebula: **GPU as a Service**, **Kubernetes as a Service (OneKS)** and **Token Factory (OneLLM)**.
+This guide shows how to create tenants for three services in OpenNebula: **GPU as a Service**, **Kubernetes as a Service** and **Token Factory**. Kubernetes as a Service uses OneKS. Token Factory uses OneLLM and LiteLLM.
 
 As **ncp-operator**, create each tenant's group and administrator, assign the service view, associate infrastructure resources through a VDC, and set quotas.
 
@@ -81,6 +81,19 @@ The view selects the Sunstone interface. The permissions determine which operati
 5. Add an IPv4 address range. Set the first address and size to an available range in your infrastructure.
 6. Set the subnet mask, gateway and DNS for that network, then save it.
 
+Use the following network settings for this PoC:
+
+| **Setting** | **Value** |
+| --- | --- |
+| OpenNebula Cluster | `default` (`0`) |
+| Driver | **Bridged** |
+| Physical device | `enp33s0f2np2` |
+| Custom bridge name | `br0` |
+| First IPv4 address / size | `10.16.6.120` / `20` |
+| Network mask | `255.255.255.0` |
+| Gateway | `10.16.6.1` |
+| DNS | `8.8.8.8` |
+
 The address range supplies IP addresses for the tenant's VMs. In Step 4, add this network to the tenant's VDC to grant access to it.
 
 See [Defining and Managing Virtual Networks]({{% relref "product/cluster_configuration/networking_system/manage_vnets/" %}}) for driver and address range settings.
@@ -120,6 +133,8 @@ A VDC associates the tenant group with the infrastructure that it can use.
 
 5. Save the VDC.
 
+For this PoC, select Host `10.16.6.18` and datastores `system`, `default` and `files`.
+
 Select individual Hosts, datastores and networks to control the allocation. Selecting an entire OpenNebula Cluster also gives access to that Cluster's networks and datastores.
 
 {{< image
@@ -147,19 +162,6 @@ Open the saved VDC and confirm that it contains `vm-tenant` and the selected res
 {{< image
   path="/images/poc/ai_poc/multitenancy/vdc-saved-group.png"
   alt="Tenant group associated with its saved VDC" align="center" width="90%" mb="20px"
->}}
-
-### Remove Access Through the Default VDC
-
-OpenNebula adds every new group to the **default** VDC automatically. Remove this membership so that `vm-tenant` uses the resource allocation you just configured:
-
-1. In **System -> VDCs**, select **default** and open its update form.
-2. In **Groups**, deselect `vm-tenant`.
-3. Save the change and confirm that `vm-tenant` is no longer listed in that VDC.
-
-{{< image
-  path="/images/poc/ai_poc/multitenancy/vdc-default-group.png"
-  alt="Default VDC after removing the tenant group" align="center" width="90%" mb="20px"
 >}}
 
 The VDC grants access to infrastructure. It does not reserve a physical GPU. See [VDCs]({{% relref "product/cloud_system_administration/multitenancy/manage_vdcs/" %}}) for more details.
@@ -192,11 +194,11 @@ To create a tenant for another service, repeat Steps 1 to 5 with these names and
 | **Service** | **Tenant group** | **Group administrator** | **Sunstone view** | **VDC** |
 | --- | --- | --- | --- | --- |
 | Kubernetes as a Service | `k8s-tenant` | `k8s-tenant-admin` | **OneKS view** | `k8s-tenant-vdc` |
-| Token Factory (OneLLM) | `llm-tenant` | `llm-tenant-admin` | **AI Operator view** | `llm-tenant-vdc` |
+| Token Factory | `llm-tenant` | `llm-tenant-admin` | **AI Operator view** | `llm-tenant-vdc` |
 
 ### Permissions and Views
 
-In Step 2, under **Permissions - Create**, select **VMs**, **Image**, **Template**, **Virtual router** and **Platform Resources**. Clear the other creation options. Keep the **Permissions - View** options cleared for this example.
+In Step 2, under **Permissions - Create**, select **VMs**, **Image**, **Template**, **Virtual router**, **Security group** and **Platform Resources**. Clear the other creation options. Keep the **Permissions - View** options cleared for this example.
 
 OneKS creates images, VM templates, virtual routers and VMs for the Kubernetes infrastructure. **Platform Resources** includes the documents used for Clusters, node groups, models and deployments. VM creation permission is required for both services.
 
@@ -229,6 +231,15 @@ For OneLLM, use this procedure for the LiteLLM service Cluster and the inference
 2. Associate it with the physical OpenNebula Cluster that will Host the Kubernetes VMs.
 3. Configure the bridge or VLAN, subnet mask, gateway and DNS supplied for the infrastructure.
 4. In **Address Ranges**, confirm that the IPv4 range has free addresses for Cluster access and LoadBalancer Services.
+
+Use the public-network driver, bridge, mask, gateway and DNS from the VM network procedure, with these IPv4 ranges:
+
+| **Service** | **Public network** | **First IPv4 address** | **Size** |
+| --- | --- | --- | --- |
+| Kubernetes as a Service | `k8s-public` | `10.16.6.40` | `20` |
+| Token Factory | `llm-public` | `10.16.6.100` | `20` |
+
+Create the IPv4 range first, then add the ETHER range below.
 
 {{< image
   path="/images/poc/ai_poc/multitenancy/kubernetes-public-ipv4.png"
@@ -266,7 +277,7 @@ The PoC CCM uses IPv4 range **ID 0** for service IP addresses and ETHER range **
 
 The private network must connect all Hosts where the Cluster VMs can run. A bridge without an uplink connects VMs on one Host only. For multiple Hosts, use the shared Layer 2 network prepared for the infrastructure. See [OneKS network configuration]({{% relref "platform_services/oneks/getting_started/basic_configuration/" %}}).
 
-For example, create `k8s-private` on physical OpenNebula Cluster `0` with bridge `natbr0`. Use the Cluster and bridge configured for your infrastructure.
+In this PoC, create each private network on OpenNebula Cluster `0` with the **Bridged** driver and bridge `natbr0`.
 
 {{< image
   path="/images/poc/ai_poc/multitenancy/kubernetes-private-general.png"
@@ -278,7 +289,12 @@ For example, create `k8s-private` on physical OpenNebula Cluster `0` with bridge
   alt="Select the Bridged driver and the prepared private bridge" align="center" width="90%" mb="20px"
 >}}
 
-For example, set the first address to `192.168.160.1`, the size to `254` and the mask to `255.255.255.0`. Leave **Gateway** empty. Use a private subnet available in your environment.
+Use these private IPv4 ranges, with mask `255.255.255.0` and **Gateway** empty:
+
+| **Service** | **Private network** | **First IPv4 address** | **Size** |
+| --- | --- | --- | --- |
+| Kubernetes as a Service | `k8s-private` | `192.168.160.1` | `254` |
+| Token Factory | `llm-private` | `192.168.150.2` | `253` |
 
 {{< image
   path="/images/poc/ai_poc/multitenancy/kubernetes-private-address-range.png"
@@ -309,7 +325,7 @@ Also grant the tenant group **USE** on the physical OpenNebula Cluster that the 
 4. Set **Scope** to **Identifier** and select the specific Cluster ID.
 5. Select the **USE** right and save the rule.
 
-This rule lets the wizard read the Cluster. The VDC determines the Host, network and datastore allocation. Remove the tenant group from the **default** VDC as described in Step 4.
+This rule lets the wizard read the Cluster. The VDC determines the Host, network and datastore allocation.
 
 In Step 5, size the CPU, memory and VM quotas for all the Kubernetes VMs required by the service. The PCI quota applies to GPUs attached to workers. A worker can use one GPU for several model deployments when GPU sharing is configured.
 
@@ -319,12 +335,13 @@ Give the tenant administrator the Sunstone address, username and password, and t
 
 * [GPU as a Service]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_vm/" %}}): as **ncp-operator**, import the appliance, configure its GPU VM template, and grant `vm-tenant` access. The tenant administrator then creates the VM.
 * [Kubernetes as a Service]({{% relref "solutions/engineering_blueprints/ai_poc/gpu_k8s/" %}}): grant `k8s-tenant` access to the OneKS appliance. The tenant administrator then creates the Kubernetes Cluster.
-* [Token Factory (OneLLM)]({{% relref "solutions/engineering_blueprints/ai_poc/ai_inference/" %}}): grant `llm-tenant` access to the OneKS appliance. The tenant administrator then creates the service and inference Clusters.
+* [Token Factory]({{% relref "solutions/engineering_blueprints/ai_poc/ai_inference/" %}}): grant `llm-tenant` access to the OneKS appliance. The tenant administrator then creates the service and inference Clusters.
 
 ## PoC Success Criteria
 
-Completing this guide fulfills the following PoC success criteria:
+This guide covers the configuration steps for these PoC success criteria:
 
 * [SC16]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#platform-administration" %}}): Create additional users.
 * [SC17]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#platform-administration" %}}): Create additional groups.
+* [SC19]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#platform-administration" %}}): Create a VDC and assign it to a group.
 * [SC20]({{% relref "solutions/engineering_blueprints/ee_poc/poc_success_criteria/#platform-administration" %}}): Create and assign quotas to groups.

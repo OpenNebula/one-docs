@@ -7,11 +7,11 @@ weight: 2
 
 ---
 
-When participating in a hosted Proof of Concept trial of the OpenNebula system, you will be given access to hosted infrastructure via VPN. This guide details the steps to connect to the VPN with the credentials provided to you by your OpenNebula PoC contact.
+Use this guide to connect to the hosted PoC infrastructure through the VPN. Then sign into Sunstone as **ncp-operator** to create tenants for GPU as a Service, Kubernetes as a Service or Token Factory.
 
 ## Before Starting
 
-This guide is part of the AI Factory PoC service provided by OpenNebula. If you are not already participant in an AI Factory PoC process, please [contact the sales team at OpenNebula](https://opennebula.io/contact/) to arrange it.
+This guide is part of the AI Factory PoC service provided by OpenNebula. If you are not already a participant, [contact the OpenNebula sales team](https://opennebula.io/contact/) to arrange it.
 
 You connect with an OpenVPN profile file plus a personal username and password; setup takes about 5 minutes on any OS. Your PoC contact will send you the VPN credentials and the credentials for the OpenNebula **ncp-operator** account.
 
@@ -21,6 +21,7 @@ You connect with an OpenVPN profile file plus a personal username and password; 
 * Your **username**  
 * Your **password**, sent through a separate channel from the file
 * The IP address of the server hosting the OpenNebula Front-end control plane
+* The OpenNebula **ncp-operator** username and password for Sunstone
 
 After connecting to the VPN, use **ncp-operator** to sign into Sunstone. Follow [Creating and Configuring Tenants]({{% relref "solutions/engineering_blueprints/ai_poc/access_permissions/" %}}) to create the tenant groups and their administrator accounts.
 
@@ -48,7 +49,7 @@ Use **OpenVPN Connect**; no route changes are needed.
 
 OpenVPN Connect keeps only one profile active at a time. Connecting to this profile disconnects any other OpenVPN profile you have open.
 
-## MacOS
+## macOS
 
 Use **OpenVPN Connect** or **Tunnelblick**; both work without route changes.
 
@@ -76,8 +77,8 @@ On NetworkManager you must tick one routing option, otherwise you lose internet 
 ### Option A: NetworkManager (Ubuntu, Fedora and Most Desktops)
 
 1. Install the OpenVPN plugin:  
-   * Ubuntu/Debian: sudo apt install network-manager-openvpn-gnome  
-   * Fedora: sudo dnf install NetworkManager-openvpn-gnome  
+   * Ubuntu/Debian: `sudo apt install network-manager-openvpn-gnome`
+   * Fedora: `sudo dnf install NetworkManager-openvpn-gnome`
 2. Open **Settings -> Network -> VPN -> +** **-> Import from file…** and select your `.ovpn` file.  
 3. Enter your **username** and **password** in the Identity tab.  
 4. Open the **IPv4** tab **-> Routes** and tick **Use this connection only for resources on its network**. Do the same in the **IPv6** tab.  
@@ -87,8 +88,8 @@ Same setup from the terminal (replace `<name>` with the connection name the impo
 
 ```shell
 nmcli connection import type openvpn file your-profile.ovpn  
-nmcli connection modify <name> vpn.user-name <username> ipv4.never-default yes ipv6.never-default yes  
-nmcli connection up <name> --ask  
+nmcli connection modify '<name>' vpn.user-name '<username>' ipv4.never-default yes ipv6.never-default yes
+nmcli connection up '<name>' --ask
 ```
 ### Option B: OpenVPN Command Line
 
@@ -107,9 +108,9 @@ A working connection shows a route to `10.16.6.0/24` through the VPN, your norma
 
    | **OS** | **Command** | **Expected** |
    | :---- | :---- | :---- |
-   | Windows (PowerShell) | route print \-4 \| findstr 10.16.6 | a 10.16.6.0 line |
-   | macOS | netstat \-rn \-f inet \| grep 10.16.6 | 10.16.6 via a utun interface |
-   | Linux | ip route \| grep 10.16.6 | 10.16.6.0/24 ... dev tun0 |
+   | Windows (PowerShell) | `route print -4 \| findstr 10.16.6` | a `10.16.6.0` line |
+   | macOS | `netstat -rn -f inet \| grep 10.16.6` | `10.16.6` via a `utun` interface |
+   | Linux | `ip route \| grep 10.16.6` | `10.16.6.0/24 ... dev tun0` |
 
 2. **Internet still works**: Open any website, or run ping 1.1.1.1.  
 3. **PoC endpoint answers:** Ping the IP we shared with you, or open the service in your browser (for example the OpenNebula web UI or the Kubernetes API with kubectl).
