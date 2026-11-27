@@ -137,7 +137,7 @@ $ onehost sync -f
 OneBEX logs are written on each hypervisor to `/var/log/one/onebex.log`.
 {{< /alert >}}
 
-The configuration file defines the OneBEX listen address, logging settings, and Puma web server concurrency limits.
+The configuration file defines the OneBEX listen address, logging settings, per-disk read concurrency, and Puma web server concurrency limits.
 
 ### Server Configuration
 
@@ -158,9 +158,53 @@ The configuration file defines the OneBEX listen address, logging settings, and 
 | **Parameter** | **Default value** | **Description** |
 |-----------|---------------|-------------|
 | `:puma: :min_threads:` | `1` | Minimum number of Puma threads used to handle concurrent OneBEX HTTP requests. |
-| `:puma: :max_threads:` | `4` | Maximum number of Puma threads used to handle concurrent OneBEX HTTP requests. |
+| `:puma: :max_threads:` | `15` | Maximum number of OneBEX HTTP requests that can be handled concurrently across all VM sessions and disks on the hypervisor. Additional requests are queued until a thread is available. |
 
 These limits apply to HTTP requests, not to the number of VM sessions or exported disks.
+
+### Read Concurrency
+
+| **Parameter** | **Default value** | **Description** |
+|-----------|---------------|-------------|
+| `:max_readers:` | `5` | Number of parallel disk-read requests (`GET /images/:TRANSFER_ID`) supported per disk transfer. The exporters return this value as `max_readers` in the `OPTIONS /images/:TRANSFER_ID` response. |
+
+For example, the default concurrency settings in `onebex-server.conf` are:
+
+```yaml
+:puma:
+  :min_threads: 1
+  :max_threads: 15
+
+:max_readers: 5
+```
+
+Set `max_readers` to the number of parallel reads the backup application should issue per disk.
+
+Size `max_threads` for all VM backups that can run simultaneously on the same hypervisor.
+
+**If each VM backup reads multiple disks in parallel**
+
+Multiply the number of simultaneous VM backups by the number of disks read concurrently per VM and by `max_readers`:
+
+```text
+max_threads >= simultaneous VM backups × disks read concurrently per VM × max_readers
+```
+
+For example, if two VM backups each read three disks in parallel and `max_readers` is `5`, set `max_threads` to at least `2 × 3 × 5 = 30`.
+
+**If each VM backup reads one disk at a time**
+
+Multiply the number of simultaneous VM backups by `max_readers`:
+
+```text
+max_threads >= simultaneous VM backups × max_readers
+```
+
+For example, if three VM backups run simultaneously and `max_readers` is `5`, set `max_threads` to at least `3 × 5 = 15`.
+
+{{< alert title="Note" type="info" >}}
+If all threads are busy, additional read requests wait in a queue until a thread becomes available. Backups continue with fewer reads running in parallel. If only one thread is available for reads, requests are served one at a time.
+{{< /alert >}}
 
 ## Integration Datastore
 
@@ -238,7 +282,7 @@ The OneBEX API is consumed by backup integrations. The current API is:
 | `/exporters` | `GET` | Lists the exporter backends available in OneBEX. | `200` |
 | `/export` | `POST` | Starts one or more disk exports for a VM. Requires `VM_ID`, `DS_ID`, and `BACKUP_DIR`. `DISKS` is optional. | `200`, `400`, `404`, `409`, `500`, `503` |
 | `/transfers/:TRANSFER_ID/info` | `GET` | Returns size and format information for a transfer. | `200`, `404`, `500` |
-| `/images/:TRANSFER_ID` | `OPTIONS` | Returns supported image transfer features and concurrency limits. | `200` |
+| `/images/:TRANSFER_ID` | `OPTIONS` | Returns the transfer exporter's supported features and per-disk concurrency limits. | `200`, `404`, `500` |
 | `/images/:TRANSFER_ID/extents` | `GET` | Returns block extent information for a transfer. | `200`, `404`, `500` |
 | `/images/:TRANSFER_ID` | `GET` | Reads a byte range from a transfer. Requires an HTTP `Range` header. | `206`, `400`, `404`, `416`, `500` |
 | `/images/:TRANSFER_ID` | `PUT` | Image write operation. Currently not implemented. | `501` |
@@ -472,8 +516,18 @@ Example for an NBD transfer:
     "flush",
     "zero"
   ],
-  "max_readers": 1,
+  "max_readers": 5,
   "max_writers": 1
+}
+```
+
+The `:max_readers:` value advertises how many `GET /images/:TRANSFER_ID` requests the backup application can issue in parallel for this disk. It is independent of the server-wide `:puma: :max_threads:` limit. See [Read Concurrency](#read-concurrency) for sizing guidance and request queuing behavior.
+
+**`404 Not Found`**
+
+```json
+{
+  "error": "Transfer not found"
 }
 ```
 

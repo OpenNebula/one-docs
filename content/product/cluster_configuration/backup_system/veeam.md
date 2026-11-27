@@ -89,7 +89,8 @@ The required connections are initiated by the Veeam components. Therefore, the f
 
 ### 1. Configure OneBEX
 
-**OneBEX works with the default configuration, no configuration changes are required.** OpenNebula starts OneBEX on demand on the hypervisor during a backup. OneBEX exposes the prepared VM disks directly to Veeam and stops when no transfers remain.
+**OneBEX works with the default configuration.** OpenNebula starts OneBEX on demand on the hypervisor during a backup. OneBEX exposes the prepared VM disks directly to Veeam and stops when no transfers remain.
+
 
 By default, OneBEX listens on all network interfaces (`0.0.0.0`) on HTTP port `13014`. The Veeam Server and Workers must be able to reach this port on every hypervisor that can run VMs backed up by Veeam.
 
@@ -97,10 +98,22 @@ By default, OneBEX listens on all network interfaces (`0.0.0.0`) on HTTP port `1
 OneBEX uses unauthenticated HTTP by default, exposing VM disk data to interception. We recommend [enabling TLS on the Hosts]({{% relref "product/cluster_configuration/backup_system/veeam/#41-configuring-ssl-in-the-hosts" %}}) and restricting OneBEX ports to the Front-end and Veeam Server and Workers. Restore transfers also require restricted network access, see [Restoring Interactive Backups]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}).
 {{< /alert >}}
 
-To use a different bind address or port, or adjust settings such as the number of threads or OneBEX logging, see [Configuring OneBEX]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#configuring-onebex" %}}) for the available options and instructions for updating them.
+To increase OneBEX performance during parallel Veeam backups, configure these settings in `onebex-server.conf`:
 
-{{< alert title="OneBEX new configuration" type="info" >}}
-If you change the OneBEX address or port, use those custom values when applying the [Firewall Configuration](#firewall-configuration).
+- `:max_readers:`: Keep the default of `5` parallel reads per disk as a starting point.
+- `:puma: :max_threads:`: Set the maximum number of HTTP requests OneBEX can handle simultaneously using the formula below.
+
+Multiply the number of parallel backup tasks configured on your Veeam worker by `max_readers`:
+```text
+max_threads = Veeam worker tasks × max_readers
+```
+
+For example, if your Veeam worker is configured for six parallel backup tasks, use `max_readers: 5` and `max_threads: 30`.
+
+If `Veeam worker tasks × max_readers` is greater than `max_threads`, backups still work, but parallelism can be reduced because excess requests are queued. See [Read Concurrency]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#read-concurrency" %}}) for details.
+
+{{< alert title="Configure OneBEX" type="info" >}}
+To apply these settings or change the address, port, or logging, follow [Configuring OneBEX]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#configuring-onebex" %}}). If you change the address or port, update the [firewall rules](#firewall-configuration) accordingly.
 {{< /alert >}}
 
 ### 2. Enable VM Guest Agent Monitoring
