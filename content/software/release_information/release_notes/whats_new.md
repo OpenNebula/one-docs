@@ -16,6 +16,7 @@ This page will contain the list of new features in OpenNebula 7.6.0.
 
 - [Port Mirroring]({{% relref "port_mirroring" %}}) on Open vSwitch networks supports SPAN, RSPAN, GRE, and ERSPAN destinations, source NIC selection, VLAN filtering, and live updates through dedicated API and CLI operations.
 - Restricted-attribute configuration can now [protect a complete vector attribute]({{% relref "oned#oned-conf-restricted-attributes-configuration" %}}), such as `DISK`, `NIC`, or `PCI`, without listing each attribute within the vector separately.
+- PCI passthrough devices can now [retain their physical PCIe switch grouping]({{% relref "product/cluster_configuration/pci_passthrough_sriov/generic_devices.md#preserving-pcie-switch-topology" %}}) inside Virtual Machines running on KVM by sharing a `SWITCH` label. [#8280](https://github.com/OpenNebula/one/issues/8280)
 
 ## Sunstone
 - Redesigned multi-step creation forms with a responsive layout, adaptive step navigation, and a dedicated creation header with progress and cancellation controls [#8038](https://github.com/OpenNebula/one/issues/8038).

@@ -308,6 +308,7 @@ Each PCI device reported by the monitor contains the following attributes:
 | `PF_ADDRESS`    | String  | VF, if parent found | Full monitored `ADDRESS` of the parent PF (e.g., `0000:81:00:0`).                                               |
 | `PF_IFNAME`     | String  | Network VF, if parent found | Interface name of the parent PF (e.g., `pf0`).                                                         |
 | `PASSTHROUGH`   | String  | Always              | Eligibility for PCI passthrough: `YES` or `NO`. A PF with enabled VFs has `NO`.                                 |
+| `PCIE_SWITCH`   | String  | If detected         | PCI address of the nearest upstream PCIe switch (e.g., `0000:12:00.0`)                                           |
 | `ESWITCH_MODE`  | String  | Network PF, if available | PF e-switch mode, such as `legacy` or `switchdev`. Omitted if the probe cannot retrieve it through `devlink`. |
 | `PROFILES`      | String  | NVIDIA vGPU VF only | Available hardware profile(s), comma-separated (e.g., `1145 (NVIDIA L40S-1B),1146 (NVIDIA L40S-2B)`)           |
 | `UUID`          | String  | NVIDIA vGPU VF only | Deterministic SHA1-based identifier derived from the PCI address                                               |

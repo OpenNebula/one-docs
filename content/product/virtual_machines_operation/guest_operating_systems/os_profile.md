@@ -356,6 +356,7 @@ NICs are configured under `Network→NIC` and PCI devices under `Network→PCI`{
 | →→ DEVICE        | string | PCI device ID                | Hexadecimal string         |
 | →→ VENDOR        | string | PCI vendor ID                | Hexadecimal string         |
 | →→ SHORT_ADDRESS | string | PCI address of the device    | Hexadecimal string         |
+| →→ SWITCH        | string | PCIe switch group label      | Any non-empty string       |
 
 ### Input/Output Configuration
 
