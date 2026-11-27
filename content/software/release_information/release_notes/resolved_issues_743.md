@@ -20,6 +20,7 @@ Include a high level description and a link to the documentation explaining the 
 
 * Add [Ceph VM disk provisioning options]({{% relref "/product/cluster_configuration/storage_system/ceph_ds#tune-vm-disk-provisioning" %}}) to create independent copies of non-persistent RBD format 2 disks and configure concurrent RBD management operations. Administrators can tune disk provisioning for their storage setup using the `CEPH_FULL_COPY` and `CEPH_RBD_CONCURRENT_MANAGEMENT_OPS` VM template attributes.
 * Add Sunstone [profiles]({{% relref "/product/virtual_machines_operation/guest_operating_systems/os_profile" %}}) for NVIDIA GB200 and H100 configurations with one, two, or four GPUs. These profiles pre-fill VM template settings for GPU passthrough, simplifying the creation of GPU-enabled VMs.
+* Display vCPU counts in Sunstone VM cards, lists, and Host VM tables [#8278](https://github.com/OpenNebula/one/issues/8278).
 
 ## Resolved Issues
 
