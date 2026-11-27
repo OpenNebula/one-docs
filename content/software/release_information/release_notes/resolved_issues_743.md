@@ -20,6 +20,7 @@ Include a high level description and a link to the documentation explaining the 
 
 * Add [Ceph VM disk provisioning options]({{% relref "/product/cluster_configuration/storage_system/ceph_ds#tune-vm-disk-provisioning" %}}) to create independent copies of non-persistent RBD format 2 disks and configure concurrent RBD management operations. Administrators can tune disk provisioning for their storage setup using the `CEPH_FULL_COPY` and `CEPH_RBD_CONCURRENT_MANAGEMENT_OPS` VM template attributes.
 * Add Sunstone [profiles]({{% relref "/product/virtual_machines_operation/guest_operating_systems/os_profile" %}}) for NVIDIA GB200 and H100 configurations with one, two, or four GPUs. These profiles pre-fill VM template settings for GPU passthrough, simplifying the creation of GPU-enabled VMs.
+* Add configurable [OneBEX read concurrency]({{% relref "/product/integration_references/infrastructure_drivers_development/interactive_backup#read-concurrency" %}}) through `:max_readers:` and `:puma: :max_threads:`.
 
 ## Resolved Issues
 
@@ -31,7 +32,6 @@ The following issues have been solved in 7.4.3:
 * Fix Group admin user cannot edit his own group in Sunstone [#8162](https://github.com/OpenNebula/one/issues/8162).
 * Fix LDAP authentication and `oneuser login` failures when usernames contain uppercase and special letters [#7377](https://github.com/OpenNebula/one/issues/7377).
 * Fix Veeam upload transfers being reported as `transferring` before the OneBEX writer is ready [#8274](https://github.com/OpenNebula/one/issues/8274).
-* Fix slow OneBEX backups caused by limited parallel reads and per-request process startup [#8265](https://github.com/OpenNebula/one/issues/8265).
 * Fix YAML parsing failures in OneBEX, OneKS, and OneForm with Psych 3.0.2 on SLES 15 SP7 [#8291](https://github.com/OpenNebula/one/issues/8291).
 * Fix slow LogDB purges that block Raft replication in high-availability deployments [#8260](https://github.com/OpenNebula/one/issues/8260).
 * Fix incremental backups failing when a VM has an unselected RAW disk [#8281](https://github.com/OpenNebula/one/issues/8281).

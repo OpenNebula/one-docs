@@ -27,13 +27,14 @@ A new exporter by itself is not sufficient for a storage integration. The matchi
 
 An exporter is a Ruby class under `OneBEX::Exporters`. OneBEX creates an instance for each disk transfer and calls its methods to open the prepared source, describe it, read data from it, and release resources when the transfer ends.
 
-Each exporter must provide these six methods:
+Each exporter must provide these seven methods:
 
 | **Method** | **Responsibility** | **Expected result** |
 | --- | --- | --- |
 | `initialize(config:, logger:)` | Receive the OneBEX configuration and logger. | Initializes the Ruby object. |
 | `start(transfer)` | Validate the disk source, open or start its export, and retain any state needed later. | `true` when ready; raise on failure. |
 | `info(transfer)` | Describe the exposed virtual disk. | A Hash with `:SIZE` in MiB and `:FORMAT`. |
+| `options(transfer)` | Advertise supported transfer features and concurrency limits. | A Hash with `:features`, `:max_readers`, and `:max_writers`. |
 | `blocks(transfer)` | Return the extents relevant to the backup. | An Array of extent Hashes, using byte offsets and lengths. |
 | `data(transfer, range)` | Read bytes from the exposed disk at the requested offset. | A binary String containing exactly the requested number of bytes. |
 | `finish(transfer, force: false)` | Close the export and release exporter-owned resources. | Conventionally `true`; raise on a cleanup failure. |
@@ -46,13 +47,14 @@ For each disk, OneBEX starts the transfer and calls the exporter as the external
 | --- | --- |
 | `POST /export` | Creates the selected disk transfers and starts their exporters. |
 | `GET /transfers/:transfer_id/info` | Calls `info(transfer)`. |
+| `OPTIONS /images/:transfer_id` | Calls `options(transfer)` and returns the transfer's features and concurrency limits. |
 | `GET /images/:transfer_id/extents` | Calls `blocks(transfer)`. |
 | `GET /images/:transfer_id` | Parses the `Range` header and calls `data(transfer, range)`; returns the bytes with HTTP `206`. |
 | `POST /transfer/:transfer_id/finalize` | Finalizes an individual transfer through the transfer manager. |
 | `POST /vms/:vm_id/finish` | Completes the VM export after its transfers have finished. |
 | `POST /vms/:vm_id/cancel` | Cancels the VM export and requests cleanup. |
 
-The exporter must also be ready for repeated calls to `info`, `blocks`, and `data`, which are driven by HTTP requests rather than a single fixed call sequence.
+The exporter must also be ready for repeated calls to `info`, `options`, `blocks`, and `data`, which are driven by HTTP requests rather than a single fixed call sequence. Calls to `data` can run concurrently for the same transfer if `options` allow them.
 
 The API shown here is for reading disk data. In the current OneBEX routes, `PUT /images/:transfer_id` returns `501` (not implemented), and the supported `PATCH` flush operation returns success without invoking an exporter method. A read-only exporter therefore does not need to implement write or flush methods.
 
@@ -121,6 +123,20 @@ mib = 1024 * 1024
 size_mib = (size_bytes + mib - 1) / mib
 ```
 
+#### `options(transfer)`
+
+Return the transfer's supported features and concurrency limits. The built-in exporters use the configured `:max_readers:` value:
+
+```ruby
+{
+    :features    => ['checksum', 'extents', 'flush', 'zero'],
+    :max_readers => @config[:max_readers],
+    :max_writers => 1
+}
+```
+
+`max_readers` advertises the number of parallel `GET` read requests supported per disk transfer. The HTTP route keeps `max_writers` at `1`. See [Read Concurrency]({{% relref "interactive_backup#read-concurrency" %}}) for configuration and server thread sizing.
+
 #### `blocks(transfer)`
 
 Return the disk extent map as an Array. Every extent uses byte offsets and lengths:
@@ -173,7 +189,7 @@ Release whatever `start` allocated: open handles, child processes, sockets, or e
 
 ## Example: A Minimal Exporter
 
-The following implementation is a complete **full-backup example for an already prepared raw, regular file**. It demonstrates the six exporter methods without introducing backend-specific libraries or processes. It does **not** read `qcow2` directly, implement changed-block tracking, or create a consistent VM snapshot. Those responsibilities require an appropriate storage integration and TM driver.
+The following implementation is a complete **full-backup example for an already prepared raw, regular file**. It demonstrates the seven exporter methods without introducing backend-specific libraries or processes. It does **not** read `qcow2` directly, implement changed-block tracking, or create a consistent VM snapshot. Those responsibilities require an appropriate storage integration and TM driver.
 
 ```ruby
 module OneBEX
@@ -211,6 +227,14 @@ module OneBEX
                 {
                     :SIZE   => (size + MIB - 1) / MIB,
                     :FORMAT => 'raw'
+                }
+            end
+
+            def options(_transfer)
+                {
+                    :features    => ['checksum', 'extents', 'flush', 'zero'],
+                    :max_readers => @config[:max_readers],
+                    :max_writers => 1
                 }
             end
 

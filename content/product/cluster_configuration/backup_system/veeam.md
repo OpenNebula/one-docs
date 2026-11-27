@@ -89,34 +89,31 @@ The required connections are initiated by the Veeam components. Therefore, the f
 
 ### 1. Configure OneBEX
 
-Configure OneBEX on every OpenNebula hypervisor that can run VMs backed up by Veeam. OneBEX starts on demand during the backup operation and exposes the prepared disk exports directly to Veeam.
+**OneBEX works with the default configuration.** OpenNebula starts OneBEX on demand on the hypervisor during a backup. OneBEX exposes the prepared VM disks directly to Veeam and stops when no transfers remain.
 
-The Veeam Server and Veeam Backup Appliance must be able to connect to the configured OneBEX address and port on each hypervisor.
+
+By default, OneBEX listens on all network interfaces (`0.0.0.0`) on HTTP port `13014`. The Veeam Server and Workers must be able to reach this port on every hypervisor that can run VMs backed up by Veeam.
 
 {{< alert title="Network Security Risk" type="warning" >}}
-By default, OneBEX uses unauthenticated HTTP on port `13014`. This creates a security risk that VM disk data could be intercepted by a malicious 3rd-party during backup. **Therefore it is recommended to encrypt OneBEX traffic**.
-
-To encrypt OneBEX traffic, configure TLS as described in [Configuring SSL in the Hosts]({{% relref "product/cluster_configuration/backup_system/veeam/#41-configuring-ssl-in-the-hosts" %}}). Restrict the OneBEX ports with firewall rules so they are reachable only from the OpenNebula Front-end and the Veeam Server and Workers. These ports carry raw VM disk data while a backup is running.
-
-During interactive restores, the restore writer listens on all interfaces (`0.0.0.0`) by default. Set the `ONE_BEX_WRITER_ADDR` environment variable in the Front-end to bind it to a specific address. Restrict the restore port range configured by `port_min` and `port_max` to the Front-end nodes that relay restore data because these ports accept raw image data without authentication or encryption.
+OneBEX uses unauthenticated HTTP by default, exposing VM disk data to interception. We recommend [enabling TLS on the Hosts]({{% relref "product/cluster_configuration/backup_system/veeam/#41-configuring-ssl-in-the-hosts" %}}) and restricting OneBEX ports to the Front-end and Veeam Server and Workers. Restore transfers also require restricted network access, see [Restoring Interactive Backups]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#restoring-interactive-backups" %}}).
 {{< /alert >}}
 
-Edit the OneBEX configuration in the OpenNebula remotes directory. Open the file in the following location:
+To increase OneBEX performance during parallel Veeam backups, configure these settings in `onebex-server.conf`:
 
-```default
-/var/lib/one/remotes/etc/onebex/onebex-server.conf
+- `:max_readers:`: Keep the default of `5` parallel reads per disk as a starting point.
+- `:puma: :max_threads:`: Set the maximum number of HTTP requests OneBEX can handle simultaneously using the formula below.
+
+Multiply the number of parallel backup tasks configured on your Veeam worker by `max_readers`:
+```text
+max_threads = Veeam worker tasks × max_readers
 ```
 
-After updating the configuration file, synchronize the Hosts:
+For example, if your Veeam worker is configured for six parallel backup tasks, use `max_readers: 5` and `max_threads: 30`.
 
-```shell
-onehost sync -f
-```
+If `Veeam worker tasks × max_readers` is greater than `max_threads`, backups still work, but parallelism can be reduced because excess requests are queued. See [Read Concurrency]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#read-concurrency" %}}) for details.
 
-For OneBEX parameters and API details, see [Interactive Backup Integrations]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#interactive-backup-integration" %}}).
-
-{{< alert title="High Availability" type="info" >}}
-If using High Availability, any changes to ``/var/lib/one/remotes/etc/onebex/onebex-server.conf`` need to be performed on all frontends.
+{{< alert title="Configure OneBEX" type="info" >}}
+To apply these settings or change the address, port, or logging, follow [Configuring OneBEX]({{% relref "product/integration_references/infrastructure_drivers_development/interactive_backup.md#configuring-onebex" %}}). If you change the address or port, update the [firewall rules](#firewall-configuration) accordingly.
 {{< /alert >}}
 
 ### 2. Enable VM Guest Agent Monitoring
