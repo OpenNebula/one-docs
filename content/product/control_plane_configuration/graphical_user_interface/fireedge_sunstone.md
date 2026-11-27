@@ -37,6 +37,10 @@ Sunstone users can change their current view from the top-right dropdown menu:
 
 They can also configure several options from the [settings tab]({{% relref "#fireedge-sunstone-settings-tab" %}}).
 
+### Sharing Resource Links
+
+Open a resource from its list and select **Copy link** next to **Refresh** in the details drawer. If Sunstone cannot copy the URL automatically, copy it from the **Resource link** field that appears.
+
 <a id="fireedge-sections"></a>
 
 ## Sections

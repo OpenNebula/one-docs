@@ -19,6 +19,7 @@ This page will contain the list of new features in OpenNebula 7.6.0.
 
 ## Sunstone
 - Redesigned multi-step creation forms with a responsive layout, adaptive step navigation, and a dedicated creation header with progress and cancellation controls [#8038](https://github.com/OpenNebula/one/issues/8038).
+- Add [**Copy link**]({{% relref "fireedge_sunstone#sharing-resource-links" %}}) to Sunstone resource drawers. Users can share a direct link that preserves the target resource and zone through sign-in [#8144](https://github.com/OpenNebula/one/issues/8144).
 
 ## API and CLI
 - New parameter `--keep-ha` for CLI command `onezone serversync`, which keeps local [RAFT configuration]({{% relref "frontend_ha.md#server-sync-ha" %}}). Usefull for asymmetric HA deployments.
