@@ -37,3 +37,4 @@ The following issues have been solved in 7.4.3:
 * Fix a Scheduler deadlock over driver pipes when many VMs are pending [#8083](https://github.com/OpenNebula/one/issues/8083).
 * Fix an authorization flaw that allowed group administrators to assign the `server_cipher` or `server_x509` authentication driver.
 * Fix deployment failures for KVM VMs configured to boot with UEFI on ARM64 and x86_64 hosts running SUSE Linux Enterprise Server [#8315](https://github.com/OpenNebula/one/issues/8315).
+* OpenNebula packages for SUSE Linux Enterprise Server 15 now use Ruby 3.4 instead of the distribution default Ruby 2.5 (see the [Compatibility Guide]({{% relref "compatibility#sles15-ruby34" %}})).
