@@ -62,6 +62,12 @@ rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhe
 {{% /tab %}}
 {{< /tabpane >}}
 
+On AlmaLinux 9 and RHEL 9 the default Ruby version (3.0) is too old for OpenNebula, which requires Ruby 3.3 from the `ruby:3.3` module stream. Enable the stream before installing the package:
+
+```shell
+dnf -y module enable ruby:3.3
+```
+
 ### Install OpenNebula LXC Node Package
 
 Execute the following commands to install the OpenNebula LXC Node package:
