@@ -39,3 +39,4 @@ The following issues have been solved in 7.4.3:
 * Fix OneBEX TM client connection issues when an HTTP proxy is configured or the server listens on a wildcard address [#8298](https://github.com/OpenNebula/one/issues/8298).
 * Fix concurrent LVM backups and storage operations interfering with each other [#8282](https://github.com/OpenNebula/one/issues/8282).
 * Fix an authorization flaw that allowed group administrators to assign the `server_cipher` or `server_x509` authentication driver.
+* Fix deployment failures for KVM VMs configured to boot with UEFI on ARM64 and x86_64 hosts running SUSE Linux Enterprise Server [#8315](https://github.com/OpenNebula/one/issues/8315).
