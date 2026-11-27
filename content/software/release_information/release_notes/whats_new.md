@@ -22,6 +22,7 @@ This page will contain the list of new features in OpenNebula 7.6.0.
 
 ## API and CLI
 - New parameter `--keep-ha` for CLI command `onezone serversync`, which keeps local [RAFT configuration]({{% relref "frontend_ha.md#server-sync-ha" %}}). Usefull for asymmetric HA deployments.
+- IP and VCPU are listed now as default columns in the output of `onevm list`
 
 ## OpenNebula Form
 
